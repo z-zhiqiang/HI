@@ -1,8 +1,13 @@
 package zuo.processor.cbi.processor;
 
+import sun.processor.predicate.PredicateItem.PredicateKey;
 import zuo.processor.cbi.site.InstrumentationSites.AbstractSite;
+import zuo.processor.cbi.site.InstrumentationSites.SiteCategory;
 
 public class PredicateItem {
+	public static enum SiteCategory {
+		 BRANCH, FLOAT_KIND, RETURN, SCALAR_PAIR
+	}
 	
 	public static enum BranchPredicateType {
 		// tow branches
@@ -73,6 +78,7 @@ public class PredicateItem {
 			break;
 		}
 		case SCALAR_PAIR: {
+			System.out.println(type);
 			tp = ReturnScalarPairPredicateType.values()[type].toString();
 			break;
 		}
@@ -81,7 +87,7 @@ public class PredicateItem {
 		}
 		
 		StringBuilder string = new StringBuilder();
-		string.append("(").append(id).append(", ").append(site.getCategory().toString()).append(", ").append(tp).append(")\n")
+		string.append("(").append(id).append(", ").append(site.getCategory().toString()).append(", ").append(tp).append(", ").append(type).append(")\n")
 			.append(site.toStringWithoutFile()).append("\n")
 			.append(site.getFileString()).append("\n");
 		return string.toString();
@@ -89,8 +95,8 @@ public class PredicateItem {
 	
 	public int hashCode(){
 		int result = 1;
-		result = 37 * result + id;
-		result = 37 * result + type;
+		result = 31 * result + id;
+		result = 31 * result + type;
 		return result;
 	}
 	
@@ -98,5 +104,19 @@ public class PredicateItem {
 		PredicateItem obj = (PredicateItem) o;
 		return (o instanceof PredicateItem) && (id == obj.id) && (type == obj.type);
 	}
+
+	public AbstractSite getSite() {
+		return site;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public int getType() {
+		return type;
+	}
+	
+	
 
 }

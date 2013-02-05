@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import zuo.processor.cbi.profile.predicatesite.AbstractPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.BranchPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.FloatKindPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ReturnPredicateSite;
@@ -253,5 +254,36 @@ public class PredicateProfile {
 		}
 	}
 
+	
+	public String toString(){
+		StringBuilder builder = new StringBuilder();
+		builder.append(this.path.getName()).append("\n").append(this.isCorrect).append("\n-----------------------------------------------------------\n");
+		
+		builder.append(this.branchs.size()).append(" branches").append("\n");
+		for (AbstractPredicateSite predicateSite: this.branchs) {
+			builder.append(predicateSite.toString()).append("\n");
+		}
+		builder.append("\n");
+		
+		builder.append(this.floats.size()).append(" floats").append("\n");
+		for (AbstractPredicateSite predicateSite: this.floats) {
+			builder.append(predicateSite.toString()).append("\n");
+		}
+		builder.append("\n");
+		
+		builder.append(this.returns.size()).append(" returns").append("\n");
+		for (AbstractPredicateSite predicateSite: this.returns) {
+			builder.append(predicateSite.toString()).append("\n");
+		}
+		builder.append("\n");
+		
+		builder.append(this.scalarPairs.size()).append(" scalarPairs").append("\n");
+		for (AbstractPredicateSite predicateSite: this.scalarPairs) {
+			builder.append(predicateSite.toString()).append("\n");
+		}
+		builder.append("\n");
+		
+		return builder.toString();
+	}
 
 }

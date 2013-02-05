@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 
 import zuo.processor.cbi.site.InstrumentationSites;
+import zuo.util.file.FileUtil;
 
 
 public class PredicateProfileReader {
@@ -23,12 +24,16 @@ public class PredicateProfileReader {
 		}
 	}
 	
-	public final PredicateProfile[] readProfiles() {
+	public final PredicateProfile[] readProfiles(int numRuns) {
 		System.out.println("reading profiles in folder " + this.profileFolder);
 		
-		File[] profileFiles = this.collectProfileFiles();
+		File[] profileFiles = this.profileFolder.listFiles(FileUtil.createProfileFilter());
+		Arrays.sort(profileFiles, new FileUtil.FileComparator());
+		if (profileFiles.length == 0)
+			throw new RuntimeException("No profiles in folder " + this.profileFolder);
 		
-		PredicateProfile[] profiles = new PredicateProfile[profileFiles.length];
+//		PredicateProfile[] profiles = new PredicateProfile[profileFiles.length];
+		PredicateProfile[] profiles = new PredicateProfile[numRuns];
 		System.out.println("reading profiles...");
 		for (int i = 0; i < profiles.length; ++i) {
 			if ((i + 1) % 5 == 0)
@@ -36,22 +41,17 @@ public class PredicateProfileReader {
 			if ((i + 1) % 600 == 0)
 				System.out.println();
 			profiles[i] = this.createProfile(profileFiles[i]);
+//			//for debugging
+//			if(i == 2)
+//				break;
 		}
 		System.out.println();
 		return profiles;
 	}
 
-	private File[] collectProfileFiles() {
-		File[] profileFiles = this.profileFolder.listFiles(this.createProfileFilter());
-		Arrays.sort(profileFiles, new FileComparator());
-		if (profileFiles.length == 0)
-			throw new RuntimeException("No profiles in folder " + this.profileFolder);
-		return profileFiles;
-	}
-
 	private PredicateProfile createProfile(File profileFile) {
 		String filename = profileFile.getName();
-		if(!filename.matches(profileFilterPattern())){
+		if(!filename.matches(FileUtil.profileFilterPattern())){
 			throw new RuntimeException("wrong profile name");
 		}
 		boolean isCorrect = true;
@@ -62,38 +62,20 @@ public class PredicateProfileReader {
 	}
 	
 
-	private class FileComparator implements Comparator<File> {
-		@Override
-		public int compare(File o1, File o2) {
-			// return mapTestToInteger(o1.getName()) - mapTestToInteger(o2.getName());
-//			return canonicalizeTestName(o1.getName()).compareTo(canonicalizeTestName(o2.getName()));
-			int i1 = Integer.parseInt(canonicalizeProfileName(o1.getName()).substring(1));
-			int i2 = Integer.parseInt(canonicalizeProfileName(o2.getName()).substring(1));
-			if(i1 < i2)
-				return -1;
-			else if(i1 > i2)
-				return 1;
-			else
-				return 0;
-			
-		}
-	}
-	private String canonicalizeProfileName(String profileName) {
-		return profileName.substring(0, profileName.lastIndexOf('.'));
+	public static void main(String[] args) {
+		PredicateProfileReader reader = new PredicateProfileReader("/home/sunzzq/Research/tcas/traces/v1/fine-grained", "/home/sunzzq/Research/tcas/versions/v1/v1_f.sites");
+		PredicateProfile[] profiles = reader.readProfiles(20);
+		System.out.println(profiles[0].toString());
+		System.out.println(profiles[1].toString());
+		System.out.println(profiles[2].toString());
 	}
 
-	
-	private FilenameFilter createProfileFilter() {
-		return new FilenameFilter() {
-			@Override
-			public boolean accept(File arg0, String name) {
-				return Pattern.matches(profileFilterPattern(), name);
-			}
-		};
+	public InstrumentationSites getSites() {
+		return sites;
 	}
 
-	private String profileFilterPattern() {
-		return "o[0-9]+\\.[fp]profile";
+	public File getProfileFolder() {
+		return profileFolder;
 	}
 	
 }

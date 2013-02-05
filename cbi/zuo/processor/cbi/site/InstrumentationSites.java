@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class InstrumentationSites {
 	
@@ -210,6 +212,23 @@ public class InstrumentationSites {
 
 	private final Map<String, List<FloatKindSite>> floatSites;
 
+	
+	public Map<String, List<ScalarSite>> getScalarSites() {
+		return scalarSites;
+	}
+
+	public Map<String, List<ReturnSite>> getReturnSites() {
+		return returnSites;
+	}
+
+	public Map<String, List<BranchSite>> getBranchSites() {
+		return branchSites;
+	}
+
+	public Map<String, List<FloatKindSite>> getFloatSites() {
+		return floatSites;
+	}
+
 	public FloatKindSite getFloatKindSite(String unit, int index) {
 		return this.floatSites.get(unit).get(index);
 	}
@@ -273,17 +292,21 @@ public class InstrumentationSites {
 	}
 
 	public void print() {
-//		for (BranchSite s : this.branchSites) {
-//			System.out.println(s);
-//		}
-//		for (ScalarSite s : this.scalarSites) {
-//			System.out.println(s);
-//		}
-//		for (ReturnSite s : this.returnSites) {
-//			System.out.println(s);
-//		}
-//		for (FloatKindSite s : this.floatSites)
-//			System.out.println(s);
+		printEachKindSites(this.branchSites);
+		printEachKindSites(this.floatSites);
+		printEachKindSites(this.returnSites);
+		printEachKindSites(this.scalarSites);
+	}
+	private void printEachKindSites(Map sites){
+		for (Iterator iterator = sites.entrySet().iterator(); iterator.hasNext();) {
+			Map.Entry<String, List> entry = (Entry<String, List>) iterator.next();
+			System.out.println(entry.getKey() + "\n-------------------------------------------------");
+			List<AbstractSite> list = entry.getValue();
+			for (AbstractSite site : list) {
+				System.out.println(site.toString());
+			}
+		}
+		System.out.println();
 	}
 
 	private void readFloatKinds(BufferedReader reader, Map<String, List<FloatKindSite>> floatSites, String unit)
@@ -409,8 +432,7 @@ public class InstrumentationSites {
 
 	public static void main(String[] args) {
 
-		File file = new File(
-				"/home/neo/experiments/predicate-debug/print_tokens/versions/v1/sites.txt");
+		File file = new File("/home/sunzzq/Research/tcas/versions/v1/v1_f.sites");
 		new InstrumentationSites(file).print();
 	}
 

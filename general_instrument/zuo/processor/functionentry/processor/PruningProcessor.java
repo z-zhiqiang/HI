@@ -18,18 +18,18 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
  *
  */
 public class PruningProcessor {
-	private Map<String, Integer> frequencyMap = new LinkedHashMap<String, Integer>();
+	private Map<FunctionEntrySite, Integer> frequencyMap = new LinkedHashMap<FunctionEntrySite, Integer>();
 	
 	/**constructor based on data set
 	 * @param dataset
 	 */
 	public PruningProcessor(FunctionEntryDataSet dataset){
 		Set<Integer>[] itemSets = dataset.getDataset();
-		Map<Integer, FunctionEntrySite> map = dataset.getFunctionIdMap();
+		Map<Integer, FunctionEntrySite> map = dataset.getFunctionIdSiteMap();
 		
 		for(Set<Integer> itemset: itemSets){
 			for(int item: itemset){
-				String function = map.get(item).getFunctionName();
+				FunctionEntrySite function = map.get(item);
 				if(frequencyMap.containsKey(function)){
 					frequencyMap.put(function, frequencyMap.get(function) + 1);
 				}
@@ -48,7 +48,7 @@ public class PruningProcessor {
 			FunctionEntryProfile profile = profiles[i];
 			for(FunctionEntryItem item: profile.getFunctionEntryItems()){
 				if(item.getCounter() > 0){
-					String function = item.getSite().getFunctionName();
+					FunctionEntrySite function = item.getSite();
 					if(frequencyMap.containsKey(function)){
 						frequencyMap.put(function, frequencyMap.get(function) + 1);
 					}
@@ -68,9 +68,9 @@ public class PruningProcessor {
 	public List<String> getSuspectFunctions(int bound){
 		List<String> susList = new ArrayList<String>();
 		
-		for(String function: frequencyMap.keySet()){
+		for(FunctionEntrySite function: frequencyMap.keySet()){
 			if(frequencyMap.get(function) >= bound){
-				susList.add(function);
+				susList.add(function.getNameAndLineNumber());
 			}
 		}
 		
@@ -90,7 +90,7 @@ public class PruningProcessor {
 		
 		String profilesFile = "/home/sunzzq/Research/space/traces/v7/coarse-grained";
 		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFile, sites);
-		FunctionEntryProfile[] profiles = reader.readFunctionEntryProfiles();
+		FunctionEntryProfile[] profiles = reader.readFunctionEntryProfiles(150);
 		for (int i = 0; i < profiles.length; i++) {
 			for(FunctionEntryItem item: profiles[i].getFunctionEntryItems()){
 				System.out.println(item.toString());
@@ -101,28 +101,11 @@ public class PruningProcessor {
 		
 		PruningProcessor pro = new PruningProcessor(profiles);
 		System.out.println(pro.frequencyMap);
-		System.out.println(pro.getSuspectFunctions(153));
-		System.out.println("\n\n");
-		
-		FunctionEntryDataSet dataset = new FunctionEntryDataSet(profiles);
-		for(Set set: dataset.getDataset()){
-			System.out.println(set);
-		}
-		System.out.println();
-		for(int key: dataset.getFunctionIdMap().keySet())
-			System.out.println(dataset.getFunctionIdMap().get(key));
-		
-		System.out.println("\n\n");
-		pro = new PruningProcessor(dataset);
-		System.out.println(pro.frequencyMap);
-		System.out.println();
 		List<String> calls = pro.getSuspectFunctions(153);
 		System.out.println(calls.size());
 		for (int i = 0; i < calls.size(); i++) {
 			System.out.print(" -finclude-function=" + calls.get(i));
 		}
-		
-//		System.out.println("-finclude-function=" + );
 		
 	}
 

@@ -34,8 +34,8 @@ public abstract class AbstractPredicateSite {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Preciate(scheme = ").append(this.getScheme())
-				.append(", id=").append(this.id).append(", method=")
-				.append(this.site.getFunctionName()).append(", ");
+				.append(", id=").append(this.id).append(", site=")
+				.append(this.site.toStringWithoutFile()).append(", ");
 		this.toSpecificString(builder);
 		builder.append(")");
 		return builder.toString();

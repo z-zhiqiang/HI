@@ -15,24 +15,27 @@ import zuo.processor.utility.FileUtility;
 public class GenScriptsClient {
 	final static String rootDir = "/home/sunzzq/Research/";
 	final static String subject = "space";
+	final static String version = "v20";
 	final static String inputs = rootDir + subject + "/testplans.alt/universe";
 	final static String inputsMapFile = rootDir + subject + "/testplans.alt/inputs.map";
-	final static String versionsDir = rootDir + subject + "/versions/";
+	final static String outDir = rootDir + subject + "/versions/";
 	
 	
 	public static void main(String[] args) throws IOException {
-//		FileUtility.constructSpaceInputsMapFile(inputs, inputsMapFile);
 		AbstractGenRunScript gs;
-//		gs = new GenRunSubjectScript(rootDir, "space", "");
+//		FileUtility.constructSpaceInputsMapFile(inputs, inputsMapFile);
+//		gs = new GenRunSubjectScript(rootDir, subject);
 //		gs.genRunScript();
-//		gs = new GenRunVersionsScript(rootDir, "space", "v7");
+//		gs = new GenRunVersionsScript(rootDir, subject, version);
 //		gs.genRunScript();
 		
-		
-		gs = new GenRunFineGrainedInstrumentScript(rootDir, "space", "v7", versionsDir + "v7/failingInputs.array", versionsDir + "v7/passingInputs.array");
+//		SplitInputs split = new SplitInputs(inputsMapFile, rootDir + subject + "/outputs/" + subject,
+//				rootDir + subject + "/outputs/versions/" + version + "/outputs", outDir + version);
+//		split.split();
+		gs = new GenRunFineGrainedInstrumentScript(rootDir, subject, version, outDir + version + "/failingInputs.array", outDir + version + "/passingInputs.array");
 		gs.genRunScript();
-//		gs = new GenRunCoarseGrainedInstrumentScript(rootDir, "space", "v7", versionsDir + "v7/failingInputs.array");
-//		gs.genRunScript();
+		gs = new GenRunCoarseGrainedInstrumentScript(rootDir, subject, version, outDir + version + "/failingInputs.array", outDir + version + "/passingInputs.array", 100000);
+		gs.genRunScript();
 	}
 
 }

@@ -23,6 +23,7 @@ public abstract class AbstractGenRunScript {
 	
 	final String inputsMapFile;
 	final String scriptsDir;
+	final String subjectDir;
 	final String versionsDir;
 	final String outputsDir;
 	final String outputversionsDir;
@@ -38,6 +39,7 @@ public abstract class AbstractGenRunScript {
 		this.version = ver;
 		this.inputsMapFile = rootDir + subject + "/testplans.alt/inputs.map";
 		this.scriptsDir = rootDir + subject + "/scripts/";
+		this.subjectDir = rootDir + subject + "/source/";
 		this.versionsDir = rootDir + subject + "/versions/";
 		this.outputsDir = rootDir + subject + "/outputs/";
 		this.outputversionsDir = outputsDir + "versions/";
@@ -47,6 +49,7 @@ public abstract class AbstractGenRunScript {
 	}
 	
     public abstract void genRunScript() throws IOException;
+    protected abstract void mkOutDir();
     
     public static void printToFile(String scr, String folder, String file){
 		PrintWriter pout = null;

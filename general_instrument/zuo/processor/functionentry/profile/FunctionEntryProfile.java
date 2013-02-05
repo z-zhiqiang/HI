@@ -14,14 +14,14 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
 import zuo.processor.utility.FileUtility;
 
 public class FunctionEntryProfile {
-	final FunctionEntrySites sites;
 	final File profile;
+	final boolean isCorrect;
 	
 	final List<FunctionEntryItem> functionEntryItems;
 	
-	public FunctionEntryProfile(File profile, FunctionEntrySites sites){
+	public FunctionEntryProfile(File profile, FunctionEntrySites sites, boolean isC){
 		this.profile = profile;
-		this.sites = sites;
+		this.isCorrect = isC;
 		
 		ArrayList<FunctionEntryItem> items = new ArrayList<FunctionEntryItem>();
 		
@@ -31,6 +31,7 @@ public class FunctionEntryProfile {
 			String line;  
 			while ((line = in.readLine()) != null) {  
 				if(line.contains("<report id=\"samples\">")){
+					int index = -1;
 					while ((line = in.readLine()) != null && !line.contains("</report>")) {
 						if(line.startsWith("<samples")){
 							if(!line.contains("scheme=\"function-entries\"")){
@@ -39,7 +40,6 @@ public class FunctionEntryProfile {
 							
 							String unit = FileUtility.getUnitID(line);
 							List<FunctionEntrySite> siteList = sites.getSites().get(unit);
-							int index = -1;
 							while((line = in.readLine()) != null && !line.contains("</samples>")){
 								int count = Integer.parseInt(line.trim());
 								items.add(new FunctionEntryItem(count, siteList.get(++index)));
@@ -72,9 +72,8 @@ public class FunctionEntryProfile {
 		return this.profile.getAbsolutePath();
 	}
 	
-	
-	public FunctionEntrySites getSites() {
-		return sites;
+	public boolean isCorrect() {
+		return isCorrect;
 	}
 
 	public List<FunctionEntryItem> getFunctionEntryItems() {
@@ -83,7 +82,7 @@ public class FunctionEntryProfile {
 
 	public static void main(String[] args) {
 		FunctionEntrySites sites = new FunctionEntrySites("/home/sunzzq/Research/test/main.sites");
-		FunctionEntryProfile p = new FunctionEntryProfile(new File("/home/sunzzq/Research/test", "/main.profile"), sites);
+		FunctionEntryProfile p = new FunctionEntryProfile(new File("/home/sunzzq/Research/test", "/main.profile"), sites, true);
 		for (FunctionEntryItem item : p.functionEntryItems) {
 			System.out.println(item.toString());
 		}

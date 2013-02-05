@@ -12,7 +12,7 @@ import zuo.processor.functionentry.profile.FunctionEntryProfile;
 import zuo.processor.functionentry.site.FunctionEntrySite;
 
 public class FunctionEntryDataSet {
-	private final Map<Integer, FunctionEntrySite> functionIdMap;
+	private final Map<Integer, FunctionEntrySite> functionIdSiteMap;
 	private final Set<Integer>[] dataset;
 	
 	public FunctionEntryDataSet(FunctionEntryProfile[] profiles){
@@ -34,12 +34,12 @@ public class FunctionEntryDataSet {
 			setArrays[i] = itemSet;
 		}
 		
-		this.functionIdMap = Collections.unmodifiableMap(map);
+		this.functionIdSiteMap = Collections.unmodifiableMap(map);
 		this.dataset = setArrays;
 	}
 
-	public Map<Integer, FunctionEntrySite> getFunctionIdMap() {
-		return functionIdMap;
+	public Map<Integer, FunctionEntrySite> getFunctionIdSiteMap() {
+		return functionIdSiteMap;
 	}
 
 	public Set<Integer>[] getDataset() {

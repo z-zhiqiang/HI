@@ -15,17 +15,19 @@ import zuo.processor.utility.FileUtility;
 
 
 public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript implements GenRunInstrumentScript {
-	private final static String finerGrainedScheme = "-fsampler-scheme=branches -fsampler-scheme=float-kinds " +
-			"-fsampler-scheme=returns -fsampler-scheme=scalar-pairs";
-	public final static String fgFolder = "/fine-grained2";
+	public final static String fgFolder = "/fine-grained";
 	
 	private final List<Integer> failingTests;
 	private final List<Integer> passingTests;
 	
-	
+	final String source = rootDir + subject + "/versions.alt/versions.orig/" + version + "/" + subject + ".c";
+	final String execute = versionsDir + version + "/" + version + "_finst.exe";
+	final String instrumentFineGrained = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=float-kinds " +
+			"-fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample " + source + " -o " + execute + " -lm";
 	
 	public GenRunFineGrainedInstrumentScript(String dir, String sub, String ver, String failing, String passing) {
 		super(dir, sub, ver);
+		this.mkOutDir();
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
 	}
@@ -34,7 +36,7 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 	@Override
 	public void genRunScript() {
 		StringBuffer code = new StringBuffer();
-		
+		code.append(instrumentFineGrained + "\n");
 		code.append("echo script: " + version + "\n");
 		code.append("export VERSIONSDIR=" + versionsDir + version + "\n");
 		code.append("export OUTPUTSDIR=" + outputversionsDir + version + fgFolder + "\n");
@@ -43,7 +45,7 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 			int index = (Integer) it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=" + tracesDir + version + fgFolder + "/o" + index + ".fprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_finst2.exe ");//executables
+			code.append("$VERSIONSDIR/" + version + "_finst.exe ");//executables
 			code.append(inputsMap.get(index));//parameters
 			code.append(" > $OUTPUTSDIR/o" + index + ".fout\n");//output file
 		}
@@ -52,12 +54,28 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 			int index = (Integer) it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=" + tracesDir + version + fgFolder + "/o" + index + ".pprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_finst2.exe ");//executables
+			code.append("$VERSIONSDIR/" + version + "_finst.exe ");//executables
 			code.append(inputsMap.get(index));//parameters
 			code.append(" > $OUTPUTSDIR/o" + index + ".pout\n");//output file
 		}
 		
-		printToFile(code.toString(), scriptsDir + "runFineGrainedInstrument2", version + ".sh");
+		printToFile(code.toString(), scriptsDir + "runFineGrainedInstrument", version + ".sh");
+	}
+
+
+	@Override
+	protected void mkOutDir() {
+		//make directory for outputs
+		File fo = new File(outputversionsDir + version + fgFolder);
+		if(!fo.exists()){
+			fo.mkdirs();
+		}
+		
+		//make directory for traces
+		File ft = new File(tracesDir + version + fgFolder);
+		if(!ft.exists()){
+			ft.mkdirs();
+		}
 	}
 	
 	

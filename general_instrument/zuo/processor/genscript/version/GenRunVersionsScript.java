@@ -6,17 +6,21 @@ import java.util.Iterator;
 
 
 public class GenRunVersionsScript extends AbstractGenRunScript {
-	private final static String compileInfo = "echo \">>>>>>> compiling file ";
 	public final static String outFolder = "/outputs";
+	
+	final String source = rootDir + subject + "/versions.alt/versions.orig/" + version + "/" + subject + ".c";
+	final String execute = versionsDir + version + "/" + version + ".exe";
 	
 	public GenRunVersionsScript(String dir, String sub, String ver) {
 		super(dir, sub, ver);
+	    this.mkOutDir();
 	}
 
 
 	@Override
 	public void genRunScript() {
 		StringBuffer code = new StringBuffer();
+		code.append("gcc " + source + " -o " + execute + " -lm\n");// compiling
 		code.append("echo script: " + version + "\n");
 		code.append("export VERSIONSDIR=" + versionsDir + version + "\n");
 		code.append("export OUTPUTSDIR=" + outputversionsDir + version + outFolder + "\n");
@@ -78,22 +82,14 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 //	}
 	
 	
-	public void mkOutDir(){
-		File fp = new File(rootDir + subject + "/outputs/versions");
+	protected void mkOutDir(){
+		File fp = new File(outputversionsDir + version + outFolder);
 		if(!fp.exists()){
-			fp.mkdir();
+			fp.mkdirs();
 		}
-		File fo = new File(rootDir + subject + "/versions");
-		String[] fs = fo.list();
-		for (int i = 0; i < fs.length; i++) {
-			File fd = new File(rootDir + subject + "/outputs/versions/" + fs[i]);
-			if(!fd.exists()){
-				fd.mkdir();
-			}
-		}
-		File fd = new File(rootDir + subject + "/outputs/" + subject);
-		if(!fd.exists()){
-			fd.mkdir();
+		File fo = new File(versionsDir + version);
+		if(!fo.exists()){
+			fo.mkdirs();
 		}
 	}
 

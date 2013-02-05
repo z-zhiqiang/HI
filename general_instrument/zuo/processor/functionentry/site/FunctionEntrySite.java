@@ -15,6 +15,10 @@ public class FunctionEntrySite {
 		this.functionName = funcName;
 		this.cfgNumber = cfgNum;
 	}
+	
+	public String getNameAndLineNumber(){
+		return functionName + ":" + lineNumber;
+	}
 
 	public String getFileName() {
 		return fileName;
@@ -40,5 +44,14 @@ public class FunctionEntrySite {
 		return id + "\t" + fileName + "\t" + lineNumber + "\t" + functionName + "\t" + cfgNumber;  
 	}
 	
+	public int hashCode(){
+		int result = 1;
+		result = 37 * result + id;
+		return result;
+	}
+	
+	public boolean equals(Object o){
+		return (o instanceof FunctionEntrySite) && (((FunctionEntrySite) o).id == id);
+	}
 
 }
