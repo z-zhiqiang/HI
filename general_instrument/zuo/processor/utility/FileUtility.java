@@ -116,6 +116,55 @@ public class FileUtility {
 		return Collections.unmodifiableMap(inputsmap);
 	}
 	
+	public static Map<Integer, String> constructGrepInputsMapFile(String inputs, String mapFile){
+		Map<Integer, String> inputsmap = new LinkedHashMap<Integer, String>();
+    	int count = 0;
+		BufferedReader in = null;
+		try{
+			String line;
+			in = new BufferedReader(new FileReader(new File(inputs)));
+			while ((line = in.readLine()) != null) {
+				if(line.contains("../")){
+					line = line.replaceAll("\\.\\.", "../..");
+				}
+//				if(line.contains("\\\"")){
+//					System.out.println(line);
+//					line = line.replaceAll("\\\\\"", "\\\\\"");
+//				}
+				inputsmap.put(count++, line.substring(line.indexOf("[") + 1, line.length() - 1));
+			}
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		finally{
+			try {
+				in.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		ObjectOutputStream out = null;
+    	try{
+    		out = new ObjectOutputStream(new FileOutputStream(mapFile));
+    		out.writeObject(inputsmap);
+    	}
+    	catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	finally{
+    		try {
+				out.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    	
+		return Collections.unmodifiableMap(inputsmap);
+	}
 
 	public static Map<Integer, String> constructSpaceInputsMapFile(String inputs, String mapFile){
 		Map<Integer, String> inputsmap = new LinkedHashMap<Integer, String>();

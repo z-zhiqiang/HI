@@ -90,12 +90,12 @@ public class SelectingProcessor {
 	}
 	
 	public static void main(String[] args) {
-		String sitesFile = "/home/sunzzq/Research/space/versions/v20/v20_c.sites";
+		String sitesFile = "/home/sunzzq/Research/grep/versions/v1/v1_c.sites";
 		FunctionEntrySites sites = new FunctionEntrySites(sitesFile);
 		
-		String profilesFile = "/home/sunzzq/Research/space/traces/v20/coarse-grained";
+		String profilesFile = "/home/sunzzq/Research/grep/traces/v1/coarse-grained";
 		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFile, sites);
-		FunctionEntryProfile[] profiles = reader.readFunctionEntryProfiles(4000);
+		FunctionEntryProfile[] profiles = reader.readFunctionEntryProfiles(685);
 		
 		SelectingProcessor processor = new SelectingProcessor(profiles);
 		processor.process();

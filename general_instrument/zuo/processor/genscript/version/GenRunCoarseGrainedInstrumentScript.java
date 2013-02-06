@@ -13,18 +13,16 @@ import java.util.Map;
 import zuo.processor.utility.FileUtility;
 
 public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript implements GenRunInstrumentScript {
-	public final static String cgFolder = "/coarse-grained";
+	final String traceDir;
 	
 	final List<Integer> failingTests;
 	final List<Integer> passingTests;
 	final int pNum;
 	
-	final String source = rootDir + subject + "/versions.alt/versions.orig/" + version + "/" + subject + ".c";
-	final String execute = versionsDir + version + "/" + version + "_cinst.exe";
-	final String instrumentCoarseGrained = "sampler-cc -fsampler-scheme=function-entries -fno-sample " + source + " -o " + execute + " -lm";
 	
-	public GenRunCoarseGrainedInstrumentScript(String dir, String sub, String ver, String failing, String passing, int pN) {
-		super(dir, sub, ver);
+	public GenRunCoarseGrainedInstrumentScript(String sub, String ver, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, int pN) {
+		super(sub, ver, cc, sD, eD, oD, scD);
+		this.traceDir = tD;
 		this.mkOutDir();
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
@@ -34,15 +32,15 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 	@Override
 	public void genRunScript() {
 		StringBuffer code = new StringBuffer();
-		code.append(instrumentCoarseGrained + "\n");
+		code.append(compileCommand + "\n");
 		code.append("echo script: " + version + "\n");
-		code.append("export VERSIONSDIR=" + versionsDir + version + "\n");
-		code.append("export OUTPUTSDIR=" + outputversionsDir + version + cgFolder + "\n");
+		code.append("export VERSIONSDIR=" + executeDir + "\n");
+		code.append("export OUTPUTSDIR=" + outputDir + "\n");
 		
 		for (Iterator it = failingTests.iterator(); it.hasNext();) {
 			int index = (Integer) it.next();
 			code.append(runinfo + index + "\"\n");// running info
-			code.append("export SAMPLER_FILE=" + tracesDir + version + cgFolder + "/o" + index + ".fprofile\n");
+			code.append("export SAMPLER_FILE=" + traceDir + "o" + index + ".fprofile\n");
 			code.append("$VERSIONSDIR/" + version + "_cinst.exe ");//executables
 			code.append(inputsMap.get(index));//parameters
 			code.append(" > $OUTPUTSDIR/o" + index + ".fout\n");//output file
@@ -51,25 +49,25 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		for (int i = 0; i < passingTests.size() && i < pNum; i++) {
 			int index = passingTests.get(i);
 			code.append(runinfo + index + "\"\n");// running info
-			code.append("export SAMPLER_FILE=" + tracesDir + version + cgFolder + "/o" + index + ".pprofile\n");
+			code.append("export SAMPLER_FILE=" + traceDir + "o" + index + ".pprofile\n");
 			code.append("$VERSIONSDIR/" + version + "_cinst.exe ");//executables
 			code.append(inputsMap.get(index));//parameters
 			code.append(" > $OUTPUTSDIR/o" + index + ".pout\n");//output file
 		}
 		
-		printToFile(code.toString(), scriptsDir + "runCoarseGrainedInstrument", version + ".sh");
+		printToFile(code.toString(), scriptDir, version + ".sh");
 	}
 
 	@Override
 	protected void mkOutDir() {
 		//make directory for outputs
-		File fo = new File(outputversionsDir + version + cgFolder);
+		File fo = new File(outputDir);
 		if(!fo.exists()){
 			fo.mkdirs();
 		}
 		
 		//make directory for traces
-		File ft = new File(tracesDir + version + cgFolder);
+		File ft = new File(traceDir);
 		if(!ft.exists()){
 			ft.mkdirs();
 		}

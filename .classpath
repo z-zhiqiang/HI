@@ -3,8 +3,8 @@
 	<classpathentry kind="src" path="general_instrument"/>
 	<classpathentry kind="src" path="cbi"/>
 	<classpathentry kind="src" path="mps"/>
-	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="utility"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="/home/sunzzq/Workspace/program/soot-2.5.0.jar"/>
 	<classpathentry kind="lib" path="/home/sunzzq/Workspace/program/protobuf-java-2.4.1.jar"/>

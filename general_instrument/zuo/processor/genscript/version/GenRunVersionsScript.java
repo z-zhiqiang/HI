@@ -6,13 +6,9 @@ import java.util.Iterator;
 
 
 public class GenRunVersionsScript extends AbstractGenRunScript {
-	public final static String outFolder = "/outputs";
 	
-	final String source = rootDir + subject + "/versions.alt/versions.orig/" + version + "/" + subject + ".c";
-	final String execute = versionsDir + version + "/" + version + ".exe";
-	
-	public GenRunVersionsScript(String dir, String sub, String ver) {
-		super(dir, sub, ver);
+	public GenRunVersionsScript(String sub, String ver, String cc, String sD, String eD, String oD, String scD) {
+		super(sub, ver, cc, sD, eD, oD, scD);
 	    this.mkOutDir();
 	}
 
@@ -20,10 +16,10 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 	@Override
 	public void genRunScript() {
 		StringBuffer code = new StringBuffer();
-		code.append("gcc " + source + " -o " + execute + " -lm\n");// compiling
+		code.append(compileCommand + "\n");// compiling
 		code.append("echo script: " + version + "\n");
-		code.append("export VERSIONSDIR=" + versionsDir + version + "\n");
-		code.append("export OUTPUTSDIR=" + outputversionsDir + version + outFolder + "\n");
+		code.append("export VERSIONSDIR=" + executeDir + "\n");
+		code.append("export OUTPUTSDIR=" + outputDir + "\n");
 		
 		for (Iterator it = inputsMap.keySet().iterator(); it.hasNext();) {
 			int index = (Integer) it.next();
@@ -33,7 +29,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 			code.append(" > $OUTPUTSDIR/o" + index + ".out\n");//output file
 		}
 		
-		printToFile(code.toString(), scriptsDir + "runVersions", version + ".sh");
+		printToFile(code.toString(), scriptDir, version + ".sh");
 		
 	}
 	
@@ -83,11 +79,11 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 	
 	
 	protected void mkOutDir(){
-		File fp = new File(outputversionsDir + version + outFolder);
+		File fp = new File(outputDir);
 		if(!fp.exists()){
 			fp.mkdirs();
 		}
-		File fo = new File(versionsDir + version);
+		File fo = new File(executeDir);
 		if(!fo.exists()){
 			fo.mkdirs();
 		}

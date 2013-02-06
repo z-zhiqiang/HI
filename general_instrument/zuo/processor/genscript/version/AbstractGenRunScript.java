@@ -13,39 +13,35 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import zuo.processor.genscript.client.GenScriptsClient;
 import zuo.processor.splitinputs.SplitInputs;
 import zuo.processor.utility.FileUtility;
 
 public abstract class AbstractGenRunScript {
 	final String version;
 	final String subject;
-	final String rootDir;
+	final String compileCommand;
 	
-	final String inputsMapFile;
-	final String scriptsDir;
-	final String subjectDir;
-	final String versionsDir;
-	final String outputsDir;
-	final String outputversionsDir;
-	final String tracesDir;
+	final String sourceDir;
+	final String executeDir;
+	final String outputDir;
+	
+	final String scriptDir;
 	
 	public final static String runinfo = "echo \">>>>>>> running test ";
 	
 	protected final Map<Integer, String> inputsMap;
 	
-	public AbstractGenRunScript(String dir, String sub, String ver){
-		this.rootDir = dir;
+	public AbstractGenRunScript(String sub, String ver, String cc, String source, String execute, String output, String script){
 		this.subject = sub;
 		this.version = ver;
-		this.inputsMapFile = rootDir + subject + "/testplans.alt/inputs.map";
-		this.scriptsDir = rootDir + subject + "/scripts/";
-		this.subjectDir = rootDir + subject + "/source/";
-		this.versionsDir = rootDir + subject + "/versions/";
-		this.outputsDir = rootDir + subject + "/outputs/";
-		this.outputversionsDir = outputsDir + "versions/";
-		this.tracesDir = rootDir + subject + "/traces/";
+		this.compileCommand = cc;
+		this.sourceDir = source;
+		this.executeDir = execute;
+		this.outputDir = output;
+		this.scriptDir = script;
 		
-		inputsMap = FileUtility.readInputsMap(inputsMapFile);
+		inputsMap = FileUtility.readInputsMap(GenScriptsClient.inputsMapFile);
 	}
 	
     public abstract void genRunScript() throws IOException;

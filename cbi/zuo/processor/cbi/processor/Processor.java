@@ -473,7 +473,7 @@ public class Processor {
 
 	
 	public static void main(String[] args) {
-		PredicateProfileReader reader = new PredicateProfileReader("/home/sunzzq/Research/space/traces/v20/fine-grained", "/home/sunzzq/Research/space/versions/v20/v20_f.sites");
+		PredicateProfileReader reader = new PredicateProfileReader("/home/sunzzq/Research/grep/traces/v1/fine-grained", "/home/sunzzq/Research/grep/versions/v1/v1_f.sites");
 		PredicateProfile[] profiles = reader.readProfiles(4000);
 		Processor p = new Processor(profiles);
 		p.process();

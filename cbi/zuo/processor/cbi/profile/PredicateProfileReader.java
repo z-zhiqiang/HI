@@ -32,8 +32,8 @@ public class PredicateProfileReader {
 		if (profileFiles.length == 0)
 			throw new RuntimeException("No profiles in folder " + this.profileFolder);
 		
-//		PredicateProfile[] profiles = new PredicateProfile[profileFiles.length];
-		PredicateProfile[] profiles = new PredicateProfile[numRuns];
+		PredicateProfile[] profiles = new PredicateProfile[profileFiles.length];
+//		PredicateProfile[] profiles = new PredicateProfile[numRuns];
 		System.out.println("reading profiles...");
 		for (int i = 0; i < profiles.length; ++i) {
 			if ((i + 1) % 5 == 0)

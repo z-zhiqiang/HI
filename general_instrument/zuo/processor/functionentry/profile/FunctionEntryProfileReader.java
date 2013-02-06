@@ -28,8 +28,8 @@ public class FunctionEntryProfileReader {
 			System.out.println(profiles[i].getName());
 		}
 		
-//		FunctionEntryProfile[] FEProfiles = new FunctionEntryProfile[profiles.length];
-		FunctionEntryProfile[] FEProfiles = new FunctionEntryProfile[numRuns];
+		FunctionEntryProfile[] FEProfiles = new FunctionEntryProfile[profiles.length];
+//		FunctionEntryProfile[] FEProfiles = new FunctionEntryProfile[numRuns];
 		for (int i = 0; i < profiles.length && i < numRuns; i++) {
 			boolean isCorrect = true;
 			if(profiles[i].getName().endsWith(".fprofile")){

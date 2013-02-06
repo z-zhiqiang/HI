@@ -6,11 +6,9 @@ import java.util.Iterator;
 
 
 public class GenRunSubjectScript extends AbstractGenRunScript {
-	final String source = rootDir + subject + "/source.alt/source.orig/" + subject + ".c";
-	final String execute = subjectDir + subject + ".exe";
 	
-	public GenRunSubjectScript(String dir, String sub) {
-		super(dir, sub, null);
+	public GenRunSubjectScript(String sub, String ver, String cc, String sD, String eD, String oD, String scD) {
+		super(sub, ver, cc, sD, eD, oD, scD);
 		this.mkOutDir();
 	}
 
@@ -18,10 +16,10 @@ public class GenRunSubjectScript extends AbstractGenRunScript {
 	@Override
 	public void genRunScript() {
 		StringBuffer code = new StringBuffer();
-		code.append("gcc " + source + " -o " + execute + " -lm\n"); // compile subject program
+		code.append(compileCommand + "\n"); // compile subject program
 		code.append("echo script: " + subject + "\n");
-		code.append("export SUBJECTDIR=" + subjectDir + "\n");
-		code.append("export OUTPUTSDIR=" + outputsDir + subject + "\n");
+		code.append("export SUBJECTDIR=" + executeDir + "\n");
+		code.append("export OUTPUTSDIR=" + outputDir + "\n");
 		
 		for (Iterator it = inputsMap.keySet().iterator(); it.hasNext();) {
 			int index = (Integer) it.next();
@@ -31,14 +29,14 @@ public class GenRunSubjectScript extends AbstractGenRunScript {
 			code.append(" > $OUTPUTSDIR/o" + index + ".out\n");//output file
 		}
 		
-		printToFile(code.toString(), scriptsDir + "runSubject", subject + ".sh");
+		printToFile(code.toString(), scriptDir, subject + ".sh");
 		
 	}
 
 
 	@Override
 	protected void mkOutDir() {
-		File fd = new File(outputsDir + subject);
+		File fd = new File(outputDir);
 		if(!fd.exists()){
 			fd.mkdirs();
 		}

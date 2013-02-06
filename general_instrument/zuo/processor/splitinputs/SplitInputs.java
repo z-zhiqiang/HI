@@ -89,15 +89,13 @@ public class SplitInputs {
 		Collections.sort(passingTests);
 		Collections.sort(failingTests);
 		
-		String path = outDir;
-		
 		ObjectOutputStream out = null;
 		try{
-			out = new ObjectOutputStream(new FileOutputStream(path + "/failingInputs.array"));
+			out = new ObjectOutputStream(new FileOutputStream(outDir + "/failingInputs.array"));
 			out.writeObject(failingTests);
 			out.close();
 			
-			out = new ObjectOutputStream(new FileOutputStream(path + "/passingInputs.array"));
+			out = new ObjectOutputStream(new FileOutputStream(outDir + "/passingInputs.array"));
 			out.writeObject(passingTests);
 			out.close();
 		}
@@ -118,26 +116,24 @@ public class SplitInputs {
 		Collections.sort(passingTests);
 		Collections.sort(failingTests);
 		
-		String path = outDir;
-				
 		PrintWriter out = null;
 		try{
 			//write the statistics information
-			out = new PrintWriter(new BufferedWriter(new FileWriter(path + "/statistics_inputs")));
+			out = new PrintWriter(new BufferedWriter(new FileWriter(outDir + "/statistics_inputs")));
 			out.println("Number of passing inputs: \t" + passingTests.size());
 			out.println("Number of failing inputs: \t" + failingTests.size());
 			out.println("Total number of inputs: \t" + (passingTests.size() + failingTests.size()));
 			out.close();
 			
 			//write the passing inputs
-			out = new PrintWriter(new BufferedWriter(new FileWriter(path + "/p_inputs")));
+			out = new PrintWriter(new BufferedWriter(new FileWriter(outDir + "/p_inputs")));
 			for(int index: passingTests){
 				out.println(index + ": " + inputsMap.get(index));
 			}
 			out.close();
 			
 			//writing the failing inputs
-			out = new PrintWriter(new BufferedWriter(new FileWriter(path + "/f_inputs")));
+			out = new PrintWriter(new BufferedWriter(new FileWriter(outDir + "/f_inputs")));
 			for(int index: failingTests){
 				out.println(index + ": " + inputsMap.get(index));
 			}
