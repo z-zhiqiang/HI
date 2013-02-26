@@ -26,7 +26,7 @@ public class GenRunSubjectScript extends AbstractGenRunScript {
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("$SUBJECTDIR/" + subject + ".exe ");//executables
 			code.append(inputsMap.get(index));//parameters
-			code.append(" > $OUTPUTSDIR/o" + index + ".out\n");//output file
+			code.append(" >& $OUTPUTSDIR/o" + index + ".out\n");//output file
 		}
 		
 		printToFile(code.toString(), scriptDir, subject + ".sh");

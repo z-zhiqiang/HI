@@ -1,7 +1,7 @@
 package zuo.processor.genscript.client;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import zuo.processor.genscript.version.AbstractGenRunScript;
 import zuo.processor.genscript.version.GenRunCoarseGrainedInstrumentScript;
@@ -14,60 +14,97 @@ import zuo.processor.utility.FileUtility;
 
 public class GenScriptsClient {
 	final static String rootDir = "/home/sunzzq/Research/";
-	final static String subject = "grep";
-	final static String version = "v1";
-	final static String inputs = rootDir + subject + "/testplans.alt/" + version + "/universe";
-	public final static String inputsMapFile = rootDir + subject + "/testplans.alt/" + version + "/inputs.map";
+	final static String subject = "space";
+	final String version;
+	final static String inputs = rootDir + subject + "/testplans.alt/" + "universe";
+	public final static String inputsMapFile = rootDir + subject + "/testplans.alt/" + "inputs.map";
 	
-	final static String ssourceDir = rootDir + subject + "/versions.alt/versions.orig/v0/";
-	final static String sexecuteDir = rootDir + subject + "/source/";
-	final static String soutputDir = rootDir + subject + "/outputs/" + subject + "/";
+	final String ssourceDir;
+	final String sexecuteDir;
+	final String soutputDir;
 	
-	final static String vsourceDir = rootDir + subject + "/versions.alt/versions.seeded/" + version + "/";
-	final static String vexecuteDir = rootDir + subject + "/versions/" + version + "/";
-	final static String voutputDir = rootDir + subject + "/outputs/versions/" + version + "/outputs/";
-	final static String vfoutputDir = rootDir + subject + "/outputs/versions/" + version + "/fine-grained/";
-	final static String vcoutputDir = rootDir + subject + "/outputs/versions/" + version + "/coarse-grained/";
-	final static String vftraceDir = rootDir + subject + "/traces/" + version + "/fine-grained/";
-	final static String vctraceDir = rootDir + subject + "/traces/" + version + "/coarse-grained/";
+	final String vsourceDir;
+	final String vexecuteDir;
+	final String voutputDir;
+	final String vfoutputDir;
+	final String vcoutputDir;
+	final String vftraceDir;
+	final String vctraceDir;
 	
-	final static String sscriptDir = rootDir + subject + "/scripts/runSubject/";
-	final static String vscriptDir = rootDir + subject + "/scripts/runVersions/";
-	final static String cgscriptDir = rootDir + subject + "/scripts/runCoarseGrained/";
-	final static String fgscriptDir = rootDir + subject + "/scripts/runFineGrained/";
+	final String scriptDir;
 	
-	final static String compileSubject = "gcc " 
-			+ ssourceDir + subject + ".c" 
-			+ " -o " + sexecuteDir + subject + ".exe" 
-			+ " -I" + ssourceDir;
-	final static String compileVersion = "gcc " 
-			+ vsourceDir + subject + ".c"
-			+ " -o " + vexecuteDir + version + ".exe"
-			+ " -I" + vsourceDir;
-	final static String compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=float-kinds -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
-			+ vsourceDir + subject + ".c" 
-			+ " -o " + vexecuteDir + version + "_finst.exe"
-			+ " -I" + vsourceDir;
-	final static String compileCGInstrument = "sampler-cc -fsampler-scheme=function-entries -fno-sample "
-			+ vsourceDir + subject + ".c" 
-			+ " -o " + vexecuteDir + version + "_cinst.exe"
-			+ " -I" + vsourceDir;
+	final String compileSubject;
+	final String compileVersion;
+	final String compileFGInstrument;
+	final String compileCGInstrument;
 	
+	public GenScriptsClient(String ver){
+		version = ver;
+		
+		ssourceDir = rootDir + subject + "/source.alt/source.orig/";
+		sexecuteDir = rootDir + subject + "/source/";
+		soutputDir = rootDir + subject + "/outputs/" + subject + "/";
+		
+		vsourceDir = rootDir + subject + "/versions.alt/versions.orig/" + version + "/";
+		vexecuteDir = rootDir + subject + "/versions/" + version + "/";
+		voutputDir = rootDir + subject + "/outputs/versions/" + version + "/outputs/";
+		vfoutputDir = rootDir + subject + "/outputs/versions/" + version + "/fine-grained/";
+		vcoutputDir = rootDir + subject + "/outputs/versions/" + version + "/coarse-grained/";
+		vftraceDir = rootDir + subject + "/traces/" + version + "/fine-grained/";
+		vctraceDir = rootDir + subject + "/traces/" + version + "/coarse-grained/";
+		
+		scriptDir = rootDir + subject + "/scripts/";
+		
+		compileSubject = "gcc " 
+				+ ssourceDir + subject + ".c" 
+				+ " -o " + sexecuteDir + subject + ".exe" 
+				+ " -I" + ssourceDir
+				+ " -lm";
+		compileVersion = "gcc " 
+				+ vsourceDir + subject + ".c"
+				+ " -o " + vexecuteDir + version + ".exe"
+				+ " -I" + vsourceDir
+				+ " -lm";
+		compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=float-kinds -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
+				+ vsourceDir + subject + ".c" 
+				+ " -o " + vexecuteDir + version + "_finst.exe"
+				+ " -I" + vsourceDir
+				+ " -lm";
+		compileCGInstrument = "sampler-cc -fsampler-scheme=function-entries -fno-sample "
+				+ vsourceDir + subject + ".c" 
+				+ " -o " + vexecuteDir + version + "_cinst.exe"
+				+ " -I" + vsourceDir
+				+ " -lm";
+		
+	}
 	
 	public static void main(String[] args) throws IOException {
 		AbstractGenRunScript gs;
-//		FileUtility.constructGrepInputsMapFile(inputs, inputsMapFile);
-//		gs = new GenRunSubjectScript(subject, version, compileSubject, ssourceDir, sexecuteDir, soutputDir, sscriptDir);
-//		gs.genRunScript();
-//		gs = new GenRunVersionsScript(subject, version, compileVersion, vsourceDir, vexecuteDir, voutputDir, vscriptDir);
+		GenScriptsClient gc;
+		
+//		FileUtility.constructSiemensInputsMapFile(inputs, inputsMapFile);
+//		gc = new GenScriptsClient(subject);
+//		gs = new GenRunSubjectScript(subject, gc.version, gc.compileSubject, gc.ssourceDir, gc.sexecuteDir, gc.soutputDir, gc.scriptDir);
 //		gs.genRunScript();
 		
-		SplitInputs split = new SplitInputs(inputsMapFile, soutputDir, voutputDir, vexecuteDir);
-		split.split();
-		gs = new GenRunFineGrainedInstrumentScript(subject, version, compileFGInstrument, vsourceDir, vexecuteDir, vfoutputDir, fgscriptDir, vftraceDir, vexecuteDir + "failingInputs.array", vexecuteDir + "passingInputs.array");
-		gs.genRunScript();
-		gs = new GenRunCoarseGrainedInstrumentScript(subject, version, compileCGInstrument, vsourceDir, vexecuteDir, vcoutputDir, cgscriptDir, vctraceDir, vexecuteDir + "failingInputs.array", vexecuteDir + "passingInputs.array", 100000);
-		gs.genRunScript();
+		for(int i = 3; i <= 3; i++){
+			gc = new GenScriptsClient("v" + i);
+			
+//			System.out.println("generating run script for v" + i);
+//			new GenRunVersionsScript(subject, gc.version, gc.compileVersion, gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
+			
+			System.out.println("sliptting inputs for v" + i);
+			SplitInputs split = new SplitInputs(inputsMapFile, gc.soutputDir, gc.voutputDir, gc.vexecuteDir);
+			split.split();
+////			
+//			System.out.println("generating run instrument script for v" + i);
+//			gs = new GenRunFineGrainedInstrumentScript(subject, gc.version, gc.compileFGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+//			gs.genRunScript();
+//			gs = new GenRunCoarseGrainedInstrumentScript(subject, gc.version, gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100000);
+//			gs.genRunScript();
+		}
+	
 	}
+	
 
 }

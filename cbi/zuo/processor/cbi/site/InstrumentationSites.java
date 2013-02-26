@@ -51,7 +51,7 @@ public class InstrumentationSites {
 		}
 
 		public String getFileString() {
-			return "file = " + this.fileName + ", cfg = " + this.cfgNumber;
+			return "file = " + this.fileName;
 		}
 
 		public String toStringWithoutFile() {
@@ -59,7 +59,7 @@ public class InstrumentationSites {
 
 			this.toString(builder);
 			builder.append(", line=").append(lineNumber).append(", method=")
-					.append(functionName);
+					.append(functionName).append(", cfg=").append(this.cfgNumber);
 
 			return builder.toString();
 		}

@@ -83,28 +83,29 @@ public class SelectingProcessor {
 	 * @param pair
 	 * @return
 	 */
-	private double Importance_A(FrequencyPair pair){
+	public double Importance_A(FrequencyPair pair){
 		if(pair.getNegative() <= 1)
 			return 0;
 		return 2/(1 + ((double) pair.getPositive() / pair.getNegative()) + (Math.log(totalNegative) / Math.log(pair.getNegative())));
 	}
 	
-	public static void main(String[] args) {
-		String sitesFile = "/home/sunzzq/Research/grep/versions/v1/v1_c.sites";
-		FunctionEntrySites sites = new FunctionEntrySites(sitesFile);
-		
-		String profilesFile = "/home/sunzzq/Research/grep/traces/v1/coarse-grained";
-		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFile, sites);
-		FunctionEntryProfile[] profiles = reader.readFunctionEntryProfiles(685);
-		
-		SelectingProcessor processor = new SelectingProcessor(profiles);
-		processor.process();
-		System.out.println(processor.totalNegative);
-		System.out.println(processor.totalPositive);
-		for(FunctionEntrySite site: processor.frequencyMap.keySet()){
-			System.out.println(site.toString() + "\n\t" + processor.frequencyMap.get(site).toString() + "\t\t" + processor.Importance_A(processor.frequencyMap.get(site)));
-		}
-	}
+	
+//	public static void main(String[] args) {
+//		String sitesFile = "/home/sunzzq/Research/grep/versions/v1/v1_c.sites";
+//		FunctionEntrySites sites = new FunctionEntrySites(sitesFile);
+//		
+//		String profilesFile = "/home/sunzzq/Research/grep/traces/v1/coarse-grained";
+//		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFile, sites);
+//		FunctionEntryProfile[] profiles = reader.readFunctionEntryProfiles(685);
+//		
+//		SelectingProcessor processor = new SelectingProcessor(profiles);
+//		processor.process();
+//		System.out.println(processor.totalNegative);
+//		System.out.println(processor.totalPositive);
+//		for(FunctionEntrySite site: processor.frequencyMap.keySet()){
+//			System.out.println(site.toString() + "\n\t" + processor.frequencyMap.get(site).toString() + "\t\t" + processor.Importance_A(processor.frequencyMap.get(site)));
+//		}
+//	}
 	
 	
 	

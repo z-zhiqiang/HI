@@ -25,28 +25,30 @@ public class PredicateProfileReader {
 	}
 	
 	public final PredicateProfile[] readProfiles(int numRuns) {
-		System.out.println("reading profiles in folder " + this.profileFolder);
+		System.out.println("Reading profiles in folder: " + this.profileFolder);
 		
-		File[] profileFiles = this.profileFolder.listFiles(FileUtil.createProfileFilter());
-		Arrays.sort(profileFiles, new FileUtil.FileComparator());
-		if (profileFiles.length == 0)
+		File[] profiles = this.profileFolder.listFiles(FileUtil.createProfileFilter());
+		Arrays.sort(profiles, new FileUtil.FileComparator());
+		if (profiles.length == 0)
 			throw new RuntimeException("No profiles in folder " + this.profileFolder);
 		
-		PredicateProfile[] profiles = new PredicateProfile[profileFiles.length];
-//		PredicateProfile[] profiles = new PredicateProfile[numRuns];
-		System.out.println("reading profiles...");
-		for (int i = 0; i < profiles.length; ++i) {
-			if ((i + 1) % 5 == 0)
-				System.out.print(".");
-			if ((i + 1) % 600 == 0)
-				System.out.println();
-			profiles[i] = this.createProfile(profileFiles[i]);
-//			//for debugging
-//			if(i == 2)
-//				break;
+		
+//		PredicateProfile[] profiles = new PredicateProfile[profileFiles.length];
+		int m = profiles.length/numRuns;
+		PredicateProfile[] PProfiles = new PredicateProfile[numRuns];
+		for (int i = 0, j = 0; i < profiles.length && j < numRuns; i++) {
+			if ((i + 1) % m == 0) {
+				if ((j + 1) % (5) == 0)
+					System.out.print(".");
+				if ((j + 1) % (600) == 0)
+					System.out.println();
+				
+				PProfiles[j++] = this.createProfile(profiles[i]);
+//				System.out.println(profiles[i].getName());
+			}
 		}
 		System.out.println();
-		return profiles;
+		return PProfiles;
 	}
 
 	private PredicateProfile createProfile(File profileFile) {

@@ -12,6 +12,7 @@ public class PairedOutputFile implements Comparable<PairedOutputFile>{
 		this.test = test;
 		this.validate();
 		index = Integer.parseInt(this.oracle.getName().substring(1, this.oracle.getName().lastIndexOf('.')));
+//		index = Integer.parseInt(this.oracle.getName().substring(1, this.oracle.getName().length()));
 	}
 	
 	private void validate(){

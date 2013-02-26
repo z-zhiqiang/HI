@@ -78,7 +78,7 @@ public class PredicateItem {
 			break;
 		}
 		case SCALAR_PAIR: {
-			System.out.println(type);
+//			System.out.println(type);
 			tp = ReturnScalarPairPredicateType.values()[type].toString();
 			break;
 		}
@@ -89,7 +89,7 @@ public class PredicateItem {
 		StringBuilder string = new StringBuilder();
 		string.append("(").append(id).append(", ").append(site.getCategory().toString()).append(", ").append(tp).append(", ").append(type).append(")\n")
 			.append(site.toStringWithoutFile()).append("\n")
-			.append(site.getFileString()).append("\n");
+			.append(site.getFileString());
 		return string.toString();
 	}
 	

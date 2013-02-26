@@ -32,6 +32,11 @@ public abstract class AbstractGenRunScript {
 	
 	protected final Map<Integer, String> inputsMap;
 	
+	protected final String startTimeCommand = "stime=\"$(date +%s%N)\"";
+	protected final String endTimeCommand = "time=\"$(($(date +%s%N)-stime))\"\n" +
+			"echo \"Time in seconds: $((time/1000000000)) \nTime in milliseconds: $((time/1000000))\"";
+	
+	
 	public AbstractGenRunScript(String sub, String ver, String cc, String source, String execute, String output, String script){
 		this.subject = sub;
 		this.version = ver;

@@ -33,6 +33,7 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 	public void genRunScript() {
 		StringBuffer code = new StringBuffer();
 		code.append(compileCommand + "\n");
+		code.append(startTimeCommand + "\n");
 		code.append("echo script: " + version + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
@@ -43,7 +44,7 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 			code.append("export SAMPLER_FILE=" + traceDir + "o" + index + ".fprofile\n");
 			code.append("$VERSIONSDIR/" + version + "_finst.exe ");//executables
 			code.append(inputsMap.get(index));//parameters
-			code.append(" > $OUTPUTSDIR/o" + index + ".fout\n");//output file
+			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
 		}
 		
 		for (Iterator it = passingTests.iterator(); it.hasNext();) {
@@ -52,10 +53,11 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 			code.append("export SAMPLER_FILE=" + traceDir + "o" + index + ".pprofile\n");
 			code.append("$VERSIONSDIR/" + version + "_finst.exe ");//executables
 			code.append(inputsMap.get(index));//parameters
-			code.append(" > $OUTPUTSDIR/o" + index + ".pout\n");//output file
+			code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
 		}
 		
-		printToFile(code.toString(), scriptDir, version + ".sh");
+		code.append(endTimeCommand + " >& " + outputDir + "time");
+		printToFile(code.toString(), scriptDir, version + "_fg.sh");
 	}
 
 

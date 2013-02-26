@@ -171,6 +171,7 @@ public class SplitInputs {
 		public boolean accept(File dir, String name) {
 			// TODO Auto-generated method stub
 			return name.matches("o[0-9]+\\.out");
+//			return true;
 		}
 		
 	}

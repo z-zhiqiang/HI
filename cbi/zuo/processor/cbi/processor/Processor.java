@@ -4,24 +4,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import zuo.processor.cbi.processor.PredicateItem.BranchPredicateType;
-import zuo.processor.cbi.processor.PredicateItem.FloatKindPredicateType;
-import zuo.processor.cbi.processor.PredicateItem.ReturnScalarPairPredicateType;
 import zuo.processor.cbi.profile.PredicateProfile;
-import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.profile.predicatesite.AbstractPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.BranchPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.FloatKindPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ReturnPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
-import zuo.processor.cbi.site.InstrumentationSites.BranchSite;
-import zuo.processor.cbi.site.InstrumentationSites.FloatKindSite;
-import zuo.processor.cbi.site.InstrumentationSites.ReturnSite;
-import zuo.processor.cbi.site.InstrumentationSites.ScalarSite;
 
 public class Processor {
 	private final PredicateProfile[] profiles; // profiles
@@ -456,6 +450,7 @@ public class Processor {
 	}
 	
 	public void printTopKPredictors(int k){
+		Set<String> methods = new LinkedHashSet<String>();
 		List list = new ArrayList(predictors.entrySet());
 		Collections.sort(list, new Comparator(){
 			@Override
@@ -465,45 +460,58 @@ public class Processor {
 						.compareTo(((Entry<PredicateItem, Double>) arg0).getValue());
 			}
 			});
+		
+		System.out.println("The top " + k + " predicates are as follows:\n=========================================================");
 		for (int i = 0; i < k && i < list.size(); i++) {
 			Entry<PredicateItem, Double> entry = (Entry<PredicateItem, Double>) list.get(i);
-			System.out.println(entry.getKey().toString() + ":  " + entry.getValue());
+			System.out.println("(" + (i + 1) + ") : " + entry.getValue() + "\n" + entry.getKey().toString());
+			System.out.println();
+			
+			//collect the method
+			String method = entry.getKey().getSite().getFunctionName();
+			if(!methods.contains(method)){
+				methods.add(method);
+			}
 		}
+		
+		System.out.println("\n");
+		System.out.println("The corresponding top " + methods.size() + " methods are as follows:\n=========================================================");
+		System.out.println(methods.toString());
 	}
 
 	
-	public static void main(String[] args) {
-		PredicateProfileReader reader = new PredicateProfileReader("/home/sunzzq/Research/grep/traces/v1/fine-grained", "/home/sunzzq/Research/grep/versions/v1/v1_f.sites");
-		PredicateProfile[] profiles = reader.readProfiles(4000);
-		Processor p = new Processor(profiles);
-		p.process();
-		System.out.println(p.getTotalNegative());
-		System.out.println(p.getTotalPositive());
-		System.out.println(p.getPredictors().size());
-//		System.out.println(p.getPredictors().toString());
-		p.printTopKPredictors(10);
-		
-		int num = profiles[0].getBranchPredicateSites().size() * 2 + profiles[0].getFloatKindPredicateSites().size() * 9 
-				+ profiles[0].getScalarPredicateSites().size() * 6 + profiles[0].getReturnPredicateSites().size() * 6;
-		System.out.println(num);
-		
-		int num2 = 0;
-		for(Entry<String, List<BranchSite>> entry: reader.getSites().getBranchSites().entrySet()){
-			num2 += entry.getValue().size() * 2;
-		}
-		for(Entry<String, List<FloatKindSite>> entry: reader.getSites().getFloatSites().entrySet()){
-			num2 += entry.getValue().size() * 9;
-		}
-		for(Entry<String, List<ReturnSite>> entry: reader.getSites().getReturnSites().entrySet()){
-			num2 += entry.getValue().size() * 6;
-		}
-		for(Entry<String, List<ScalarSite>> entry: reader.getSites().getScalarSites().entrySet()){
-			num2 += entry.getValue().size() * 6;
-		}
-		System.out.println(num2);
-		
-		
-	}
+//	public static void main(String[] args) {
+//		PredicateProfileReader reader = new PredicateProfileReader("/home/sunzzq/Research/grep/traces/v1/fine-grained", "/home/sunzzq/Research/grep/versions/v1/v1_f.sites");
+//		PredicateProfile[] profiles = reader.readProfiles(4000);
+//		Processor p = new Processor(profiles);
+//		p.process();
+//		System.out.println(p.getTotalNegative());
+//		System.out.println(p.getTotalPositive());
+//		System.out.println(p.getPredictors().size());
+////		System.out.println(p.getPredictors().toString());
+//		p.printTopKPredictors(10);
+//		
+//		int num = profiles[0].getBranchPredicateSites().size() * 2 + profiles[0].getFloatKindPredicateSites().size() * 9 
+//				+ profiles[0].getScalarPredicateSites().size() * 6 + profiles[0].getReturnPredicateSites().size() * 6;
+//		System.out.println(num);
+//		
+//		int num2 = 0;
+//		for(Entry<String, List<BranchSite>> entry: reader.getSites().getBranchSites().entrySet()){
+//			num2 += entry.getValue().size() * 2;
+//		}
+//		for(Entry<String, List<FloatKindSite>> entry: reader.getSites().getFloatSites().entrySet()){
+//			num2 += entry.getValue().size() * 9;
+//		}
+//		for(Entry<String, List<ReturnSite>> entry: reader.getSites().getReturnSites().entrySet()){
+//			num2 += entry.getValue().size() * 6;
+//		}
+//		for(Entry<String, List<ScalarSite>> entry: reader.getSites().getScalarSites().entrySet()){
+//			num2 += entry.getValue().size() * 6;
+//		}
+//		System.out.println(num2);
+//		
+//		
+//	}
 	
 	
 	public int getTotalPositive() {
