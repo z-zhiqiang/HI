@@ -1,5 +1,6 @@
-package zuo.processor.functionentry.processor;
+package zuo.processor.functionentry.client;
 
+import zuo.processor.functionentry.processor.SelectingProcessor;
 import zuo.processor.functionentry.profile.FunctionEntryProfile;
 import zuo.processor.functionentry.profile.FunctionEntryProfileReader;
 import zuo.processor.functionentry.site.FunctionEntrySite;
@@ -45,8 +46,12 @@ public class Client {
 		System.out.println("\n");
 		
 		for(FunctionEntrySite site: processor.getFrequencyMap().keySet()){
-			System.out.println(site.toString() + "\n\t" + processor.getFrequencyMap().get(site).toString() + "\t\t" + processor.Importance_A(processor.getFrequencyMap().get(site)));
+			System.out.println(site.toString() + "\n\t" + processor.getFrequencyMap().get(site).toString());
 		}
+	}
+	
+	private void constructMaps(){
+		
 	}
 	
 

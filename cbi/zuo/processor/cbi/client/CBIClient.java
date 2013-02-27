@@ -1,4 +1,4 @@
-package zuo.processor.cbi.processor;
+package zuo.processor.cbi.client;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import zuo.processor.cbi.processor.PredicateItem;
+import zuo.processor.cbi.processor.Processor;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.site.InstrumentationSites;
@@ -82,20 +84,7 @@ public class CBIClient {
 		System.out.println();
 		System.out.println("The information of sites and predicates in each method:\n--------------------------------------------------------------");
 		for(String method: sInfo.getMap().keySet()){
-			int nSites = sInfo.getMap().get(method).size();
-			int nPredicates = 0;
-			for(AbstractSite site: sInfo.getMap().get(method)){
-				if(site instanceof BranchSite){
-					nPredicates += 2;
-				}
-				else if(site instanceof FloatKindSite){
-					nPredicates += 9;
-				}
-				else{
-					nPredicates += 6;
-				}
-			}
-			System.out.println(method + "     \t:" + nSites + "\t:" + nPredicates);
+			System.out.println(method + "     \t:" + sInfo.getMap().get(method).getNumSites() + "\t:" + sInfo.getMap().get(method).getNumPredicates());
 		}
 		
 	}

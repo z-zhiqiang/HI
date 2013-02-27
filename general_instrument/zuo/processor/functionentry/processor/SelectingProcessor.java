@@ -16,13 +16,13 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
  */
 public class SelectingProcessor {
 	private final FunctionEntryProfile[] profiles;
-	private Map<FunctionEntrySite, FrequencyPair> frequencyMap;
+	private Map<FunctionEntrySite, FrequencyValue> frequencyMap;
 	private int totalNegative;
 	private int totalPositive;
 	
 	public SelectingProcessor(FunctionEntryProfile[] profiles){
 		this.profiles = profiles;
-		this.frequencyMap = new HashMap<FunctionEntrySite, FrequencyPair>();
+		this.frequencyMap = new HashMap<FunctionEntrySite, FrequencyValue>();
 		this.totalNegative = 0;
 		this.totalPositive = 0;
 	}
@@ -65,60 +65,48 @@ public class SelectingProcessor {
 					}
 					else{
 						if(profile.isCorrect()){
-							frequencyMap.put(function, new FrequencyPair(0, 1));
+							frequencyMap.put(function, new FrequencyValue(0, 1));
 						}
 						else{
-							frequencyMap.put(function, new FrequencyPair(1, 0));
+							frequencyMap.put(function, new FrequencyValue(1, 0));
 						}
 					}
 				}
 				else{
 					if(!frequencyMap.containsKey(function)){
-						frequencyMap.put(function, new FrequencyPair(0, 0));
+						frequencyMap.put(function, new FrequencyValue(0, 0));
 					}
 				}
 			}
 		}
+		
+		//set the f-score
+		for(FunctionEntrySite site: frequencyMap.keySet()){
+			FrequencyValue p = frequencyMap.get(site);
+			frequencyMap.get(site).setF_score(F_score(p.getNegative(), p.getPositive()));
+		}
 	}
 	
 	
-	/**calculate the approximation of Importance: 
-	 * 	Importance*(m)=2/(1/Increase*(m) + 1/(log(F(m)/log(TotalNegative))))
+	/**calculate the F-score of method: 
+	 * 	F_score(m)=2/(1/Increase*(m) + 1/(log(F(m)/log(TotalNegative))))
 	 * 	Increase*(m)=F(m)/(F(m)+S(m))
 	 * @param pair
 	 * @return
 	 */
-	public double Importance_A(FrequencyPair pair){
-		if(pair.getNegative() <= 1)
+	private double F_score(int neg, int pos){
+		if(neg <= 1){
 			return 0;
-		return 2/(1 + ((double) pair.getPositive() / pair.getNegative()) + (Math.log(totalNegative) / Math.log(pair.getNegative())));
+		}
+		return 2/(1 + ((double) pos / neg) + (Math.log(totalNegative) / Math.log(neg)));
 	}
 	
 	
-//	public static void main(String[] args) {
-//		String sitesFile = "/home/sunzzq/Research/grep/versions/v1/v1_c.sites";
-//		FunctionEntrySites sites = new FunctionEntrySites(sitesFile);
-//		
-//		String profilesFile = "/home/sunzzq/Research/grep/traces/v1/coarse-grained";
-//		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFile, sites);
-//		FunctionEntryProfile[] profiles = reader.readFunctionEntryProfiles(685);
-//		
-//		SelectingProcessor processor = new SelectingProcessor(profiles);
-//		processor.process();
-//		System.out.println(processor.totalNegative);
-//		System.out.println(processor.totalPositive);
-//		for(FunctionEntrySite site: processor.frequencyMap.keySet()){
-//			System.out.println(site.toString() + "\n\t" + processor.frequencyMap.get(site).toString() + "\t\t" + processor.Importance_A(processor.frequencyMap.get(site)));
-//		}
-//	}
-	
-	
-	
-	public Map<FunctionEntrySite, FrequencyPair> getFrequencyMap() {
+	public Map<FunctionEntrySite, FrequencyValue> getFrequencyMap() {
 		return frequencyMap;
 	}
 
-	public void setFrequencyMap(Map<FunctionEntrySite, FrequencyPair> frequencyMap) {
+	public void setFrequencyMap(Map<FunctionEntrySite, FrequencyValue> frequencyMap) {
 		this.frequencyMap = frequencyMap;
 	}
 
@@ -144,22 +132,25 @@ public class SelectingProcessor {
 
 
 
-	public static class FrequencyPair{
+	public static class FrequencyValue{
 		int negative;
 		int positive;
+		double f_score;
 		
-		public FrequencyPair(){
+		public FrequencyValue(){
 			this.negative = 0;
 			this.positive = 0;
+			this.f_score = 0;
 		}
 		
-		public FrequencyPair(int n, int p){
+		public FrequencyValue(int n, int p){
 			this.negative = n;
 			this.positive = p;
+			this.f_score = 0;
 		}
 		
 		public String toString(){
-			return "F: " + negative + ", S: " + positive;
+			return "F: " + negative + ", S: " + positive + ", F_score: " + this.f_score;
 		}
 		
 		public void increaseNegative(){
@@ -182,6 +173,15 @@ public class SelectingProcessor {
 		public void setPositive(int positive) {
 			this.positive = positive;
 		}
+
+		public double getF_score() {
+			return f_score;
+		}
+
+		public void setF_score(double f_score) {
+			this.f_score = f_score;
+		}
+		
 	}
 
 }
