@@ -6,17 +6,20 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import zuo.processor.utility.FileUtility;
 
 public class FunctionEntrySites {
 	private final Map<String, List<FunctionEntrySite>> sites;
+	final int numFunctionEntrySites;
 	
 	public FunctionEntrySites(String sitesFile){
-		int index = -1;
+		int index = 0;
 		Map<String, List<FunctionEntrySite>> sites = new LinkedHashMap<String, List<FunctionEntrySite>>();
 		
 		BufferedReader in = null;
@@ -60,6 +63,7 @@ public class FunctionEntrySites {
 		}
 		
 		this.sites = Collections.unmodifiableMap(sites);
+		this.numFunctionEntrySites = index;
 	}
 	
 	
@@ -68,17 +72,26 @@ public class FunctionEntrySites {
 		return sites;
 	}
 
+	public int getNumFunctionEntrySites() {
+		return numFunctionEntrySites;
+	}
+
 
 
 	public static void main(String[] args) {
-		FunctionEntrySites fs = new FunctionEntrySites("/home/sunzzq/Research/test/main.sites");
+		Set<String> set = new HashSet<String>();
+		int i = 0;
+		FunctionEntrySites fs = new FunctionEntrySites("/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions/v3/v3_c.sites");
 		for (String unit: fs.sites.keySet()) {
 			List<FunctionEntrySite> list = fs.sites.get(unit);
+			i += list.size(); 
 			for (FunctionEntrySite functionEntrySite : list) {
-				System.out.println(functionEntrySite.toString());
+				set.add(functionEntrySite.getFunctionName());
 			}
 //			System.out.println(fs.sites.get(unit).toString());
 			System.out.println();
 		}
+		System.out.println(i);
+		System.out.println(set.size());
 	}
 }

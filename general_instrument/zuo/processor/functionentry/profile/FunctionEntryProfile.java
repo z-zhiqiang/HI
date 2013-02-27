@@ -45,6 +45,7 @@ public class FunctionEntryProfile {
 								items.add(new FunctionEntryItem(count, siteList.get(++index)));
 							}
 							assert(siteList.size() == ++index);
+//							System.out.println(index);
 						}
 					}
 				}

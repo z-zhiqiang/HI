@@ -41,7 +41,7 @@ public class FunctionEntrySite {
 	}
 
 	public String toString(){
-		return id + "\t" + fileName + "\t" + lineNumber + "\t" + functionName + "\t" + cfgNumber;  
+		return id + "\t" + fileName + "\t" + lineNumber + "\t" + functionName + "     \t" + cfgNumber;  
 	}
 	
 	public int hashCode(){

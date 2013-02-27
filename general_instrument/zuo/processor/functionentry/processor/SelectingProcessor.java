@@ -53,8 +53,8 @@ public class SelectingProcessor {
 	private void computeFrequencyPair(){
 		for(FunctionEntryProfile profile: profiles){
 			for(FunctionEntryItem item: profile.getFunctionEntryItems()){
+				FunctionEntrySite function = item.getSite();
 				if(item.getCounter() > 0){
-					FunctionEntrySite function = item.getSite();
 					if(frequencyMap.containsKey(function)){
 						if(profile.isCorrect()){
 							frequencyMap.get(function).increasePositive();
@@ -70,6 +70,11 @@ public class SelectingProcessor {
 						else{
 							frequencyMap.put(function, new FrequencyPair(1, 0));
 						}
+					}
+				}
+				else{
+					if(!frequencyMap.containsKey(function)){
+						frequencyMap.put(function, new FrequencyPair(0, 0));
 					}
 				}
 			}

@@ -15,13 +15,9 @@ public class PredicateProfileReader {
 	private final InstrumentationSites sites;
 	private final File profileFolder;
 
-	public PredicateProfileReader(String profileFolder, String sitesPath) {
+	public PredicateProfileReader(String profileFolder, InstrumentationSites sites) {
 		this.profileFolder = new File(profileFolder);
-		if (sitesPath == null) {
-			this.sites = null;
-		} else {
-			this.sites = new InstrumentationSites(new File(sitesPath));
-		}
+		this.sites = sites;
 	}
 	
 	public final PredicateProfile[] readProfiles(int numRuns) {
@@ -63,14 +59,6 @@ public class PredicateProfileReader {
 		return new PredicateProfile(profileFile, sites, isCorrect);
 	}
 	
-
-	public static void main(String[] args) {
-		PredicateProfileReader reader = new PredicateProfileReader("/home/sunzzq/Research/tcas/traces/v1/fine-grained", "/home/sunzzq/Research/tcas/versions/v1/v1_f.sites");
-		PredicateProfile[] profiles = reader.readProfiles(20);
-		System.out.println(profiles[0].toString());
-		System.out.println(profiles[1].toString());
-		System.out.println(profiles[2].toString());
-	}
 
 	public InstrumentationSites getSites() {
 		return sites;

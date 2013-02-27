@@ -245,13 +245,13 @@ public class InstrumentationSites {
 		return this.branchSites.get(unit).get(index);
 	}
 
-	public InstrumentationSites(File sitesPath) {
+	public InstrumentationSites(File sitesFile) {
 		Map<String, List<ScalarSite>> scalarSites = new HashMap<String, List<ScalarSite>>();
 		Map<String, List<ReturnSite>> returnSites = new HashMap<String, List<ReturnSite>>();
 		Map<String, List<BranchSite>> branchSites = new HashMap<String, List<BranchSite>>();
 		Map<String, List<FloatKindSite>> floatSites = new HashMap<String, List<FloatKindSite>>();
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(sitesPath));
+			BufferedReader reader = new BufferedReader(new FileReader(sitesFile));
 			for (String line = reader.readLine(); line != null; line = reader
 					.readLine()) {
 				if (line.startsWith("<sites")) {
