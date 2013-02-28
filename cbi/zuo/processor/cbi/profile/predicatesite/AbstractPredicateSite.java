@@ -22,10 +22,6 @@ public abstract class AbstractPredicateSite {
 		return site;
 	}
 
-	public String getMethodName() {
-		return this.site.getFunctionName();
-	}
-
 	protected byte normalize(int counter) {
 		return (byte) (counter > 0 ? 1 : 0);
 	}

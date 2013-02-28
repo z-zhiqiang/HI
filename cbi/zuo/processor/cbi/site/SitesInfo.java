@@ -25,6 +25,12 @@ public class SitesInfo {
 			this.numPredicates = numPredicates;
 			this.sitesSet = sSet;
 		}
+		
+		public String toStringWithoutSites(){
+			StringBuilder builder = new StringBuilder();
+			builder.append("s:").append(this.numSites).append("\t\tp:").append(this.numPredicates);
+			return builder.toString();
+		}
 
 		public int getNumSites() {
 			return numSites;

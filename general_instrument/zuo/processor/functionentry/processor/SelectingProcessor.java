@@ -1,5 +1,6 @@
 package zuo.processor.functionentry.processor;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -150,8 +151,18 @@ public class SelectingProcessor {
 		}
 		
 		public String toString(){
-			return "F: " + negative + ", S: " + positive + ", F_score: " + this.f_score;
+			return "F:" + negative + "\t\tS:" + positive + "\t\tF_1:" + new DecimalFormat("#.#####").format(this.f_score);
 		}
+//		public String toStringByFScore(){
+//			StringBuilder builder = new StringBuilder();
+//			builder.append("F_score:").append(this.f_score).append("\tF:").append(this.negative).append("\tS:").append(this.positive);
+//			return builder.toString();
+//		}
+//		public String toStringByNegative(){
+//			StringBuilder builder = new StringBuilder();
+//			builder.append("F:").append(this.negative).append("\tF_score:").append(this.f_score).append("\tS:").append(this.positive);
+//			return builder.toString();
+//		}
 		
 		public void increaseNegative(){
 			this.negative++;

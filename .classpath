@@ -6,7 +6,7 @@
 	<classpathentry kind="src" path="utility"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/Users/sunzzq/Workspace/program/protobuf-java-2.4.1.jar"/>
-	<classpathentry kind="lib" path="/Users/sunzzq/Workspace/program/soot-2.5.0.jar" sourcepath="/Users/sunzzq/Workspace/program/sootsrc-2.5.0.jar"/>
+	<classpathentry kind="lib" path="/home/sunzzq/Workspace/program/soot-2.5.0.jar"/>
+	<classpathentry kind="lib" path="/home/sunzzq/Workspace/program/protobuf-java-2.4.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
