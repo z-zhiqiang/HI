@@ -79,7 +79,10 @@ public class FunctionClient {
 	}
 
 	public static void main(String[] args) {
-		File[] versions = new File("/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions").listFiles(new FilenameFilter(){
+		final String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/";
+		final String subject = "printtokens";
+		
+		File[] versions = new File(rootDir + subject + "/versions").listFiles(new FilenameFilter(){
 			@Override
 			public boolean accept(File dir, String name) {
 				// TODO Auto-generated method stub
@@ -97,11 +100,11 @@ public class FunctionClient {
 				String vi = version.getName();
 				System.out.println();
 				System.out.println(vi);
-				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File("/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions/" + vi + "/" + vi + "_f.sites")));
-				CBIClient c = new CBIClient(2717, 10, "/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions/" + vi + "/" + vi + "_f.sites", 
-						"/home/sunzzq/Research/Automated_Debugging/Subjects/space/traces/" + vi +"/fine-grained", "/home/sunzzq/Console/space_" + vi + "_cbi.out");
-				FunctionClient client = new FunctionClient(2717, "/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions/" + vi + "/" + vi + "_c.sites", 
-						"/home/sunzzq/Research/Automated_Debugging/Subjects/space/traces/" + vi + "/coarse-grained", "/home/sunzzq/Console/space_" + vi + "_function.out", sInfo, c.getMethods(), c.getPredictorEntryList(), vi);
+				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(rootDir + subject + "/versions/" + vi + "/" + vi + "_f.sites")));
+				CBIClient c = new CBIClient(2717, 10, rootDir + subject + "/versions/" + vi + "/" + vi + "_f.sites", 
+						rootDir + subject + "/traces/" + vi +"/fine-grained", "/home/sunzzq/Console/" + subject + "_" + vi + "_cbi.out");
+				FunctionClient client = new FunctionClient(2717, rootDir + subject + "/versions/" + vi + "/" + vi + "_c.sites", 
+						rootDir + subject + "/traces/" + vi + "/coarse-grained", "/home/sunzzq/Console/" + subject + "_" + vi + "_function.out", sInfo, c.getMethods(), c.getPredictorEntryList(), vi);
 				
 				for (int i = 0; i < results.get(vi).length; i++) {
 					for (int j = 0; j < results.get(vi)[i].length; j++) {
@@ -112,6 +115,12 @@ public class FunctionClient {
 			}
 		}
 		
+		System.out.println("\n\n\n\n==============================================================");
+		printTotalResults();
+		
+	}
+
+	private static void printTotalResults() {
 		double[][] sum = new double[3][4];
 		for(String version: results.keySet()){
 			int[][] array = results.get(version);
@@ -121,13 +130,29 @@ public class FunctionClient {
 				}
 			}
 		}
+		System.out.println("\nThe information of average sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
+		System.out.println("Excluding\ts%:" + new DecimalFormat("##.##").format((double) 100 * sum[0][0] / results.size())
+				+ "   \tp%:" + new DecimalFormat("##.##").format((double)100 * sum[0][1] / results.size()));
+		System.out.println("Including\ts%:" + new DecimalFormat("##.##").format((double) 100 * sum[0][2] / results.size())
+				+ "   \tp%:" + new DecimalFormat("##.##").format((double)100 * sum[0][3] / results.size()));
+		System.out.println("\nThe information of average sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
+		System.out.println("Excluding\ts%:" + new DecimalFormat("##.##").format((double) 100 * sum[1][0] / results.size())
+				+ "   \tp%:" + new DecimalFormat("##.##").format((double)100 * sum[1][1] / results.size()));
+		System.out.println("Including\ts%:" + new DecimalFormat("##.##").format((double) 100 * sum[1][2] / results.size())
+				+ "   \tp%:" + new DecimalFormat("##.##").format((double)100 * sum[1][3] / results.size()));
+		System.out.println("\nThe information of average sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
+		System.out.println("Excluding\ts%:" + new DecimalFormat("##.##").format((double) 100 * sum[2][0] / results.size())
+				+ "   \tp%:" + new DecimalFormat("##.##").format((double)100 * sum[2][1] / results.size()));
+		System.out.println("Including\ts%:" + new DecimalFormat("##.##").format((double) 100 * sum[2][2] / results.size())
+				+ "   \tp%:" + new DecimalFormat("##.##").format((double)100 * sum[2][3] / results.size()));
+		
+		System.out.println("\n\n");
 		for (int i = 0; i < sum.length; i++) {
 			for (int j = 0; j < sum[i].length; j++) {
 				System.out.print(sum[i][j]/(results.size()) + "\t");
 			}
 			System.out.println();
 		}
-		
 	}
 	
 	private void printResults(PrintWriter writer){
@@ -137,46 +162,32 @@ public class FunctionClient {
 		SelectingProcessor processor = new SelectingProcessor(profiles);
 		processor.process();
 		
-//		System.out.println("\n");
-//		System.out.println("The general runs information are as follows:\n==============================================================");
-//		System.out.println("Total number of runs:\t\t\t\t" + runs);
-//		System.out.println("Total number of negative runs:\t\t\t" + processor.getTotalNegative());
-//		System.out.println("Total number of positive runs:\t\t\t" + processor.getTotalPositive());
 		assert(processor.getTotalNegative() + processor.getTotalPositive() == runs);
 		writer.println("\n");
 		writer.println("The general runs information are as follows:\n==============================================================");
-		writer.println("Total number of runs:\t\t\t\t" + runs);
-		writer.println("Total number of negative runs:\t\t\t" + processor.getTotalNegative());
-		writer.println("Total number of positive runs:\t\t\t" + processor.getTotalPositive());
+		writer.println(String.format("%-50s", "Total number of runs:") + runs);
+		writer.println(String.format("%-50s", "Total number of negative runs:") + processor.getTotalNegative());
+		writer.println(String.format("%-50s", "Total number of positive runs:") + processor.getTotalPositive());
 		
-//		System.out.println("\n");
 		writer.println("\n");
 		printSitesInfo(sInfo, writer);
 		
-//		System.out.println("\n");
-//		System.out.println("The general methods information are as follows:\n==============================================================");
-//		System.out.println("Total number of methods instrumented:\t\t" + sites.getNumFunctionEntrySites());
 		assert(processor.getFrequencyMap().size() == sites.getNumFunctionEntrySites());
 		writer.println("\n");
 		writer.println("The general methods information are as follows:\n==============================================================");
-		writer.println("Total number of methods instrumented:\t\t" + sites.getNumFunctionEntrySites());
+		writer.println(String.format("%-50s", "Total number of methods instrumented:") + sites.getNumFunctionEntrySites());
 		
-//		System.out.println("\n");
 		writer.println("\n");
 		printByFScoreOrder(processor.getFrequencyMap(), sInfo, writer);
 		System.out.println();
 		writer.println();
 		printPercentageByFScoreOrder(processor.getFrequencyMap(), sInfo, writer);
-//		System.out.println("\n");
 		writer.println("\n");
 		printByNegative(processor.getFrequencyMap(), sInfo, writer);
-//		System.out.println();
 		writer.println();
 		printPercentageByNegative(processor.getFrequencyMap(), sInfo, writer);
-//		System.out.println("\n");
 		writer.println("\n");
 		printByPositive(processor.getFrequencyMap(), sInfo, writer);
-//		System.out.println();
 		writer.println();
 		printPercentageByPositive(processor.getFrequencyMap(), sInfo, writer);
 		
@@ -204,7 +215,6 @@ public class FunctionClient {
 				}
 				return r;
 			}});
-//		System.out.println("The methods ordered by positive are as follows:\n--------------------------------------------------------------");
 		writer.println("The methods ordered by positive are as follows:\n--------------------------------------------------------------");
 		printEntry(sInfo, writer, list);
 	}
@@ -252,7 +262,6 @@ public class FunctionClient {
 				}
 				return r;
 			}});
-//		System.out.println("The methods ordered by negative are as follows:\n--------------------------------------------------------------");
 		writer.println("The methods ordered by negative are as follows:\n--------------------------------------------------------------");
 		printEntry(sInfo, writer, list);
 	}
@@ -294,7 +303,6 @@ public class FunctionClient {
 				return new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
 						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
 			}});
-//		System.out.println("The methods ordered by F-score are as follows:\n--------------------------------------------------------------");
 		writer.println("The methods ordered by F-score are as follows:\n--------------------------------------------------------------");
 		printEntry(sInfo, writer, list);
 	}
@@ -320,12 +328,10 @@ public class FunctionClient {
 			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
 			String method = entry.getKey().getFunctionName();
 			if(sInfo.getMap().containsKey(method)){
-//				System.out.println(method + "    \t" + entry.getValue().toString() + "    \t" + sInfo.getMap().get(method).toStringWithoutSites());
-				writer.println(method + "    \t" + entry.getValue().toString() + "    \t" + sInfo.getMap().get(method).toStringWithoutSites());
+				writer.println(String.format("%-25s", method) + entry.getValue().toString() + "\t\t" + sInfo.getMap().get(method).toStringWithoutSites());
 			}
 			else{
-//				System.out.println(method + "    \t" + entry.getValue().toString());
-				writer.println(method + "    \t" + entry.getValue().toString());
+				writer.println(String.format("%-25s", method) + entry.getValue().toString());
 			}
 		}
 	}
@@ -338,21 +344,21 @@ public class FunctionClient {
 			String method = entry.getKey().getFunctionName();
 			//percentage information of instrumented sites and predicates
 			if(m.equals(method)){
-				System.out.println("Excluding " + m + "   \ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
-						+ "     \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
-				writer.println("Excluding " + m + "   \ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
-						+ "     \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
+				System.out.println("Excluding " + m + "\t\ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
+						+ "    \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
+				writer.println("Excluding " + m + "\t\ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
+						+ "    \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
 				results.get(version)[f.ordinal()][0] = nSites;
 				results.get(version)[f.ordinal()][1] = nPredicates;
 				
 				nSites += sInfo.getMap().get(method).getNumSites();
 				nPredicates += sInfo.getMap().get(method).getNumPredicates();
 
-				System.out.println("Including " + m + "   \ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
-						+ "     \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
+				System.out.println("Including " + m + "\t\ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
+						+ "    \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
 				System.out.println();
-				writer.println("Including " + m + "   \ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
-						+ "     \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
+				writer.println("Including " + m + "\t\ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
+						+ "    \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
 				writer.println();
 				results.get(version)[f.ordinal()][2] = nSites;
 				results.get(version)[f.ordinal()][3] = nPredicates;
@@ -376,25 +382,15 @@ public class FunctionClient {
 	 * @param writer
 	 */
 	public static void printSitesInfo(SitesInfo sInfo, PrintWriter writer) {
-		// TODO Auto-generated method stub
-//		System.out.println("The general sites information are as follows:\n==============================================================");
-//		System.out.println("Total number of sites instrumented:\t\t\t" + sInfo.getNumPredicateSites());
-//		System.out.println("Total number of predicates instrumented:\t\t" + sInfo.getNumPredicateItems());
-//		System.out.println("Total number of methods having sites instrumented:\t" + sInfo.getMap().size());
-//		System.out.println();
-//		System.out.println("The information of sites and predicates in each method:\n--------------------------------------------------------------");
-		
 		writer.println("The general sites information are as follows:\n==============================================================");
-		writer.println("Total number of sites instrumented:\t\t\t" + sInfo.getNumPredicateSites());
-		writer.println("Total number of predicates instrumented:\t\t" + sInfo.getNumPredicateItems());
-		writer.println("Total number of methods having sites instrumented:\t" + sInfo.getMap().size());
+		writer.println(String.format("%-60s", "Total number of sites instrumented:") + sInfo.getNumPredicateSites());
+		writer.println(String.format("%-60s", "Total number of predicates instrumented:") + sInfo.getNumPredicateItems());
+		writer.println(String.format("%-60s", "Total number of methods having sites instrumented:") + sInfo.getMap().size());
 		writer.println();
 		writer.println("The information of sites and predicates in each method:\n--------------------------------------------------------------");
 		for(String method: sInfo.getMap().keySet()){
-//			System.out.println(method + "     \t:" + sInfo.getMap().get(method).getNumSites() + "\t:" + sInfo.getMap().get(method).getNumPredicates());
-			writer.println(method + "     \t:" + sInfo.getMap().get(method).getNumSites() + "\t:" + sInfo.getMap().get(method).getNumPredicates());
+			writer.println(String.format("%-25s", method) + ":" + sInfo.getMap().get(method).getNumSites() + "\t:" + sInfo.getMap().get(method).getNumPredicates());
 		}
-		
 	}
 	
 

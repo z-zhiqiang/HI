@@ -64,22 +64,15 @@ public class CBIClient {
 		p.process();
 		
 		
-//		System.out.println("\n");
-//		System.out.println("The general runs information are as follows:\n==============================================================");
-//		System.out.println("Total number of runs:\t\t\t\t" + runs);
-//		System.out.println("Total number of negative runs:\t\t\t" + p.getTotalNegative());
-//		System.out.println("Total number of positive runs:\t\t\t" + p.getTotalPositive());
 		assert(p.getTotalNegative() + p.getTotalPositive() == runs);
 		writer.println("\n");
 		writer.println("The general runs information are as follows:\n==============================================================");
-		writer.println("Total number of runs:\t\t\t\t" + runs);
-		writer.println("Total number of negative runs:\t\t\t" + p.getTotalNegative());
-		writer.println("Total number of positive runs:\t\t\t" + p.getTotalPositive());
+		writer.println(String.format("%-50s", "Total number of runs:") + runs);
+		writer.println(String.format("%-50s", "Total number of negative runs:") + p.getTotalNegative());
+		writer.println(String.format("%-50s", "Total number of positive runs:") + p.getTotalPositive());
 	
-//		System.out.println("\n");
 		writer.println("\n");
 		printTopKPredictors(p.getPredictors(), k, writer);
-		
 	}
 
 	public void printTopKPredictors(Map<PredicateItem, Double> predictors, int k, PrintWriter writer){
@@ -95,7 +88,6 @@ public class CBIClient {
 			}
 			});
 		
-//		System.out.println("The top " + k + " predicates are as follows:\n==============================================================");
 		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
 		for (int i = 0; i < list.size(); i++) {
 			Entry<PredicateItem, Double> entry = (Entry<PredicateItem, Double>) list.get(i);
@@ -106,9 +98,6 @@ public class CBIClient {
 				if (!topMethods.contains(method)) {
 					topMethods.add(method);
 				}
-//				System.out.println("(" + (i + 1) + "): " + entry.getValue()
-//						+ "\n" + entry.getKey().toString());
-//				System.out.println();
 				writer.println("(" + (i + 1) + "): " + entry.getValue() + "\n"
 						+ entry.getKey().toString());
 				writer.println();
@@ -121,9 +110,6 @@ public class CBIClient {
 		this.predictorEntryList = Collections.unmodifiableList(list);
 	    this.methods = Collections.unmodifiableSet(methods);
 		
-//		System.out.println();
-//		System.out.println("The corresponding top " + topMethods.size() + " methods are as follows:\n--------------------------------------------------------------");
-//		System.out.println(topMethods.toString());
 		writer.println();
 		writer.println("The corresponding top " + topMethods.size() + " methods are as follows:\n--------------------------------------------------------------");
 		writer.println(topMethods.toString());

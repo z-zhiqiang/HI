@@ -13,8 +13,8 @@ import zuo.processor.utility.FileUtility;
 
 
 public class GenScriptsClient {
-	final static String rootDir = "/home/sunzzq/Research/";
-	final static String subject = "space";
+	final static String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/";
+	final static String subject = "replace";
 	final String version;
 	final static String inputs = rootDir + subject + "/testplans.alt/" + "universe";
 	public final static String inputsMapFile = rootDir + subject + "/testplans.alt/" + "inputs.map";
@@ -87,7 +87,7 @@ public class GenScriptsClient {
 //		gs = new GenRunSubjectScript(subject, gc.version, gc.compileSubject, gc.ssourceDir, gc.sexecuteDir, gc.soutputDir, gc.scriptDir);
 //		gs.genRunScript();
 		
-		for(int i = 3; i <= 3; i++){
+		for(int i = 1; i <= 32; i++){
 			gc = new GenScriptsClient("v" + i);
 			
 //			System.out.println("generating run script for v" + i);
@@ -96,12 +96,12 @@ public class GenScriptsClient {
 			System.out.println("sliptting inputs for v" + i);
 			SplitInputs split = new SplitInputs(inputsMapFile, gc.soutputDir, gc.voutputDir, gc.vexecuteDir);
 			split.split();
-////			
-//			System.out.println("generating run instrument script for v" + i);
-//			gs = new GenRunFineGrainedInstrumentScript(subject, gc.version, gc.compileFGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
-//			gs.genRunScript();
-//			gs = new GenRunCoarseGrainedInstrumentScript(subject, gc.version, gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100000);
-//			gs.genRunScript();
+			
+			System.out.println("generating run instrument script for v" + i);
+			gs = new GenRunFineGrainedInstrumentScript(subject, gc.version, gc.compileFGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+			gs.genRunScript();
+			gs = new GenRunCoarseGrainedInstrumentScript(subject, gc.version, gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100000);
+			gs.genRunScript();
 		}
 	
 	}
