@@ -30,38 +30,85 @@ import zuo.processor.functionentry.site.FunctionEntrySite;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class FunctionClient {
+	public static final int TOP_K = 10;
+
 	static enum Score{
 		F_1, F, S
 	}
 	
 	final int runs;
-	final String version;
 	
 	final String sitesFile;
-	final String profilesFile;
+	final String profilesFolder;
 	final String consoleFile;
 	
 	final SitesInfo sInfo;
-	final Set<String> methods;
 	final List<Map.Entry<PredicateItem, Double>> predictors;
 	
-	static Map<String, int[][]> results = new HashMap<String, int[][]>();
+	final int[][] result;
 	
 	
-	public FunctionClient(int runs, String sitesFile, String profilesFile, String consoleFile, SitesInfo sInfo, Set<String> methods, List predictors, String ver) {
+	public FunctionClient(int runs, String sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors) {
 		this.runs = runs;
-		this.version = ver;
-		
 		this.sitesFile = sitesFile;
-		this.profilesFile = profilesFile;
+		this.profilesFolder = profilesFolder;
 		this.consoleFile = consoleFile;
-		
 		this.sInfo = sInfo;
-		this.methods = methods;
 		this.predictors = predictors;
+		this.result = new int[3][6];
 		
-		int[][] array = new int[3][6];
-		results.put(this.version, array);
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
+			printResults(writer);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally{
+			if(writer != null){
+				writer.close();
+			}
+		}
+	}
+	
+	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors){
+		this.runs = runs;
+		this.sitesFile = rootDir + subject + "/versions/" + version + "/" + version + "_c.sites";
+		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";
+		this.consoleFile = consoleFolder + subject + "_" + version + "_function.out"; 
+		this.sInfo = sInfo;
+		this.predictors = predictors;
+		this.result = new int[3][6];
+		
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
+			printResults(writer);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally{
+			if(writer != null){
+				writer.close();
+			}
+		}
+		
+	}
+	
+	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder){
+		this.runs = runs;
+		this.sitesFile = rootDir + subject + "/versions/" + version + "/" + version + "_c.sites";
+		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";
+		this.consoleFile = consoleFolder + subject + "_" + version + "_function.out";
+		
+		this.sInfo = new SitesInfo(new InstrumentationSites(new File(rootDir + subject + "/versions/" + version + "/" + version + "_f.sites")));
+		CBIClient c = new CBIClient(runs, TOP_K, rootDir + subject + "/versions/" + version + "/" + version + "_f.sites", 
+				rootDir + subject + "/traces/" + version +"/fine-grained", consoleFolder + subject + "_" + version + "_cbi.out");
+		this.predictors = c.getPredictorEntryList();
+		
+		this.result = new int[3][6];
 		
 		PrintWriter writer = null;
 		try {
@@ -81,83 +128,25 @@ public class FunctionClient {
 	public static void main(String[] args) {
 		final String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/";
 		final String subject = "printtokens";
+		final String version = "v1";
+		final String consoleFolder = "/home/sunzzq/Console/";
 		
-		File[] versions = new File(rootDir + subject + "/versions").listFiles(new FilenameFilter(){
-			@Override
-			public boolean accept(File dir, String name) {
-				// TODO Auto-generated method stub
-				return Pattern.matches("v[0-9]*", name);
-			}});
-		Arrays.sort(versions, new Comparator(){
-			@Override
-			public int compare(Object arg0, Object arg1) {
-				// TODO Auto-generated method stub
-				return new Integer(Integer.parseInt(((File) arg0).getName().substring(1))).compareTo(new Integer(Integer.parseInt(((File) arg1).getName().substring(1))));
-			}});
+		FunctionClient client = new FunctionClient(2717, rootDir, subject, version, consoleFolder);
 		
-		for(File version: versions){
-			if(version.isDirectory() && version.listFiles().length == 10){
-				String vi = version.getName();
-				System.out.println();
-				System.out.println(vi);
-				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(rootDir + subject + "/versions/" + vi + "/" + vi + "_f.sites")));
-				CBIClient c = new CBIClient(2717, 10, rootDir + subject + "/versions/" + vi + "/" + vi + "_f.sites", 
-						rootDir + subject + "/traces/" + vi +"/fine-grained", "/home/sunzzq/Console/" + subject + "_" + vi + "_cbi.out");
-				FunctionClient client = new FunctionClient(2717, rootDir + subject + "/versions/" + vi + "/" + vi + "_c.sites", 
-						rootDir + subject + "/traces/" + vi + "/coarse-grained", "/home/sunzzq/Console/" + subject + "_" + vi + "_function.out", sInfo, c.getMethods(), c.getPredictorEntryList(), vi);
-				
-				for (int i = 0; i < results.get(vi).length; i++) {
-					for (int j = 0; j < results.get(vi)[i].length; j++) {
-						System.out.print(results.get(vi)[i][j] + "\t");
-					}
-					System.out.println();
-				}
-			}
-		}
-		
-		System.out.println("\n\n\n\n==============================================================");
-		printTotalResults();
-		
-	}
-
-	private static void printTotalResults() {
-		double[][] sum = new double[3][4];
-		for(String version: results.keySet()){
-			int[][] array = results.get(version);
-			for (int i = 0; i < array.length; i++) {
-				for (int j = 0; j < array[i].length - 2; j++) {
-					sum[i][j] += (double) array[i][j]/array[i][j%2 + 4];
-				}
-			}
-		}
-		System.out.println("\nThe information of average sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
-		System.out.println("Excluding\ts%:" + new DecimalFormat("##.##").format((double) 100 * sum[0][0] / results.size())
-				+ "   \tp%:" + new DecimalFormat("##.##").format((double)100 * sum[0][1] / results.size()));
-		System.out.println("Including\ts%:" + new DecimalFormat("##.##").format((double) 100 * sum[0][2] / results.size())
-				+ "   \tp%:" + new DecimalFormat("##.##").format((double)100 * sum[0][3] / results.size()));
-		System.out.println("\nThe information of average sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
-		System.out.println("Excluding\ts%:" + new DecimalFormat("##.##").format((double) 100 * sum[1][0] / results.size())
-				+ "   \tp%:" + new DecimalFormat("##.##").format((double)100 * sum[1][1] / results.size()));
-		System.out.println("Including\ts%:" + new DecimalFormat("##.##").format((double) 100 * sum[1][2] / results.size())
-				+ "   \tp%:" + new DecimalFormat("##.##").format((double)100 * sum[1][3] / results.size()));
-		System.out.println("\nThe information of average sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
-		System.out.println("Excluding\ts%:" + new DecimalFormat("##.##").format((double) 100 * sum[2][0] / results.size())
-				+ "   \tp%:" + new DecimalFormat("##.##").format((double)100 * sum[2][1] / results.size()));
-		System.out.println("Including\ts%:" + new DecimalFormat("##.##").format((double) 100 * sum[2][2] / results.size())
-				+ "   \tp%:" + new DecimalFormat("##.##").format((double)100 * sum[2][3] / results.size()));
-		
-		System.out.println("\n\n");
-		for (int i = 0; i < sum.length; i++) {
-			for (int j = 0; j < sum[i].length; j++) {
-				System.out.print(sum[i][j]/(results.size()) + "\t");
+		for (int i = 0; i < client.result.length; i++) {
+			for (int j = 0; j < client.result[i].length; j++) {
+				System.out.print(client.result[i][j] + "\t");
 			}
 			System.out.println();
 		}
+		
+		
 	}
+
 	
 	private void printResults(PrintWriter writer){
 		FunctionEntrySites sites = new FunctionEntrySites(sitesFile);
-		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFile, sites);
+		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFolder, sites);
 		FunctionEntryProfile[] profiles = reader.readFunctionEntryProfiles(runs);
 		SelectingProcessor processor = new SelectingProcessor(profiles);
 		processor.process();
@@ -348,8 +337,8 @@ public class FunctionClient {
 						+ "    \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
 				writer.println("Excluding " + m + "\t\ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
 						+ "    \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
-				results.get(version)[f.ordinal()][0] = nSites;
-				results.get(version)[f.ordinal()][1] = nPredicates;
+				result[f.ordinal()][0] = nSites;
+				result[f.ordinal()][1] = nPredicates;
 				
 				nSites += sInfo.getMap().get(method).getNumSites();
 				nPredicates += sInfo.getMap().get(method).getNumPredicates();
@@ -360,11 +349,11 @@ public class FunctionClient {
 				writer.println("Including " + m + "\t\ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
 						+ "    \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
 				writer.println();
-				results.get(version)[f.ordinal()][2] = nSites;
-				results.get(version)[f.ordinal()][3] = nPredicates;
+				result[f.ordinal()][2] = nSites;
+				result[f.ordinal()][3] = nPredicates;
 				
-				results.get(version)[f.ordinal()][4] = sInfo.getNumPredicateSites();
-				results.get(version)[f.ordinal()][5] = sInfo.getNumPredicateItems();
+				result[f.ordinal()][4] = sInfo.getNumPredicateSites();
+				result[f.ordinal()][5] = sInfo.getNumPredicateItems();
 				
 				break;
 			}
@@ -392,6 +381,35 @@ public class FunctionClient {
 			writer.println(String.format("%-25s", method) + ":" + sInfo.getMap().get(method).getNumSites() + "\t:" + sInfo.getMap().get(method).getNumPredicates());
 		}
 	}
+
+	public int getRuns() {
+		return runs;
+	}
+
+	public String getSitesFile() {
+		return sitesFile;
+	}
+
+	public String getProfilesFolder() {
+		return profilesFolder;
+	}
+
+	public String getConsoleFile() {
+		return consoleFile;
+	}
+
+	public SitesInfo getsInfo() {
+		return sInfo;
+	}
+
+	public List<Map.Entry<PredicateItem, Double>> getPredictors() {
+		return predictors;
+	}
+
+	public int[][] getResult() {
+		return result;
+	}
 	
 
+	
 }

@@ -90,7 +90,7 @@ public class CBIClient {
 		
 		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
 		for (int i = 0; i < list.size(); i++) {
-			Entry<PredicateItem, Double> entry = (Entry<PredicateItem, Double>) list.get(i);
+			Map.Entry<PredicateItem, Double> entry = (Map.Entry<PredicateItem, Double>) list.get(i);
 			String method = entry.getKey().getSite().getFunctionName();
 			
 			if (i < k) {
@@ -143,13 +143,9 @@ public class CBIClient {
 		return consoleFile;
 	}
 
-	public List getPredictorEntryList() {
+	public List<Map.Entry<PredicateItem, Double>> getPredictorEntryList() {
 		return predictorEntryList;
 	}
 
-	public void setPredictorEntryList(List predictorEntryList) {
-		this.predictorEntryList = predictorEntryList;
-	}
-	
 
 }
