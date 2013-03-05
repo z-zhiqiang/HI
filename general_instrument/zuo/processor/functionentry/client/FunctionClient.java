@@ -46,9 +46,10 @@ public class FunctionClient {
 	final List<Map.Entry<PredicateItem, Double>> predictors;
 	
 	final int[][] result;
+	final PrintWriter clientWriter;
 	
 	
-	public FunctionClient(int runs, String sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors) {
+	public FunctionClient(int runs, String sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter) {
 		this.runs = runs;
 		this.sitesFile = sitesFile;
 		this.profilesFolder = profilesFolder;
@@ -56,6 +57,7 @@ public class FunctionClient {
 		this.sInfo = sInfo;
 		this.predictors = predictors;
 		this.result = new int[3][6];
+		this.clientWriter = cWriter;
 		
 		PrintWriter writer = null;
 		try {
@@ -72,7 +74,7 @@ public class FunctionClient {
 		}
 	}
 	
-	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors){
+	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter){
 		this.runs = runs;
 		this.sitesFile = rootDir + subject + "/versions/" + version + "/" + version + "_c.sites";
 		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";
@@ -80,6 +82,7 @@ public class FunctionClient {
 		this.sInfo = sInfo;
 		this.predictors = predictors;
 		this.result = new int[3][6];
+		this.clientWriter = cWriter;
 		
 		PrintWriter writer = null;
 		try {
@@ -97,7 +100,7 @@ public class FunctionClient {
 		
 	}
 	
-	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder){
+	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, PrintWriter cWriter){
 		this.runs = runs;
 		this.sitesFile = rootDir + subject + "/versions/" + version + "/" + version + "_c.sites";
 		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";
@@ -109,6 +112,7 @@ public class FunctionClient {
 		this.predictors = c.getPredictorEntryList();
 		
 		this.result = new int[3][6];
+		this.clientWriter = cWriter;
 		
 		PrintWriter writer = null;
 		try {
@@ -126,21 +130,19 @@ public class FunctionClient {
 	}
 
 	public static void main(String[] args) {
-		final String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/";
-		final String subject = "printtokens";
-		final String version = "v1";
-		final String consoleFolder = "/home/sunzzq/Console/";
-		
-		FunctionClient client = new FunctionClient(2717, rootDir, subject, version, consoleFolder);
-		
-		for (int i = 0; i < client.result.length; i++) {
-			for (int j = 0; j < client.result[i].length; j++) {
-				System.out.print(client.result[i][j] + "\t");
-			}
-			System.out.println();
-		}
-		
-		
+//		final String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/";
+//		final String subject = "space";
+//		final String version = "v3";
+//		final String consoleFolder = "/home/sunzzq/Console/";
+//		
+//		FunctionClient client = new FunctionClient(4000, rootDir, subject, version, consoleFolder, null);
+//		
+//		for (int i = 0; i < client.result.length; i++) {
+//			for (int j = 0; j < client.result[i].length; j++) {
+//				System.out.print(client.result[i][j] + "\t");
+//			}
+//			System.out.println();
+//		}
 	}
 
 	
@@ -226,6 +228,7 @@ public class FunctionClient {
 			}});
 		System.out.println("The information of sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
 		writer.println("The information of sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
+		this.clientWriter.println("The information of sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
 		printPercentage(sInfo, writer, list, Score.S);
 	}
 
@@ -273,6 +276,7 @@ public class FunctionClient {
 			}});
 		System.out.println("The information of sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
 		writer.println("The information of sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
+		this.clientWriter.println("The information of sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
 		printPercentage(sInfo, writer, list, Score.F);
 	}
 
@@ -289,8 +293,14 @@ public class FunctionClient {
 			@Override
 			public int compare(Object arg0, Object arg1) {
 				// TODO Auto-generated method stub
-				return new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
-						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
+				int r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
+				.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
+				if (r == 0) {
+					return new Double(
+							((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getNegative())
+							.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getNegative()));
+				}
+				return r;
 			}});
 		writer.println("The methods ordered by F-score are as follows:\n--------------------------------------------------------------");
 		printEntry(sInfo, writer, list);
@@ -304,11 +314,18 @@ public class FunctionClient {
 			@Override
 			public int compare(Object arg0, Object arg1) {
 				// TODO Auto-generated method stub
-				return new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
-						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
+				int r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
+				.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
+				if (r == 0) {
+					return new Double(
+							((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getNegative())
+							.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getNegative()));
+				}
+				return r;
 			}});
 		System.out.println("The information of sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
 		writer.println("The information of sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
+		this.clientWriter.println("The information of sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
 		printPercentage(sInfo, writer, list, Score.F_1);
 	}
 
@@ -317,10 +334,10 @@ public class FunctionClient {
 			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
 			String method = entry.getKey().getFunctionName();
 			if(sInfo.getMap().containsKey(method)){
-				writer.println(String.format("%-25s", method) + entry.getValue().toString() + "\t\t" + sInfo.getMap().get(method).toStringWithoutSites());
+				writer.println(String.format("%-45s", method) + entry.getValue().toString() + "\t\t" + sInfo.getMap().get(method).toStringWithoutSites());
 			}
 			else{
-				writer.println(String.format("%-25s", method) + entry.getValue().toString());
+				writer.println(String.format("%-45s", method) + entry.getValue().toString());
 			}
 		}
 	}
@@ -337,6 +354,8 @@ public class FunctionClient {
 						+ "    \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
 				writer.println("Excluding " + m + "\t\ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
 						+ "    \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
+				this.clientWriter.println("Excluding " + m + "\t\ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
+						+ "    \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
 				result[f.ordinal()][0] = nSites;
 				result[f.ordinal()][1] = nPredicates;
 				
@@ -349,6 +368,10 @@ public class FunctionClient {
 				writer.println("Including " + m + "\t\ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
 						+ "    \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
 				writer.println();
+				this.clientWriter.println("Including " + m + "\t\ts:" + nSites + "\ts%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites())
+						+ "    \tp:" + nPredicates + "\tp%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems()));
+				this.clientWriter.println();
+				
 				result[f.ordinal()][2] = nSites;
 				result[f.ordinal()][3] = nPredicates;
 				
@@ -378,7 +401,7 @@ public class FunctionClient {
 		writer.println();
 		writer.println("The information of sites and predicates in each method:\n--------------------------------------------------------------");
 		for(String method: sInfo.getMap().keySet()){
-			writer.println(String.format("%-25s", method) + ":" + sInfo.getMap().get(method).getNumSites() + "\t:" + sInfo.getMap().get(method).getNumPredicates());
+			writer.println(String.format("%-45s", method) + ":" + sInfo.getMap().get(method).getNumSites() + "   \t:" + sInfo.getMap().get(method).getNumPredicates());
 		}
 	}
 
