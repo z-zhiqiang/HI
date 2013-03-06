@@ -1,4 +1,4 @@
-package zuo.processor.utility;
+package zuo.util.file;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -70,8 +70,59 @@ public class FileUtility {
 		}
 	}
 	
-	public static void constructInputsMapFile(String inputs, String mapFile) {
+	public static Map<Integer, String> constructSIRInputsMapFile(String inputScript, String mapFile) {
+		final String echo = "echo \">>>>>>>>running test ";
 		Map<Integer, String> inputsmap = new LinkedHashMap<Integer, String>();
+		int count = 0;
+		BufferedReader in = null;
+		try{
+			String line;
+			in = new BufferedReader(new FileReader(new File(inputScript)));
+			StringBuilder builder = null;
+			while ((line = in.readLine()) != null) {
+				if(line.startsWith(echo)){
+					builder = new StringBuilder();
+					while ((line = in.readLine()) != null) {
+						if(line.equals("")){
+							break;
+						}
+						builder.append(line).append("\n");
+					}
+					System.out.println(builder.toString());
+					inputsmap.put(++count, builder.toString());
+				}
+			}
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		finally{
+			try {
+				in.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		ObjectOutputStream out = null;
+    	try{
+    		out = new ObjectOutputStream(new FileOutputStream(mapFile));
+    		out.writeObject(inputsmap);
+    	}
+    	catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	finally{
+    		try {
+				out.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    	
+		return Collections.unmodifiableMap(inputsmap);
 
 		
 		

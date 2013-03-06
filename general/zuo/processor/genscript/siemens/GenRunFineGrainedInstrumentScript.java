@@ -1,17 +1,10 @@
-package zuo.processor.genscript.version;
+package zuo.processor.genscript.siemens;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import zuo.processor.utility.FileUtility;
+import zuo.util.file.FileUtility;
 
 
 public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript implements GenRunInstrumentScript {

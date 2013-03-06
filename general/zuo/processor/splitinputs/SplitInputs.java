@@ -17,8 +17,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import zuo.processor.genscript.version.GenRunVersionsScript;
-import zuo.processor.utility.FileUtility;
+import zuo.processor.genscript.siemens.GenRunVersionsScript;
+import zuo.util.file.FileUtility;
 
 public class SplitInputs {
 	final String outDir;
@@ -175,4 +175,14 @@ public class SplitInputs {
 		}
 		
 	}
+
+	public List<Integer> getFailingTests() {
+		return failingTests;
+	}
+
+	public List<Integer> getPassingTests() {
+		return passingTests;
+	}
+
+	
 }

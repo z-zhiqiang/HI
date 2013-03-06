@@ -11,7 +11,7 @@ import java.util.List;
 
 import zuo.processor.functionentry.site.FunctionEntrySite;
 import zuo.processor.functionentry.site.FunctionEntrySites;
-import zuo.processor.utility.FileUtility;
+import zuo.util.file.FileUtility;
 
 public class FunctionEntryProfile {
 	final File profile;

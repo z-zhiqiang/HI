@@ -1,16 +1,11 @@
-package zuo.processor.genscript.version;
+package zuo.processor.genscript.sir;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import zuo.processor.utility.FileUtility;
+import zuo.util.file.FileUtility;
+
 
 public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript implements GenRunInstrumentScript {
 	final String traceDir;
@@ -20,8 +15,8 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 	final int pNum;
 	
 	
-	public GenRunCoarseGrainedInstrumentScript(String sub, String ver, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, int pN) {
-		super(sub, ver, cc, sD, eD, oD, scD);
+	public GenRunCoarseGrainedInstrumentScript(String sub, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, int pN) {
+		super(sub, ver, subV, cc, sD, eD, oD, scD);
 		this.traceDir = tD;
 		this.mkOutDir();
 		this.failingTests = FileUtility.readInputsArray(failing);
@@ -34,7 +29,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		StringBuffer code = new StringBuffer();
 		code.append(compileCommand + "\n");
 		code.append(startTimeCommand + "\n");
-		code.append("echo script: " + version + "\n");
+		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
 		
@@ -42,22 +37,20 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 			int index = (Integer) it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=" + traceDir + "o" + index + ".fprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_cinst.exe ");//executables
-			code.append(inputsMap.get(index));//parameters
-			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
+			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
+			code.append("\n");
 		}
 		
 		for (int i = 0; i < passingTests.size() && i < pNum; i++) {
 			int index = passingTests.get(i);
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=" + traceDir + "o" + index + ".pprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_cinst.exe ");//executables
-			code.append(inputsMap.get(index));//parameters
-			code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
+			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
+			code.append("\n");
 		}
 		
 		code.append(endTimeCommand + " >& " + outputDir + "time");
-		printToFile(code.toString(), scriptDir, version + "_cg.sh");
+		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_cg.sh");
 	}
 
 	@Override

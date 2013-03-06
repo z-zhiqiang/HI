@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import zuo.processor.utility.FileUtility;
+import zuo.util.file.FileUtility;
+
 
 public class FunctionEntrySites {
 	private final Map<String, List<FunctionEntrySite>> sites;

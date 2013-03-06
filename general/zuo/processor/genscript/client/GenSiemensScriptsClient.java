@@ -1,18 +1,14 @@
 package zuo.processor.genscript.client;
 
-import java.io.File;
 import java.io.IOException;
 
-import zuo.processor.genscript.version.AbstractGenRunScript;
-import zuo.processor.genscript.version.GenRunCoarseGrainedInstrumentScript;
-import zuo.processor.genscript.version.GenRunFineGrainedInstrumentScript;
-import zuo.processor.genscript.version.GenRunSubjectScript;
-import zuo.processor.genscript.version.GenRunVersionsScript;
+import zuo.processor.genscript.siemens.AbstractGenRunScript;
+import zuo.processor.genscript.siemens.GenRunCoarseGrainedInstrumentScript;
+import zuo.processor.genscript.siemens.GenRunFineGrainedInstrumentScript;
 import zuo.processor.splitinputs.SplitInputs;
-import zuo.processor.utility.FileUtility;
 
 
-public class GenScriptsClient {
+public class GenSiemensScriptsClient {
 	final static String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/";
 	final static String subject = "replace";
 	final String version;
@@ -38,7 +34,7 @@ public class GenScriptsClient {
 	final String compileFGInstrument;
 	final String compileCGInstrument;
 	
-	public GenScriptsClient(String ver){
+	public GenSiemensScriptsClient(String ver){
 		version = ver;
 		
 		ssourceDir = rootDir + subject + "/source.alt/source.orig/";
@@ -80,7 +76,7 @@ public class GenScriptsClient {
 	
 	public static void main(String[] args) throws IOException {
 		AbstractGenRunScript gs;
-		GenScriptsClient gc;
+		GenSiemensScriptsClient gc;
 		
 //		FileUtility.constructSiemensInputsMapFile(inputs, inputsMapFile);
 //		gc = new GenScriptsClient(subject);
@@ -88,7 +84,7 @@ public class GenScriptsClient {
 //		gs.genRunScript();
 		
 		for(int i = 1; i <= 32; i++){
-			gc = new GenScriptsClient("v" + i);
+			gc = new GenSiemensScriptsClient("v" + i);
 			
 //			System.out.println("generating run script for v" + i);
 //			new GenRunVersionsScript(subject, gc.version, gc.compileVersion, gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();

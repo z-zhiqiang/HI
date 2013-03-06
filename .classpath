@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="general_instrument"/>
+	<classpathentry kind="src" path="general"/>
+	<classpathentry kind="src" path="hi"/>
 	<classpathentry kind="src" path="cbi"/>
 	<classpathentry kind="src" path="mps"/>
 	<classpathentry kind="src" path="utility"/>

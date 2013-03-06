@@ -1,4 +1,4 @@
-package zuo.processor.genscript.version;
+package zuo.processor.genscript.siemens;
 
 import java.io.File;
 import java.util.Arrays;

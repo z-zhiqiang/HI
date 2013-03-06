@@ -1,23 +1,18 @@
-package zuo.processor.genscript.version;
+package zuo.processor.genscript.sir;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-import zuo.processor.genscript.client.GenScriptsClient;
-import zuo.processor.splitinputs.SplitInputs;
-import zuo.processor.utility.FileUtility;
+import zuo.processor.genscript.client.GenSiemensScriptsClient;
+import zuo.processor.genscript.client.GenSirScriptClient;
+import zuo.util.file.FileUtility;
 
 public abstract class AbstractGenRunScript {
+	final String subVersion;
 	final String version;
 	final String subject;
 	final String compileCommand;
@@ -29,6 +24,7 @@ public abstract class AbstractGenRunScript {
 	final String scriptDir;
 	
 	public final static String runinfo = "echo \">>>>>>> running test ";
+	public static final String EXE = "EXE";
 	
 	protected final Map<Integer, String> inputsMap;
 	
@@ -37,16 +33,17 @@ public abstract class AbstractGenRunScript {
 			"echo \"Time in seconds: $((time/1000000000)) \nTime in milliseconds: $((time/1000000))\"";
 	
 	
-	public AbstractGenRunScript(String sub, String ver, String cc, String source, String execute, String output, String script){
+	public AbstractGenRunScript(String sub, String ver, String subV, String cc, String source, String execute, String output, String script){
 		this.subject = sub;
 		this.version = ver;
+		this.subVersion = subV;
 		this.compileCommand = cc;
 		this.sourceDir = source;
 		this.executeDir = execute;
 		this.outputDir = output;
 		this.scriptDir = script;
 		
-		inputsMap = FileUtility.readInputsMap(GenScriptsClient.inputsMapFile);
+		inputsMap = FileUtility.readInputsMap(GenSirScriptClient.inputsMapFile);
 	}
 	
     public abstract void genRunScript() throws IOException;
