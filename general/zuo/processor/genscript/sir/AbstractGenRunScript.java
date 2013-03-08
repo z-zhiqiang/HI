@@ -27,6 +27,7 @@ public abstract class AbstractGenRunScript {
 	public static final String EXE = "EXE";
 	
 	protected final Map<Integer, String> inputsMap;
+	protected final Map<Integer, String> inputsCompMap;
 	
 	protected final String startTimeCommand = "stime=\"$(date +%s%N)\"";
 	protected final String endTimeCommand = "time=\"$(($(date +%s%N)-stime))\"\n" +
@@ -44,6 +45,7 @@ public abstract class AbstractGenRunScript {
 		this.scriptDir = script;
 		
 		inputsMap = FileUtility.readInputsMap(GenSirScriptClient.inputsMapFile);
+		inputsCompMap = FileUtility.readInputsMap(GenSirScriptClient.inputsCompMapFile);
 	}
 	
     public abstract void genRunScript() throws IOException;

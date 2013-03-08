@@ -9,6 +9,9 @@ import zuo.util.file.FileUtility;
 
 public class GenRunVersionsScript extends AbstractGenRunScript {
 	
+	public static final String SUBV = "SUBV";
+
+
 	public GenRunVersionsScript(String sub, String ver, String subV, String cc, String sD, String eD, String oD, String scD) {
 		super(sub, ver, subV, cc, sD, eD, oD, scD);
 	    this.mkOutDir();
@@ -27,7 +30,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		for (Iterator it = inputsMap.keySet().iterator(); it.hasNext();) {
 			int index = (Integer) it.next();
 			code.append(runinfo + index + "\"\n");// running info
-			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + ".exe "));//executables
+			code.append(inputsCompMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + ".exe ").replace(SUBV, version + "/" + subVersion));//executables
 			code.append("\n");
 		}
 		

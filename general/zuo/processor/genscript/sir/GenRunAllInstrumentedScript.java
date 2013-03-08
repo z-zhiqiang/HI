@@ -6,8 +6,8 @@ import java.util.Set;
 public class GenRunAllInstrumentedScript extends AbstractGenRunAllScript {
 	final Set<Integer> subs;
 	
-	public GenRunAllInstrumentedScript(String version, String subject, int testnum, String scriptDir, Set<Integer> subs) {
-		super(version, subject, testnum, scriptDir);
+	public GenRunAllInstrumentedScript(String version, String subject, int testnum, String scriptDir, String outN, Set<Integer> subs) {
+		super(version, subject, testnum, scriptDir, outN);
 		this.subs = subs;
 	}
 	
@@ -23,11 +23,11 @@ public class GenRunAllInstrumentedScript extends AbstractGenRunAllScript {
 		code.append("\techo subv$i\n");
 		code.append("\tsh " + version + "\\_subv$i\\_cg.sh > ../outputs/" + version + "/versions/subv$i/coarse-grained/execution\n");
 		code.append("\tfor j in {1.." + testnum + "}\n");
-		code.append("\tdo\n\t\tmv ../outputs/t$j ../outputs/" + version + "/versions/subv$i/coarse-grained/o$j.out\n");
+		code.append("\tdo\n\t\tmv ../outputs/" + outName + "$j ../outputs/" + version + "/versions/subv$i/coarse-grained/o$j.out\n");
 		code.append("\tdone\n");
 		code.append("\tsh " + version + "\\_subv$i\\_fg.sh > ../outputs/" + version + "/versions/subv$i/fine-grained/execution\n");
 		code.append("\tfor j in {1.." + testnum + "}\n");
-		code.append("\tdo\n\t\tmv ../outputs/t$j ../outputs/" + version + "/versions/subv$i/fine-grained/o$j.out\n");
+		code.append("\tdo\n\t\tmv ../outputs/" + outName + "$j ../outputs/" + version + "/versions/subv$i/fine-grained/o$j.out\n");
 		code.append("\tdone\n");
 		code.append("done");
 		
