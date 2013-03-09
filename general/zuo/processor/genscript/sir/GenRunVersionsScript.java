@@ -30,7 +30,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		for (Iterator it = inputsMap.keySet().iterator(); it.hasNext();) {
 			int index = (Integer) it.next();
 			code.append(runinfo + index + "\"\n");// running info
-			code.append(inputsCompMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + ".exe ").replace(SUBV, version + "/" + subVersion));//executables
+			code.append(inputsCompMap.get(index).replace(EXE, "$VERSIONSDIR/" + version + ".exe ").replace(SUBV, version + "/" + subVersion));//executables
 			code.append("\n");
 		}
 		

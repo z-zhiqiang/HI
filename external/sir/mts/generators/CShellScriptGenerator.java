@@ -20,6 +20,7 @@ package sir.mts.generators;
 import sir.mts.Configuration;
 import sir.mts.TestScriptGenerator;
 import sir.mts.ScriptGenException;
+import zuo.processor.genscript.client.GenSirScriptClient;
 import zuo.processor.genscript.sir.GenRunVersionsScript;
 
 import java.util.List;
@@ -330,7 +331,7 @@ public final class CShellScriptGenerator implements TestScriptGenerator {
                 chunk.append(comparisonDir);
                 chunk.append("/");
                 chunk.append(fName);
-                chunk.append(" || echo different results\nendif");
+                chunk.append(" || echo " + testNum + " >> " + expDir + "/versions/" + GenRunVersionsScript.SUBV + "/" + GenSirScriptClient.outCompFile + "\nendif");
             }
             fileMoveNames.clear();
 
@@ -344,7 +345,7 @@ public final class CShellScriptGenerator implements TestScriptGenerator {
             chunk.append(comparisonDir);
             chunk.append("/");
             chunk.append(outputFile);
-            chunk.append(" || echo " + testNum + ":" + " >> " + expDir + "/versions/" + GenRunVersionsScript.SUBV + "/out");
+            chunk.append(" || echo " + testNum + " >> " + expDir + "/versions/" + GenRunVersionsScript.SUBV + "/" + GenSirScriptClient.outCompFile);
         }
 
         if (isTracing) {

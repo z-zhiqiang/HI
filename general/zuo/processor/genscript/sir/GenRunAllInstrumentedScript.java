@@ -6,8 +6,8 @@ import java.util.Set;
 public class GenRunAllInstrumentedScript extends AbstractGenRunAllScript {
 	final Set<Integer> subs;
 	
-	public GenRunAllInstrumentedScript(String version, String subject, int testnum, String scriptDir, String outN, Set<Integer> subs) {
-		super(version, subject, testnum, scriptDir, outN);
+	public GenRunAllInstrumentedScript(String version, String subject, String scriptDir, Set<Integer> subs) {
+		super(version, subject, scriptDir);
 		this.subs = subs;
 	}
 	
@@ -21,14 +21,10 @@ public class GenRunAllInstrumentedScript extends AbstractGenRunAllScript {
         
 		code.append("for i in " + builder.toString() + "\ndo\n");
 		code.append("\techo subv$i\n");
-		code.append("\tsh " + version + "\\_subv$i\\_cg.sh > ../outputs/" + version + "/versions/subv$i/coarse-grained/execution\n");
-		code.append("\tfor j in {1.." + testnum + "}\n");
-		code.append("\tdo\n\t\tmv ../outputs/" + outName + "$j ../outputs/" + version + "/versions/subv$i/coarse-grained/o$j.out\n");
-		code.append("\tdone\n");
-		code.append("\tsh " + version + "\\_subv$i\\_fg.sh > ../outputs/" + version + "/versions/subv$i/fine-grained/execution\n");
-		code.append("\tfor j in {1.." + testnum + "}\n");
-		code.append("\tdo\n\t\tmv ../outputs/" + outName + "$j ../outputs/" + version + "/versions/subv$i/fine-grained/o$j.out\n");
-		code.append("\tdone\n");
+		code.append("\tsh " + version + "\\_subv$i\\_cg.sh > ../outputs.alt/" + version + "/versions/subv$i/coarse-grained/execution\n");
+		code.append("\tmv ../outputs/* ../outputs.alt/" + version + "/versions/subv$i/coarse-grained/\n");
+		code.append("\tsh " + version + "\\_subv$i\\_fg.sh > ../outputs.alt/" + version + "/versions/subv$i/fine-grained/execution\n");
+		code.append("\tmv ../outputs/* ../outputs.alt/" + version + "/versions/subv$i/fine-grained/\n");
 		code.append("done");
 		
 		System.out.println(code.toString());
@@ -40,6 +36,6 @@ public class GenRunAllInstrumentedScript extends AbstractGenRunAllScript {
 		set.add(1);
 		set.add(3);
 			
-//		new GenRunAllInstrumentedScript("v1", "grep", 809, 18, "", set).genRunAllScript();
+		new GenRunAllInstrumentedScript("v1", "grep", "", set).genRunAllScript();
 	}
 }
