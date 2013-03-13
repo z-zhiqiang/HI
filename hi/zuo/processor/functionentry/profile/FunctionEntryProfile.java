@@ -82,7 +82,7 @@ public class FunctionEntryProfile {
 	}
 
 	public static void main(String[] args) {
-		FunctionEntrySites sites = new FunctionEntrySites("/home/sunzzq/Research/test/main.sites");
+		FunctionEntrySites sites = new FunctionEntrySites(new File("/home/sunzzq/Research/test/main.sites"));
 		FunctionEntryProfile p = new FunctionEntryProfile(new File("/home/sunzzq/Research/test", "/main.profile"), sites, true);
 		for (FunctionEntryItem item : p.functionEntryItems) {
 			System.out.println(item.toString());

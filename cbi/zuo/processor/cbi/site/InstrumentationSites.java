@@ -204,6 +204,8 @@ public class InstrumentationSites {
 
 	}
 
+	final File sitesFile;
+	
 	private final Map<String, List<ScalarSite>> scalarSites;
 
 	private final Map<String, List<ReturnSite>> returnSites;
@@ -278,6 +280,7 @@ public class InstrumentationSites {
 		this.returnSites = Collections.unmodifiableMap(returnSites);
 		this.branchSites = Collections.unmodifiableMap(branchSites);
 		this.floatSites = Collections.unmodifiableMap(floatSites);
+		this.sitesFile = sitesFile;
 	}
 	
 	public static String getUnitID(String line){
@@ -428,6 +431,12 @@ public class InstrumentationSites {
 			throw new RuntimeException("Wrong sites information: <unit, scheme> is not unique!!");
 		}
 		scalarSites.put(unit, sites);
+	}
+	
+	
+
+	public File getSitesFile() {
+		return sitesFile;
 	}
 
 	public static void main(String[] args) {

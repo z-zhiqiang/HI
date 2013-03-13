@@ -19,13 +19,13 @@ public class FunctionEntrySites {
 	private final Map<String, List<FunctionEntrySite>> sites;
 	final int numFunctionEntrySites;
 	
-	public FunctionEntrySites(String sitesFile){
+	public FunctionEntrySites(File sitesFile){
 		int index = 0;
 		Map<String, List<FunctionEntrySite>> sites = new LinkedHashMap<String, List<FunctionEntrySite>>();
 		
 		BufferedReader in = null;
 		try {
-			in = new BufferedReader(new FileReader(new File(sitesFile)));
+			in = new BufferedReader(new FileReader(sitesFile));
 			String rLine;
 			while ((rLine = in.readLine()) != null) {
 				if(rLine.startsWith("<sites")){
@@ -82,7 +82,7 @@ public class FunctionEntrySites {
 	public static void main(String[] args) {
 		Set<String> set = new HashSet<String>();
 		int i = 0;
-		FunctionEntrySites fs = new FunctionEntrySites("/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions/v3/v3_c.sites");
+		FunctionEntrySites fs = new FunctionEntrySites(new File("/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions/v3/v3_c.sites"));
 		for (String unit: fs.sites.keySet()) {
 			List<FunctionEntrySite> list = fs.sites.get(unit);
 			i += list.size(); 

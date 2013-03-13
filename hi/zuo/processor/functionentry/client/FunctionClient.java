@@ -38,7 +38,7 @@ public class FunctionClient {
 	
 	final int runs;
 	
-	final String sitesFile;
+	final File sitesFile;
 	final String profilesFolder;
 	final String consoleFile;
 	
@@ -49,7 +49,7 @@ public class FunctionClient {
 	final PrintWriter clientWriter;
 	
 	
-	public FunctionClient(int runs, String sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter) {
+	public FunctionClient(int runs, File sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter) {
 		this.runs = runs;
 		this.sitesFile = sitesFile;
 		this.profilesFolder = profilesFolder;
@@ -76,7 +76,7 @@ public class FunctionClient {
 	
 	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter){
 		this.runs = runs;
-		this.sitesFile = rootDir + subject + "/versions/" + version + "/" + version + "_c.sites";
+		this.sitesFile = new File(rootDir + subject + "/versions/" + version + "/" + version + "_c.sites");
 		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";
 		this.consoleFile = consoleFolder + subject + "_" + version + "_function.out"; 
 		this.sInfo = sInfo;
@@ -102,12 +102,12 @@ public class FunctionClient {
 	
 	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, PrintWriter cWriter){
 		this.runs = runs;
-		this.sitesFile = rootDir + subject + "/versions/" + version + "/" + version + "_c.sites";
+		this.sitesFile = new File(rootDir + subject + "/versions/" + version + "/" + version + "_c.sites");
 		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";
 		this.consoleFile = consoleFolder + subject + "_" + version + "_function.out";
 		
 		this.sInfo = new SitesInfo(new InstrumentationSites(new File(rootDir + subject + "/versions/" + version + "/" + version + "_f.sites")));
-		CBIClient c = new CBIClient(runs, TOP_K, rootDir + subject + "/versions/" + version + "/" + version + "_f.sites", 
+		CBIClient c = new CBIClient(runs, TOP_K, this.sInfo.getSites().getSitesFile(), 
 				rootDir + subject + "/traces/" + version +"/fine-grained", consoleFolder + subject + "_" + version + "_cbi.out");
 		this.predictors = c.getPredictorEntryList();
 		
@@ -409,7 +409,7 @@ public class FunctionClient {
 		return runs;
 	}
 
-	public String getSitesFile() {
+	public File getSitesFile() {
 		return sitesFile;
 	}
 

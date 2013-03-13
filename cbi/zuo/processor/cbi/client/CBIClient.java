@@ -23,13 +23,13 @@ import zuo.processor.cbi.site.InstrumentationSites;
 public class CBIClient {
 	final int runs;
 	final int k;
-	final String sitesFile;
+	final File sitesFile;
 	final String profilesFile;
 	final String consoleFile;
 	List<Map.Entry<PredicateItem, Double>> predictorEntryList;
     Set<String> methods;
 	
-	public CBIClient(int runs, int k, String sitesFile, String profilesFile, String consoleF) {
+	public CBIClient(int runs, int k, File sitesFile, String profilesFile, String consoleF) {
 		this.runs = runs;
 		this.k = k;
 		this.sitesFile = sitesFile;
@@ -52,12 +52,12 @@ public class CBIClient {
 	}
 	
 	public static void main(String[] args) {
-		CBIClient client = new CBIClient(2717, 10, "/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions/v38/v38_f.sites", 
+		CBIClient client = new CBIClient(2717, 10, new File("/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions/v38/v38_f.sites"), 
 				"/home/sunzzq/Research/Automated_Debugging/Subjects/space/traces/v38/fine-grained", "/home/sunzzq/Console/space_v38_cbi.out");
 	}
 	
 	private void printResults(PrintWriter writer){
-		InstrumentationSites sites = new InstrumentationSites(new File(sitesFile));
+		InstrumentationSites sites = new InstrumentationSites(sitesFile);
 		PredicateProfileReader reader = new PredicateProfileReader(profilesFile, sites);
 		PredicateProfile[] profiles = reader.readProfiles(runs);
 		Processor p = new Processor(profiles);
@@ -131,7 +131,7 @@ public class CBIClient {
 		return k;
 	}
 
-	public String getSitesFile() {
+	public File getSitesFile() {
 		return sitesFile;
 	}
 

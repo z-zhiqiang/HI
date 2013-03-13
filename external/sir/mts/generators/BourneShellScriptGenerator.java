@@ -27,6 +27,9 @@ import sir.mts.ScriptGenException;
 import java.util.List;
 import java.util.Map;
 import sir.mts.Configuration;
+import zuo.processor.genscript.client.GenSirScriptClient;
+import zuo.processor.genscript.sir.GenRunVersionsScript;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.io.IOException;
@@ -329,7 +332,7 @@ public class BourneShellScriptGenerator implements TestScriptGenerator {
                 chunk.append(comparisonDir);
                 chunk.append("/");
                 chunk.append(fName);
-                chunk.append(" || echo different results\nfi");
+                chunk.append(" || echo " + testNum + " >> " + expDir + "/versions/" + GenRunVersionsScript.SUBV + "/" + GenSirScriptClient.outCompFile + "\nfi");
             }
             fileMoveNames.clear();
 
@@ -343,7 +346,7 @@ public class BourneShellScriptGenerator implements TestScriptGenerator {
             chunk.append(comparisonDir);
             chunk.append("/");
             chunk.append(outputFile);
-            chunk.append(" || echo different results");
+            chunk.append(" || echo " + testNum + " >> " + expDir + "/versions/" + GenRunVersionsScript.SUBV + "/" + GenSirScriptClient.outCompFile);
         }
 
         if (isTracing) {

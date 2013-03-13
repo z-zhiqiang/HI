@@ -34,15 +34,17 @@ public class Client {
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
 		this.results = new HashMap<String, int[][]>();
-		
+	}
+
+	private void computeSirResults() {
 		PrintWriter clientWriter = null;
 		try {
-			File file = new File(consoleFolder);
+			File file = new File(this.consoleFolder);
 			if(!file.exists()){
 				file.mkdirs();
 			}
-			clientWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(consoleFolder, subject + ".out"))));
-			printResults(clientWriter);
+			clientWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + ".out"))));
+			printSirResults(clientWriter);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -54,7 +56,27 @@ public class Client {
 		}
 	}
 	
-	private void printResults(PrintWriter cWriter){
+	private void computeSiemensResults() {
+		PrintWriter clientWriter = null;
+		try {
+			File file = new File(this.consoleFolder);
+			if(!file.exists()){
+				file.mkdirs();
+			}
+			clientWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + ".out"))));
+			printSiemensResults(clientWriter);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally{
+			if(clientWriter != null){
+				clientWriter.close();
+			}
+		}
+	}
+	
+	private void printSiemensResults(PrintWriter cWriter){
 		File[] versions = new File(rootDir + subject + "/versions").listFiles(new FilenameFilter(){
 			@Override
 			public boolean accept(File dir, String name) {
@@ -73,10 +95,10 @@ public class Client {
 			versionsList.add(vi);
 			System.out.println(vi);
 			cWriter.println(vi);
-			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(rootDir + subject + "/versions/" + vi + "/" + vi + "_f.sites")));
-			CBIClient c = new CBIClient(runs, FunctionClient.TOP_K, rootDir + subject + "/versions/" + vi + "/" + vi + "_f.sites", 
+			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version.getAbsolutePath(), vi + "_f.sites")));
+			CBIClient c = new CBIClient(runs, FunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
 					rootDir + subject + "/traces/" + vi +"/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
-			FunctionClient client = new FunctionClient(runs, rootDir + subject + "/versions/" + vi + "/" + vi + "_c.sites", 
+			FunctionClient client = new FunctionClient(runs, new File(version.getAbsolutePath(), vi + "_c.sites"), 
 					rootDir + subject + "/traces/" + vi + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", sInfo, c.getPredictorEntryList(), cWriter);
 			results.put(vi, client.getResult());
 			
@@ -88,6 +110,65 @@ public class Client {
 			}
 			System.out.println();
 			cWriter.println();	
+		}
+		
+		System.out.println("\n\n\n" + subject + ": " + versionsList + "\n==============================================================");
+		cWriter.println("\n\n\n" + subject + ": " + versionsList + "\n==============================================================");
+		printTotalResults(cWriter);
+	}
+	
+	private void printSirResults(PrintWriter cWriter){
+		List<String> versionsList = new ArrayList<String>();
+		
+		File[] versions = new File(rootDir + subject + "/versions").listFiles(new FilenameFilter(){
+			@Override
+			public boolean accept(File dir, String name) {
+				// TODO Auto-generated method stub
+				return Pattern.matches("v[0-9]*", name);
+			}});
+		Arrays.sort(versions, new Comparator(){
+			@Override
+			public int compare(Object arg0, Object arg1) {
+				// TODO Auto-generated method stub
+				return new Integer(Integer.parseInt(((File) arg0).getName().substring(1))).compareTo(new Integer(Integer.parseInt(((File) arg1).getName().substring(1))));
+			}});
+		
+		for(File version: versions){
+			File[] subversions = version.listFiles(new FilenameFilter(){
+				@Override
+				public boolean accept(File dir, String name) {
+					// TODO Auto-generated method stub
+					return Pattern.matches("subv[0-9]*", name) && new File(dir, name).listFiles().length == 11;
+				}});
+			Arrays.sort(subversions, new Comparator(){
+				@Override
+				public int compare(Object arg0, Object arg1) {
+					// TODO Auto-generated method stub
+					return new Integer(Integer.parseInt(((File) arg0).getName().substring(4))).compareTo(new Integer(Integer.parseInt(((File) arg1).getName().substring(4))));
+				}});
+			
+			for(File subversion: subversions){
+				String vi = version.getName() + "_" + subversion.getName();
+				versionsList.add(vi);
+				System.out.println(vi);
+				cWriter.println(vi);
+				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion.getAbsolutePath(), vi + "_f.sites")));
+				CBIClient c = new CBIClient(runs, FunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
+						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
+				FunctionClient client = new FunctionClient(runs, new File(subversion.getAbsolutePath(), vi + "_c.sites"), 
+						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", sInfo, c.getPredictorEntryList(), cWriter);
+				results.put(vi, client.getResult());
+				
+				for (int i = 0; i < results.get(vi).length; i++) {
+					for (int j = 0; j < results.get(vi)[i].length; j++) {
+						System.out.print(results.get(vi)[i][j] + "\t");
+					}
+					System.out.println();
+				}
+				System.out.println();
+				cWriter.println();	
+			}
+			
 		}
 		
 		System.out.println("\n\n\n" + subject + ": " + versionsList + "\n==============================================================");
@@ -148,8 +229,8 @@ public class Client {
 	}
 
 	public static void main(String[] args) {
-		Client c = new Client(5542, "/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/", "replace", "/home/sunzzq/Console/Siemens/replace/");
-//		Client c = new Client(Integer.parseInt(args[0]), args[1], args[2], args[3]);
+		Client c = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed/");
+		c.computeSirResults();
 		
 	}
 	

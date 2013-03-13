@@ -1,5 +1,6 @@
 package zuo.processor.functionentry.processor;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -79,7 +80,7 @@ public class PruningProcessor {
 	
 	public static void main(String[] args) {
 		String sitesFile = "/home/sunzzq/Research/space/versions/v7/csites.txt";
-		FunctionEntrySites sites = new FunctionEntrySites(sitesFile);
+		FunctionEntrySites sites = new FunctionEntrySites(new File(sitesFile));
 		for (String unit: sites.getSites().keySet()) {
 			List<FunctionEntrySite> list = sites.getSites().get(unit);
 			for (FunctionEntrySite functionEntrySite : list) {
