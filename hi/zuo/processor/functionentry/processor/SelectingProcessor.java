@@ -81,10 +81,11 @@ public class SelectingProcessor {
 			}
 		}
 		
-		//set the f-score
+		//set the f-score and specificity
 		for(FunctionEntrySite site: frequencyMap.keySet()){
 			FrequencyValue p = frequencyMap.get(site);
 			frequencyMap.get(site).setF_score(F_score(p.getNegative(), p.getPositive()));
+			frequencyMap.get(site).setSpecificity(Specificity(p.getNegative(), p.getPositive()));
 		}
 	}
 	
@@ -102,6 +103,16 @@ public class SelectingProcessor {
 		return 2/(1 + ((double) pos / neg) + (Math.log(totalNegative) / Math.log(neg)));
 	}
 	
+	/**calculate the Specificity of method
+	 * @param neg
+	 * @param pos
+	 * @return
+	 */
+	private double Specificity(int neg, int pos){
+		if(neg + pos == 0)
+			return 0;
+		return (double) neg / (neg + pos);
+	}
 	
 	public Map<FunctionEntrySite, FrequencyValue> getFrequencyMap() {
 		return frequencyMap;
@@ -136,23 +147,30 @@ public class SelectingProcessor {
 	public static class FrequencyValue{
 		int negative;
 		int positive;
+		double specificity;
 		double f_score;
 		
 		public FrequencyValue(){
 			this.negative = 0;
 			this.positive = 0;
+			this.specificity = 0;
 			this.f_score = 0;
 		}
 		
 		public FrequencyValue(int n, int p){
 			this.negative = n;
 			this.positive = p;
+			this.specificity = 0;
 			this.f_score = 0;
 		}
 		
+//		public String toString(){
+//			return "F:" + negative + "\t\tS:" + positive + "\t\tF_1:" + new DecimalFormat("#.#####").format(this.f_score);
+//		}
 		public String toString(){
-			return "F:" + negative + "\t\tS:" + positive + "\t\tF_1:" + new DecimalFormat("#.#####").format(this.f_score);
+			return String.format("%-20s", "F:" + negative) + String.format("%-20s", "S:" + positive) + String.format("%-20s", "Sp:" + new DecimalFormat("#.#####").format(this.specificity)) + String.format("%-20s", "F_1:" + new DecimalFormat("#.#####").format(this.f_score));
 		}
+		
 //		public String toStringByFScore(){
 //			StringBuilder builder = new StringBuilder();
 //			builder.append("F_score:").append(this.f_score).append("\tF:").append(this.negative).append("\tS:").append(this.positive);
@@ -183,6 +201,14 @@ public class SelectingProcessor {
 		}
 		public void setPositive(int positive) {
 			this.positive = positive;
+		}
+
+		public double getSpecificity() {
+			return specificity;
+		}
+
+		public void setSpecificity(double specificity) {
+			this.specificity = specificity;
 		}
 
 		public double getF_score() {
