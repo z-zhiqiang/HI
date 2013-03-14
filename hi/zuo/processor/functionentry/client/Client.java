@@ -87,7 +87,7 @@ public class Client {
 			@Override
 			public boolean accept(File dir, String name) {
 				// TODO Auto-generated method stub
-				return Pattern.matches("v[0-9]*", name) && new File(dir, name).listFiles().length == 10;
+				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == 10 || new File(dir, name).listFiles().length == 11);
 			}});
 		Arrays.sort(versions, new Comparator(){
 			@Override
@@ -144,7 +144,7 @@ public class Client {
 				@Override
 				public boolean accept(File dir, String name) {
 					// TODO Auto-generated method stub
-					return Pattern.matches("subv[0-9]*", name) && new File(dir, name).listFiles().length == 11;
+					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 11 || new File(dir, name).listFiles().length == 10);
 				}});
 			Arrays.sort(subversions, new Comparator(){
 				@Override
@@ -245,8 +245,20 @@ public class Client {
 	}
 
 	public static void main(String[] args) {
-		Client c = new Client(213, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "gzip", "/home/sunzzq/Console/gzip/");
-		c.computeSirResults();
+		if(args.length != 5){
+			System.err.println("Usage: numTests rootDir subject consoleDir mode(0:Siemens; 1:Sir)");
+			return;
+		}
+		Client c = new Client(Integer.parseInt(args[0]), args[1], args[2], args[3]);
+		if(Integer.parseInt(args[4]) == 0){
+			c.computeSiemensResults();
+		}
+		else if(Integer.parseInt(args[4]) == 1){
+			c.computeSirResults();
+		}
+
+//		Client c = new Client(213, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "gzip", "/home/sunzzq/Console/gzip/");
+//		c.computeSirResults();
 		
 	}
 	
