@@ -24,9 +24,9 @@ import zuo.util.file.FileUtility;
 
 public class GenSirScriptClient {
 	final static String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/";
-	final static String subject = "sed";
-	final static String sourceName = "sed";
-	final static String version = "v4";
+	final static String subject = "gzip";
+	final static String sourceName = "allfile";
+	final static String version = "v5";
 	final String subVersion;
 	final static String inputScript = rootDir + subject + "/scripts/" + subject + ".sh";
 	final static String inputCompScript = rootDir + subject + "/scripts/" + subject + "Comp.sh";
@@ -51,9 +51,9 @@ public class GenSirScriptClient {
 	
 	final static String compileSubject = "gcc " 
 			+ ssourceDir + sourceName + ".c" 
-//			+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+			+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
 			+ " -o " + sexecuteDir + version + ".exe" 
-//			+ " -I" + ssourceDir
+			+ " -I" + ssourceDir
 //			+ " -lm"
 			;
 	final String compileVersion;
@@ -79,25 +79,25 @@ public class GenSirScriptClient {
 		compileVersion = "gcc " 
 				+ vsourceDir + sourceName + ".c"
 				+ " $COMPILE_PARAMETERS"
-//				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
 				+ " -o " + vexecuteDir + version + ".exe"
-//				+ " -I" + vsourceDir
+				+ " -I" + vsourceDir
 //				+ " -lm"
 				;
 		compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=float-kinds -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
 				+ vsourceDir + sourceName + ".c" 
 				+ " $COMPILE_PARAMETERS"
-//				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
 				+ " -o " + vexecuteDir + subVersion + "_finst.exe"
-//				+ " -I" + vsourceDir
+				+ " -I" + vsourceDir
 //				+ " -lm"
 				;
 		compileCGInstrument = "sampler-cc -fsampler-scheme=function-entries -fno-sample "
 				+ vsourceDir + sourceName + ".c" 
 				+ " $COMPILE_PARAMETERS"
-//				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
 				+ " -o " + vexecuteDir + subVersion + "_cinst.exe"
-//				+ " -I" + vsourceDir
+				+ " -I" + vsourceDir
 //				+ " -lm"
 				;
 		
@@ -110,7 +110,7 @@ public class GenSirScriptClient {
 		GenSirScriptClient gc;
 		AbstractGenRunAllScript ga;
 		String setEnv = "export experiment_root=" + rootDir + "\n";
-		String sf = rootDir + subject + "/testplans.alt/v4_0.universe";
+		String sf = rootDir + subject + "/testplans.alt/universe";
 		
 		//read faults (subversion)
 		readFaults();
@@ -146,38 +146,38 @@ public class GenSirScriptClient {
 		
 		
 		
-		Set<Integer> subs = new HashSet<Integer>();
-		//split inputs and generate run instrumented subversion scripts 
-		for(int index: faults.keySet()){
-			gc = new GenSirScriptClient("subv" + index);
-			
-//			System.out.println("sliptting inputs for subv" + index);
-//			SplitInputs split = new SplitInputs(inputsMapFile, soutputDir, gc.voutputDir, gc.vexecuteDir);
-//			split.split();
+//		Set<Integer> subs = new HashSet<Integer>();
+//		//split inputs and generate run instrumented subversion scripts 
+//		for(int index: faults.keySet()){
+//			gc = new GenSirScriptClient("subv" + index);
 //			
+////			System.out.println("sliptting inputs for subv" + index);
+////			SplitInputs split = new SplitInputs(inputsMapFile, soutputDir, gc.voutputDir, gc.vexecuteDir);
+////			split.split();
+////			
+////			//collect the triggered faults
+////			if(split.getFailingTests().size() != 0){
+////				subs.add(index);
+////			}
+//			
+//			SirSplitInputs split = new SirSplitInputs(inputsMapFile, gc.vexecuteDir, outCompFile);
+//			split.split();
 //			//collect the triggered faults
 //			if(split.getFailingTests().size() != 0){
 //				subs.add(index);
 //			}
-			
-			SirSplitInputs split = new SirSplitInputs(inputsMapFile, gc.vexecuteDir, outCompFile);
-			split.split();
-			//collect the triggered faults
-			if(split.getFailingTests().size() != 0){
-				subs.add(index);
-			}
-			
-			String export = "export COMPILE_PARAMETERS=-D" + faults.get(index) + "\n";
-			System.out.println("generating run instrument script for subv" + index);
-			gs = new GenRunFineGrainedInstrumentScript(subject, version, gc.subVersion, setEnv + export + gc.compileFGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
-			gs.genRunScript();
-			gs = new GenRunCoarseGrainedInstrumentScript(subject, version, gc.subVersion, setEnv + export + gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100000);
-			gs.genRunScript();
-		}
-		
-		//generate run all instrumented triggered subversion scripts
-		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
-		ga.genRunAllScript();
+//			
+//			String export = "export COMPILE_PARAMETERS=-D" + faults.get(index) + "\n";
+//			System.out.println("generating run instrument script for subv" + index);
+//			gs = new GenRunFineGrainedInstrumentScript(subject, version, gc.subVersion, setEnv + export + gc.compileFGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+//			gs.genRunScript();
+//			gs = new GenRunCoarseGrainedInstrumentScript(subject, version, gc.subVersion, setEnv + export + gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100000);
+//			gs.genRunScript();
+//		}
+//		
+//		//generate run all instrumented triggered subversion scripts
+//		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
+//		ga.genRunAllScript();
 		
 		
 	}
