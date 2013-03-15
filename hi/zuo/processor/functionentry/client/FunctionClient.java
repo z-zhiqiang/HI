@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,6 +48,8 @@ public class FunctionClient {
 	final String method;
 	
 	final int[][] result;
+	
+	private PrintWriter writer;
 	final PrintWriter clientWriter;
 	
 	
@@ -61,10 +64,9 @@ public class FunctionClient {
 		this.result = new int[4][6];
 		this.clientWriter = cWriter;
 		
-		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
-			printResults(writer);
+			printResults();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -87,10 +89,9 @@ public class FunctionClient {
 		this.result = new int[4][6];
 		this.clientWriter = cWriter;
 		
-		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
-			printResults(writer);
+			printResults();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -118,10 +119,9 @@ public class FunctionClient {
 		this.result = new int[4][6];
 		this.clientWriter = cWriter;
 		
-		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
-			printResults(writer);
+			printResults();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -133,24 +133,8 @@ public class FunctionClient {
 		}
 	}
 
-	public static void main(String[] args) {
-//		final String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/";
-//		final String subject = "space";
-//		final String version = "v3";
-//		final String consoleFolder = "/home/sunzzq/Console/";
-//		
-//		FunctionClient client = new FunctionClient(4000, rootDir, subject, version, consoleFolder, null);
-//		
-//		for (int i = 0; i < client.result.length; i++) {
-//			for (int j = 0; j < client.result[i].length; j++) {
-//				System.out.print(client.result[i][j] + "\t");
-//			}
-//			System.out.println();
-//		}
-	}
-
 	
-	private void printResults(PrintWriter writer){
+	private void printResults(){
 		FunctionEntrySites sites = new FunctionEntrySites(sitesFile);
 		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFolder, sites);
 		FunctionEntryProfile[] profiles = reader.readFunctionEntryProfiles(runs);
@@ -172,24 +156,42 @@ public class FunctionClient {
 		writer.println("The general methods information are as follows:\n==============================================================");
 		writer.println(String.format("%-50s", "Total number of methods instrumented:") + sites.getNumFunctionEntrySites());
 		
+		filterFrequencyMap(processor.getFrequencyMap());
+		
 		System.out.println();
 		writer.println("\n");
-		printEntryAndPercentageByFScore(processor.getFrequencyMap(), sInfo, writer);
+		printEntryAndPercentageByFScore(processor.getFrequencyMap());
 		writer.println("\n");
-		printEntryAndPercentageBySpecificity(processor.getFrequencyMap(), sInfo, writer);
+		printEntryAndPercentageBySpecificity(processor.getFrequencyMap());
 		writer.println("\n");
-		printEntryAndPercentageByNegative(processor.getFrequencyMap(), sInfo, writer);
+		printEntryAndPercentageByNegative(processor.getFrequencyMap());
 		writer.println("\n");
-		printEntryAndPercentageByPositive(processor.getFrequencyMap(), sInfo, writer);
+		printEntryAndPercentageByPositive(processor.getFrequencyMap());
 		
 	}
 	
+	private void filterFrequencyMap(Map<FunctionEntrySite, FrequencyValue> frequencyMap) {
+		// TODO Auto-generated method stub
+//		for(FunctionEntrySite site: frequencyMap.keySet()){
+//			String function = site.getFunctionName();
+//			if(!sInfo.getMap().containsKey(function)){
+//				frequencyMap.remove(site);
+//			}
+//		}
+		for(Iterator<FunctionEntrySite> it = frequencyMap.keySet().iterator(); it.hasNext();){
+			String function = it.next().getFunctionName();
+			if(!sInfo.getMap().containsKey(function)){
+				it.remove();
+			}
+		}
+	}
+
 	/**print the methods in the descending order of F-score value and the corresponding percentage to be instrumented
 	 * @param frequencyMap
 	 * @param sInfo
 	 * @param writer
 	 */
-	private void printEntryAndPercentageByFScore(Map<FunctionEntrySite, FrequencyValue> frequencyMap, SitesInfo sInfo, PrintWriter writer) {
+	private void printEntryAndPercentageByFScore(Map<FunctionEntrySite, FrequencyValue> frequencyMap) {
 		// TODO Auto-generated method stub
 		List list = new ArrayList(frequencyMap.entrySet());
 		Collections.sort(list, new Comparator(){
@@ -202,18 +204,20 @@ public class FunctionClient {
 				if (r == 0) {
 					int rr = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getNegative())
 						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getNegative()));
-					rr = order(arg0, arg1, rr);
+					if(rr == 0){
+						rr = order(arg0, arg1, rr);
+					}
 					return rr;
 				}
 				return r;
 			}});
 		writer.println("The methods ordered by F-score are as follows:\n--------------------------------------------------------------");
-		printEntry(sInfo, writer, list);
+		printEntry(list);
 		writer.println();
 		System.out.println("The information of sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
 		writer.println("The information of sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
 		this.clientWriter.println("The information of sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
-		printPercentage(sInfo, writer, list, Score.F_1);
+		printPercentage(list, Score.F_1);
 	}
 
 	/**print the methods in the descending order of Specificity value and the corresponding percentage to be instrumented
@@ -221,7 +225,7 @@ public class FunctionClient {
 	 * @param sInfo
 	 * @param writer
 	 */
-	private void printEntryAndPercentageBySpecificity(Map<FunctionEntrySite, FrequencyValue> frequencyMap, SitesInfo sInfo, PrintWriter writer) {
+	private void printEntryAndPercentageBySpecificity(Map<FunctionEntrySite, FrequencyValue> frequencyMap) {
 		// TODO Auto-generated method stub
 		List list = new ArrayList(frequencyMap.entrySet());
 		Collections.sort(list, new Comparator(){
@@ -234,18 +238,20 @@ public class FunctionClient {
 				if (r == 0) {
 					int rr = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
 						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
-					rr = order(arg0, arg1, rr);
+					if(rr == 0){
+						rr = order(arg0, arg1, rr);
+					}
 					return rr;
 				}
 				return r;
 			}});
 		writer.println("The methods ordered by Specificity are as follows:\n--------------------------------------------------------------");
-		printEntry(sInfo, writer, list);
+		printEntry(list);
 		writer.println();
 		System.out.println("The information of sites and predicates need to be instrumented (Specificity) are as follows:\n--------------------------------------------------------------");
 		writer.println("The information of sites and predicates need to be instrumented (Specificity) are as follows:\n--------------------------------------------------------------");
 		this.clientWriter.println("The information of sites and predicates need to be instrumented (Specificity) are as follows:\n--------------------------------------------------------------");
-		printPercentage(sInfo, writer, list, Score.Specificity);
+		printPercentage(list, Score.Specificity);
 	}
 	
 	/**print the method entry in the descending order of negative value and the corresponding percentage to be instrumented
@@ -253,7 +259,7 @@ public class FunctionClient {
 	 * @param sInfo
 	 * @param writer
 	 */
-	private void printEntryAndPercentageByNegative(Map<FunctionEntrySite, FrequencyValue> frequencyMap, SitesInfo sInfo, PrintWriter writer) {
+	private void printEntryAndPercentageByNegative(Map<FunctionEntrySite, FrequencyValue> frequencyMap) {
 		// TODO Auto-generated method stub
 		List list = new ArrayList(frequencyMap.entrySet());
 		Collections.sort(list, new Comparator(){
@@ -266,18 +272,20 @@ public class FunctionClient {
 				if(r == 0){
 					int rr = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
 						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
-					rr = order(arg0, arg1, rr);
+					if(rr == 0){
+						rr = order(arg0, arg1, rr);
+					}
 					return rr;
 				}
 				return r;
 			}});
 		writer.println("The methods ordered by Negative are as follows:\n--------------------------------------------------------------");
-		printEntry(sInfo, writer, list);
+		printEntry(list);
 		writer.println();
 		System.out.println("The information of sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
 		writer.println("The information of sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
 		this.clientWriter.println("The information of sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
-		printPercentage(sInfo, writer, list, Score.F);
+		printPercentage(list, Score.F);
 	}
 
 	/**print the method entry in the increasing order of positive value and the corresponding percentage to be instrumented
@@ -285,7 +293,7 @@ public class FunctionClient {
 	 * @param sInfo
 	 * @param writer
 	 */
-	private void printEntryAndPercentageByPositive(Map<FunctionEntrySite, FrequencyValue> frequencyMap, SitesInfo sInfo, PrintWriter writer){
+	private void printEntryAndPercentageByPositive(Map<FunctionEntrySite, FrequencyValue> frequencyMap){
 		List list = new ArrayList(frequencyMap.entrySet());
 		Collections.sort(list, new Comparator(){
 
@@ -297,22 +305,24 @@ public class FunctionClient {
 				if(r == 0){
 					int rr = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
 						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
-					rr = order(arg0, arg1, rr);
+					if(rr == 0){
+						rr = order(arg0, arg1, rr);
+					}
 					return rr;
 				}
 				return r;
 			}});
 		writer.println("The methods ordered by Positive are as follows:\n--------------------------------------------------------------");
-		printEntry(sInfo, writer, list);
+		printEntry(list);
 		writer.println();
 		System.out.println("The information of sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
 		writer.println("The information of sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
 		this.clientWriter.println("The information of sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
-		printPercentage(sInfo, writer, list, Score.S);
+		printPercentage(list, Score.S);
 	}
 
 
-	private void printEntry(SitesInfo sInfo, PrintWriter writer, List list) {
+	private void printEntry(List list) {
 		for(int i = 0; i < list.size(); i++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
 			String method = entry.getKey().getFunctionName();
@@ -320,12 +330,13 @@ public class FunctionClient {
 				writer.println(String.format("%-45s", method) + entry.getValue().toString() + "\t" + sInfo.getMap().get(method).toStringWithoutSites());
 			}
 			else{
-				writer.println(String.format("%-45s", method) + entry.getValue().toString());
+				throw new RuntimeException("filtering error");
+//				writer.println(String.format("%-45s", method) + entry.getValue().toString());
 			}
 		}
 	}
 
-	private void printPercentage(SitesInfo sInfo, PrintWriter writer, List list, Score f) {
+	private void printPercentage(List list, Score f) {
 		int nSites = 0, nPredicates = 0;
 		for(int i = 0; i < list.size(); i++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
@@ -416,14 +427,25 @@ public class FunctionClient {
 	}
 
 	private int order(Object arg0, Object arg1, int rr) {
-		if(rr == 0){
-			if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName().equals(method)){
-				rr = 1;
-			}
-			if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getKey().getFunctionName().equals(method)){
-				rr = -1;
-			}
-		}
+		assert(rr == 0);
+		//the best order
+//		if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName().equals(method)){
+//			rr = 1;
+//		}
+//		if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getKey().getFunctionName().equals(method)){
+//			rr = -1;
+//		}
+		
+		//less first
+//		String method0 = ((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getKey().getFunctionName();
+//		String method1 = ((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName();
+//		rr = new Integer(sInfo.getMap().get(method0).getNumSites())
+//			.compareTo(new Integer(sInfo.getMap().get(method1).getNumSites()));
+//		if(rr == 0){
+//			rr = new Integer(sInfo.getMap().get(method0).getNumPredicates())
+//				.compareTo(new Integer(sInfo.getMap().get(method1).getNumPredicates()));
+//		}
+		
 		return rr;
 	}
 	
