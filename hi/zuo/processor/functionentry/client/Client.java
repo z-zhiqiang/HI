@@ -26,14 +26,18 @@ public class Client {
 	final String consoleFolder;
 	
 	final Map<String, int[][]> results;
+	
+	final int orderMode;
 
-	public Client(int runs, String rootDir, String subject, String consoleFolder) {
+	public Client(int runs, String rootDir, String subject, String consoleFolder, int oMode) {
 		super();
 		this.runs = runs;
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
 		this.results = new HashMap<String, int[][]>();
+		
+		this.orderMode = oMode;
 	}
 
 	/**
@@ -105,7 +109,7 @@ public class Client {
 			CBIClient c = new CBIClient(runs, FunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
 					rootDir + subject + "/traces/" + vi +"/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
 			FunctionClient client = new FunctionClient(runs, new File(version.getAbsolutePath(), vi + "_c.sites"), 
-					rootDir + subject + "/traces/" + vi + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", sInfo, c.getPredictorEntryList(), cWriter);
+					rootDir + subject + "/traces/" + vi + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", sInfo, c.getPredictorEntryList(), cWriter, orderMode);
 			results.put(vi, client.getResult());
 			
 			for (int i = 0; i < results.get(vi).length; i++) {
@@ -162,7 +166,7 @@ public class Client {
 				CBIClient c = new CBIClient(runs, FunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
 						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
 				FunctionClient client = new FunctionClient(runs, new File(subversion.getAbsolutePath(), vi + "_c.sites"), 
-						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", sInfo, c.getPredictorEntryList(), cWriter);
+						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", sInfo, c.getPredictorEntryList(), cWriter, orderMode);
 				results.put(vi, client.getResult());
 				
 				for (int i = 0; i < results.get(vi).length; i++) {
@@ -245,33 +249,33 @@ public class Client {
 	}
 
 	public static void main(String[] args) {
-//		if(args.length != 5){
-//			System.err.println("Usage: numTests rootDir subject consoleDir mode(0:Siemens; 1:Sir)");
-//			return;
-//		}
-//		Client c = new Client(Integer.parseInt(args[0]), args[1], args[2], args[3]);
-//		if(Integer.parseInt(args[4]) == 0){
-//			c.computeSiemensResults();
-//		}
-//		else if(Integer.parseInt(args[4]) == 1){
-//			c.computeSirResults();
-//		}
+		if(args.length != 6){
+			System.err.println("Usage: subjectMode(0:Siemens; 1:Sir) numTests rootDir subject consoleDir orderMode(0:random; 1:best; 2:less first)");
+			return;
+		}
+		Client c = new Client(Integer.parseInt(args[1]), args[2], args[3], args[4], Integer.parseInt(args[5]));
+		if(Integer.parseInt(args[0]) == 0){
+			c.computeSiemensResults();
+		}
+		else if(Integer.parseInt(args[0]) == 1){
+			c.computeSirResults();
+		}
 
 //		Client c = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed1/");
 //		c.computeSirResults();
 		
-		String[][] argvs = {{"1608", "tcas"},
-				{"1052", "totinfo"},
-				{"5542", "replace"},
-				{"4130", "printtokens"},
-				{"4115", "printtokens2"},
-				{"2650", "schedule"},
-				{"2710", "schedule2"}};
-		for(int i = 0; i < argvs.length; i++){
-			Client c = new Client(Integer.parseInt(argvs[i][0]), "/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/", argvs[i][1], "/home/sunzzq/Console/Siemens3/" + argvs[i][1] + "/");
-			c.computeSiemensResults();	
-			System.out.println("\n\n");
-		}
+//		String[][] argvs = {{"1608", "tcas"},
+//				{"1052", "totinfo"},
+//				{"5542", "replace"},
+//				{"4130", "printtokens"},
+//				{"4115", "printtokens2"},
+//				{"2650", "schedule"},
+//				{"2710", "schedule2"}};
+//		for(int i = 0; i < argvs.length; i++){
+//			Client c = new Client(Integer.parseInt(argvs[i][0]), "/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/", argvs[i][1], "/home/sunzzq/Console/Siemens3/" + argvs[i][1] + "/");
+//			c.computeSiemensResults();	
+//			System.out.println("\n\n");
+//		}
 		
 	}
 	

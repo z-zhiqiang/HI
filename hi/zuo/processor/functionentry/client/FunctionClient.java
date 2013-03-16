@@ -52,8 +52,10 @@ public class FunctionClient {
 	private PrintWriter writer;
 	final PrintWriter clientWriter;
 	
+	final int orderMode;
 	
-	public FunctionClient(int runs, File sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter) {
+	
+	public FunctionClient(int runs, File sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter, int oMode) {
 		this.runs = runs;
 		this.sitesFile = sitesFile;
 		this.profilesFolder = profilesFolder;
@@ -63,6 +65,7 @@ public class FunctionClient {
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
 		this.result = new int[4][6];
 		this.clientWriter = cWriter;
+		this.orderMode = oMode;
 		
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
@@ -78,7 +81,7 @@ public class FunctionClient {
 		}
 	}
 	
-	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter){
+	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter, int oMode){
 		this.runs = runs;
 		this.sitesFile = new File(rootDir + subject + "/versions/" + version + "/" + version + "_c.sites");
 		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";
@@ -88,6 +91,7 @@ public class FunctionClient {
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
 		this.result = new int[4][6];
 		this.clientWriter = cWriter;
+		this.orderMode = oMode;
 		
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
@@ -104,7 +108,7 @@ public class FunctionClient {
 		
 	}
 	
-	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, PrintWriter cWriter){
+	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, PrintWriter cWriter, int oMode){
 		this.runs = runs;
 		this.sitesFile = new File(rootDir + subject + "/versions/" + version + "/" + version + "_c.sites");
 		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";
@@ -118,6 +122,7 @@ public class FunctionClient {
 		
 		this.result = new int[4][6];
 		this.clientWriter = cWriter;
+		this.orderMode = oMode;
 		
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
@@ -172,12 +177,6 @@ public class FunctionClient {
 	
 	private void filterFrequencyMap(Map<FunctionEntrySite, FrequencyValue> frequencyMap) {
 		// TODO Auto-generated method stub
-//		for(FunctionEntrySite site: frequencyMap.keySet()){
-//			String function = site.getFunctionName();
-//			if(!sInfo.getMap().containsKey(function)){
-//				frequencyMap.remove(site);
-//			}
-//		}
 		for(Iterator<FunctionEntrySite> it = frequencyMap.keySet().iterator(); it.hasNext();){
 			String function = it.next().getFunctionName();
 			if(!sInfo.getMap().containsKey(function)){
@@ -428,23 +427,34 @@ public class FunctionClient {
 
 	private int order(Object arg0, Object arg1, int rr) {
 		assert(rr == 0);
-		//the best order
-//		if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName().equals(method)){
-//			rr = 1;
-//		}
-//		if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getKey().getFunctionName().equals(method)){
-//			rr = -1;
-//		}
 		
-		//less first
-//		String method0 = ((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getKey().getFunctionName();
-//		String method1 = ((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName();
-//		rr = new Integer(sInfo.getMap().get(method0).getNumSites())
-//			.compareTo(new Integer(sInfo.getMap().get(method1).getNumSites()));
-//		if(rr == 0){
-//			rr = new Integer(sInfo.getMap().get(method0).getNumPredicates())
-//				.compareTo(new Integer(sInfo.getMap().get(method1).getNumPredicates()));
-//		}
+		switch (orderMode) {
+		case 0:
+			//random order
+			break;
+		case 1:
+			//best order
+			if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName().equals(method)){
+				rr = 1;
+			}
+			if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getKey().getFunctionName().equals(method)){
+				rr = -1;
+			}
+			break;
+		case 2:
+			//less first
+			String method0 = ((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getKey().getFunctionName();
+			String method1 = ((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName();
+			rr = new Integer(sInfo.getMap().get(method0).getNumSites())
+				.compareTo(new Integer(sInfo.getMap().get(method1).getNumSites()));
+			if(rr == 0){
+				rr = new Integer(sInfo.getMap().get(method0).getNumPredicates())
+					.compareTo(new Integer(sInfo.getMap().get(method1).getNumPredicates()));
+			}
+			break;
+		default:
+			System.err.println("ordering mode error");
+		}
 		
 		return rr;
 	}
