@@ -12,16 +12,15 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 	
 	final List<Integer> failingTests;
 	final List<Integer> passingTests;
-	final int pNum;
+//	final int pNum;
 	
 	
-	public GenRunCoarseGrainedInstrumentScript(String sub, String ver, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, int pN) {
+	public GenRunCoarseGrainedInstrumentScript(String sub, String ver, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing) {
 		super(sub, ver, cc, sD, eD, oD, scD);
 		this.traceDir = tD;
 		this.mkOutDir();
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
-		this.pNum = pN;
 	}
 
 	@Override
@@ -42,7 +41,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
 		}
 		
-		for (int i = 0; i < passingTests.size() && i < pNum; i++) {
+		for (int i = 0; i < passingTests.size(); i++) {
 			int index = passingTests.get(i);
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=" + traceDir + "o" + index + ".pprofile\n");
