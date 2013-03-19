@@ -47,7 +47,7 @@ public class FunctionClient {
 	final List<Map.Entry<PredicateItem, Double>> predictors;
 	final String method;
 	
-	final int[][] result;
+	final double[][] result;
 	
 	private PrintWriter writer;
 	final PrintWriter clientWriter;
@@ -63,7 +63,7 @@ public class FunctionClient {
 		this.sInfo = sInfo;
 		this.predictors = predictors;
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
-		this.result = new int[4][6];
+		this.result = new double[4][4];
 		this.clientWriter = cWriter;
 		this.orderMode = oMode;
 		
@@ -89,7 +89,7 @@ public class FunctionClient {
 		this.sInfo = sInfo;
 		this.predictors = predictors;
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
-		this.result = new int[4][6];
+		this.result = new double[4][4];
 		this.clientWriter = cWriter;
 		this.orderMode = oMode;
 		
@@ -120,7 +120,7 @@ public class FunctionClient {
 		this.predictors = c.getPredictorEntryList();
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
 		
-		this.result = new int[4][6];
+		this.result = new double[4][4];
 		this.clientWriter = cWriter;
 		this.orderMode = oMode;
 		
@@ -146,6 +146,7 @@ public class FunctionClient {
 		SelectingProcessor processor = new SelectingProcessor(profiles);
 		processor.process();
 		
+		//print out the general runs information
 		assert(processor.getTotalNegative() + processor.getTotalPositive() == runs);
 		writer.println("\n");
 		writer.println("The general runs information are as follows:\n==============================================================");
@@ -153,16 +154,18 @@ public class FunctionClient {
 		writer.println(String.format("%-50s", "Total number of negative runs:") + processor.getTotalNegative());
 		writer.println(String.format("%-50s", "Total number of positive runs:") + processor.getTotalPositive());
 		
+		//print out the static instrumentation sites information 
 		writer.println("\n");
 		printSitesInfo(sInfo, writer);
-		
 		assert(processor.getFrequencyMap().size() == sites.getNumFunctionEntrySites());
 		writer.println("\n");
 		writer.println("The general methods information are as follows:\n==============================================================");
 		writer.println(String.format("%-50s", "Total number of methods instrumented:") + sites.getNumFunctionEntrySites());
 		
+		//filter out methods within which no predicates are instrumented
 		filterFrequencyMap(processor.getFrequencyMap());
 		
+		//print out entry and percentage information
 		System.out.println();
 		writer.println("\n");
 		printEntryAndPercentageByFScore(processor.getFrequencyMap());
@@ -175,6 +178,9 @@ public class FunctionClient {
 		
 	}
 	
+	/**filter out the methods having no instrumented predicates
+	 * @param frequencyMap
+	 */
 	private void filterFrequencyMap(Map<FunctionEntrySite, FrequencyValue> frequencyMap) {
 		// TODO Auto-generated method stub
 		for(Iterator<FunctionEntrySite> it = frequencyMap.keySet().iterator(); it.hasNext();){
@@ -337,38 +343,42 @@ public class FunctionClient {
 
 	private void printPercentage(List list, Score f) {
 		int nSites = 0, nPredicates = 0;
+		double sp = 0, pp = 0;
 		for(int i = 0; i < list.size(); i++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
 			String method = entry.getKey().getFunctionName();
 			//percentage information of instrumented sites and predicates
 			if(this.method.equals(method)){
-				System.out.println(String.format("%-45s", "Excluding " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites()))
-						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems())));
-				writer.println(String.format("%-45s", "Excluding " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites()))
-						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems())));
-				this.clientWriter.println(String.format("%-45s", "Excluding " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites()))
-						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems())));
-				result[f.ordinal()][0] = nSites;
-				result[f.ordinal()][1] = nPredicates;
+				sp = (double) 100 * nSites/sInfo.getNumPredicateSites();
+				pp = (double)100 * nPredicates/sInfo.getNumPredicateItems();
+				
+				System.out.println(String.format("%-45s", "Excluding " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(sp))
+						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(pp)));
+				writer.println(String.format("%-45s", "Excluding " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(sp))
+						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(pp)));
+				this.clientWriter.println(String.format("%-45s", "Excluding " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(sp))
+						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(pp)));
+				result[f.ordinal()][0] = sp;
+				result[f.ordinal()][1] = pp;
 				
 				nSites += sInfo.getMap().get(method).getNumSites();
 				nPredicates += sInfo.getMap().get(method).getNumPredicates();
 
-				System.out.println(String.format("%-45s", "Including " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites()))
-						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems())));
+				sp = (double) 100 * nSites/sInfo.getNumPredicateSites();
+				pp = (double)100 * nPredicates/sInfo.getNumPredicateItems();
+				
+				System.out.println(String.format("%-45s", "Including " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(sp))
+						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(pp)));
 				System.out.println();
-				writer.println(String.format("%-45s", "Including " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites()))
-						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems())));
+				writer.println(String.format("%-45s", "Including " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(sp))
+						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(pp)));
 				writer.println();
-				this.clientWriter.println(String.format("%-45s", "Including " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * nSites/sInfo.getNumPredicateSites()))
-						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * nPredicates/sInfo.getNumPredicateItems())));
+				this.clientWriter.println(String.format("%-45s", "Including " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(sp))
+						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(pp)));
 				this.clientWriter.println();
 				
-				result[f.ordinal()][2] = nSites;
-				result[f.ordinal()][3] = nPredicates;
-				
-				result[f.ordinal()][4] = sInfo.getNumPredicateSites();
-				result[f.ordinal()][5] = sInfo.getNumPredicateItems();
+				result[f.ordinal()][2] = sp;
+				result[f.ordinal()][3] = pp;
 				
 				break;
 			}
@@ -421,7 +431,7 @@ public class FunctionClient {
 		return predictors;
 	}
 
-	public int[][] getResult() {
+	public double[][] getResult() {
 		return result;
 	}
 

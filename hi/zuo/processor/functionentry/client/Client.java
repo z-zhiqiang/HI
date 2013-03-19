@@ -9,10 +9,14 @@ import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import zuo.processor.cbi.client.CBIClient;
@@ -25,17 +29,16 @@ public class Client {
 	final String subject;
 	final String consoleFolder;
 	
-	final Map<String, int[][]> results;
+	final Map<String, double[][]> results;
 	
 	final int orderMode;
 
 	public Client(int runs, String rootDir, String subject, String consoleFolder, int oMode) {
-		super();
 		this.runs = runs;
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
-		this.results = new HashMap<String, int[][]>();
+		this.results = new HashMap<String, double[][]>();
 		
 		this.orderMode = oMode;
 	}
@@ -122,11 +125,14 @@ public class Client {
 			cWriter.println();	
 		}
 		
-		System.out.println("\n\n\n" + subject + ": " + versionsList + "\n==============================================================");
-		cWriter.println("\n\n\n" + subject + ": " + versionsList + "\n==============================================================");
-		printTotalResults(cWriter);
+//		System.out.println("\n\n\n" + subject + ": " + versionsList + "\n==============================================================");
+//		cWriter.println("\n\n\n" + subject + ": " + versionsList + "\n==============================================================");
+//		printTotalResults(cWriter);
+		System.out.println("\n\n\n");
+		cWriter.println("\n\n\n");
+		printFinalResults(cWriter);
 	}
-	
+
 	private void printSirResults(PrintWriter cWriter){
 		List<String> versionsList = new ArrayList<String>();
 		
@@ -181,70 +187,162 @@ public class Client {
 			
 		}
 		
-		System.out.println("\n\n\n" + subject + ": " + versionsList + "\n==============================================================");
-		cWriter.println("\n\n\n" + subject + ": " + versionsList + "\n==============================================================");
-		printTotalResults(cWriter);
+//		System.out.println("\n\n\n" + subject + ": " + versionsList + "\n==============================================================");
+//		cWriter.println("\n\n\n" + subject + ": " + versionsList + "\n==============================================================");
+//		printTotalResults(cWriter);
+		System.out.println("\n\n\n");
+		cWriter.println("\n\n\n");
+		printFinalResults(cWriter);
 	}
 	
-	private void printTotalResults(PrintWriter cWriter) {
-		double[][] sum = new double[4][4];
-		for(String version: results.keySet()){
-			int[][] array = results.get(version);
-			for (int i = 0; i < array.length; i++) {
-				for (int j = 0; j < array[i].length - 2; j++) {
-					sum[i][j] += (double) array[i][j]/array[i][j%2 + 4];
-				}
+	private void printFinalResults(PrintWriter cWriter) {
+		// TODO Auto-generated method stub
+		List rList = new ArrayList(results.entrySet());
+		Collections.sort(rList, new Comparator(){
+
+			@Override
+			public int compare(Object arg0, Object arg1) {
+				// TODO Auto-generated method stub
+				Entry<String, double[][]> entry0 = (Entry<String, double[][]>) arg0,
+						entry1 = (Entry<String, double[][]>) arg1;
+				double d0 = getSortValue(entry0),
+						d1 = getSortValue(entry1);
+				return new Double(d1).compareTo(new Double(d0));
 			}
+
+			private double getSortValue(Entry<String, double[][]> entry) {
+				// TODO Auto-generated method stub
+				double[][] array = entry.getValue();
+				return array[0][2] + array[1][2] + array[2][2];
+			}});
+		
+		Set<String> versions = new LinkedHashSet<String>();
+		double[][] result = new double[4][4];
+		for(int i = 0; i < rList.size(); i++){
+			Entry<String, double[][]> entry = (Entry<String, double[][]>) rList.get(i);
+			versions.add(entry.getKey());
+			accumulate(result, entry.getValue());
+			print(i, versions, result, cWriter);
 		}
-		
+	}
+	
+//	private void printTotalResults(PrintWriter cWriter) {
+//		double[][] sum = new double[4][4];
+//		for(String version: results.keySet()){
+//			int[][] array = results.get(version);
+//			for (int i = 0; i < array.length; i++) {
+//				for (int j = 0; j < array[i].length - 2; j++) {
+//					sum[i][j] += (double) array[i][j]/array[i][j%2 + 4];
+//				}
+//			}
+//		}
+//		
+//		System.out.println("\nThe information of average sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
+//		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[0][0] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[0][1] / results.size())));
+//		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[0][2] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[0][3] / results.size())));
+//		System.out.println("\nThe information of average sites and predicates need to be instrumented (Specificity) are as follows:\n--------------------------------------------------------------");
+//		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[1][0] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[1][1] / results.size())));
+//		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[1][2] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[1][3] / results.size())));
+//		System.out.println("\nThe information of average sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
+//		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[2][0] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[2][1] / results.size())));
+//		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[2][2] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[2][3] / results.size())));
+//		System.out.println("\nThe information of average sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
+//		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[3][0] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[3][1] / results.size())));
+//		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[3][2] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[3][3] / results.size())));
+//		
+//		cWriter.println("\nThe information of average sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
+//		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[0][0] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[0][1] / results.size())));
+//		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[0][2] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[0][3] / results.size())));
+//		cWriter.println("\nThe information of average sites and predicates need to be instrumented (Specificity) are as follows:\n--------------------------------------------------------------");
+//		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[1][0] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[1][1] / results.size())));
+//		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[1][2] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[1][3] / results.size())));
+//		cWriter.println("\nThe information of average sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
+//		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[2][0] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[2][1] / results.size())));
+//		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[2][2] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[2][3] / results.size())));
+//		cWriter.println("\nThe information of average sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
+//		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[3][0] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[3][1] / results.size())));
+//		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[3][2] / results.size()))
+//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[3][3] / results.size())));
+//		
+//		System.out.println("\n\n");
+//		for (int i = 0; i < sum.length; i++) {
+//			for (int j = 0; j < sum[i].length; j++) {
+//				System.out.print(sum[i][j]/(results.size()) + "\t");
+//			}
+//			System.out.println();
+//		}
+//	}
+
+	private void print(int i, Set<String> versions, double[][] result, PrintWriter cWriter) {
+		// TODO Auto-generated method stub
+		assert(i + 1 == versions.size());
+		System.out.println("\n" + versions.size() + "\n" + subject + ": " + versions + "\n==============================================================");
 		System.out.println("\nThe information of average sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
-		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[0][0] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[0][1] / results.size())));
-		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[0][2] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[0][3] / results.size())));
+		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[0][0] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[0][1] / versions.size())));
+		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[0][2] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[0][3] / versions.size())));
 		System.out.println("\nThe information of average sites and predicates need to be instrumented (Specificity) are as follows:\n--------------------------------------------------------------");
-		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[1][0] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[1][1] / results.size())));
-		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[1][2] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[1][3] / results.size())));
+		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[1][0] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[1][1] / versions.size())));
+		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[1][2] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[1][3] / versions.size())));
 		System.out.println("\nThe information of average sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
-		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[2][0] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[2][1] / results.size())));
-		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[2][2] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[2][3] / results.size())));
+		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[2][0] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[2][1] / versions.size())));
+		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[2][2] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[2][3] / versions.size())));
 		System.out.println("\nThe information of average sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
-		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[3][0] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[3][1] / results.size())));
-		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[3][2] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[3][3] / results.size())));
+		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[3][0] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[3][1] / versions.size())));
+		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[3][2] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[3][3] / versions.size())));
 		
+		cWriter.println("\n" + versions.size() + "\n" + subject + ": " + versions + "\n==============================================================");
 		cWriter.println("\nThe information of average sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
-		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[0][0] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[0][1] / results.size())));
-		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[0][2] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[0][3] / results.size())));
+		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[0][0] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[0][1] / versions.size())));
+		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[0][2] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[0][3] / versions.size())));
 		cWriter.println("\nThe information of average sites and predicates need to be instrumented (Specificity) are as follows:\n--------------------------------------------------------------");
-		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[1][0] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[1][1] / results.size())));
-		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[1][2] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[1][3] / results.size())));
+		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[1][0] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[1][1] / versions.size())));
+		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[1][2] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[1][3] / versions.size())));
 		cWriter.println("\nThe information of average sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
-		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[2][0] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[2][1] / results.size())));
-		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[2][2] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[2][3] / results.size())));
+		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[2][0] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[2][1] / versions.size())));
+		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[2][2] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[2][3] / versions.size())));
 		cWriter.println("\nThe information of average sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
-		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[3][0] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[3][1] / results.size())));
-		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format((double) 100 * sum[3][2] / results.size()))
-				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format((double)100 * sum[3][3] / results.size())));
-		
-		System.out.println("\n\n");
-		for (int i = 0; i < sum.length; i++) {
-			for (int j = 0; j < sum[i].length; j++) {
-				System.out.print(sum[i][j]/(results.size()) + "\t");
+		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[3][0] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[3][1] / versions.size())));
+		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[3][2] / versions.size()))
+				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[3][3] / versions.size())));
+	}
+
+	private void accumulate(double[][] result, double[][] value) {
+		// TODO Auto-generated method stub
+		assert(result.length == value.length && result.length == 4);
+		for(int i = 0; i < result.length; i++){
+			for (int j = 0; j < result[i].length; j++) {
+				result[i][j] += value[i][j];
 			}
-			System.out.println();
 		}
 	}
 
