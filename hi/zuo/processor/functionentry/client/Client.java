@@ -282,35 +282,79 @@ public class Client {
 	}
 
 	public static void main(String[] args) {
-//		if(args.length != 6){
-//			System.err.println("Usage: subjectMode(0:Siemens; 1:Sir) numTests rootDir subject consoleDir orderMode(0:random; 1:best; 2:less first)");
-//			return;
-//		}
-//		Client c = new Client(Integer.parseInt(args[1]), args[2], args[3], args[4], Integer.parseInt(args[5]));
-//		if(Integer.parseInt(args[0]) == 0){
-//			c.computeSiemensResults();
-//		}
-//		else if(Integer.parseInt(args[0]) == 1){
-//			c.computeSirResults();
-//		}
-
-//		Client c = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed1/");
-//		c.computeSirResults();
-		
 		String[][] argvs = {
+				{"809", "grep"},
+				{"213", "gzip"},
+				{"363", "sed"},
+				{"13585", "space"},
+				{"1608", "tcas"},
+				{"1052", "totinfo"},
+				{"5542", "replace"},
+				{"4130", "printtokens"},
+				{"4115", "printtokens2"},
+				{"2650", "schedule"},
+				{"2710", "schedule2"}
+		};
+		
+		if(args.length != 6 && args.length != 5 && args.length != 3){
+			System.out.println("The characteristics of subjects are as follows:");
+			for(int i = 0; i < argvs.length; i++){
+				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
+			}
+			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) numTests rootDir subject consoleDir(excluding '/') orderMode(0:random; 1:best; 2:less first) " +
+					"\nor Usage: subjectMode(0:Siemens; 1:Sir) numTests rootDir subject consoleDir " +
+					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir");
+			return;
+		}
+		
+		if(args.length == 5){
+			for (int i = 0; i < 3; i++) {
+				Client c = new Client(Integer.parseInt(args[1]), args[2], args[3], args[4] + i + "/", i);
+				if (Integer.parseInt(args[0]) == 0) {
+					c.computeSiemensResults();
+				} else if (Integer.parseInt(args[0]) == 1) {
+					c.computeSirResults();
+				}
+			}
+		}
+		else if(args.length == 6){
+			Client c = new Client(Integer.parseInt(args[1]), args[2], args[3], args[4], Integer.parseInt(args[5]));
+			if(Integer.parseInt(args[0]) == 0){
+				c.computeSiemensResults();
+			}
+			else if(Integer.parseInt(args[0]) == 1){
+				c.computeSirResults();
+			}
+		}
+		else if(args.length == 3){
+			assert(Integer.parseInt(args[0]) == 0);
+			for(int i = 4; i < argvs.length; i++){
+				for (int j = 0; j < 3; j++) {
+					Client c = new Client(Integer.parseInt(argvs[i][0]), args[1], argvs[i][1], args[2] + j + "/" + argvs[i][1] + "/", j);
+					c.computeSiemensResults();
+				}	
+			}
+		}
+
+		
+//		String[][] argvs = {
+//				{"809", "grep"},
+//				{"213", "gzip"},
+//				{"363", "sed"},
+//				{"13585", "space"},
 //				{"1608", "tcas"},
 //				{"1052", "totinfo"},
 //				{"5542", "replace"},
 //				{"4130", "printtokens"},
 //				{"4115", "printtokens2"},
-				{"2650", "schedule"},
-				{"2710", "schedule2"}
-				};
-		for(int i = 0; i < argvs.length; i++){
-			Client c = new Client(Integer.parseInt(argvs[i][0]), "/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/", argvs[i][1], "/home/sunzzq/Console/Siemens3/" + argvs[i][1] + "/", 0);
-			c.computeSiemensResults();	
-			System.out.println("\n\n");
-		}
+//				{"2650", "schedule"},
+//				{"2710", "schedule2"}
+//				};
+//		for(int i = 0; i < argvs.length; i++){
+//			Client cc = new Client(Integer.parseInt(argvs[i][0]), "/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/", argvs[i][1], "/home/sunzzq/Console/Siemens3/" + argvs[i][1] + "/", 0);
+//			cc.computeSiemensResults();	
+//			System.out.println("\n\n");
+//		}
 		
 	}
 	
