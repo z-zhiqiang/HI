@@ -38,7 +38,7 @@ public class FunctionClient {
 	}
 	
 	static enum Order{
-		RANDOM, LESS_FIRST, MORE_FIRST, CLOSER_FIRST, BEST, WORST 
+		RANDOM, LESS_FIRST, MORE_FIRST, BEST, WORST, //CLOSER_FIRST 
 	}
 	
 	final int runs;
@@ -296,9 +296,9 @@ public class FunctionClient {
 					.compareTo(new Integer(sInfo.getMap().get(method0).getNumPredicates()));
 			}
 			break;
-		case CLOSER_FIRST:
-			//closer first
-			break;
+//		case CLOSER_FIRST:
+//			//closer first
+//			break;
 		case BEST:
 			//best order
 			if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName().equals(method)){
