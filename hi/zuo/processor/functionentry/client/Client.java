@@ -33,16 +33,12 @@ public class Client {
 	
 	final Map<String, double[][][]> results;
 	
-//	final int orderMode;
-
 	public Client(int runs, String rootDir, String subject, String consoleFolder) {
 		this.runs = runs;
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
 		this.results = new HashMap<String, double[][][]>();
-		
-//		this.orderMode = oMode;
 	}
 
 	/**
@@ -117,12 +113,16 @@ public class Client {
 					rootDir + subject + "/traces/" + vi + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", sInfo, c.getPredictorEntryList(), cWriter);
 			results.put(vi, client.getResult());
 			
-//			for (int i = 0; i < results.get(vi).length; i++) {
-//				for (int j = 0; j < results.get(vi)[i].length; j++) {
-//					System.out.print(results.get(vi)[i][j] + "\t");
-//				}
-//				System.out.println();
-//			}
+			for (int i = 0; i < results.get(vi).length; i++) {
+				for (int j = 0; j < results.get(vi)[i].length; j++) {
+					for (int p = 0; p < results.get(vi)[i][j].length; p++) {
+						System.out.print(String.format("%-25s", results.get(vi)[i][j][p]));
+					}
+					System.out.println();
+				}
+				System.out.println();
+			}
+			
 			System.out.println();
 			cWriter.println();	
 		}
@@ -174,12 +174,16 @@ public class Client {
 						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", sInfo, c.getPredictorEntryList(), cWriter);
 				results.put(vi, client.getResult());
 				
-//				for (int i = 0; i < results.get(vi).length; i++) {
-//					for (int j = 0; j < results.get(vi)[i].length; j++) {
-//						System.out.print(results.get(vi)[i][j] + "\t");
-//					}
-//					System.out.println();
-//				}
+				for (int i = 0; i < results.get(vi).length; i++) {
+					for (int j = 0; j < results.get(vi)[i].length; j++) {
+						for (int p = 0; p < results.get(vi)[i][j].length; p++) {
+							System.out.print(String.format("%-25s", results.get(vi)[i][j][p]));
+						}
+						System.out.println();
+					}
+					System.out.println();
+				}
+				
 				System.out.println();
 				cWriter.println();	
 			}
@@ -238,65 +242,21 @@ public class Client {
 			for (int n = 0; n < result[m].length; n++) {
 				String mode = "<" + Score.values()[m] + "," + Order.values()[n] + ">";
 				System.out.println("The information of average sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
-				System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[m][n][0] / versions.size()))
-						+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[m][n][1] / versions.size())));
-				System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[m][n][2] / versions.size()))
-						+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[m][n][3] / versions.size())));
+				System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(result[m][n][0] / versions.size()))
+						+ String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(result[m][n][1] / versions.size())));
+				System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(result[m][n][2] / versions.size()))
+						+ String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(result[m][n][3] / versions.size())));
+				System.out.println();
 				cWriter.println("The information of average sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
-				cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[m][n][0] / versions.size()))
-						+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[m][n][1] / versions.size())));
-				cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[m][n][2] / versions.size()))
-						+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[m][n][3] / versions.size())));
+				cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(result[m][n][0] / versions.size()))
+						+ String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(result[m][n][1] / versions.size())));
+				cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(result[m][n][2] / versions.size()))
+						+ String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(result[m][n][3] / versions.size())));
+				cWriter.println();
 			}
 		}
-		System.out.println();
-		cWriter.println();
-		
-//		System.out.println(versions.size() + "\n" + subject + ": " + versions + "\n==============================================================");
-//		System.out.println("The information of average sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
-//		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[0][0] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[0][1] / versions.size())));
-//		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[0][2] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[0][3] / versions.size())));
-//		System.out.println("\nThe information of average sites and predicates need to be instrumented (Specificity) are as follows:\n--------------------------------------------------------------");
-//		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[1][0] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[1][1] / versions.size())));
-//		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[1][2] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[1][3] / versions.size())));
-//		System.out.println("\nThe information of average sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
-//		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[2][0] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[2][1] / versions.size())));
-//		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[2][2] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[2][3] / versions.size())));
-//		System.out.println("\nThe information of average sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
-//		System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[3][0] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[3][1] / versions.size())));
-//		System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[3][2] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[3][3] / versions.size())));
-//		System.out.println();
-//		
-//		cWriter.println(versions.size() + "\n" + subject + ": " + versions + "\n==============================================================");
-//		cWriter.println("The information of average sites and predicates need to be instrumented (F-score) are as follows:\n--------------------------------------------------------------");
-//		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[0][0] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[0][1] / versions.size())));
-//		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[0][2] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[0][3] / versions.size())));
-//		cWriter.println("\nThe information of average sites and predicates need to be instrumented (Specificity) are as follows:\n--------------------------------------------------------------");
-//		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[1][0] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[1][1] / versions.size())));
-//		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[1][2] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[1][3] / versions.size())));
-//		cWriter.println("\nThe information of average sites and predicates need to be instrumented (Negative) are as follows:\n--------------------------------------------------------------");
-//		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[2][0] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[2][1] / versions.size())));
-//		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[2][2] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[2][3] / versions.size())));
-//		cWriter.println("\nThe information of average sites and predicates need to be instrumented (Positive) are as follows:\n--------------------------------------------------------------");
-//		cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[3][0] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[3][1] / versions.size())));
-//		cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.##").format(result[3][2] / versions.size()))
-//				+ String.format("%-20s", "p%:" + new DecimalFormat("##.##").format(result[3][3] / versions.size())));
-//		cWriter.println();
+		System.out.println("\n");
+		cWriter.println("\n");
 	}
 
 	private void accumulate(double[][][] result, double[][][] ds) {
@@ -332,12 +292,12 @@ public class Client {
 				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
 			}
 			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) numTests rootDir subject consoleDir (excluding '/') " +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir");
+					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir (excluding '/')");
 			return;
 		}
 		
 		if(args.length == 5){
-			Client c = new Client(Integer.parseInt(args[1]), args[2], args[3], args[4] + Integer.parseInt(args[5]) + "/");
+			Client c = new Client(Integer.parseInt(args[1]), args[2], args[3], args[4] + "/");
 			if(Integer.parseInt(args[0]) == 0){
 				c.computeSiemensResults();
 			}
@@ -353,25 +313,8 @@ public class Client {
 			}
 		}
 
-		
-//		String[][] argvs = {
-//				{"809", "grep"},
-//				{"213", "gzip"},
-//				{"363", "sed"},
-//				{"13585", "space"},
-//				{"1608", "tcas"},
-//				{"1052", "totinfo"},
-//				{"5542", "replace"},
-//				{"4130", "printtokens"},
-//				{"4115", "printtokens2"},
-//				{"2650", "schedule"},
-//				{"2710", "schedule2"}
-//				};
-//		for(int i = 0; i < argvs.length; i++){
-//			Client cc = new Client(Integer.parseInt(argvs[i][0]), "/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/", argvs[i][1], "/home/sunzzq/Console/Siemens3/" + argvs[i][1] + "/", 0);
-//			cc.computeSiemensResults();	
-//			System.out.println("\n\n");
-//		}
+//		Client cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed/");
+//		cc.computeSirResults();	
 		
 	}
 	
