@@ -34,7 +34,7 @@ public class FunctionClient {
 	public static final int TOP_K = 10;
 
 	static enum Score{
-		F_1, SPECIFICITY, NEGATIVE, POSITIVE
+		F_1, PRECISION, NEGATIVE, POSITIVE
 	}
 	
 	static enum Order{
@@ -220,7 +220,7 @@ public class FunctionClient {
 				}
 			}
 			break;
-		case SPECIFICITY:
+		case PRECISION:
 			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getSpecificity())
 					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getSpecificity()));
 			if (r == 0) {

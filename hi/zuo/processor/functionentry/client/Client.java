@@ -286,7 +286,7 @@ public class Client {
 				{"2710", "schedule2"}
 		};
 		
-		if(args.length != 6 && args.length != 5 && args.length != 3){
+		if(args.length != 5 && args.length != 3){
 			System.out.println("The characteristics of subjects are as follows:");
 			for(int i = 0; i < argvs.length; i++){
 				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
