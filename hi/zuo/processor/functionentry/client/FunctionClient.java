@@ -51,7 +51,7 @@ public class FunctionClient {
 	final List<Map.Entry<PredicateItem, Double>> predictors;
 	final String method;
 	
-	final double[][][] result;
+	final double[][][][] result;
 	
 	private PrintWriter writer;
 	final PrintWriter clientWriter;
@@ -64,7 +64,7 @@ public class FunctionClient {
 		this.sInfo = sInfo;
 		this.predictors = predictors;
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
-		this.result = new double[Score.values().length][Order.values().length][4];
+		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.clientWriter = cWriter;
 		
 		try {
@@ -89,7 +89,7 @@ public class FunctionClient {
 		this.sInfo = sInfo;
 		this.predictors = predictors;
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
-		this.result = new double[Score.values().length][Order.values().length][4];
+		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.clientWriter = cWriter;
 		
 		try {
@@ -119,7 +119,7 @@ public class FunctionClient {
 		this.predictors = c.getPredictorEntryList();
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
 		
-		this.result = new double[Score.values().length][Order.values().length][4];
+		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.clientWriter = cWriter;
 		
 		try {
@@ -363,41 +363,95 @@ public class FunctionClient {
 	private void printPercentage(List list, Score score, Order order) {
 		int nSites = 0, nPredicates = 0;
 		double sp = 0, pp = 0;
+		double as = 0, ap = 0;
 		for(int i = 0; i < list.size(); i++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
 			String method = entry.getKey().getFunctionName();
 			//percentage information of instrumented sites and predicates
 			if(this.method.equals(method)){
-				sp = (double)100 * nSites/sInfo.getNumPredicateSites();
-				pp = (double)100 * nPredicates/sInfo.getNumPredicateItems();
+				sp = (double)100 * nSites / sInfo.getNumPredicateSites();
+				pp = (double)100 * nPredicates / sInfo.getNumPredicateItems();
 				
-				System.out.println(String.format("%-45s", "Excluding " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(sp))
-						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(pp)));
-				writer.println(String.format("%-45s", "Excluding " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(sp))
-						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(pp)));
-				this.clientWriter.println(String.format("%-45s", "Excluding " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(sp))
-						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(pp)));
-				result[score.ordinal()][order.ordinal()][0] = sp;
-				result[score.ordinal()][order.ordinal()][1] = pp;
+				if (i != 0) {
+					as = (double) nSites / i;
+					ap = (double) nPredicates / i;
+				}
+				else{
+					as = 0;
+					ap = 0;
+				}
+				System.out.println(String.format("%-45s", "Excluding " + method) 
+						+ String.format("%-15s", "\ts:" + nSites) 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "p:" + nPredicates) 
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "i:" + i) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
+				writer.println(String.format("%-45s", "Excluding " + method) 
+						+ String.format("%-15s", "\ts:" + nSites) 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "p:" + nPredicates) 
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "i:" + i) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
+				this.clientWriter.println(String.format("%-45s", "Excluding " + method) 
+						+ String.format("%-15s", "\ts:" + nSites) 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "p:" + nPredicates) 
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "i:" + i) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
+				
+				result[score.ordinal()][order.ordinal()][0][0] = sp;
+				result[score.ordinal()][order.ordinal()][0][1] = pp;
+				result[score.ordinal()][order.ordinal()][0][2] = i;
+				result[score.ordinal()][order.ordinal()][0][3] = as;
+				result[score.ordinal()][order.ordinal()][0][4] = ap;
 				
 				nSites += sInfo.getMap().get(method).getNumSites();
 				nPredicates += sInfo.getMap().get(method).getNumPredicates();
 
-				sp = (double)100 * nSites/sInfo.getNumPredicateSites();
-				pp = (double)100 * nPredicates/sInfo.getNumPredicateItems();
+				sp = (double)100 * nSites / sInfo.getNumPredicateSites();
+				pp = (double)100 * nPredicates / sInfo.getNumPredicateItems();
+				as = (double)nSites / (i + 1);
+				ap = (double)nPredicates / (i + 1);
 				
-				System.out.println(String.format("%-45s", "Including " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(sp))
-						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(pp)));
+				System.out.println(String.format("%-45s", "Including " + method) 
+						+ String.format("%-15s", "\ts:" + nSites) 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "p:" + nPredicates) 
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "i:" + (i + 1)) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 				System.out.println();
-				writer.println(String.format("%-45s", "Including " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(sp))
-						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(pp)));
+				writer.println(String.format("%-45s", "Including " + method) 
+						+ String.format("%-15s", "\ts:" + nSites) 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "p:" + nPredicates) 
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "i:" + (i + 1)) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 				writer.println();
-				this.clientWriter.println(String.format("%-45s", "Including " + method) + String.format("%-20s", "\t\ts:" + nSites) + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(sp))
-						+ String.format("%-20s", "p:" + nPredicates) + String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(pp)));
+				this.clientWriter.println(String.format("%-45s", "Including " + method) 
+						+ String.format("%-15s", "\ts:" + nSites) 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "p:" + nPredicates) 
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "i:" + (i + 1)) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 				this.clientWriter.println();
 				
-				result[score.ordinal()][order.ordinal()][2] = sp;
-				result[score.ordinal()][order.ordinal()][3] = pp;
+				result[score.ordinal()][order.ordinal()][1][0] = sp;
+				result[score.ordinal()][order.ordinal()][1][1] = pp;
+				result[score.ordinal()][order.ordinal()][1][2] = i + 1;
+				result[score.ordinal()][order.ordinal()][1][3] = as;
+				result[score.ordinal()][order.ordinal()][1][4] = ap;
 				
 				break;
 			}
@@ -450,7 +504,7 @@ public class FunctionClient {
 		return predictors;
 	}
 
-	public double[][][] getResult() {
+	public double[][][][] getResult() {
 		return result;
 	}
 

@@ -52,8 +52,8 @@ public class CBIClient {
 	}
 	
 	public static void main(String[] args) {
-		CBIClient client = new CBIClient(2717, 10, new File("/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions/v38/v38_f.sites"), 
-				"/home/sunzzq/Research/Automated_Debugging/Subjects/space/traces/v38/fine-grained", "/home/sunzzq/Console/space_v38_cbi.out");
+		CBIClient client = new CBIClient(9, 1, new File("/home/sunzzq/Downloads/debug/matrix.sites"), 
+				"/home/sunzzq/Downloads/debug", "/home/sunzzq/Downloads/debug/m.out");
 	}
 	
 	private void printResults(PrintWriter writer){

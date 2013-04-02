@@ -31,14 +31,14 @@ public class Client {
 	final String subject;
 	final String consoleFolder;
 	
-	final Map<String, double[][][]> results;
+	final Map<String, double[][][][]> results;
 	
 	public Client(int runs, String rootDir, String subject, String consoleFolder) {
 		this.runs = runs;
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
-		this.results = new HashMap<String, double[][][]>();
+		this.results = new HashMap<String, double[][][][]>();
 	}
 
 	/**
@@ -116,7 +116,9 @@ public class Client {
 			for (int i = 0; i < results.get(vi).length; i++) {
 				for (int j = 0; j < results.get(vi)[i].length; j++) {
 					for (int p = 0; p < results.get(vi)[i][j].length; p++) {
-						System.out.print(String.format("%-25s", results.get(vi)[i][j][p]));
+						for (int q = 0; q < results.get(vi)[i][j][p].length; q++) {
+							System.out.print(String.format("%-25s", results.get(vi)[i][j][p][q]));
+						}
 					}
 					System.out.println();
 				}
@@ -177,7 +179,9 @@ public class Client {
 				for (int i = 0; i < results.get(vi).length; i++) {
 					for (int j = 0; j < results.get(vi)[i].length; j++) {
 						for (int p = 0; p < results.get(vi)[i][j].length; p++) {
-							System.out.print(String.format("%-25s", results.get(vi)[i][j][p]));
+							for (int q = 0; q < results.get(vi)[i][j][p].length; q++) {
+								System.out.print(String.format("%-25s", results.get(vi)[i][j][p][q]));
+							}
 						}
 						System.out.println();
 					}
@@ -203,29 +207,29 @@ public class Client {
 			@Override
 			public int compare(Object arg0, Object arg1) {
 				// TODO Auto-generated method stub
-				Entry<String, double[][][]> entry0 = (Entry<String, double[][][]>) arg0,
-						entry1 = (Entry<String, double[][][]>) arg1;
+				Entry<String, double[][][][]> entry0 = (Entry<String, double[][][][]>) arg0,
+						entry1 = (Entry<String, double[][][][]>) arg1;
 				double d0 = getSortValue(entry0),
 						d1 = getSortValue(entry1);
 				return new Double(d0).compareTo(new Double(d1));
 			}
 
-			private double getSortValue(Entry<String, double[][][]> entry) {
+			private double getSortValue(Entry<String, double[][][][]> entry) {
 				// TODO Auto-generated method stub
-				double[][][] array = entry.getValue();
+				double[][][][] array = entry.getValue();
 				double sum = 0;
 				for(int i = 0; i < array.length - 1; i++){
 					for (int j = 0; j < array[i].length; j++) {
-						sum += array[i][j][2];
+						sum += array[i][j][1][0];
 					}
 				}
 				return sum;
 			}});
 		
 		Set<String> versions = new LinkedHashSet<String>();
-		double[][][] result = new double[Score.values().length][Order.values().length][4];
+		double[][][][] result = new double[Score.values().length][Order.values().length][2][5];
 		for(int i = 0; i < rList.size(); i++){
-			Entry<String, double[][][]> entry = (Entry<String, double[][][]>) rList.get(i);
+			Entry<String, double[][][][]> entry = (Entry<String, double[][][][]>) rList.get(i);
 			versions.add(entry.getKey());
 			accumulate(result, entry.getValue());
 			print(i, versions, result, cWriter);
@@ -233,7 +237,7 @@ public class Client {
 	}
 	
 
-	private void print(int i, Set<String> versions, double[][][] result, PrintWriter cWriter) {
+	private void print(int i, Set<String> versions, double[][][][] result, PrintWriter cWriter) {
 		// TODO Auto-generated method stub
 		assert(i + 1 == versions.size());
 		System.out.println(versions.size() + "\n" + subject + ": " + versions + "\n==============================================================");
@@ -242,16 +246,36 @@ public class Client {
 			for (int n = 0; n < result[m].length; n++) {
 				String mode = "<" + Score.values()[m] + "," + Order.values()[n] + ">";
 				System.out.println("The information of average sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
-				System.out.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(result[m][n][0] / versions.size()))
-						+ String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(result[m][n][1] / versions.size())));
-				System.out.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(result[m][n][2] / versions.size()))
-						+ String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(result[m][n][3] / versions.size())));
+				System.out.println("Excluding\t" 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(result[m][n][0][0] / versions.size()))
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(result[m][n][0][1] / versions.size()))
+						+ String.format("%-15s", "i:" + new DecimalFormat("#.#").format(result[m][n][0][2] / versions.size())) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(result[m][n][0][3] / versions.size())) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(result[m][n][0][4] / versions.size())) 
+						);
+				System.out.println("Including\t" 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(result[m][n][1][0] / versions.size()))
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(result[m][n][1][1] / versions.size()))
+						+ String.format("%-15s", "i:" + new DecimalFormat("#.#").format(result[m][n][1][2] / versions.size())) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(result[m][n][1][3] / versions.size())) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(result[m][n][1][4] / versions.size())) 
+						);
 				System.out.println();
 				cWriter.println("The information of average sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
-				cWriter.println("Excluding\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(result[m][n][0] / versions.size()))
-						+ String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(result[m][n][1] / versions.size())));
-				cWriter.println("Including\t" + String.format("%-20s", "s%:" + new DecimalFormat("##.###").format(result[m][n][2] / versions.size()))
-						+ String.format("%-20s", "p%:" + new DecimalFormat("##.###").format(result[m][n][3] / versions.size())));
+				cWriter.println("Excluding\t" 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(result[m][n][0][0] / versions.size()))
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(result[m][n][0][1] / versions.size()))
+						+ String.format("%-15s", "i:" + new DecimalFormat("#.#").format(result[m][n][0][2] / versions.size())) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(result[m][n][0][3] / versions.size())) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(result[m][n][0][4] / versions.size())) 
+						);
+				cWriter.println("Including\t" 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(result[m][n][1][0] / versions.size()))
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(result[m][n][1][1] / versions.size()))
+						+ String.format("%-15s", "i:" + new DecimalFormat("#.#").format(result[m][n][1][2] / versions.size())) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(result[m][n][1][3] / versions.size())) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(result[m][n][1][4] / versions.size())) 
+						);
 				cWriter.println();
 			}
 		}
@@ -259,13 +283,15 @@ public class Client {
 		cWriter.println("\n");
 	}
 
-	private void accumulate(double[][][] result, double[][][] ds) {
+	private void accumulate(double[][][][] result, double[][][][] ds) {
 		// TODO Auto-generated method stub
 		assert(result.length == ds.length && result.length == 4);
 		for(int i = 0; i < result.length; i++){
 			for (int j = 0; j < result[i].length; j++) {
 				for(int p = 0; p < result[i][j].length; p++){
-					result[i][j][p] += ds[i][j][p];
+					for (int q = 0; q < result[i][j][p].length; q++) {
+						result[i][j][p][q] += ds[i][j][p][q];
+					}
 				}
 			}
 		}
@@ -291,8 +317,8 @@ public class Client {
 			for(int i = 0; i < argvs.length; i++){
 				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
 			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) numTests rootDir subject consoleDir (excluding '/') " +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir (excluding '/')");
+			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) numTests rootDir(including '/') subject consoleDir(excluding '/') " +
+					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') consoleDir(excluding '/')");
 			return;
 		}
 		

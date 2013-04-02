@@ -1,7 +1,4 @@
-import java.util.HashMap;
-import java.util.Map;
-
-import sir.mts.MakeTestScript;
+import java.text.DecimalFormat;
 
 
 public class Test {
@@ -10,6 +7,9 @@ public class Test {
 //		System.out.println("Hello world!");
 //		Map<String, int[]> map = new HashMap<String, int[]>();
 //		map.put("1", new int[2]);
-		MakeTestScript.main(args);
+//		MakeTestScript.main(args);
+		double a = 0.234;
+		System.out.println(new DecimalFormat(".#").format(a));
+		
 	}
 }

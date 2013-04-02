@@ -107,10 +107,13 @@ public class PredicatedSiemenseProcessorMain extends AbstractProcessorMain {
 	}
 
 	public static void main(String[] args) {
-		if (args.length < 2) {
-			System.err.println("Usage: command projectRootDirectory projectName");
-		} 
-		else
-			startProcessing(args[0], args[1]);
+//		if (args.length < 2) {
+//			System.err.println("Usage: command projectRootDirectory projectName");
+//		} 
+//		else
+//			startProcessing(args[0], args[1]);
+		new PredicatedSiemenseProcessorMain("/home/sunzzq/Downloads/debug", 
+				new File("/home/sunzzq/Downloads/debug/ms.out"), 
+				new File("/home/sunzzq/Downloads/debug/matrix.sites")).run();
 	}
 }
