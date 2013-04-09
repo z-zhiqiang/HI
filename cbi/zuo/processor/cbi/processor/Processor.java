@@ -460,7 +460,7 @@ public class Processor {
 		if(increase < 0 || Math.abs(increase - 0) < 0.0000001){
 			return 0;
 		}
-		return 2/(1/increase + Math.log(totalNegative)/Math.log(statisticData[0]));
+		return (double) 2/(1/increase + Math.log(totalNegative)/Math.log(statisticData[0]));
 	}
 	
 //	public void printTopKPredictors(int k){

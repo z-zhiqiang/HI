@@ -19,6 +19,7 @@ import zuo.processor.cbi.processor.Processor;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.site.InstrumentationSites;
+import zuo.processor.cbi.site.SitesInfo;
 
 public class CBIClient {
 	final int runs;
@@ -109,9 +110,11 @@ public class CBIClient {
 		}
 		this.predictorEntryList = Collections.unmodifiableList(list);
 	    this.methods = Collections.unmodifiableSet(methods);
+	    assert(methods.size() == new SitesInfo(new InstrumentationSites(sitesFile)).getMap().size());
 		
 		writer.println();
-		writer.println("The corresponding top " + topMethods.size() + " methods are as follows:\n--------------------------------------------------------------");
+//		writer.println("The total number of methods including instrumented predicates: \t" + methods.size());
+		writer.println("The corresponding top " + topMethods.size() + " of " + methods.size() + " methods are as follows:\n--------------------------------------------------------------");
 		writer.println(topMethods.toString());
 	}
 

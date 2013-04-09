@@ -3,26 +3,22 @@ package zuo.processor.functionentry.client;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 import zuo.processor.cbi.client.CBIClient;
 import zuo.processor.cbi.processor.PredicateItem;
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
+import zuo.processor.functionentry.processor.BoundCalculator;
 import zuo.processor.functionentry.processor.SelectingProcessor;
 import zuo.processor.functionentry.processor.SelectingProcessor.FrequencyValue;
 import zuo.processor.functionentry.profile.FunctionEntryProfile;
@@ -171,6 +167,8 @@ public class FunctionClient {
 				printEntryAndPercentage(processor.getFrequencyMap(), score, order);
 			}
 		}
+		
+		new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive()).computeCBIBound(predictors.get(0).getValue());
 	}
 	
 	/**print the methods and the corresponding percentage to be instrumented in the mode <score,order>
@@ -221,8 +219,8 @@ public class FunctionClient {
 			}
 			break;
 		case PRECISION:
-			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getSpecificity())
-					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getSpecificity()));
+			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getPrecision())
+					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getPrecision()));
 			if (r == 0) {
 				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
 						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
