@@ -218,10 +218,8 @@ public class Client {
 				// TODO Auto-generated method stub
 				double[][][][] array = entry.getValue();
 				double sum = 0;
-				for(int i = 0; i < array.length - 1; i++){
-					for (int j = 0; j < array[i].length; j++) {
-						sum += array[i][j][1][0];
-					}
+				for(int i = 0; i < 2; i++){
+					sum += array[i][0][1][0];
 				}
 				return sum;
 			}});
@@ -285,7 +283,7 @@ public class Client {
 
 	private void accumulate(double[][][][] result, double[][][][] ds) {
 		// TODO Auto-generated method stub
-		assert(result.length == ds.length && result.length == 4);
+		assert(result.length == ds.length && result.length == Score.values().length);
 		for(int i = 0; i < result.length; i++){
 			for (int j = 0; j < result[i].length; j++) {
 				for(int p = 0; p < result[i][j].length; p++){
@@ -339,7 +337,7 @@ public class Client {
 //			}
 //		}
 
-		Client cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed/");
+		Client cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed1/");
 		cc.computeSirResults();	
 		
 	}

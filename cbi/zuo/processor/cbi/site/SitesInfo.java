@@ -28,7 +28,7 @@ public class SitesInfo {
 		
 		public String toStringWithoutSites(){
 			StringBuilder builder = new StringBuilder();
-			builder.append("s:").append(this.numSites).append("\t\tp:").append(this.numPredicates);
+			builder.append("s:").append(this.numSites).append("\tp:").append(this.numPredicates);
 			return builder.toString();
 		}
 

@@ -30,7 +30,7 @@ public class FunctionClient {
 	public static final int TOP_K = 10;
 
 	static enum Score{
-		F_1, PRECISION, NEGATIVE, POSITIVE
+		H_1, H_2, F_1, NEGATIVE, PRECISION, POSITIVE
 	}
 	
 	static enum Order{
@@ -207,13 +207,43 @@ public class FunctionClient {
 		// TODO Auto-generated method stub
 		int r = 0;
 		switch (score){
+		case NEGATIVE:
+			r = new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getNegative())
+					.compareTo(new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getNegative()));
+			if(r == 0){
+				r = order(arg0, arg1, order);
+			}
+			break;
+		case H_1:
+			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_1())
+					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_1()));
+			if(r == 0){
+//				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_2())
+//						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_2()));
+//				if(r == 0){
+//					r = order(arg0, arg1, order);
+//				}
+				r = order(arg0, arg1, order);
+			}
+			break;
 		case F_1:
 			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
 					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
 			if (r == 0) {
-				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getNegative())
-						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getNegative()));
+				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_1())
+						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_1()));
 				if (r == 0) {
+					r = order(arg0, arg1, order);
+				}
+			}
+			break;
+		case H_2:
+			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_2())
+					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_2()));
+			if(r == 0){
+				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_1())
+						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_1()));
+				if(r == 0){
 					r = order(arg0, arg1, order);
 				}
 			}
@@ -222,17 +252,6 @@ public class FunctionClient {
 			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getPrecision())
 					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getPrecision()));
 			if (r == 0) {
-				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
-						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
-				if(r == 0){
-					r = order(arg0, arg1, order);
-				}
-			}
-			break;
-		case NEGATIVE:
-			r = new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getNegative())
-					.compareTo(new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getNegative()));
-			if(r == 0){
 				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
 						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
 				if(r == 0){

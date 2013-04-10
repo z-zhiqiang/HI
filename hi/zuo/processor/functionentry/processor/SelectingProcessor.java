@@ -86,9 +86,24 @@ public class SelectingProcessor {
 			FrequencyValue p = frequencyMap.get(site);
 			frequencyMap.get(site).setF_score(F_score(p.getNegative(), p.getPositive()));
 			frequencyMap.get(site).setPrecision(Precision(p.getNegative(), p.getPositive()));
+			frequencyMap.get(site).setH_1(H_1(p.getNegative()));
+			frequencyMap.get(site).setH_2(H_2(p.getNegative(), p.getPositive()));
 		}
 	}
 	
+	private double H_1(int neg){
+		if(neg <= 1){
+			return 0;
+		}
+		return (double) 2/(1 + ((double) neg / totalPositive) + (Math.log(totalNegative) / Math.log(neg)));
+	}
+	
+	private double H_2(int neg, int pos){
+		if(neg <= 1 || pos == 0){
+			return 0;
+		}
+		return (double) 2/(1 + ((double) neg / pos) + (Math.log(totalNegative) / Math.log(neg)));
+	}
 	
 	/**calculate the F-score of method: 
 	 * 	F_score(m)=2/(1/Increase*(m) + 1/(log(F(m)/log(TotalNegative))))
@@ -149,12 +164,16 @@ public class SelectingProcessor {
 		int positive;
 		double precision;
 		double f_score;
+		double h_1;
+		double h_2;
 		
 		public FrequencyValue(){
 			this.negative = 0;
 			this.positive = 0;
 			this.precision = 0;
 			this.f_score = 0;
+			this.h_1 = 0;
+			this.h_2 = 0;
 		}
 		
 		public FrequencyValue(int n, int p){
@@ -162,13 +181,17 @@ public class SelectingProcessor {
 			this.positive = p;
 			this.precision = 0;
 			this.f_score = 0;
+			this.h_1 = 0;
+			this.h_2 = 0;
 		}
 		
-//		public String toString(){
-//			return "F:" + negative + "\t\tS:" + positive + "\t\tF_1:" + new DecimalFormat("#.#####").format(this.f_score);
-//		}
 		public String toString(){
-			return String.format("%-20s", "F:" + negative) + String.format("%-20s", "S:" + positive) + String.format("%-20s", "Pre:" + new DecimalFormat("#.#####").format(this.precision)) + String.format("%-20s", "F_1:" + new DecimalFormat("#.#####").format(this.f_score));
+			return String.format("%-10s", "F:" + negative) + String.format("%-10s", "S:" + positive) 
+					+ String.format("%-15s", "Pre:" + new DecimalFormat("#.###").format(this.precision)) 
+					+ String.format("%-15s", "F_1:" + new DecimalFormat("#.###").format(this.f_score))
+					+ String.format("%-15s", "H_1:" + new DecimalFormat("#.###").format(this.h_1))
+					+ String.format("%-15s", "H_2:" + new DecimalFormat("#.###").format(this.h_2))
+					;
 		}
 		
 //		public String toStringByFScore(){
@@ -217,6 +240,22 @@ public class SelectingProcessor {
 
 		public void setF_score(double f_score) {
 			this.f_score = f_score;
+		}
+
+		public double getH_1() {
+			return h_1;
+		}
+
+		public void setH_1(double h_1) {
+			this.h_1 = h_1;
+		}
+
+		public double getH_2() {
+			return h_2;
+		}
+
+		public void setH_2(double h_2) {
+			this.h_2 = h_2;
 		}
 		
 	}
