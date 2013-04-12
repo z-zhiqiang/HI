@@ -30,7 +30,7 @@ public class FunctionClient {
 	public static final int TOP_K = 10;
 
 	static enum Score{
-		H_1, H_2, F_1, NEGATIVE, PRECISION, POSITIVE
+		NEGATIVE, H_1, F_1, H_2, PRECISION, POSITIVE
 	}
 	
 	static enum Order{
@@ -166,10 +166,112 @@ public class FunctionClient {
 			for(Order order: Order.values()){
 				printEntryAndPercentage(processor.getFrequencyMap(), score, order);
 			}
+			printWorstCase(processor, score, predictors.get(0).getValue());
 		}
 		
-		new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive()).computeCBIBound(predictors.get(0).getValue());
+//		new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive()).computeCBIBound(predictors.get(0).getValue());
 	}
+	
+	private void printWorstCase(SelectingProcessor processor, Score score, Double threshold) {
+		// TODO Auto-generated method stub
+		BoundCalculator bc = new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive());
+		Map<FunctionEntrySite, FrequencyValue> frequencyMap = processor.getFrequencyMap();
+		
+		int lb = bc.computeCBIBound(threshold);
+		int nSites = 0, nPredicates = 0;
+		double sp = 0, pp = 0;
+		
+		switch (score){
+		case NEGATIVE: 
+			for(FunctionEntrySite site: frequencyMap.keySet()){
+				String method = site.getFunctionName();
+				if(frequencyMap.get(site).getNegative() >= lb){
+					nSites += sInfo.getMap().get(method).getNumSites();
+					nPredicates += sInfo.getMap().get(method).getNumPredicates();
+				}
+			}
+			break;
+		case H_1:
+			if(bc.DH(2, bc.getP()) > 0 && bc.DH(bc.getF(), bc.getP()) < 0){
+				int f0 = bc.compute_f0(bc.getP());
+				for(FunctionEntrySite site: frequencyMap.keySet()){
+					FrequencyValue value = frequencyMap.get(site);
+					String method = site.getFunctionName();
+					if(value.getH_1() >= threshold || value.getNegative() > f0){
+						nSites += sInfo.getMap().get(method).getNumSites();
+						nPredicates += sInfo.getMap().get(method).getNumPredicates();
+					}
+				}
+			}
+			else if(bc.DH(bc.getF(), bc.getP()) >= 0){
+				for(FunctionEntrySite site: frequencyMap.keySet()){
+					FrequencyValue value = frequencyMap.get(site);
+					String method = site.getFunctionName();
+					if(value.getH_1() >= threshold){
+						nSites += sInfo.getMap().get(method).getNumSites();
+						nPredicates += sInfo.getMap().get(method).getNumPredicates();
+					}
+				}
+			}
+			break;
+		case F_1:
+			double fs = SelectingProcessor.F_score(lb, bc.getP(), bc.getF());
+			System.out.println(fs);
+			for(FunctionEntrySite site: frequencyMap.keySet()){
+				String method = site.getFunctionName();
+				if(frequencyMap.get(site).getF_score() >= fs){
+					nSites += sInfo.getMap().get(method).getNumSites();
+					nPredicates += sInfo.getMap().get(method).getNumPredicates();
+				}
+			}
+			break;
+		case H_2:
+			for(FunctionEntrySite site: frequencyMap.keySet()){
+				String method = site.getFunctionName();
+				FrequencyValue value = frequencyMap.get(site);
+				if(value.getPositive() == 0){
+					continue;
+				}
+				if(bc.DH(2, value.getPositive()) <= 0){
+					nSites += sInfo.getMap().get(method).getNumSites();
+					nPredicates += sInfo.getMap().get(method).getNumPredicates();
+				}
+				else if(bc.DH(2, value.getPositive()) > 0 && bc.DH(bc.getF(), value.getPositive()) < 0){
+					int f0 = bc.compute_f0(value.getPositive());
+					if(value.getH_2() >= threshold || value.getNegative() > f0){
+						nSites += sInfo.getMap().get(method).getNumSites();
+						nPredicates += sInfo.getMap().get(method).getNumPredicates();
+					}
+				}
+				else if(bc.DH(bc.getF(), value.getPositive()) >= 0){
+					if(value.getH_2() >= threshold){
+						nSites += sInfo.getMap().get(method).getNumSites();
+						nPredicates += sInfo.getMap().get(method).getNumPredicates();
+					}
+				}
+			}
+			break;
+		default:
+//			System.err.println("score error");
+//			System.exit(0);
+		}
+		
+		sp = (double)100 * nSites / sInfo.getNumPredicateSites();
+		pp = (double)100 * nPredicates / sInfo.getNumPredicateItems();
+		
+		System.out.println(String.format("%-15s", "<" + score + ">:")
+						+ String.format("%-15s", "s:" + nSites) 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "p:" + nPredicates) 
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp)));
+	}
+
+//	private double F_score(int neg, int pos, int totalNegative){
+//		if(neg <= 1){
+//			return 0;
+//		}
+//		return (double) 2/(1 + ((double) pos / neg) + (Math.log(totalNegative) / Math.log(neg)));
+//	}
 	
 	/**print the methods and the corresponding percentage to be instrumented in the mode <score,order>
 	 * @param frequencyMap
@@ -230,44 +332,48 @@ public class FunctionClient {
 			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
 					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
 			if (r == 0) {
-				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_1())
-						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_1()));
-				if (r == 0) {
-					r = order(arg0, arg1, order);
-				}
+//				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_1())
+//						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_1()));
+//				if (r == 0) {
+//					r = order(arg0, arg1, order);
+//				}
+				r = order(arg0, arg1, order);
 			}
 			break;
 		case H_2:
 			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_2())
 					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_2()));
 			if(r == 0){
-				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_1())
-						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_1()));
-				if(r == 0){
-					r = order(arg0, arg1, order);
-				}
+//				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_1())
+//						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_1()));
+//				if(r == 0){
+//					r = order(arg0, arg1, order);
+//				}
+				r = order(arg0, arg1, order);
 			}
 			break;
 		case PRECISION:
 			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getPrecision())
 					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getPrecision()));
 			if (r == 0) {
-				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
-						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
-				if(r == 0){
-					r = order(arg0, arg1, order);
-				}
+//				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
+//						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
+//				if(r == 0){
+//					r = order(arg0, arg1, order);
+//				}
+				r = order(arg0, arg1, order);
 			}
 			break;
 		case POSITIVE:
 			r = new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getPositive())
 					.compareTo(new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getPositive()));
 			if(r == 0){
-				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
-						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
-				if(r == 0){
-					r = order(arg0, arg1, order);
-				}
+//				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
+//						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
+//				if(r == 0){
+//					r = order(arg0, arg1, order);
+//				}
+				r = order(arg0, arg1, order);
 			}
 			break;
 		default:{

@@ -337,7 +337,7 @@ public class Client {
 //			}
 //		}
 
-		Client cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed1/");
+		Client cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed4/");
 		cc.computeSirResults();	
 		
 	}

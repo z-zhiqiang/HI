@@ -84,14 +84,14 @@ public class SelectingProcessor {
 		//set the f-score and specificity
 		for(FunctionEntrySite site: frequencyMap.keySet()){
 			FrequencyValue p = frequencyMap.get(site);
-			frequencyMap.get(site).setF_score(F_score(p.getNegative(), p.getPositive()));
+			frequencyMap.get(site).setF_score(F_score(p.getNegative(), p.getPositive(), totalNegative));
 			frequencyMap.get(site).setPrecision(Precision(p.getNegative(), p.getPositive()));
-			frequencyMap.get(site).setH_1(H_1(p.getNegative()));
+			frequencyMap.get(site).setH_1(H_1(p.getNegative(), totalPositive, totalNegative));
 			frequencyMap.get(site).setH_2(H_2(p.getNegative(), p.getPositive()));
 		}
 	}
 	
-	private double H_1(int neg){
+	public static double H_1(int neg, int totalPositive, int totalNegative){
 		if(neg <= 1){
 			return 0;
 		}
@@ -111,7 +111,7 @@ public class SelectingProcessor {
 	 * @param pair
 	 * @return
 	 */
-	private double F_score(int neg, int pos){
+	public static double F_score(int neg, int pos, int totalNegative){
 		if(neg <= 1){
 			return 0;
 		}

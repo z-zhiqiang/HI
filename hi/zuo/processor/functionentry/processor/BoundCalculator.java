@@ -50,90 +50,111 @@ public class BoundCalculator {
 	}
 	
 	
-	public void computeCBIBound(double theta){
-		double threshold = 2 / theta - 1;
-		System.out.println(theta);
+	public int computeCBIBound(double threshold){
 		System.out.println(threshold);
 		
-		if(P * Math.log(F) / Math.log(2) <= 2 * Math.log(2)){
+		if(DH(2, P) <= 0){
 			throw new RuntimeException("abnormal case 1");
-		}
-		else if(P < F * Math.log(F)){
-			System.out.println("case 2");
-			int mini = computeMinima();
-			System.out.println(mini);
-			
-			if(threshold < G(mini)){
-				System.out.println(G(mini));
-				throw new RuntimeException("Error case 2");
+		} 
+		else {
+			double h_1_2 = SelectingProcessor.H_1(2, P, F);
+			double h_1_F = SelectingProcessor.H_1(F, P, F);
+			if(DH(F, P) < 0){
+				System.out.println("case 2");
+				int f0 = compute_f0(P);
+				System.out.println(f0);
+				
+				double h_1_f0 = SelectingProcessor.H_1(f0, P, F);
+				double h_1_f1 = SelectingProcessor.H_1(f0 + 1, P, F);
+				double max = (h_1_f0 > h_1_f1 ? h_1_f0 : h_1_f1);
+				double min = (h_1_f0 < h_1_f1 ? h_1_f0 : h_1_f1);
+				if(threshold > max){
+					System.out.println(max);
+					throw new RuntimeException("OutOfRange Error case 2");
+				}
+				int lb = 2, ub = F;
+				if(threshold > h_1_f0){
+					lb = f0 + 1;
+				}
+				else if(threshold >= h_1_2 && threshold <= h_1_f0){
+					lb = calculateHBoundIn(2, f0, threshold);
+				}
+				if(threshold > h_1_f1){
+					ub = f0;
+				}
+				else if(threshold >= h_1_F && threshold <= h_1_f1){
+					ub = calculateHBoundDe(f0 + 1, F, threshold);
+				}
+				System.out.println("[" + lb + "," + ub + "]");
+				return lb;
 			}
-			int lb = 2, ub = F;
-			if(threshold < G(2)){
-				lb = calculateGBoundDe(2, mini, threshold);
+			else{
+				System.out.println("case 3");
+				if(threshold > h_1_F){
+					throw new RuntimeException("OutOfRange Error case 3");
+				}
+				if(threshold <= h_1_2){
+					System.out.println(h_1_2);
+					System.out.println("[2, F]");
+					return 2;
+				}
+				int bound = calculateHBoundIn(2, F, threshold);
+				System.out.println("[" + bound + ",F]");
+				return bound;
 			}
-			if(threshold < G(F)){
-				ub = calculateGBoundIn(mini, F, threshold);
-			}
-			System.out.println("[" + lb + "," + ub + "]");
-		}
-		else{
-			System.out.println("case 3");
-			if(threshold < G(F)){
-				throw new RuntimeException("Error case 3");
-			}
-			if(threshold >= G(2)){
-				System.out.println(G(2));
-				System.out.println("[2, F]");
-				return;
-			}
-			int bound = calculateGBoundDe(2, F, threshold);
-			System.out.println("[" + bound + ",F]");
 		}
 	}
 	
-	/**compute the minimum value, i.e., DG(mini) = 0
-	 * @return
-	 */
-	private int computeMinima() {
+	public double DH(int f, int p){
+		if(f <= 1 || p == 0){
+			return 0;
+		}
+		return Math.log(F) / (Math.log(f) * f * Math.log(f)) - (double) 1 / p;
+	}
+	
+	public int compute_f0(int p) {
 		int start, end, mid;
 		start = 2;
 		end = F;
 		while(start < end){
 			mid = (start + end) / 2;
-			double dg = DG(mid);
-			System.out.println(mid + ": " + dg);
-			if(dg > 0){
-				end = mid;
-			}
-			else if(dg < 0){
+			double dh = DH(mid, p);
+			System.out.println(mid + ": " + dh);
+			if(dh > 0){
 				start = mid;
+			}
+			else if(dh < 0){
+				end = mid;
 			}
 			else{
 				return mid;
 			}
 			
 			if(end - start == 1){
-				return (G(start) < G(end) ? start : end);
+				return start;
 			}
 		}
 		
 		return -1;
 	}
-	private double DG(int mid) {
-		return (double) 1 / P - Math.log(F) / (mid * Math.log(mid) * Math.log(mid));
-	}
 	
-	private int calculateGBoundIn(int s, int e, double threshold){
-		if(threshold < G(s) || threshold > G(e)){
-			throw new RuntimeException("The threshold should be in the following range: [" + IG(s) + ", " + IG(e) + "]");
+	private int calculateHBoundIn(int s, int e, double threshold){
+		if(threshold < SelectingProcessor.H_1(s, P, F) || threshold > SelectingProcessor.H_1(e, P, F)){
+			throw new RuntimeException("The threshold should be in the following range: [" + SelectingProcessor.H_1(s, P, F) + ", " + SelectingProcessor.H_1(e, P, F) + "]");
 		}
 		
 		int start, end, mid;
 		start = s;
 		end = e;
+		if(SelectingProcessor.H_1(start, P, F) == threshold){
+			return start;
+		}
+		if(SelectingProcessor.H_1(end, P, F) == threshold){
+			return end;
+		}
 		while(start < end){
 			mid = (start + end) / 2;
-			double g = G(mid);
+			double g = SelectingProcessor.H_1(mid, P, F);
 			System.out.println(mid + ": " + g);
 			if(g > threshold){
 				end = mid;
@@ -154,22 +175,28 @@ public class BoundCalculator {
 		return -1;
 	}
 
-	private int calculateGBoundDe(int s, int e, double threshold){
-		if(threshold < G(e) || threshold > G(s)){
-			throw new RuntimeException("The threshold should be in the following range: [" + IG(e) + ", " + IG(s) + "]");
+	private int calculateHBoundDe(int s, int e, double threshold){
+		if(threshold < SelectingProcessor.H_1(e, P, F) || threshold > SelectingProcessor.H_1(s, P, F)){
+			throw new RuntimeException("The threshold should be in the following range: [" + SelectingProcessor.H_1(e, P, F) + ", " + SelectingProcessor.H_1(s, P, F) + "]");
 		}
 		
 		int start, end, mid;
 		start = s;
 		end = e;
+		if(SelectingProcessor.H_1(start, P, F) == threshold){
+			return start;
+		}
+		if(SelectingProcessor.H_1(end, P, F) == threshold){
+			return end;
+		}
 		while(start < end){
 			mid = (start + end) / 2;
-			double g = G(mid);
-			System.out.println(mid + ": " + g);
-			if(g > threshold){
+			double h = SelectingProcessor.H_1(mid, P, F);
+			System.out.println(mid + ": " + h);
+			if(h > threshold){
 				start = mid;
 			}
-			else if(g < threshold){
+			else if(h < threshold){
 				end = mid;
 			}
 			else{
@@ -184,9 +211,6 @@ public class BoundCalculator {
 		}
 		return -1;
 	}
-	private double G(int mid) {
-		return (double) mid / P + Math.log(F) / Math.log(mid);
-	}
 
 	public static void main(String[] args) {
 //		BoundCalculator bc = new BoundCalculator(156, 13429);
@@ -200,5 +224,14 @@ public class BoundCalculator {
 		BoundCalculator bc = new BoundCalculator(243, 120);
 		bc.computeCBIBound(0.5836264823531641);
 	}
+
+	public int getF() {
+		return F;
+	}
+
+	public int getP() {
+		return P;
+	}
+	
 
 }
