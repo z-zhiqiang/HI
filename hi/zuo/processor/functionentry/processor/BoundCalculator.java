@@ -51,8 +51,6 @@ public class BoundCalculator {
 	
 	
 	public int computeCBIBound(double threshold){
-		System.out.println(threshold);
-		
 		if(DH(2, P) <= 0){
 			throw new RuntimeException("abnormal case 1");
 		} 
@@ -60,17 +58,14 @@ public class BoundCalculator {
 			double h_1_2 = SelectingProcessor.H_1(2, P, F);
 			double h_1_F = SelectingProcessor.H_1(F, P, F);
 			if(DH(F, P) < 0){
-				System.out.println("case 2");
 				int f0 = compute_f0(P);
-				System.out.println(f0);
 				
 				double h_1_f0 = SelectingProcessor.H_1(f0, P, F);
 				double h_1_f1 = SelectingProcessor.H_1(f0 + 1, P, F);
 				double max = (h_1_f0 > h_1_f1 ? h_1_f0 : h_1_f1);
 				double min = (h_1_f0 < h_1_f1 ? h_1_f0 : h_1_f1);
 				if(threshold > max){
-					System.out.println(max);
-					throw new RuntimeException("OutOfRange Error case 2");
+					throw new RuntimeException("OutOfRange Error case 2: " + threshold + ">" + max);
 				}
 				int lb = 2, ub = F;
 				if(threshold > h_1_f0){
@@ -85,22 +80,19 @@ public class BoundCalculator {
 				else if(threshold >= h_1_F && threshold <= h_1_f1){
 					ub = calculateHBoundDe(f0 + 1, F, threshold);
 				}
-				System.out.println("[" + lb + "," + ub + "]");
+//				System.out.println("[" + lb + "," + ub + "]");
 				return lb;
 			}
 			else{
-				System.out.println("case 3");
+				int lb = 2;
 				if(threshold > h_1_F){
 					throw new RuntimeException("OutOfRange Error case 3");
 				}
-				if(threshold <= h_1_2){
-					System.out.println(h_1_2);
-					System.out.println("[2, F]");
-					return 2;
+				if(threshold > h_1_2){
+					lb = calculateHBoundIn(2, F, threshold);
 				}
-				int bound = calculateHBoundIn(2, F, threshold);
-				System.out.println("[" + bound + ",F]");
-				return bound;
+//				System.out.println("[" + lb + ",F]");
+				return lb;
 			}
 		}
 	}
@@ -119,7 +111,7 @@ public class BoundCalculator {
 		while(start < end){
 			mid = (start + end) / 2;
 			double dh = DH(mid, p);
-			System.out.println(mid + ": " + dh);
+//			System.out.println(mid + ": " + dh);
 			if(dh > 0){
 				start = mid;
 			}
@@ -155,7 +147,7 @@ public class BoundCalculator {
 		while(start < end){
 			mid = (start + end) / 2;
 			double g = SelectingProcessor.H_1(mid, P, F);
-			System.out.println(mid + ": " + g);
+//			System.out.println(mid + ": " + g);
 			if(g > threshold){
 				end = mid;
 			}
@@ -163,12 +155,10 @@ public class BoundCalculator {
 				start = mid;
 			}
 			else{
-				System.out.println(mid);
 				return mid;
 			}
 			
 			if(end - start == 1){
-				System.out.println(end);
 				return end;
 			}
 		}
@@ -192,7 +182,7 @@ public class BoundCalculator {
 		while(start < end){
 			mid = (start + end) / 2;
 			double h = SelectingProcessor.H_1(mid, P, F);
-			System.out.println(mid + ": " + h);
+//			System.out.println(mid + ": " + h);
 			if(h > threshold){
 				start = mid;
 			}
@@ -200,12 +190,10 @@ public class BoundCalculator {
 				end = mid;
 			}
 			else{
-				System.out.println(mid);
 				return mid;
 			}
 			
 			if(end - start == 1){
-				System.out.println(start);
 				return start;
 			}
 		}

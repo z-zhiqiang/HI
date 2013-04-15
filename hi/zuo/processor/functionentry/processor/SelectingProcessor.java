@@ -123,7 +123,7 @@ public class SelectingProcessor {
 	 * @param pos
 	 * @return
 	 */
-	private double Precision(int neg, int pos){
+	public static double Precision(int neg, int pos){
 		if(neg + pos == 0)
 			return 0;
 		return (double) neg / (neg + pos);

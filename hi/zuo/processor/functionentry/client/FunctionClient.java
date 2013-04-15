@@ -48,6 +48,7 @@ public class FunctionClient {
 	final String method;
 	
 	final double[][][][] result;
+	final double [][] wResult;
 	
 	private PrintWriter writer;
 	final PrintWriter clientWriter;
@@ -61,6 +62,7 @@ public class FunctionClient {
 		this.predictors = predictors;
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
 		this.result = new double[Score.values().length][Order.values().length][2][5];
+		this.wResult = new double[Score.values().length][5];
 		this.clientWriter = cWriter;
 		
 		try {
@@ -86,6 +88,7 @@ public class FunctionClient {
 		this.predictors = predictors;
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
 		this.result = new double[Score.values().length][Order.values().length][2][5];
+		this.wResult = new double[Score.values().length][5];
 		this.clientWriter = cWriter;
 		
 		try {
@@ -116,6 +119,7 @@ public class FunctionClient {
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
 		
 		this.result = new double[Score.values().length][Order.values().length][2][5];
+		this.wResult = new double[Score.values().length][5];
 		this.clientWriter = cWriter;
 		
 		try {
@@ -148,9 +152,9 @@ public class FunctionClient {
 		writer.println(String.format("%-50s", "Total number of negative runs:") + processor.getTotalNegative());
 		writer.println(String.format("%-50s", "Total number of positive runs:") + processor.getTotalPositive());
 		
-		//print out the static instrumentation sites information 
-		writer.println("\n");
-		printSitesInfo(sInfo, writer);
+//		//print out the static instrumentation sites information 
+//		writer.println("\n");
+//		printSitesInfo(sInfo, writer);
 		assert(processor.getFrequencyMap().size() == sites.getNumFunctionEntrySites());
 		writer.println("\n");
 		writer.println("The general methods information are as follows:\n==============================================================");
@@ -169,7 +173,6 @@ public class FunctionClient {
 			printWorstCase(processor, score, predictors.get(0).getValue());
 		}
 		
-//		new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive()).computeCBIBound(predictors.get(0).getValue());
 	}
 	
 	private void printWorstCase(SelectingProcessor processor, Score score, Double threshold) {
@@ -178,14 +181,18 @@ public class FunctionClient {
 		Map<FunctionEntrySite, FrequencyValue> frequencyMap = processor.getFrequencyMap();
 		
 		int lb = bc.computeCBIBound(threshold);
+		
+		int i = 0;
 		int nSites = 0, nPredicates = 0;
 		double sp = 0, pp = 0;
+		double as = 0, ap = 0;
 		
 		switch (score){
 		case NEGATIVE: 
 			for(FunctionEntrySite site: frequencyMap.keySet()){
 				String method = site.getFunctionName();
 				if(frequencyMap.get(site).getNegative() >= lb){
+					i++;
 					nSites += sInfo.getMap().get(method).getNumSites();
 					nPredicates += sInfo.getMap().get(method).getNumPredicates();
 				}
@@ -198,6 +205,7 @@ public class FunctionClient {
 					FrequencyValue value = frequencyMap.get(site);
 					String method = site.getFunctionName();
 					if(value.getH_1() >= threshold || value.getNegative() > f0){
+						i++;
 						nSites += sInfo.getMap().get(method).getNumSites();
 						nPredicates += sInfo.getMap().get(method).getNumPredicates();
 					}
@@ -208,6 +216,7 @@ public class FunctionClient {
 					FrequencyValue value = frequencyMap.get(site);
 					String method = site.getFunctionName();
 					if(value.getH_1() >= threshold){
+						i++;
 						nSites += sInfo.getMap().get(method).getNumSites();
 						nPredicates += sInfo.getMap().get(method).getNumPredicates();
 					}
@@ -216,10 +225,10 @@ public class FunctionClient {
 			break;
 		case F_1:
 			double fs = SelectingProcessor.F_score(lb, bc.getP(), bc.getF());
-			System.out.println(fs);
 			for(FunctionEntrySite site: frequencyMap.keySet()){
 				String method = site.getFunctionName();
 				if(frequencyMap.get(site).getF_score() >= fs){
+					i++;
 					nSites += sInfo.getMap().get(method).getNumSites();
 					nPredicates += sInfo.getMap().get(method).getNumPredicates();
 				}
@@ -233,46 +242,96 @@ public class FunctionClient {
 					continue;
 				}
 				if(bc.DH(2, value.getPositive()) <= 0){
+					i++;
 					nSites += sInfo.getMap().get(method).getNumSites();
 					nPredicates += sInfo.getMap().get(method).getNumPredicates();
 				}
 				else if(bc.DH(2, value.getPositive()) > 0 && bc.DH(bc.getF(), value.getPositive()) < 0){
 					int f0 = bc.compute_f0(value.getPositive());
 					if(value.getH_2() >= threshold || value.getNegative() > f0){
+						i++;
 						nSites += sInfo.getMap().get(method).getNumSites();
 						nPredicates += sInfo.getMap().get(method).getNumPredicates();
 					}
 				}
 				else if(bc.DH(bc.getF(), value.getPositive()) >= 0){
 					if(value.getH_2() >= threshold){
+						i++;
 						nSites += sInfo.getMap().get(method).getNumSites();
 						nPredicates += sInfo.getMap().get(method).getNumPredicates();
 					}
 				}
 			}
 			break;
+		case PRECISION:
+			double pr = SelectingProcessor.Precision(lb, bc.getP());
+			for(FunctionEntrySite site: frequencyMap.keySet()){
+				String method = site.getFunctionName();
+				if(frequencyMap.get(site).getPrecision() >= pr){
+					i++;
+					nSites += sInfo.getMap().get(method).getNumSites();
+					nPredicates += sInfo.getMap().get(method).getNumPredicates();
+				}
+			}
+			break;
+		case POSITIVE:
+			for(FunctionEntrySite site: frequencyMap.keySet()){
+				String method = site.getFunctionName();
+				i++;
+				nSites += sInfo.getMap().get(method).getNumSites();
+				nPredicates += sInfo.getMap().get(method).getNumPredicates();
+			}
+			break;
 		default:
-//			System.err.println("score error");
-//			System.exit(0);
+			System.err.println("score error");
+			System.exit(0);
 		}
 		
 		sp = (double)100 * nSites / sInfo.getNumPredicateSites();
 		pp = (double)100 * nPredicates / sInfo.getNumPredicateItems();
+		assert(i != 0);
+		as = (double) nSites / i;
+		ap = (double) nPredicates / i;
 		
-		System.out.println(String.format("%-15s", "<" + score + ">:")
+		System.out.println("==============================================================");
+		System.out.println(String.format("%-50s", "The worst case by <" + score + ">:")
 						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
-						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp)));
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "i:" + i) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
+		System.out.println("\n");
+		writer.println("==============================================================");
+		writer.println(String.format("%-50s", "The worst case by <" + score + ">:") 
+						+ String.format("%-15s", "s:" + nSites) 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "p:" + nPredicates) 
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "i:" + i) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
+		writer.println("\n");
+		clientWriter.println("==============================================================");
+		clientWriter.println(String.format("%-50s", "The worst case by <" + score + ">:") 
+						+ String.format("%-15s", "s:" + nSites) 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "p:" + nPredicates) 
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "i:" + i) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
+		clientWriter.println("\n");
+		
+		wResult[score.ordinal()][0] = sp;
+		wResult[score.ordinal()][1] = pp;
+		wResult[score.ordinal()][2] = i;
+		wResult[score.ordinal()][3] = as;
+		wResult[score.ordinal()][4] = ap;
+		
 	}
 
-//	private double F_score(int neg, int pos, int totalNegative){
-//		if(neg <= 1){
-//			return 0;
-//		}
-//		return (double) 2/(1 + ((double) pos / neg) + (Math.log(totalNegative) / Math.log(neg)));
-//	}
-	
 	/**print the methods and the corresponding percentage to be instrumented in the mode <score,order>
 	 * @param frequencyMap
 	 * @param score
@@ -294,7 +353,7 @@ public class FunctionClient {
 		writer.println();
 		System.out.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		writer.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
-		this.clientWriter.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
+		clientWriter.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		printPercentage(list, score, order);
 	}
 
@@ -503,24 +562,24 @@ public class FunctionClient {
 					as = 0;
 					ap = 0;
 				}
-				System.out.println(String.format("%-45s", "Excluding " + method) 
-						+ String.format("%-15s", "\ts:" + nSites) 
+				System.out.println(String.format("%-50s", "Excluding " + method) 
+						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
 						+ String.format("%-15s", "i:" + i) 
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-				writer.println(String.format("%-45s", "Excluding " + method) 
-						+ String.format("%-15s", "\ts:" + nSites) 
+				writer.println(String.format("%-50s", "Excluding " + method) 
+						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
 						+ String.format("%-15s", "i:" + i) 
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-				this.clientWriter.println(String.format("%-45s", "Excluding " + method) 
-						+ String.format("%-15s", "\ts:" + nSites) 
+				clientWriter.println(String.format("%-50s", "Excluding " + method) 
+						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
@@ -542,8 +601,8 @@ public class FunctionClient {
 				as = (double)nSites / (i + 1);
 				ap = (double)nPredicates / (i + 1);
 				
-				System.out.println(String.format("%-45s", "Including " + method) 
-						+ String.format("%-15s", "\ts:" + nSites) 
+				System.out.println(String.format("%-50s", "Including " + method) 
+						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
@@ -551,8 +610,8 @@ public class FunctionClient {
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 				System.out.println();
-				writer.println(String.format("%-45s", "Including " + method) 
-						+ String.format("%-15s", "\ts:" + nSites) 
+				writer.println(String.format("%-50s", "Including " + method) 
+						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
@@ -560,15 +619,15 @@ public class FunctionClient {
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 				writer.println();
-				this.clientWriter.println(String.format("%-45s", "Including " + method) 
-						+ String.format("%-15s", "\ts:" + nSites) 
+				clientWriter.println(String.format("%-50s", "Including " + method) 
+						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
 						+ String.format("%-15s", "i:" + (i + 1)) 
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-				this.clientWriter.println();
+				clientWriter.println();
 				
 				result[score.ordinal()][order.ordinal()][1][0] = sp;
 				result[score.ordinal()][order.ordinal()][1][1] = pp;
@@ -587,21 +646,7 @@ public class FunctionClient {
 		}
 	}
 	
-	/**print the sites information
-	 * @param sInfo
-	 * @param writer
-	 */
-	public static void printSitesInfo(SitesInfo sInfo, PrintWriter writer) {
-		writer.println("The general sites information are as follows:\n==============================================================");
-		writer.println(String.format("%-60s", "Total number of sites instrumented:") + sInfo.getNumPredicateSites());
-		writer.println(String.format("%-60s", "Total number of predicates instrumented:") + sInfo.getNumPredicateItems());
-		writer.println(String.format("%-60s", "Total number of methods having sites instrumented:") + sInfo.getMap().size());
-		writer.println();
-		writer.println("The information of sites and predicates in each method:\n--------------------------------------------------------------");
-		for(String method: sInfo.getMap().keySet()){
-			writer.println(String.format("%-45s", method) + String.format("%-20s", ":" + sInfo.getMap().get(method).getNumSites()) + String.format("%-20s", ":" + sInfo.getMap().get(method).getNumPredicates()));
-		}
-	}
+	
 
 	public int getRuns() {
 		return runs;
@@ -629,6 +674,10 @@ public class FunctionClient {
 
 	public double[][][][] getResult() {
 		return result;
+	}
+
+	public double[][] getwResult() {
+		return wResult;
 	}
 
 }

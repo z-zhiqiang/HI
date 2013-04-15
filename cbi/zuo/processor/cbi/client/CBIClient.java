@@ -72,6 +72,11 @@ public class CBIClient {
 		writer.println(String.format("%-50s", "Total number of negative runs:") + p.getTotalNegative());
 		writer.println(String.format("%-50s", "Total number of positive runs:") + p.getTotalPositive());
 	
+		//print out the static instrumentation sites information 
+		writer.println("\n");
+		printSitesInfo(new SitesInfo(sites), writer);
+		
+		//print out top-k predictors information
 		writer.println("\n");
 		printTopKPredictors(p.getPredictors(), k, writer);
 	}
@@ -113,11 +118,26 @@ public class CBIClient {
 	    assert(methods.size() == new SitesInfo(new InstrumentationSites(sitesFile)).getMap().size());
 		
 		writer.println();
-//		writer.println("The total number of methods including instrumented predicates: \t" + methods.size());
 		writer.println("The corresponding top " + topMethods.size() + " of " + methods.size() + " methods are as follows:\n--------------------------------------------------------------");
 		writer.println(topMethods.toString());
 	}
 
+	/**print the sites information
+	 * @param sInfo
+	 * @param writer
+	 */
+	public static void printSitesInfo(SitesInfo sInfo, PrintWriter writer) {
+		writer.println("The general sites information are as follows:\n==============================================================");
+		writer.println(String.format("%-60s", "Total number of sites instrumented:") + sInfo.getNumPredicateSites());
+		writer.println(String.format("%-60s", "Total number of predicates instrumented:") + sInfo.getNumPredicateItems());
+		writer.println(String.format("%-60s", "Total number of methods having sites instrumented:") + sInfo.getMap().size());
+		writer.println();
+		writer.println("The information of sites and predicates in each method:\n--------------------------------------------------------------");
+		for(String method: sInfo.getMap().keySet()){
+			writer.println(String.format("%-45s", method) + String.format("%-20s", ":" + sInfo.getMap().get(method).getNumSites()) + String.format("%-20s", ":" + sInfo.getMap().get(method).getNumPredicates()));
+		}
+	}
+	
 	public Set<String> getMethods() {
 		return methods;
 	}

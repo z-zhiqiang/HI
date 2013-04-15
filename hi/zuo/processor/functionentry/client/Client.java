@@ -32,6 +32,7 @@ public class Client {
 	final String consoleFolder;
 	
 	final Map<String, double[][][][]> results;
+	final Map<String, double[][]> wResults;
 	
 	public Client(int runs, String rootDir, String subject, String consoleFolder) {
 		this.runs = runs;
@@ -39,6 +40,7 @@ public class Client {
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
 		this.results = new HashMap<String, double[][][][]>();
+		this.wResults = new HashMap<String, double[][]>();
 	}
 
 	/**
@@ -112,18 +114,19 @@ public class Client {
 			FunctionClient client = new FunctionClient(runs, new File(version.getAbsolutePath(), vi + "_c.sites"), 
 					rootDir + subject + "/traces/" + vi + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", sInfo, c.getPredictorEntryList(), cWriter);
 			results.put(vi, client.getResult());
+			wResults.put(vi, client.getwResult());
 			
-			for (int i = 0; i < results.get(vi).length; i++) {
-				for (int j = 0; j < results.get(vi)[i].length; j++) {
-					for (int p = 0; p < results.get(vi)[i][j].length; p++) {
-						for (int q = 0; q < results.get(vi)[i][j][p].length; q++) {
-							System.out.print(String.format("%-25s", results.get(vi)[i][j][p][q]));
-						}
-					}
-					System.out.println();
-				}
-				System.out.println();
-			}
+//			for (int i = 0; i < results.get(vi).length; i++) {
+//				for (int j = 0; j < results.get(vi)[i].length; j++) {
+//					for (int p = 0; p < results.get(vi)[i][j].length; p++) {
+//						for (int q = 0; q < results.get(vi)[i][j][p].length; q++) {
+//							System.out.print(String.format("%-25s", results.get(vi)[i][j][p][q]));
+//						}
+//					}
+//					System.out.println();
+//				}
+//				System.out.println();
+//			}
 			
 			System.out.println();
 			cWriter.println();	
@@ -175,18 +178,19 @@ public class Client {
 				FunctionClient client = new FunctionClient(runs, new File(subversion.getAbsolutePath(), vi + "_c.sites"), 
 						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", sInfo, c.getPredictorEntryList(), cWriter);
 				results.put(vi, client.getResult());
+				wResults.put(vi, client.getwResult());
 				
-				for (int i = 0; i < results.get(vi).length; i++) {
-					for (int j = 0; j < results.get(vi)[i].length; j++) {
-						for (int p = 0; p < results.get(vi)[i][j].length; p++) {
-							for (int q = 0; q < results.get(vi)[i][j][p].length; q++) {
-								System.out.print(String.format("%-25s", results.get(vi)[i][j][p][q]));
-							}
-						}
-						System.out.println();
-					}
-					System.out.println();
-				}
+//				for (int i = 0; i < results.get(vi).length; i++) {
+//					for (int j = 0; j < results.get(vi)[i].length; j++) {
+//						for (int p = 0; p < results.get(vi)[i][j].length; p++) {
+//							for (int q = 0; q < results.get(vi)[i][j][p].length; q++) {
+//								System.out.print(String.format("%-25s", results.get(vi)[i][j][p][q]));
+//							}
+//						}
+//						System.out.println();
+//					}
+//					System.out.println();
+//				}
 				
 				System.out.println();
 				cWriter.println();	
@@ -217,27 +221,35 @@ public class Client {
 			private double getSortValue(Entry<String, double[][][][]> entry) {
 				// TODO Auto-generated method stub
 				double[][][][] array = entry.getValue();
-				double sum = 0;
-				for(int i = 0; i < 2; i++){
-					sum += array[i][0][1][0];
-				}
-				return sum;
+				return array[1][0][1][0] + array[3][0][1][0];
 			}});
 		
 		Set<String> versions = new LinkedHashSet<String>();
 		double[][][][] result = new double[Score.values().length][Order.values().length][2][5];
+		double[][] wResult = new double[Score.values().length][5];
 		for(int i = 0; i < rList.size(); i++){
 			Entry<String, double[][][][]> entry = (Entry<String, double[][][][]>) rList.get(i);
 			versions.add(entry.getKey());
-			accumulate(result, entry.getValue());
-			print(i, versions, result, cWriter);
+			assert(i + 1 == versions.size());
+			accumulateResult(result, entry.getValue());
+			accumulateWResult(wResult, wResults.get(entry.getKey()));
+			print(versions, result, wResult, cWriter);
 		}
 	}
 	
 
-	private void print(int i, Set<String> versions, double[][][][] result, PrintWriter cWriter) {
+	private void accumulateWResult(double[][] wResult, double[][] ds) {
 		// TODO Auto-generated method stub
-		assert(i + 1 == versions.size());
+		assert(wResult.length == ds.length && wResult.length == Score.values().length);
+		for(int i = 0; i < wResult.length; i++){
+			for (int j = 0; j < wResult[i].length; j++) {
+				wResult[i][j] += ds[i][j];
+			}
+		}
+	}
+
+	private void print(Set<String> versions, double[][][][] result, double[][] wResult, PrintWriter cWriter) {
+		// TODO Auto-generated method stub
 		System.out.println(versions.size() + "\n" + subject + ": " + versions + "\n==============================================================");
 		cWriter.println(versions.size() + "\n" + subject + ": " + versions + "\n==============================================================");
 		for (int m = 0; m < result.length; m++) {
@@ -276,12 +288,28 @@ public class Client {
 						);
 				cWriter.println();
 			}
+			System.out.println("==============================================================");
+			System.out.println("The worst case by <" + Score.values()[m] + ">:\t\t"
+							+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(wResult[m][0] / versions.size()))
+							+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(wResult[m][1] / versions.size()))
+							+ String.format("%-15s", "i:" + new DecimalFormat("#.#").format(wResult[m][2] / versions.size()))
+							+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(wResult[m][3] / versions.size())) 
+							+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(wResult[m][4] / versions.size())));
+			System.out.println("\n");
+			cWriter.println("==============================================================");
+			cWriter.println("The worst case by <" + Score.values()[m] + ">:\t\t"
+							+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(wResult[m][0] / versions.size()))
+							+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(wResult[m][1] / versions.size()))
+							+ String.format("%-15s", "i:" + new DecimalFormat("#.#").format(wResult[m][2] / versions.size()))
+							+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(wResult[m][3] / versions.size())) 
+							+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(wResult[m][4] / versions.size())));
+			cWriter.println("\n");
 		}
 		System.out.println("\n");
 		cWriter.println("\n");
 	}
 
-	private void accumulate(double[][][][] result, double[][][][] ds) {
+	private void accumulateResult(double[][][][] result, double[][][][] ds) {
 		// TODO Auto-generated method stub
 		assert(result.length == ds.length && result.length == Score.values().length);
 		for(int i = 0; i < result.length; i++){
@@ -337,7 +365,7 @@ public class Client {
 //			}
 //		}
 
-		Client cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed4/");
+		Client cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed5/");
 		cc.computeSirResults();	
 		
 	}
