@@ -112,7 +112,8 @@ public class Client {
 			CBIClient c = new CBIClient(runs, FunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
 					rootDir + subject + "/traces/" + vi +"/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
 			FunctionClient client = new FunctionClient(runs, new File(version.getAbsolutePath(), vi + "_c.sites"), 
-					rootDir + subject + "/traces/" + vi + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", sInfo, c.getPredictorEntryList(), cWriter);
+					rootDir + subject + "/traces/" + vi + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", 
+					sInfo, c.getPredictorEntryList(), cWriter, version.getAbsolutePath() + "/methods");
 			results.put(vi, client.getResult());
 			wResults.put(vi, client.getwResult());
 			
@@ -158,7 +159,7 @@ public class Client {
 				@Override
 				public boolean accept(File dir, String name) {
 					// TODO Auto-generated method stub
-					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 11 || new File(dir, name).listFiles().length == 10);
+					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 11 || new File(dir, name).listFiles().length == 12);
 				}});
 			Arrays.sort(subversions, new Comparator(){
 				@Override
@@ -176,7 +177,8 @@ public class Client {
 				CBIClient c = new CBIClient(runs, FunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
 						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
 				FunctionClient client = new FunctionClient(runs, new File(subversion.getAbsolutePath(), vi + "_c.sites"), 
-						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", sInfo, c.getPredictorEntryList(), cWriter);
+						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", 
+						sInfo, c.getPredictorEntryList(), cWriter, subversion.getAbsolutePath() + "/methods");
 				results.put(vi, client.getResult());
 				wResults.put(vi, client.getwResult());
 				
@@ -365,7 +367,7 @@ public class Client {
 //			}
 //		}
 
-		Client cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed5/");
+		Client cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed6/");
 		cc.computeSirResults();	
 		
 	}

@@ -53,7 +53,10 @@ public class FunctionClient {
 	private PrintWriter writer;
 	final PrintWriter clientWriter;
 	
-	public FunctionClient(int runs, File sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter) {
+	final String methodsFile;
+	List<String> methods;
+	
+	public FunctionClient(int runs, File sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter, String methodsF) {
 		this.runs = runs;
 		this.sitesFile = sitesFile;
 		this.profilesFolder = profilesFolder;
@@ -64,6 +67,9 @@ public class FunctionClient {
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.wResult = new double[Score.values().length][5];
 		this.clientWriter = cWriter;
+		
+		this.methodsFile = methodsF;
+		this.methods = new ArrayList<String>();
 		
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
@@ -90,6 +96,9 @@ public class FunctionClient {
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.wResult = new double[Score.values().length][5];
 		this.clientWriter = cWriter;
+		
+		this.methodsFile = rootDir + subject + "/versions/" + version + "/methods";
+		this.methods = new ArrayList<String>();
 		
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
@@ -121,6 +130,9 @@ public class FunctionClient {
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.wResult = new double[Score.values().length][5];
 		this.clientWriter = cWriter;
+		
+		this.methodsFile = rootDir + subject + "/versions/" + version + "/methods";
+		this.methods = new ArrayList<String>();
 		
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
@@ -355,6 +367,43 @@ public class FunctionClient {
 		writer.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		clientWriter.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		printPercentage(list, score, order);
+		getMethodsList(list, score, order);
+	}
+		
+	/**get the list of methods to be instrumented
+	 * @param list
+	 * @param score
+	 * @param order
+	 */
+	private void getMethodsList(List list, Score score, Order order){	
+		//get the methods list to be instrumented
+		if(score == Score.H_2 && order == Order.RANDOM){
+			for(int i = 0; i < list.size(); i++){
+				Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
+				String method = entry.getKey().getFunctionName();
+				methods.add(method);
+				if(this.method.equals(method)){
+					break;
+				}
+			}
+			
+			PrintWriter out = null;
+			try{
+				//write the passing inputs
+				out = new PrintWriter(new BufferedWriter(new FileWriter(this.methodsFile)));
+				for(String method: methods){
+					out.println(method);
+				}
+				out.close();
+				
+			}
+			catch(IOException e){
+				e.printStackTrace();
+			}
+			finally{
+				out.close();
+			}
+		}
 	}
 
 	/**rank the methods in the mode <score,order>
@@ -549,6 +598,7 @@ public class FunctionClient {
 		for(int i = 0; i < list.size(); i++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
 			String method = entry.getKey().getFunctionName();
+			
 			//percentage information of instrumented sites and predicates
 			if(this.method.equals(method)){
 				sp = (double)100 * nSites / sInfo.getNumPredicateSites();
@@ -638,10 +688,8 @@ public class FunctionClient {
 				break;
 			}
 			else{
-				if (sInfo.getMap().containsKey(method)) {
-					nSites += sInfo.getMap().get(method).getNumSites();
-					nPredicates += sInfo.getMap().get(method).getNumPredicates();
-				}
+				nSites += sInfo.getMap().get(method).getNumSites();
+				nPredicates += sInfo.getMap().get(method).getNumPredicates();
 			}
 		}
 	}
