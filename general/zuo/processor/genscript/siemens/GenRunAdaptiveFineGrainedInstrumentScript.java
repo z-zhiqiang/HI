@@ -1,4 +1,4 @@
-package zuo.processor.genscript.sir;
+package zuo.processor.genscript.siemens;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,8 +20,9 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 	private List<String> methods;
 	private String methodsFile;
 	
-	public GenRunAdaptiveFineGrainedInstrumentScript(String sub, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, String methodsF) {
-		super(sub, ver, subV, cc, sD, eD, oD, scD);
+	
+	public GenRunAdaptiveFineGrainedInstrumentScript(String sub, String ver, String sD, String eD, String oD, String scD, String tD, String failing, String passing, String methodsF) {
+		super(sub, ver, null, sD, eD, oD, scD);
 		this.traceDir = tD;
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
@@ -31,8 +32,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		readMethods();
 		mkOutDir();
 	}
-
-
+	
 	private void readMethods() {
 		// TODO Auto-generated method stub
 		BufferedReader reader = null;
@@ -64,63 +64,57 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 	@Override
 	public void genRunScript() {
 		int num = methods.size();
-		StringBuffer code = new StringBuffer();
+		StringBuilder code = new StringBuilder();
 		code.append("tTime=0\n");
 		String instrumentCommand;
 		for(String method: methods){
-			instrumentCommand = compileCommand 
-					+ "sampler-cc -fsampler-scheme=branches -fsampler-scheme=float-kinds -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
+			instrumentCommand = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=float-kinds -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
 					+ "-finclude-function=" + method + " -fexclude-function=* "
-					+ sourceDir + GenSirScriptClient.sourceName + ".c" 
-					+ " $COMPILE_PARAMETERS"
-//					+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
-					+ " -o " + executeDir + "adaptive/" + subVersion + "_finst__" + method + ".exe"
+					+ sourceDir + subject + ".c" 
+					+ " -o " + executeDir + "adaptive/" + version + "_finst__" + method + ".exe"
 					+ " -I" + sourceDir
 					+ " -lm"
 					;
 			
 			code.append(instrumentCommand + "\n");
 			code.append(startTimeCommand + "\n");
-			code.append("echo script: " + subVersion + "\n");
+			code.append("echo script: " + version + "\n");
 			code.append("export VERSIONSDIR=" + executeDir + "adaptive/\n");
-			code.append("export OUTPUTSDIR=" + outputDir + "\n");
+			code.append("export OUTPUTSDIR=" + outputDir + method + "/\n");
 			
 			for (Iterator it = failingTests.iterator(); it.hasNext();) {
 				int index = (Integer) it.next();
 				code.append(runinfo + index + "\"\n");// running info
 				code.append("export SAMPLER_FILE=" + traceDir + method + "/o" + index + ".fprofile\n");
-				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + method + ".exe "));
-				code.append("\n");
+				code.append("$VERSIONSDIR/" + version + "_finst__" + method + ".exe ");//executables
+				code.append(inputsMap.get(index));//parameters
+				code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
 			}
 			
 			for (Iterator it = passingTests.iterator(); it.hasNext();) {
 				int index = (Integer) it.next();
 				code.append(runinfo + index + "\"\n");// running info
 				code.append("export SAMPLER_FILE=" + traceDir + method + "/o" + index + ".pprofile\n");
-				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + method + ".exe "));
-				code.append("\n");
+				code.append("$VERSIONSDIR/" + version + "_finst__" + method + ".exe ");//executables
+				code.append(inputsMap.get(index));//parameters
+				code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
 			}
 			
 			code.append(endTimeCommand + " >& " + outputDir + method + "/time\n");
 			code.append("tTime=$((tTime+time))\n");
-			code.append("mv ../outputs/* " + outputDir + method + "\n");
 			code.append("\n\n");
+//			printToFile(code.toString(), scriptDir, version + "_fg_a.sh");
+//			code = new StringBuilder();
+			
 		}
-		
 		code.append("echo \"Average time in seconds: $((tTime/1000000000/" + num + ")) \nTime in milliseconds: $((tTime/1000000/" + num + "))\"" +
 				" >& " + outputDir + "time\n");
-		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_fg_a.sh");
+		printToFile(code.toString(), scriptDir, version + "_fg_a.sh");
 	}
 
 
 	@Override
 	protected void mkOutDir() {
-//		// make directory for outputs
-//		File fe = new File(executeDir + "adaptive/");
-//		if (!fe.exists()) {
-//			fe.mkdirs();
-//		}
-				
 		for(String method: methods){
 			//make directory for outputs
 			File fo = new File(outputDir + method + "/");

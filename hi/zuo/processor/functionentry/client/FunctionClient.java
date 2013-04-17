@@ -97,7 +97,7 @@ public class FunctionClient {
 		this.wResult = new double[Score.values().length][5];
 		this.clientWriter = cWriter;
 		
-		this.methodsFile = rootDir + subject + "/versions/" + version + "/methods";
+		this.methodsFile = rootDir + subject + "/versions/" + version + "/adaptive/methods";
 		this.methods = new ArrayList<String>();
 		
 		try {
@@ -131,7 +131,7 @@ public class FunctionClient {
 		this.wResult = new double[Score.values().length][5];
 		this.clientWriter = cWriter;
 		
-		this.methodsFile = rootDir + subject + "/versions/" + version + "/methods";
+		this.methodsFile = rootDir + subject + "/versions/" + version + "/adaptive/methods";
 		this.methods = new ArrayList<String>();
 		
 		try {
@@ -377,7 +377,7 @@ public class FunctionClient {
 	 */
 	private void getMethodsList(List list, Score score, Order order){	
 		//get the methods list to be instrumented
-		if(score == Score.H_2 && order == Order.RANDOM){
+		if(score == Score.H_2 && order == Order.LESS_FIRST){
 			for(int i = 0; i < list.size(); i++){
 				Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
 				String method = entry.getKey().getFunctionName();
@@ -389,6 +389,10 @@ public class FunctionClient {
 			
 			PrintWriter out = null;
 			try{
+				File fd = new File(this.methodsFile).getParentFile();
+				if (!fd.exists()) {
+					fd.mkdirs();
+				}
 				//write the passing inputs
 				out = new PrintWriter(new BufferedWriter(new FileWriter(this.methodsFile)));
 				for(String method: methods){

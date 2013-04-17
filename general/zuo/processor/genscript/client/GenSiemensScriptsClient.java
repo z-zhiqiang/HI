@@ -1,8 +1,14 @@
 package zuo.processor.genscript.client;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
+import zuo.processor.genscript.siemens.AbstractGenRunAllScript;
 import zuo.processor.genscript.siemens.AbstractGenRunScript;
+import zuo.processor.genscript.siemens.GenRunAdaptiveFineGrainedInstrumentScript;
+import zuo.processor.genscript.siemens.GenRunAllAdaptiveInstrumentedScript;
 import zuo.processor.genscript.siemens.GenRunCoarseGrainedInstrumentScript;
 import zuo.processor.genscript.siemens.GenRunFineGrainedInstrumentScript;
 import zuo.processor.genscript.siemens.GenRunSubjectScript;
@@ -12,8 +18,8 @@ import zuo.util.file.FileUtility;
 
 
 public class GenSiemensScriptsClient {
-	final static String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/";
-	final static String subject = "replace";
+	final static String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/";
+	final static String subject = "space";
 	final String version;
 	final static String inputs = rootDir + subject + "/testplans.alt/" + "universe";
 	public final static String inputsMapFile = rootDir + subject + "/testplans.alt/" + "inputs.map";
@@ -29,8 +35,10 @@ public class GenSiemensScriptsClient {
 	final String vcoutputDir;
 	final String vftraceDir;
 	final String vctraceDir;
+	final String vafoutputDir;
+	final String vaftraceDir;
 	
-	final String scriptDir;
+	final static String scriptDir = rootDir + subject + "/scripts/";;
 	
 	final String compileSubject;
 	final String compileVersion;
@@ -48,11 +56,13 @@ public class GenSiemensScriptsClient {
 		vexecuteDir = rootDir + subject + "/versions/" + version + "/";
 		voutputDir = rootDir + subject + "/outputs/versions/" + version + "/outputs/";
 		vfoutputDir = rootDir + subject + "/outputs/versions/" + version + "/fine-grained/";
+		vafoutputDir = rootDir + subject + "/outputs/versions/" + version + "/fine-grained-adaptive/";
 		vcoutputDir = rootDir + subject + "/outputs/versions/" + version + "/coarse-grained/";
 		vftraceDir = rootDir + subject + "/traces/" + version + "/fine-grained/";
+		vaftraceDir = rootDir + subject + "/traces/" + version + "/fine-grained-adaptive/";
 		vctraceDir = rootDir + subject + "/traces/" + version + "/coarse-grained/";
 		
-		scriptDir = rootDir + subject + "/scripts/";
+		
 		
 		compileSubject = "gcc " 
 				+ ssourceDir + subject + ".c" 
@@ -80,13 +90,15 @@ public class GenSiemensScriptsClient {
 	public static void main(String[] args) throws IOException {
 		AbstractGenRunScript gs;
 		GenSiemensScriptsClient gc;
+		AbstractGenRunAllScript ga;
 		
 //		FileUtility.constructSiemensInputsMapFile(inputs, inputsMapFile);
 //		gc = new GenSiemensScriptsClient(subject);
 //		gs = new GenRunSubjectScript(subject, gc.version, gc.compileSubject, gc.ssourceDir, gc.sexecuteDir, gc.soutputDir, gc.scriptDir);
 //		gs.genRunScript();
 		
-		for(int i = 1; i <= 32; i++){
+		Set<Integer> subs = new HashSet<Integer>();
+		for(int i = 1; i <= 38; i++){
 			gc = new GenSiemensScriptsClient("v" + i);
 			
 //			System.out.println("generating run script for v" + i);
@@ -103,7 +115,15 @@ public class GenSiemensScriptsClient {
 //			gs.genRunScript();
 //			gs = new GenRunCoarseGrainedInstrumentScript(subject, gc.version, gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 //			gs.genRunScript();
+			if(new File(gc.vexecuteDir).listFiles().length == 11){
+				gs = new GenRunAdaptiveFineGrainedInstrumentScript(subject, gc.version, gc.vsourceDir, gc.vexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.vexecuteDir + "adaptive/methods");
+				gs.genRunScript();
+				subs.add(i);
+			}
 		}
+		
+		ga = new GenRunAllAdaptiveInstrumentedScript(subject, scriptDir, subs);
+		ga.genRunAllScript();
 	
 	}
 	

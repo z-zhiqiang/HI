@@ -14,6 +14,7 @@ import sir.mts.MakeTestScript;
 import zuo.processor.genscript.sir.AbstractGenRunAllScript;
 import zuo.processor.genscript.sir.AbstractGenRunScript;
 import zuo.processor.genscript.sir.GenRunAdaptiveFineGrainedInstrumentScript;
+import zuo.processor.genscript.sir.GenRunAllAdaptiveInstrumentedScript;
 import zuo.processor.genscript.sir.GenRunAllInstrumentedScript;
 import zuo.processor.genscript.sir.GenRunAllScript;
 import zuo.processor.genscript.sir.GenRunCoarseGrainedInstrumentScript;
@@ -26,9 +27,9 @@ import zuo.util.file.FileUtility;
 
 public class GenSirScriptClient {
 	final static String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/";
-	final static String subject = "gzip";
-	public final static String sourceName = "allfile";
-	final static String version = "v5";
+	final static String subject = "grep";
+	public final static String sourceName = "grep";
+	final static String version = "v1";
 	final String subVersion;
 	final static String inputScript = rootDir + subject + "/scripts/" + subject + ".sh";
 	final static String inputCompScript = rootDir + subject + "/scripts/" + subject + "Comp.sh";
@@ -161,7 +162,7 @@ public class GenSirScriptClient {
 //			SirSplitInputs split = new SirSplitInputs(inputsMapFile, gc.vexecuteDir, outCompFile);
 //			split.split();
 //			//collect the triggered faults
-//			if(split.getFailingTests().size() != 0){
+//			if(split.getFailingTests().size() > 1){
 //				subs.add(index);
 //			}
 			
@@ -172,8 +173,9 @@ public class GenSirScriptClient {
 //			gs = new GenRunCoarseGrainedInstrumentScript(subject, version, gc.subVersion, setEnv + export + gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 //			gs.genRunScript();
 			if(new File(gc.vexecuteDir).listFiles().length == 12 || new File(gc.vexecuteDir).listFiles().length == 11){
-				gs = new GenRunAdaptiveFineGrainedInstrumentScript(subject, version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.vexecuteDir + "methods");
+				gs = new GenRunAdaptiveFineGrainedInstrumentScript(subject, version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.vexecuteDir + "adaptive/methods");
 				gs.genRunScript();
+				subs.add(index);
 			}
 			
 		}
@@ -181,7 +183,11 @@ public class GenSirScriptClient {
 //		//generate run all instrumented triggered subversion scripts
 //		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
 //		ga.genRunAllScript();
-		
+
+		//generate run all instrumented triggered subversion scripts
+		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
+		ga.genRunAllScript();
+
 		
 	}
 	
