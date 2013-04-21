@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import zuo.processor.functionentry.client.Client;
 import zuo.processor.genscript.siemens.AbstractGenRunAllScript;
 import zuo.processor.genscript.siemens.AbstractGenRunScript;
 import zuo.processor.genscript.siemens.GenRunAdaptiveFineGrainedInstrumentScript;
@@ -116,7 +117,7 @@ public class GenSiemensScriptsClient {
 //			gs = new GenRunCoarseGrainedInstrumentScript(subject, gc.version, gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 //			gs.genRunScript();
 			if(new File(gc.vexecuteDir).listFiles().length == 11){
-				gs = new GenRunAdaptiveFineGrainedInstrumentScript(subject, gc.version, gc.vsourceDir, gc.vexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.vexecuteDir + "adaptive/methods");
+				gs = new GenRunAdaptiveFineGrainedInstrumentScript(subject, gc.version, gc.vsourceDir, gc.vexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.vexecuteDir + "adaptive/" + Client.METHODS);
 				gs.genRunScript();
 				subs.add(i);
 			}

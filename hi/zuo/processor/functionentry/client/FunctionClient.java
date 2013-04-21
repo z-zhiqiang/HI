@@ -49,6 +49,7 @@ public class FunctionClient {
 	
 	final double[][][][] result;
 	final double [][] wResult;
+	final int [] cResult;//{methods, sites, predicates}
 	
 	private PrintWriter writer;
 	final PrintWriter clientWriter;
@@ -66,6 +67,7 @@ public class FunctionClient {
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.wResult = new double[Score.values().length][5];
+		this.cResult = new int[3];
 		this.clientWriter = cWriter;
 		
 		this.methodsFile = methodsF;
@@ -95,6 +97,7 @@ public class FunctionClient {
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.wResult = new double[Score.values().length][5];
+		this.cResult = new int[3];
 		this.clientWriter = cWriter;
 		
 		this.methodsFile = rootDir + subject + "/versions/" + version + "/adaptive/methods";
@@ -129,6 +132,7 @@ public class FunctionClient {
 		
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.wResult = new double[Score.values().length][5];
+		this.cResult = new int[3];
 		this.clientWriter = cWriter;
 		
 		this.methodsFile = rootDir + subject + "/versions/" + version + "/adaptive/methods";
@@ -171,6 +175,9 @@ public class FunctionClient {
 		writer.println("\n");
 		writer.println("The general methods information are as follows:\n==============================================================");
 		writer.println(String.format("%-50s", "Total number of methods instrumented:") + sites.getNumFunctionEntrySites());
+		this.cResult[0] = sites.getNumFunctionEntrySites();
+		this.cResult[1] = sInfo.getNumPredicateSites();
+		this.cResult[2] = sInfo.getNumPredicateItems();
 		
 		//filter out methods within which no predicates are instrumented
 		filterFrequencyMap(processor.getFrequencyMap());
@@ -367,7 +374,7 @@ public class FunctionClient {
 		writer.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		clientWriter.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		printPercentage(list, score, order);
-		getMethodsList(list, score, order);
+//		getMethodsList(list, score, order);
 	}
 		
 	/**get the list of methods to be instrumented
@@ -731,5 +738,10 @@ public class FunctionClient {
 	public double[][] getwResult() {
 		return wResult;
 	}
+
+	public int[] getcResult() {
+		return cResult;
+	}
+	
 
 }

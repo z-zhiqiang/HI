@@ -115,12 +115,18 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 
 	@Override
 	protected void mkOutDir() {
-//		// make directory for outputs
-//		File fe = new File(executeDir + "adaptive/");
-//		if (!fe.exists()) {
-//			fe.mkdirs();
-//		}
-				
+		File od = new File(outputDir);
+		if(od.isDirectory() && od.exists()){
+			boolean flag = FileUtility.removeDirectory(od);
+			assert(flag == true);
+		}
+		
+		File td = new File(traceDir);
+		if(td.isDirectory() && td.exists()){
+			boolean flag = FileUtility.removeDirectory(td);
+			assert(flag == true);
+		}
+		
 		for(String method: methods){
 			//make directory for outputs
 			File fo = new File(outputDir + method + "/");

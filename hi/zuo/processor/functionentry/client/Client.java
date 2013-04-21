@@ -24,8 +24,10 @@ import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.client.FunctionClient.Order;
 import zuo.processor.functionentry.client.FunctionClient.Score;
+import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class Client {
+	public static final String METHODS = "methods";
 	final int runs;
 	final String rootDir;
 	final String subject;
@@ -33,6 +35,7 @@ public class Client {
 	
 	final Map<String, double[][][][]> results;
 	final Map<String, double[][]> wResults;
+	final Map<String, int[]> cResults;
 	
 	public Client(int runs, String rootDir, String subject, String consoleFolder) {
 		this.runs = runs;
@@ -41,6 +44,7 @@ public class Client {
 		this.consoleFolder = consoleFolder;
 		this.results = new HashMap<String, double[][][][]>();
 		this.wResults = new HashMap<String, double[][]>();
+		this.cResults = new HashMap<String, int[]>();
 	}
 
 	/**
@@ -113,9 +117,11 @@ public class Client {
 					rootDir + subject + "/traces/" + vi +"/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
 			FunctionClient client = new FunctionClient(runs, new File(version.getAbsolutePath(), vi + "_c.sites"), 
 					rootDir + subject + "/traces/" + vi + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", 
-					sInfo, c.getPredictorEntryList(), cWriter, version.getAbsolutePath() + "/adaptive/methods");
+					sInfo, c.getPredictorEntryList(), cWriter, version.getAbsolutePath() + "/adaptive/" + METHODS);
+			FunctionEntrySites sites = new FunctionEntrySites(client.getSitesFile());
 			results.put(vi, client.getResult());
 			wResults.put(vi, client.getwResult());
+			cResults.put(vi, client.getcResult());
 			
 //			for (int i = 0; i < results.get(vi).length; i++) {
 //				for (int j = 0; j < results.get(vi)[i].length; j++) {
@@ -178,9 +184,10 @@ public class Client {
 						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
 				FunctionClient client = new FunctionClient(runs, new File(subversion.getAbsolutePath(), vi + "_c.sites"), 
 						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", 
-						sInfo, c.getPredictorEntryList(), cWriter, subversion.getAbsolutePath() + "/adaptive/methods");
+						sInfo, c.getPredictorEntryList(), cWriter, subversion.getAbsolutePath() + "/adaptive/" + METHODS);
 				results.put(vi, client.getResult());
 				wResults.put(vi, client.getwResult());
+				cResults.put(vi, client.getcResult());
 				
 //				for (int i = 0; i < results.get(vi).length; i++) {
 //					for (int j = 0; j < results.get(vi)[i].length; j++) {
@@ -223,22 +230,32 @@ public class Client {
 			private double getSortValue(Entry<String, double[][][][]> entry) {
 				// TODO Auto-generated method stub
 				double[][][][] array = entry.getValue();
-				return array[1][0][1][0] + array[3][0][1][0];
+				return array[3][1][1][0];
 			}});
 		
 		Set<String> versions = new LinkedHashSet<String>();
 		double[][][][] result = new double[Score.values().length][Order.values().length][2][5];
 		double[][] wResult = new double[Score.values().length][5];
+		int[] cResult = new int[3];
 		for(int i = 0; i < rList.size(); i++){
 			Entry<String, double[][][][]> entry = (Entry<String, double[][][][]>) rList.get(i);
 			versions.add(entry.getKey());
 			assert(i + 1 == versions.size());
 			accumulateResult(result, entry.getValue());
 			accumulateWResult(wResult, wResults.get(entry.getKey()));
-			print(versions, result, wResult, cWriter);
+			accumulateCResult(cResult, cResults.get(entry.getKey()));
+			print(versions, result, wResult, cResult, cWriter);
 		}
 	}
 	
+
+	private void accumulateCResult(int[] cResult, int[] is) {
+		// TODO Auto-generated method stub
+		assert(cResult.length == is.length);
+		for (int i = 0; i < cResult.length; i++) {
+			cResult[i] += is[i];
+		}
+	}
 
 	private void accumulateWResult(double[][] wResult, double[][] ds) {
 		// TODO Auto-generated method stub
@@ -250,10 +267,22 @@ public class Client {
 		}
 	}
 
-	private void print(Set<String> versions, double[][][][] result, double[][] wResult, PrintWriter cWriter) {
+	private void print(Set<String> versions, double[][][][] result, double[][] wResult, int[] cResult, PrintWriter cWriter) {
 		// TODO Auto-generated method stub
 		System.out.println(versions.size() + "\n" + subject + ": " + versions + "\n==============================================================");
 		cWriter.println(versions.size() + "\n" + subject + ": " + versions + "\n==============================================================");
+		System.out.println("On average:\t" 
+				+ String.format("%-20s", "methods:" + cResult[0] / versions.size())
+				+ String.format("%-20s", "sites:" + cResult[1] / versions.size())
+				+ String.format("%-20s", "predicates:" + cResult[2] / versions.size())
+				);
+		System.out.println("\n==============================================================");
+		cWriter.println("On average:\t" 
+				+ String.format("%-20s", "methods:" + cResult[0] / versions.size())
+				+ String.format("%-20s", "sites:" + cResult[1] / versions.size())
+				+ String.format("%-20s", "predicates:" + cResult[2] / versions.size())
+				);
+		cWriter.println("\n==============================================================");
 		for (int m = 0; m < result.length; m++) {
 			for (int n = 0; n < result[m].length; n++) {
 				String mode = "<" + Score.values()[m] + "," + Order.values()[n] + ">";
@@ -326,50 +355,54 @@ public class Client {
 	}
 
 	public static void main(String[] args) {
-		String[][] argvs = {
-				{"809", "grep"},
-				{"213", "gzip"},
-				{"363", "sed"},
-				{"13585", "space"},
-				{"1608", "tcas"},
-				{"1052", "totinfo"},
-				{"5542", "replace"},
-				{"4130", "printtokens"},
-				{"4115", "printtokens2"},
-				{"2650", "schedule"},
-				{"2710", "schedule2"}
-		};
-		
-		if(args.length != 5 && args.length != 3){
-			System.out.println("The characteristics of subjects are as follows:");
-			for(int i = 0; i < argvs.length; i++){
-				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
-			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) numTests rootDir(including '/') subject consoleDir(excluding '/') " +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') consoleDir(excluding '/')");
-			return;
-		}
-		
-		if(args.length == 5){
-			Client c = new Client(Integer.parseInt(args[1]), args[2], args[3], args[4] + "/");
-			if(Integer.parseInt(args[0]) == 0){
-				c.computeSiemensResults();
-			}
-			else if(Integer.parseInt(args[0]) == 1){
-				c.computeSirResults();
-			}
-		}
-		else if(args.length == 3){
-			assert(Integer.parseInt(args[0]) == 0);
-			for(int i = 4; i < argvs.length; i++){
-				Client c = new Client(Integer.parseInt(argvs[i][0]), args[1], argvs[i][1], args[2] + "/" + argvs[i][1] + "/");
-				c.computeSiemensResults();
-			}
-		}
-
-//		Client cc = new Client(213, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "gzip", "/home/sunzzq/Console/gzip/");
-//		cc.computeSirResults();	
-		
+//		String[][] argvs = {
+//				{"809", "grep"},
+//				{"213", "gzip"},
+//				{"363", "sed"},
+//				{"13585", "space"},
+//				{"1608", "tcas"},
+//				{"1052", "totinfo"},
+//				{"5542", "replace"},
+//				{"4130", "printtokens"},
+//				{"4115", "printtokens2"},
+//				{"2650", "schedule"},
+//				{"2710", "schedule2"}
+//		};
+//		
+//		if(args.length != 5 && args.length != 3){
+//			System.out.println("The characteristics of subjects are as follows:");
+//			for(int i = 0; i < argvs.length; i++){
+//				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
+//			}
+//			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) numTests rootDir(including '/') subject consoleDir(excluding '/') " +
+//					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') consoleDir(excluding '/')");
+//			return;
+//		}
+//		
+//		if(args.length == 5){
+//			Client c = new Client(Integer.parseInt(args[1]), args[2], args[3], args[4] + "/");
+//			if(Integer.parseInt(args[0]) == 0){
+//				c.computeSiemensResults();
+//			}
+//			else if(Integer.parseInt(args[0]) == 1){
+//				c.computeSirResults();
+//			}
+//		}
+//		else if(args.length == 3){
+//			assert(Integer.parseInt(args[0]) == 0);
+//			for(int i = 4; i < argvs.length; i++){
+//				Client c = new Client(Integer.parseInt(argvs[i][0]), args[1], argvs[i][1], args[2] + "/" + argvs[i][1] + "/");
+//				c.computeSiemensResults();
+//			}
+//		}
+//
+		Client cc;
+		cc = new Client(213, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "gzip", "/home/sunzzq/Console/gzip/");
+		cc.computeSirResults();	
+		cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed/");
+		cc.computeSirResults();	
+//		cc = new Client(5434, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "space", "/home/sunzzq/Console/space2/");
+//		cc.computeSiemensResults();	
 	}
 	
 }

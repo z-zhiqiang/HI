@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import sir.mts.MakeTestScript;
+import zuo.processor.functionentry.client.Client;
 import zuo.processor.genscript.sir.AbstractGenRunAllScript;
 import zuo.processor.genscript.sir.AbstractGenRunScript;
 import zuo.processor.genscript.sir.GenRunAdaptiveFineGrainedInstrumentScript;
@@ -173,7 +174,7 @@ public class GenSirScriptClient {
 //			gs = new GenRunCoarseGrainedInstrumentScript(subject, version, gc.subVersion, setEnv + export + gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 //			gs.genRunScript();
 			if(new File(gc.vexecuteDir).listFiles().length == 12 || new File(gc.vexecuteDir).listFiles().length == 11){
-				gs = new GenRunAdaptiveFineGrainedInstrumentScript(subject, version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.vexecuteDir + "adaptive/methods");
+				gs = new GenRunAdaptiveFineGrainedInstrumentScript(subject, version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.vexecuteDir + "adaptive/" + Client.METHODS);
 				gs.genRunScript();
 				subs.add(index);
 			}
