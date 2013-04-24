@@ -141,20 +141,20 @@ public class PredicateProfile {
 					throw new RuntimeException();
 				}
 
-				int negativeInfinite = Integer.parseInt(counters[0]);
-				int negativeNormalized = Integer.parseInt(counters[1]);
-				int negativeDenormalized = Integer.parseInt(counters[2]);
-				int negativeZero = Integer.parseInt(counters[3]);
-				int nan = Integer.parseInt(counters[4]);
-				int positiveZero = Integer.parseInt(counters[5]);
-				int positiveDenormalized = Integer.parseInt(counters[6]);
-				int positiveNormalized = Integer.parseInt(counters[7]);
-				int positiveInfinite = Integer.parseInt(counters[8]);
-
-				predicateSites.add(new FloatKindPredicateSite(allo.allocateID(), sites.getFloatKindSite(unit, ++sequence),
-						negativeInfinite, negativeNormalized, negativeDenormalized,
-						negativeZero, nan, positiveZero, positiveDenormalized,
-						positiveNormalized, positiveInfinite));
+//				int negativeInfinite = Integer.parseInt(counters[0]);
+//				int negativeNormalized = Integer.parseInt(counters[1]);
+//				int negativeDenormalized = Integer.parseInt(counters[2]);
+//				int negativeZero = Integer.parseInt(counters[3]);
+//				int nan = Integer.parseInt(counters[4]);
+//				int positiveZero = Integer.parseInt(counters[5]);
+//				int positiveDenormalized = Integer.parseInt(counters[6]);
+//				int positiveNormalized = Integer.parseInt(counters[7]);
+//				int positiveInfinite = Integer.parseInt(counters[8]);
+//
+//				predicateSites.add(new FloatKindPredicateSite(allo.allocateID(), sites.getFloatKindSite(unit, ++sequence),
+//						negativeInfinite, negativeNormalized, negativeDenormalized,
+//						negativeZero, nan, positiveZero, positiveDenormalized,
+//						positiveNormalized, positiveInfinite));
 			}
 		} catch (IOException e) {
 			throw new RuntimeException();

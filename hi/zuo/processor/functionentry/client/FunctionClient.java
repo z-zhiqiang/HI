@@ -30,7 +30,7 @@ public class FunctionClient {
 	public static final int TOP_K = 10;
 
 	static enum Score{
-		NEGATIVE, H_1, F_1, H_2, PRECISION, POSITIVE
+		RANDOM, NEGATIVE, H_1, F_1, H_2, PRECISION, POSITIVE
 	}
 	
 	static enum Order{
@@ -293,6 +293,7 @@ public class FunctionClient {
 				}
 			}
 			break;
+		case RANDOM:
 		case POSITIVE:
 			for(FunctionEntrySite site: frequencyMap.keySet()){
 				String method = site.getFunctionName();
@@ -374,7 +375,7 @@ public class FunctionClient {
 		writer.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		clientWriter.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		printPercentage(list, score, order);
-//		getMethodsList(list, score, order);
+		getMethodsList(list, score, order);
 	}
 		
 	/**get the list of methods to be instrumented
@@ -428,6 +429,8 @@ public class FunctionClient {
 		// TODO Auto-generated method stub
 		int r = 0;
 		switch (score){
+		case RANDOM:
+			break;
 		case NEGATIVE:
 			r = new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getNegative())
 					.compareTo(new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getNegative()));
