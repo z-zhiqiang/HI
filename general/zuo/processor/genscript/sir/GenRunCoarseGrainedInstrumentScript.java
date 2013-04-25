@@ -27,10 +27,9 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 	public void genRunScript() {
 		StringBuffer code = new StringBuffer();
 		code.append(compileCommand + "\n");
-		code.append(startTimeCommand + "\n");
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
-		code.append("export OUTPUTSDIR=" + outputDir + "\n");
+		code.append(startTimeCommand + "\n");
 		
 		for (Iterator it = failingTests.iterator(); it.hasNext();) {
 			int index = (Integer) it.next();
@@ -48,7 +47,9 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 			code.append("\n");
 		}
 		
-		code.append(endTimeCommand + " >& " + outputDir + "time");
+		code.append(endTimeCommand + " >& " + outputDir + "time\n");
+		code.append("mv ../outputs/* " + outputDir + "\n");
+		code.append("\n\n");
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_cg.sh");
 	}
 

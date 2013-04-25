@@ -74,16 +74,15 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 					+ sourceDir + GenSirScriptClient.sourceName + ".c" 
 					+ " $COMPILE_PARAMETERS"
 //					+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
-					+ " -o " + executeDir + "adaptive/" + subVersion + "_finst__" + method + ".exe"
-					+ " -I" + sourceDir
-					+ " -lm"
+					+ " -o " + executeDir + subVersion + "_finst__" + method + ".exe"
+//					+ " -I" + sourceDir
+//					+ " -lm"
 					;
 			
 			code.append(instrumentCommand + "\n");
-			code.append(startTimeCommand + "\n");
 			code.append("echo script: " + subVersion + "\n");
-			code.append("export VERSIONSDIR=" + executeDir + "adaptive/\n");
-			code.append("export OUTPUTSDIR=" + outputDir + "\n");
+			code.append("export VERSIONSDIR=" + executeDir + "\n");
+			code.append(startTimeCommand + "\n");
 			
 			for (Iterator it = failingTests.iterator(); it.hasNext();) {
 				int index = (Integer) it.next();

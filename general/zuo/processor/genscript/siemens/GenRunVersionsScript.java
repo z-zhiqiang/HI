@@ -17,10 +17,10 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 	public void genRunScript() {
 		StringBuffer code = new StringBuffer();
 		code.append(compileCommand + "\n");// compiling
-		code.append(startTimeCommand + "\n");
 		code.append("echo script: " + version + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
+		code.append(startTimeCommand + "\n");
 		
 		for (Iterator it = inputsMap.keySet().iterator(); it.hasNext();) {
 			int index = (Integer) it.next();

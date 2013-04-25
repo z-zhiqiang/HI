@@ -71,16 +71,16 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			instrumentCommand = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=float-kinds -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
 					+ "-finclude-function=" + method + " -fexclude-function=* "
 					+ sourceDir + subject + ".c" 
-					+ " -o " + executeDir + "adaptive/" + version + "_finst__" + method + ".exe"
+					+ " -o " + executeDir + version + "_finst__" + method + ".exe"
 					+ " -I" + sourceDir
 					+ " -lm"
 					;
 			
 			code.append(instrumentCommand + "\n");
-			code.append(startTimeCommand + "\n");
 			code.append("echo script: " + version + "\n");
-			code.append("export VERSIONSDIR=" + executeDir + "adaptive/\n");
+			code.append("export VERSIONSDIR=" + executeDir + "\n");
 			code.append("export OUTPUTSDIR=" + outputDir + method + "/\n");
+			code.append(startTimeCommand + "\n");
 			
 			for (Iterator it = failingTests.iterator(); it.hasNext();) {
 				int index = (Integer) it.next();

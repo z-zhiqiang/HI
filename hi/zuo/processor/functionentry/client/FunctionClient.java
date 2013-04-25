@@ -29,11 +29,11 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
 public class FunctionClient {
 	public static final int TOP_K = 10;
 
-	static enum Score{
+	public static enum Score{
 		RANDOM, NEGATIVE, H_1, F_1, H_2, PRECISION, POSITIVE
 	}
 	
-	static enum Order{
+	public static enum Order{
 		RANDOM, LESS_FIRST, MORE_FIRST, BEST, WORST, //CLOSER_FIRST 
 	}
 	
@@ -54,8 +54,7 @@ public class FunctionClient {
 	private PrintWriter writer;
 	final PrintWriter clientWriter;
 	
-	final String methodsFile;
-	List<String> methods;
+	final String methodsFileDir;
 	
 	public FunctionClient(int runs, File sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter, String methodsF) {
 		this.runs = runs;
@@ -70,8 +69,7 @@ public class FunctionClient {
 		this.cResult = new int[3];
 		this.clientWriter = cWriter;
 		
-		this.methodsFile = methodsF;
-		this.methods = new ArrayList<String>();
+		this.methodsFileDir = methodsF;
 		
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
@@ -100,8 +98,7 @@ public class FunctionClient {
 		this.cResult = new int[3];
 		this.clientWriter = cWriter;
 		
-		this.methodsFile = rootDir + subject + "/versions/" + version + "/adaptive/methods";
-		this.methods = new ArrayList<String>();
+		this.methodsFileDir = rootDir + subject + "/versions/" + version + "/adaptive/";
 		
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
@@ -135,8 +132,7 @@ public class FunctionClient {
 		this.cResult = new int[3];
 		this.clientWriter = cWriter;
 		
-		this.methodsFile = rootDir + subject + "/versions/" + version + "/adaptive/methods";
-		this.methods = new ArrayList<String>();
+		this.methodsFileDir = rootDir + subject + "/versions/" + version + "/adaptive/";
 		
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
@@ -385,7 +381,9 @@ public class FunctionClient {
 	 */
 	private void getMethodsList(List list, Score score, Order order){	
 		//get the methods list to be instrumented
-		if(score == Score.H_2 && order == Order.LESS_FIRST){
+		List<String> methods = new ArrayList<String>();
+		
+		if(order == Order.LESS_FIRST){
 			for(int i = 0; i < list.size(); i++){
 				Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
 				String method = entry.getKey().getFunctionName();
@@ -397,12 +395,12 @@ public class FunctionClient {
 			
 			PrintWriter out = null;
 			try{
-				File fd = new File(this.methodsFile).getParentFile();
+				File fd = new File(this.methodsFileDir).getParentFile();
 				if (!fd.exists()) {
 					fd.mkdirs();
 				}
 				//write the passing inputs
-				out = new PrintWriter(new BufferedWriter(new FileWriter(this.methodsFile)));
+				out = new PrintWriter(new BufferedWriter(new FileWriter(this.methodsFileDir + score)));
 				for(String method: methods){
 					out.println(method);
 				}

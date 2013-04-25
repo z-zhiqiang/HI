@@ -27,7 +27,6 @@ import zuo.processor.functionentry.client.FunctionClient.Score;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class Client {
-	public static final String METHODS = "methods";
 	final int runs;
 	final String rootDir;
 	final String subject;
@@ -98,7 +97,7 @@ public class Client {
 			@Override
 			public boolean accept(File dir, String name) {
 				// TODO Auto-generated method stub
-				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == 10 || new File(dir, name).listFiles().length == 11);
+				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == 12);
 			}});
 		Arrays.sort(versions, new Comparator(){
 			@Override
@@ -117,7 +116,7 @@ public class Client {
 					rootDir + subject + "/traces/" + vi +"/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
 			FunctionClient client = new FunctionClient(runs, new File(version.getAbsolutePath(), vi + "_c.sites"), 
 					rootDir + subject + "/traces/" + vi + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", 
-					sInfo, c.getPredictorEntryList(), cWriter, version.getAbsolutePath() + "/adaptive/" + METHODS);
+					sInfo, c.getPredictorEntryList(), cWriter, version.getAbsolutePath() + "/adaptive/");
 			FunctionEntrySites sites = new FunctionEntrySites(client.getSitesFile());
 			results.put(vi, client.getResult());
 			wResults.put(vi, client.getwResult());
@@ -165,7 +164,7 @@ public class Client {
 				@Override
 				public boolean accept(File dir, String name) {
 					// TODO Auto-generated method stub
-					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 10 || new File(dir, name).listFiles().length == 11 || new File(dir, name).listFiles().length == 12);
+					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 13);
 				}});
 			Arrays.sort(subversions, new Comparator(){
 				@Override
@@ -184,7 +183,7 @@ public class Client {
 						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
 				FunctionClient client = new FunctionClient(runs, new File(subversion.getAbsolutePath(), vi + "_c.sites"), 
 						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained", consoleFolder + subject + "_" + vi + "_function.out", 
-						sInfo, c.getPredictorEntryList(), cWriter, subversion.getAbsolutePath() + "/adaptive/" + METHODS);
+						sInfo, c.getPredictorEntryList(), cWriter, subversion.getAbsolutePath() + "/adaptive/");
 				results.put(vi, client.getResult());
 				wResults.put(vi, client.getwResult());
 				cResults.put(vi, client.getcResult());
@@ -355,50 +354,50 @@ public class Client {
 	}
 
 	public static void main(String[] args) {
-		String[][] argvs = {
-				{"809", "grep"},
-				{"213", "gzip"},
-				{"363", "sed"},
-				{"13585", "space"},
-				{"1608", "tcas"},
-				{"1052", "totinfo"},
-				{"5542", "replace"},
-				{"4130", "printtokens"},
-				{"4115", "printtokens2"},
-				{"2650", "schedule"},
-				{"2710", "schedule2"}
-		};
-		
-		if(args.length != 5 && args.length != 3){
-			System.out.println("The characteristics of subjects are as follows:");
-			for(int i = 0; i < argvs.length; i++){
-				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
-			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) numTests rootDir(including '/') subject consoleDir(excluding '/') " +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') consoleDir(excluding '/')");
-			return;
-		}
-		
-		if(args.length == 5){
-			Client c = new Client(Integer.parseInt(args[1]), args[2], args[3], args[4] + "/");
-			if(Integer.parseInt(args[0]) == 0){
-				c.computeSiemensResults();
-			}
-			else if(Integer.parseInt(args[0]) == 1){
-				c.computeSirResults();
-			}
-		}
-		else if(args.length == 3){
-			assert(Integer.parseInt(args[0]) == 0);
-			for(int i = 4; i < argvs.length; i++){
-				Client c = new Client(Integer.parseInt(argvs[i][0]), args[1], argvs[i][1], args[2] + "/" + argvs[i][1] + "/");
-				c.computeSiemensResults();
-			}
-		}
-
+//		String[][] argvs = {
+//				{"809", "grep"},
+//				{"213", "gzip"},
+//				{"363", "sed"},
+//				{"13585", "space"},
+//				{"1608", "tcas"},
+//				{"1052", "totinfo"},
+//				{"5542", "replace"},
+//				{"4130", "printtokens"},
+//				{"4115", "printtokens2"},
+//				{"2650", "schedule"},
+//				{"2710", "schedule2"}
+//		};
+//		
+//		if(args.length != 5 && args.length != 3){
+//			System.out.println("The characteristics of subjects are as follows:");
+//			for(int i = 0; i < argvs.length; i++){
+//				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
+//			}
+//			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) numTests rootDir(including '/') subject consoleDir(excluding '/') " +
+//					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') consoleDir(excluding '/')");
+//			return;
+//		}
+//		
+//		if(args.length == 5){
+//			Client c = new Client(Integer.parseInt(args[1]), args[2], args[3], args[4] + "/");
+//			if(Integer.parseInt(args[0]) == 0){
+//				c.computeSiemensResults();
+//			}
+//			else if(Integer.parseInt(args[0]) == 1){
+//				c.computeSirResults();
+//			}
+//		}
+//		else if(args.length == 3){
+//			assert(Integer.parseInt(args[0]) == 0);
+//			for(int i = 4; i < argvs.length; i++){
+//				Client c = new Client(Integer.parseInt(argvs[i][0]), args[1], argvs[i][1], args[2] + "/" + argvs[i][1] + "/");
+//				c.computeSiemensResults();
+//			}
+//		}
+//
 		Client cc;
-		cc = new Client(213, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "gzip", "/home/sunzzq/Console/gzip1/");
-		cc.computeSirResults();	
+//		cc = new Client(213, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "gzip", "/home/sunzzq/Console/gzip1/");
+//		cc.computeSirResults();	
 		cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed1/");
 		cc.computeSirResults();	
 //		cc = new Client(5434, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "space", "/home/sunzzq/Console/space2/");

@@ -7,35 +7,43 @@ import java.util.List;
 import zuo.util.file.FileUtility;
 
 
-public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript implements GenRunInstrumentScript {
+public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScript implements GenRunInstrumentScript {
 	final String traceDir;
 	private final List<Integer> failingTests;
 	private final List<Integer> passingTests;
+	final int sample;
 	
-	
-	public GenRunFineGrainedInstrumentScript(String sub, String ver, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing) {
-		super(sub, ver, cc, sD, eD, oD, scD);
-		this.traceDir = tD;
-		this.mkOutDir();
+	public GenRunSampledFineGrainedInstrumentScript(String sub, String ver, String sD, String eD, String oD, String scD, String tD, String failing, String passing, int sample) {
+		super(sub, ver, null, sD, eD, oD + sample + "/", scD);
+		this.traceDir = tD + sample + "/";
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
+		this.sample = sample;
+		this.mkOutDir();
 	}
 
 
 	@Override
 	public void genRunScript() {
+		String instrumentCommand = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=float-kinds -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed "
+				+ sourceDir + subject + ".c" 
+				+ " -o " + executeDir + version + "_finst__" + sample + ".exe"
+				+ " -I" + sourceDir
+				+ " -lm";
+		
 		StringBuffer code = new StringBuffer();
-		code.append(compileCommand + "\n");
-		code.append(startTimeCommand + "\n");
+		code.append(instrumentCommand + "\n");
 		code.append("echo script: " + version + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
+		code.append(startTimeCommand + "\n");
 		
 		for (Iterator it = failingTests.iterator(); it.hasNext();) {
 			int index = (Integer) it.next();
 			code.append(runinfo + index + "\"\n");// running info
+			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
 			code.append("export SAMPLER_FILE=" + traceDir + "o" + index + ".fprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_finst.exe ");//executables
+			code.append("$VERSIONSDIR/" + version + "_finst__" + sample + ".exe ");//executables
 			code.append(inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
 		}
@@ -43,19 +51,25 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 		for (Iterator it = passingTests.iterator(); it.hasNext();) {
 			int index = (Integer) it.next();
 			code.append(runinfo + index + "\"\n");// running info
+			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
 			code.append("export SAMPLER_FILE=" + traceDir + "o" + index + ".pprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_finst.exe ");//executables
+			code.append("$VERSIONSDIR/" + version + "_finst__" + sample + ".exe ");//executables
 			code.append(inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
 		}
 		
 		code.append(endTimeCommand + " >& " + outputDir + "time");
-		printToFile(code.toString(), scriptDir, version + "_fg.sh");
+		printToFile(code.toString(), scriptDir, version + "_fg_s" + sample + ".sh");
 	}
 
 
 	@Override
 	protected void mkOutDir() {
+		File fe = new File(executeDir);
+		if(!fe.exists()){
+			fe.mkdirs();
+		}
+		
 		//make directory for outputs
 		File fo = new File(outputDir);
 		if(!fo.exists()){

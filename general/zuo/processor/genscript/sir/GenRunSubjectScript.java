@@ -21,7 +21,6 @@ public class GenRunSubjectScript extends AbstractGenRunScript {
 		code.append(compileCommand + "\n"); // compile subject program
 		code.append("echo script: " + subject + "_" + version + "\n");
 		code.append("export SUBJECTDIR=" + executeDir + "\n");
-		code.append("export OUTPUTSDIR=" + outputDir + "\n\n");
 		
 		for (Iterator it = inputsMap.keySet().iterator(); it.hasNext();) {
 			int index = (Integer) it.next();
@@ -29,7 +28,8 @@ public class GenRunSubjectScript extends AbstractGenRunScript {
 			code.append(inputsMap.get(index).replace(EXE, "$SUBJECTDIR/" + version + ".exe "));
 			code.append("\n");
 		}
-		
+		code.append("mv ../outputs/* " + outputDir + "\n");
+		code.append("\n\n");
 		printToFile(code.toString(), scriptDir, version + ".sh");
 		
 	}
