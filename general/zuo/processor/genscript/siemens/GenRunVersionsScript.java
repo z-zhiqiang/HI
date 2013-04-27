@@ -30,7 +30,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 			code.append(" >& $OUTPUTSDIR/o" + index + ".out\n");//output file
 		}
 		
-		code.append(endTimeCommand + " >& " + outputDir + "time");
+		code.append(endTimeCommand + " >& $OUTPUTSDIR/time\n");
 		printToFile(code.toString(), scriptDir, version + ".sh");
 		
 	}

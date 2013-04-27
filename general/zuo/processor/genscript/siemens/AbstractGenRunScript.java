@@ -52,7 +52,7 @@ public abstract class AbstractGenRunScript {
 			if(!fd.exists()){
 				fd.mkdir();
 			}
-			pout = new PrintWriter(new BufferedWriter(new FileWriter(folder + "/" + file, false)));
+			pout = new PrintWriter(new BufferedWriter(new FileWriter(folder + "/" + file, true)));
 			pout.print(scr);
 		}
 		catch(IOException e){

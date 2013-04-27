@@ -30,12 +30,13 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		code.append("echo script: " + version + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
+		code.append("export TRACESDIR=" + traceDir + "\n");
 		code.append(startTimeCommand + "\n");
 		
 		for (Iterator it = failingTests.iterator(); it.hasNext();) {
 			int index = (Integer) it.next();
 			code.append(runinfo + index + "\"\n");// running info
-			code.append("export SAMPLER_FILE=" + traceDir + "o" + index + ".fprofile\n");
+			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
 			code.append("$VERSIONSDIR/" + version + "_cinst.exe ");//executables
 			code.append(inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
@@ -44,13 +45,14 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		for (int i = 0; i < passingTests.size(); i++) {
 			int index = passingTests.get(i);
 			code.append(runinfo + index + "\"\n");// running info
-			code.append("export SAMPLER_FILE=" + traceDir + "o" + index + ".pprofile\n");
+			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
 			code.append("$VERSIONSDIR/" + version + "_cinst.exe ");//executables
 			code.append(inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
 		}
 		
-		code.append(endTimeCommand + " >& " + outputDir + "time");
+		code.append(endTimeCommand + " >& $OUTPUTSDIR/time\n");
+		code.append("rm $OUTPUTSDIR/o*out\n");
 		printToFile(code.toString(), scriptDir, version + "_cg.sh");
 	}
 

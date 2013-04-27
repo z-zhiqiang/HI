@@ -29,7 +29,6 @@ public class GenRunSubjectScript extends AbstractGenRunScript {
 			code.append("\n");
 		}
 		code.append("mv ../outputs/* " + outputDir + "\n");
-		code.append("\n\n");
 		printToFile(code.toString(), scriptDir, version + ".sh");
 		
 	}
