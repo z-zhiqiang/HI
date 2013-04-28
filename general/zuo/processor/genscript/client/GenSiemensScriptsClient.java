@@ -24,7 +24,7 @@ import zuo.util.file.FileUtility;
 
 
 public class GenSiemensScriptsClient {
-	final static String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/";
+	public final static String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/";
 	final static String subject = "space";
 	final static int vs = 38;
 	final String version;
@@ -70,11 +70,11 @@ public class GenSiemensScriptsClient {
 		voutputDir = rootDir + subject + "/outputs/versions/" + version + "/outputs/";
 		vfoutputDir = rootDir + subject + "/outputs/versions/" + version + "/fine-grained/";
 		vsfoutputDir = rootDir + subject + "/outputs/versions/" + version + "/fine-grained-sampled-";
-		vafoutputDir = rootDir + subject + "/outputs/versions/" + version + "/fine-grained-adaptive/";
+		vafoutputDir = rootDir + subject + "/outputs/versions/" + version + "/fine-grained-adaptive-";
 		vcoutputDir = rootDir + subject + "/outputs/versions/" + version + "/coarse-grained/";
 		vftraceDir = rootDir + subject + "/traces/" + version + "/fine-grained/";
 		vsftraceDir = rootDir + subject + "/traces/" + version + "/fine-grained-sampled-";
-		vaftraceDir = rootDir + subject + "/traces/" + version + "/fine-grained-adaptive/";
+		vaftraceDir = rootDir + subject + "/traces/" + version + "/fine-grained-adaptive-";
 		vctraceDir = rootDir + subject + "/traces/" + version + "/coarse-grained/";
 		
 		

@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import zuo.processor.functionentry.client.FunctionClient.Score;
+import zuo.processor.genscript.client.GenSiemensScriptsClient;
 import zuo.processor.genscript.client.GenSirScriptClient;
 import zuo.util.file.FileUtility;
 
@@ -123,6 +124,17 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 
 	@Override
 	protected void mkOutDir() {
+		File aod = new File(GenSiemensScriptsClient.rootDir + subject + "/outputs/versions/" + version + "/fine-grained-adaptive/");
+		if(aod.isDirectory() && aod.exists()){
+			boolean flag = FileUtility.removeDirectory(aod);
+			assert(flag == true);
+		}
+		File atd = new File(GenSiemensScriptsClient.rootDir + subject + "/traces/" + version + "/fine-grained-adaptive/");
+		if(atd.isDirectory() && atd.exists()){
+			boolean flag = FileUtility.removeDirectory(atd);
+			assert(flag == true);
+		}
+		
 		File od = new File(outputDir);
 		if(od.isDirectory() && od.exists()){
 			boolean flag = FileUtility.removeDirectory(od);
