@@ -52,8 +52,8 @@ public class BoundCalculator {
 	
 	public int computeCBIBound(double threshold){
 		if(DH(2, P) <= 0){
-//			throw new RuntimeException("abnormal case 1");
-			return 2;
+			throw new RuntimeException("abnormal case 1");
+//			return 2;
 		} 
 		else {
 			double h_1_2 = SelectingProcessor.H_1(2, P, F);

@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +28,8 @@ public class CBIClient {
 	final File sitesFile;
 	final String profilesFile;
 	final String consoleFile;
-	List<Map.Entry<PredicateItem, Double>> predictorEntryList;
-    Set<String> methods;
+	private List<Map.Entry<PredicateItem, Double>> predictorEntryList;
+	private Map<String, Double> methodsMap;
 	
 	public CBIClient(int runs, int k, File sitesFile, String profilesFile, String consoleF) {
 		this.runs = runs;
@@ -83,7 +84,7 @@ public class CBIClient {
 
 	public void printTopKPredictors(Map<PredicateItem, Double> predictors, int k, PrintWriter writer){
 		Set<String> topMethods = new LinkedHashSet<String>();
-		Set<String> methods = new LinkedHashSet<String>();
+		Map<String, Double> methodsM = new HashMap<String, Double>();
 		List list = new ArrayList(predictors.entrySet());
 		Collections.sort(list, new Comparator(){
 			@Override
@@ -98,6 +99,7 @@ public class CBIClient {
 		for (int i = 0; i < list.size(); i++) {
 			Map.Entry<PredicateItem, Double> entry = (Map.Entry<PredicateItem, Double>) list.get(i);
 			String method = entry.getKey().getSite().getFunctionName();
+			double value = entry.getValue();
 			
 			if (i < k) {
 				//collect the method
@@ -109,16 +111,22 @@ public class CBIClient {
 				writer.println();
 			}
 			
-			if(!methods.contains(method)){
-				methods.add(method);
+			if(methodsM.containsKey(method)){
+				if(value > methodsM.get(method)){
+					throw new RuntimeException("Error");
+//					methodsM.put(method, value);
+				}
+			}
+			else{
+				methodsM.put(method, value);
 			}
 		}
 		this.predictorEntryList = Collections.unmodifiableList(list);
-	    this.methods = Collections.unmodifiableSet(methods);
-	    assert(methods.size() == new SitesInfo(new InstrumentationSites(sitesFile)).getMap().size());
+		this.methodsMap = Collections.unmodifiableMap(methodsM);
+	    assert(methodsM.size() == new SitesInfo(new InstrumentationSites(sitesFile)).getMap().size());
 		
 		writer.println();
-		writer.println("The corresponding top " + topMethods.size() + " of " + methods.size() + " methods are as follows:\n--------------------------------------------------------------");
+		writer.println("The corresponding top " + topMethods.size() + " of " + methodsM.size() + " methods are as follows:\n--------------------------------------------------------------");
 		writer.println(topMethods.toString());
 	}
 
@@ -138,12 +146,10 @@ public class CBIClient {
 		}
 	}
 	
-	public Set<String> getMethods() {
-		return methods;
-	}
 
-	public void setMethods(Set<String> methods) {
-		this.methods = methods;
+	
+	public Map<String, Double> getMethodsMap() {
+		return methodsMap;
 	}
 
 	public int getRuns() {

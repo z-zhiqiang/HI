@@ -46,6 +46,7 @@ public class FunctionClient {
 	final SitesInfo sInfo;
 	final List<Map.Entry<PredicateItem, Double>> predictors;
 	final String method;
+	final Map<String, Double> methodsMap;
 	
 	final double[][][][] result;
 	final double [][] wResult;
@@ -56,7 +57,7 @@ public class FunctionClient {
 	
 	final String methodsFileDir;
 	
-	public FunctionClient(int runs, File sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter, String methodsF) {
+	public FunctionClient(int runs, File sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, Map<String, Double> methodsM, PrintWriter cWriter, String methodsF) {
 		this.runs = runs;
 		this.sitesFile = sitesFile;
 		this.profilesFolder = profilesFolder;
@@ -64,6 +65,7 @@ public class FunctionClient {
 		this.sInfo = sInfo;
 		this.predictors = predictors;
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
+		this.methodsMap = methodsM;
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.wResult = new double[Score.values().length][5];
 		this.cResult = new int[3];
@@ -85,7 +87,7 @@ public class FunctionClient {
 		}
 	}
 	
-	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, PrintWriter cWriter){
+	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, Map<String, Double> methodsM, PrintWriter cWriter){
 		this.runs = runs;
 		this.sitesFile = new File(rootDir + subject + "/versions/" + version + "/" + version + "_c.sites");
 		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";
@@ -93,6 +95,7 @@ public class FunctionClient {
 		this.sInfo = sInfo;
 		this.predictors = predictors;
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
+		this.methodsMap = methodsM;
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.wResult = new double[Score.values().length][5];
 		this.cResult = new int[3];
@@ -126,6 +129,7 @@ public class FunctionClient {
 				rootDir + subject + "/traces/" + version +"/fine-grained", consoleFolder + subject + "_" + version + "_cbi.out");
 		this.predictors = c.getPredictorEntryList();
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
+		this.methodsMap = c.getMethodsMap();
 		
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.wResult = new double[Score.values().length][5];
@@ -182,16 +186,21 @@ public class FunctionClient {
 		System.out.println();
 		for(Score score: Score.values()){
 			writer.println("\n");
+			
+			BoundCalculator bc = new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive());
 			for(Order order: Order.values()){
-				printEntryAndPercentage(processor.getFrequencyMap(), score, order);
+				printEntryAndPercentage(processor.getFrequencyMap(), score, order, bc);
 			}
-			printWorstCase(processor, score, predictors.get(0).getValue());
+			printWorstCase(processor, score);
 		}
 		
 	}
 	
-	private void printWorstCase(SelectingProcessor processor, Score score, Double threshold) {
+	private void printWorstCase(SelectingProcessor processor, Score score) {
 		// TODO Auto-generated method stub
+		double threshold = predictors.get(0).getValue();
+		assert(threshold == methodsMap.get(method));
+		
 		BoundCalculator bc = new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive());
 		Map<FunctionEntrySite, FrequencyValue> frequencyMap = processor.getFrequencyMap();
 		
@@ -256,6 +265,9 @@ public class FunctionClient {
 				if(value.getPositive() == 0){
 					continue;
 				}
+				if(value.getNegative() < 2){
+					continue;
+				}
 				if(bc.DH(2, value.getPositive()) <= 0){
 					i++;
 					nSites += sInfo.getMap().get(method).getNumSites();
@@ -293,6 +305,11 @@ public class FunctionClient {
 		case POSITIVE:
 			for(FunctionEntrySite site: frequencyMap.keySet()){
 				String method = site.getFunctionName();
+//				FrequencyValue value = frequencyMap.get(site);
+//				if(value.getNegative() < 2){
+//					continue;
+//				}
+				
 				i++;
 				nSites += sInfo.getMap().get(method).getNumSites();
 				nPredicates += sInfo.getMap().get(method).getNumPredicates();
@@ -352,8 +369,9 @@ public class FunctionClient {
 	 * @param frequencyMap
 	 * @param score
 	 * @param order
+	 * @param bc 
 	 */
-	private void printEntryAndPercentage(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, final Order order) {
+	private void printEntryAndPercentage(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, final Order order, BoundCalculator bc) {
 		// TODO Auto-generated method stub
 		List list = new ArrayList(frequencyMap.entrySet());
 		Collections.sort(list, new Comparator(){
@@ -370,8 +388,8 @@ public class FunctionClient {
 		System.out.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		writer.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		clientWriter.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
-		printPercentage(list, score, order);
-		getMethodsList(list, score, order);
+		printPercentage(list, score, order, bc);
+//		getMethodsList(list, score, order);
 	}
 		
 	/**get the list of methods to be instrumented
@@ -602,14 +620,19 @@ public class FunctionClient {
 	 * @param list
 	 * @param score
 	 * @param order
+	 * @param bc 
 	 */
-	private void printPercentage(List list, Score score, Order order) {
+	private void printPercentage(List list, Score score, Order order, BoundCalculator bc) {
+		double threshold = 0;
+		int i = 0;
+		
 		int nSites = 0, nPredicates = 0;
 		double sp = 0, pp = 0;
 		double as = 0, ap = 0;
-		for(int i = 0; i < list.size(); i++){
-			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
+		for(int j = 0; j < list.size(); j++){
+			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(j);
 			String method = entry.getKey().getFunctionName();
+			FrequencyValue value = entry.getValue();
 			
 			//percentage information of instrumented sites and predicates
 			if(this.method.equals(method)){
@@ -700,10 +723,89 @@ public class FunctionClient {
 				break;
 			}
 			else{
-				nSites += sInfo.getMap().get(method).getNumSites();
-				nPredicates += sInfo.getMap().get(method).getNumPredicates();
+				boolean skip = skip(score, bc, threshold, value);
+//				System.out.println(skip);
+//				System.out.println(threshold);
+				if(!skip){
+					i++;
+					nSites += sInfo.getMap().get(method).getNumSites();
+					nPredicates += sInfo.getMap().get(method).getNumPredicates();
+					double im = methodsMap.get(method);
+					if(im > threshold){
+						threshold = im;
+					}
+				}
 			}
 		}
+	}
+
+	private boolean skip(Score score, BoundCalculator bc, double threshold, FrequencyValue value) {
+		int lb = bc.computeCBIBound(threshold);
+		switch (score){
+		case NEGATIVE: 
+			if(value.getNegative() >= lb){
+				return false;
+			}
+			break;
+		case H_1:
+			if(bc.DH(2, bc.getP()) > 0 && bc.DH(bc.getF(), bc.getP()) < 0){
+				int f0 = bc.compute_f0(bc.getP());
+				if(value.getH_1() >= threshold || value.getNegative() > f0){
+					return false;
+				}
+			}
+			else if(bc.DH(bc.getF(), bc.getP()) >= 0){
+				if(value.getH_1() >= threshold){
+					return false;
+				}
+			}
+			break;
+		case F_1:
+			double fs = SelectingProcessor.F_score(lb, bc.getP(), bc.getF());
+			if(value.getF_score() >= fs){
+				return false;
+			}
+			break;
+		case H_2:
+			if(value.getPositive() == 0){
+				return true;
+			}
+			if(value.getNegative() < 2){
+				return true;
+			}
+			if(bc.DH(2, value.getPositive()) <= 0){
+				return false;
+			}
+			else if(bc.DH(2, value.getPositive()) > 0 && bc.DH(bc.getF(), value.getPositive()) < 0){
+				int f0 = bc.compute_f0(value.getPositive());
+				if(value.getH_2() >= threshold || value.getNegative() > f0){
+					return false;
+				}
+			}
+			else if(bc.DH(bc.getF(), value.getPositive()) >= 0){
+				if(value.getH_2() >= threshold){
+					return false;
+				}
+			}
+			break;
+		case PRECISION:
+			double pr = SelectingProcessor.Precision(lb, bc.getP());
+			if(value.getPrecision() >= pr){
+				return false;
+			}
+			break;
+		case RANDOM:
+		case POSITIVE:
+//			if(value.getNegative() < 2){
+//				return true;
+//			}
+			return false;
+		default:
+			System.err.println("score error");
+			System.exit(0);
+		}
+		
+		return true;
 	}
 	
 	
