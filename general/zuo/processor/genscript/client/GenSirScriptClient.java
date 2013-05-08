@@ -148,7 +148,7 @@ public class GenSirScriptClient {
 		//generate run subject and subversion scripts
 		gs = new GenRunSubjectScript(subject, version, setEnv + compileSubject, ssourceDir, sexecuteDir, soutputDir, scriptDir);
 		gs.genRunScript();
-//		
+		
 		for(int index: faults.keySet()){
 			gc = new GenSirScriptClient("subv" + index);
 			
@@ -166,17 +166,17 @@ public class GenSirScriptClient {
 		//=========================================================================================================================================================================//
 		
 		Set<Integer> subs = new HashSet<Integer>();
-//		//split inputs and generate run instrumented subversion scripts 
+		//split inputs and generate run instrumented subversion scripts 
 		for(int index: faults.keySet()){
 			gc = new GenSirScriptClient("subv" + index);
 			
-//			SirSplitInputs split = new SirSplitInputs(inputsMapFile, gc.vexecuteDir, outCompFile);
-//			split.split();
-//			//collect the triggered faults
-//			if(split.getFailingTests().size() > 1){
-//				subs.add(index);
-//			}
-//			
+			SirSplitInputs split = new SirSplitInputs(inputsMapFile, gc.vexecuteDir, outCompFile);
+			split.split();
+			//collect the triggered faults
+			if(split.getFailingTests().size() > 1){
+				subs.add(index);
+			}
+			
 			String export = "export COMPILE_PARAMETERS=-D" + faults.get(index) + "\n";
 			System.out.println("generating run instrument script for subv" + index);
 			

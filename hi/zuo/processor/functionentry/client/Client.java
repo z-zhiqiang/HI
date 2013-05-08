@@ -97,7 +97,7 @@ public class Client {
 			@Override
 			public boolean accept(File dir, String name) {
 				// TODO Auto-generated method stub
-				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == 12);
+				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == 11);
 			}});
 		Arrays.sort(versions, new Comparator(){
 			@Override
@@ -164,7 +164,7 @@ public class Client {
 				@Override
 				public boolean accept(File dir, String name) {
 					// TODO Auto-generated method stub
-					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 13);
+					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 11);
 				}});
 			Arrays.sort(subversions, new Comparator(){
 				@Override
@@ -396,10 +396,10 @@ public class Client {
 //		}
 //
 		Client cc;
-//		cc = new Client(213, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "gzip", "/home/sunzzq/Console/gzip1/");
-//		cc.computeSirResults();	
-		cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed1/");
+		cc = new Client(213, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "gzip", "/home/sunzzq/Console/gzip1/");
 		cc.computeSirResults();	
+//		cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed1/");
+//		cc.computeSirResults();	
 //		cc = new Client(5434, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "space", "/home/sunzzq/Console/space2/");
 //		cc.computeSiemensResults();	
 	}
