@@ -26,8 +26,6 @@ public class PredicateProfile {
 
 	private final List<ReturnPredicateSite> returns;
 
-	private final List<FloatKindPredicateSite> floats;
-
 	private final List<BranchPredicateSite> branchs;
 
 	private final InstrumentationSites sites;
@@ -35,7 +33,6 @@ public class PredicateProfile {
 	public void dispose() {
 		this.scalarPairs.clear();
 		this.returns.clear();
-		this.floats.clear();
 		this.branchs.clear();
 	}
 
@@ -47,7 +44,6 @@ public class PredicateProfile {
 		List<ScalarPairPredicateSite> scalarPredicateSites = new ArrayList<ScalarPairPredicateSite>();
 		List<ReturnPredicateSite> returnPredicateSites = new ArrayList<ReturnPredicateSite>();
 		List<BranchPredicateSite> branchPredicateSites = new ArrayList<BranchPredicateSite>();
-		List<FloatKindPredicateSite> floatPredicateSites = new ArrayList<FloatKindPredicateSite>();
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(profilePath));
 			PredicateSiteIDAllocator allo = new PredicateSiteIDAllocator();
@@ -56,7 +52,7 @@ public class PredicateProfile {
 				if (line.contains("<report id=\"samples\">")) {
 					// read the report.
 					this.readReport(reader, scalarPredicateSites, returnPredicateSites,
-							branchPredicateSites, floatPredicateSites, allo);
+							branchPredicateSites, allo);
 //					break;
 				}
 			}
@@ -68,14 +64,13 @@ public class PredicateProfile {
 		this.scalarPairs = Collections.unmodifiableList(scalarPredicateSites);
 		this.returns = Collections.unmodifiableList(returnPredicateSites);
 		this.branchs = Collections.unmodifiableList(branchPredicateSites);
-		this.floats = Collections.unmodifiableList(floatPredicateSites);
 	}
 
 	private void readReport(BufferedReader reader,
 			List<ScalarPairPredicateSite> scalarPredicateSites,
 			List<ReturnPredicateSite> returnPredicateSites,
 			List<BranchPredicateSite> branchPredicateSites,
-			List<FloatKindPredicateSite> floatPredicateSites, PredicateSiteIDAllocator allo) throws IOException {
+		    PredicateSiteIDAllocator allo) throws IOException {
 		
 		
 		for (String line = reader.readLine(); line != null && !line.equals("</report>"); line = reader
@@ -88,8 +83,6 @@ public class PredicateProfile {
 					readBranches(reader, branchPredicateSites, unit, allo);
 				} else if (line.contains("scheme=\"scalar-pairs\"")) {
 					readScalarPairs(reader, scalarPredicateSites, unit, allo);
-				} else if (line.contains("scheme=\"float-kinds\"")) {
-					this.readFloats(reader, floatPredicateSites, unit, allo);
 				} else {
 					throw new RuntimeException();
 				}
@@ -125,41 +118,6 @@ public class PredicateProfile {
 		}
 	}
 
-	private void readFloats(BufferedReader reader,
-			List<FloatKindPredicateSite> predicateSites, String unit, PredicateSiteIDAllocator allo) {
-		int sequence = -1;
-		try {
-			for (String line = reader.readLine(); line != null; line = reader
-					.readLine()) {
-				if (line.contains("</samples>"))
-					return;
-				line = line.trim();
-				if (line.length() == 0)
-					continue;
-				String[] counters = line.split("\\s+");
-				if (counters.length != 9) {
-					throw new RuntimeException();
-				}
-
-//				int negativeInfinite = Integer.parseInt(counters[0]);
-//				int negativeNormalized = Integer.parseInt(counters[1]);
-//				int negativeDenormalized = Integer.parseInt(counters[2]);
-//				int negativeZero = Integer.parseInt(counters[3]);
-//				int nan = Integer.parseInt(counters[4]);
-//				int positiveZero = Integer.parseInt(counters[5]);
-//				int positiveDenormalized = Integer.parseInt(counters[6]);
-//				int positiveNormalized = Integer.parseInt(counters[7]);
-//				int positiveInfinite = Integer.parseInt(counters[8]);
-//
-//				predicateSites.add(new FloatKindPredicateSite(allo.allocateID(), sites.getFloatKindSite(unit, ++sequence),
-//						negativeInfinite, negativeNormalized, negativeDenormalized,
-//						negativeZero, nan, positiveZero, positiveDenormalized,
-//						positiveNormalized, positiveInfinite));
-			}
-		} catch (IOException e) {
-			throw new RuntimeException();
-		}
-	}
 
 	private void readBranches(BufferedReader reader,
 			List<BranchPredicateSite> predicateSites, String unit, PredicateSiteIDAllocator allo) {
@@ -231,10 +189,6 @@ public class PredicateProfile {
 	public List<ReturnPredicateSite> getReturnPredicateSites() {
 		return this.returns;
 	}
-
-	public List<FloatKindPredicateSite> getFloatKindPredicateSites() {
-		return floats;
-	}
 	
 	public File getPath() {
 		return path;
@@ -261,12 +215,6 @@ public class PredicateProfile {
 		
 		builder.append(this.branchs.size()).append(" branches").append("\n");
 		for (AbstractPredicateSite predicateSite: this.branchs) {
-			builder.append(predicateSite.toString()).append("\n");
-		}
-		builder.append("\n");
-		
-		builder.append(this.floats.size()).append(" floats").append("\n");
-		for (AbstractPredicateSite predicateSite: this.floats) {
 			builder.append(predicateSite.toString()).append("\n");
 		}
 		builder.append("\n");

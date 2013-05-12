@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import zuo.processor.genscript.client.GenSirScriptClient;
 import zuo.util.file.FileUtility;
 
 
@@ -35,6 +36,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		code.append("rm ../outputs/*\n");
 		code.append("\n\n");
 		
+		code.append("rm $VERSIONSDIR/" + GenSirScriptClient.outCompFile + "\n");
 		code.append("echo script: " + subVersion + "\n");
 		for (Iterator it = inputsCompMap.keySet().iterator(); it.hasNext();) {
 			int index = (Integer) it.next();
@@ -46,50 +48,6 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + ".sh");
 		
 	}
-	
-	
-//	public void genCompileScript(){
-//		StringBuffer code = new StringBuffer();
-//		code.append("echo compiling script " + subject + "\n");
-//		code.append("export ROOTDIR=" + rootDir + subject + "\n");
-//		
-//		code.append(compileInfo + subject + "\"\n");
-//		code.append("gcc $ROOTDIR/source/" + subject + ".c -o $ROOTDIR/source/" + subject + ".exe\n");
-//		
-//		File fd = new File(rootDir + subject + "/versions");
-//		String[] fs = fd.list(new VersionFoldernameFilter());
-//		Arrays.sort(fs, new FoldernameComparator());
-//		
-//		for (int i = 0; i < fs.length; i++) {
-//			code.append(compileInfo + fs[i] + "\"\n");
-//			String dir = "$ROOTDIR/versions/" + fs[i] + "/";
-//			code.append("gcc " + dir + subject + ".c -o " + dir + fs[i] + ".exe\n");
-//		}
-//		
-//		printToFile(code.toString(), scriptsDir, "compile.sh");
-//		
-//	}
-	
-//	public void genRunAllScripts(){
-//		StringBuffer code = new StringBuffer();
-//		code.append("echo running all scripts \n");
-//		code.append("export ROOTDIR=" + rootDir + subject + "\n");
-//		
-//		code.append("echo running script " + subject + ".sh\n");
-//		code.append("sh $ROOTDIR/scripts/runOriginal/" + subject + ".sh\n");
-//		
-//		File f = new File(rootDir + subject + "/scripts/runOriginal/");
-//		String[] fs = f.list(new VersionShFilenameFilter());
-//		Arrays.sort(fs, new ShFilenameComparator());
-//		
-//		for (int i = 0; i < fs.length; i++) {
-//			code.append("echo running script " + fs[i] + "\n");
-//			code.append("sh $ROOTDIR/scripts/runOriginal/" + fs[i] + "\n");
-//		}
-//		code.append("echo Over\n");
-//		
-//		printToFile(code.toString(), rootDir + subject + "/scripts", "runOriginalAllScripts.sh");
-//	}
 	
 	
 	protected void mkOutDir(){

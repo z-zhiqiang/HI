@@ -39,7 +39,6 @@ public class Processor {
 		processReturnPredicates();
 		processBranchPredicates();
 		processScalarPairsPredicates();
-		processFloatKindsPredicates();
 	}
 
 	/**compute the number of failing runs and passing runs
@@ -58,100 +57,6 @@ public class Processor {
 		assert(totalPositive + totalNegative == profiles.length);
 	}
 
-	private void processFloatKindsPredicates() {
-		for (int i = 0; i < profiles[0].getFloatKindPredicateSites().size(); i++) {
-			int[][] statistics = new int[9][4];//{-Inf, Neg_Nor, Neg_Denor, -0, Nan, +0, Pos_Denor, Pos_Nor, +Inf}{F(p), F(p observed), S(p), S(p observed)}
-			calculateFloatKindsStatisticsForEachPredicateSite(i, statistics);
-			computeImportance(profiles[0].getFloatKindPredicateSites().get(i), statistics);
-		}
-	}
-
-	private void calculateFloatKindsStatisticsForEachPredicateSite(int index, int[][] statistics) {
-		if(statistics.length != 9){
-			throw new RuntimeException();
-		}
-		
-		for(int j = 0; j < profiles.length; j++){
-			FloatKindPredicateSite fPredicate = profiles[j].getFloatKindPredicateSites().get(index);
-			if(profiles[j].isCorrect()){// passing run
-				if(fPredicate.getTotalCount() != 0){
-					for (int k = 0; k < statistics.length; k++) {
-						statistics[k][3]++;
-					}
-				}
-				else{
-					continue;
-				}
-				
-				if(fPredicate.getNegativeInfinite() != 0){
-					statistics[0][2]++;
-				}
-				if(fPredicate.getNegativeNormalized() != 0){
-					statistics[1][2]++;
-				}
-				if(fPredicate.getNegativeDenormalized() != 0){
-					statistics[2][2]++;
-				}
-				if(fPredicate.getNegativeZero() != 0){
-					statistics[3][2]++;
-				}
-				if(fPredicate.getNan() != 0){
-					statistics[4][2]++;
-				}
-				if(fPredicate.getPositiveZero() != 0){
-					statistics[5][2]++;
-				}
-				if(fPredicate.getPositiveDenormalized() != 0){
-					statistics[6][2]++;
-				}
-				if(fPredicate.getPositiveNormalized() != 0){
-					statistics[7][2]++;
-				}
-				if(fPredicate.getPositiveInfinite() != 0){
-					statistics[8][2]++;
-				}
-			}
-			else{// failing run
-				if(fPredicate.getTotalCount() != 0){
-					for (int k = 0; k < statistics.length; k++) {
-						statistics[k][1]++;
-					}
-				}
-				else{
-					continue;
-				}
-				
-				if(fPredicate.getNegativeInfinite() != 0){
-					statistics[0][0]++;
-				}
-				if(fPredicate.getNegativeNormalized() != 0){
-					statistics[1][0]++;
-				}
-				if(fPredicate.getNegativeDenormalized() != 0){
-					statistics[2][0]++;
-				}
-				if(fPredicate.getNegativeZero() != 0){
-					statistics[3][0]++;
-				}
-				if(fPredicate.getNan() != 0){
-					statistics[4][0]++;
-				}
-				if(fPredicate.getPositiveZero() != 0){
-					statistics[5][0]++;
-				}
-				if(fPredicate.getPositiveDenormalized() != 0){
-					statistics[6][0]++;
-				}
-				if(fPredicate.getPositiveNormalized() != 0){
-					statistics[7][0]++;
-				}
-				if(fPredicate.getPositiveInfinite() != 0){
-					statistics[8][0]++;
-				}
-			
-			}
-		}
-	}
 
 	/**process scalar-pair predicates
 	 * 

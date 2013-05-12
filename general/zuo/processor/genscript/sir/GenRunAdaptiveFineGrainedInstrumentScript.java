@@ -71,14 +71,14 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		for(int i = 0; i < num; i++){
 			String method = methods.get(i);
 			instrumentCommand = compileCommand 
-					+ "sampler-cc -fsampler-scheme=branches -fsampler-scheme=float-kinds -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
+					+ "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
 					+ "-finclude-function=" + method + " -fexclude-function=* "
 					+ sourceDir + GenSirScriptClient.sourceName + ".c" 
 					+ " $COMPILE_PARAMETERS"
-//					+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+					+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
 					+ " -o " + executeDir + subVersion + "_finst__" + methodsFile + "__" + method + ".exe"
-//					+ " -I" + sourceDir
-//					+ " -lm"
+					+ " -I" + sourceDir
+					+ " -lm"
 					;
 			
 			code.append(instrumentCommand + "\n");
@@ -120,17 +120,28 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 
 	@Override
 	protected void mkOutDir() {
-		File od = new File(outputDir);
-		if(od.isDirectory() && od.exists()){
-			boolean flag = FileUtility.removeDirectory(od);
-			assert(flag == true);
-		}
-		
-		File td = new File(traceDir);
-		if(td.isDirectory() && td.exists()){
-			boolean flag = FileUtility.removeDirectory(td);
-			assert(flag == true);
-		}
+//		File aod = new File(GenSirScriptClient.rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained-adaptive/");
+//		if(aod.isDirectory() && aod.exists()){
+//			boolean flag = FileUtility.removeDirectory(aod);
+//			assert(flag == true);
+//		}
+//		File atd = new File(GenSirScriptClient.rootDir + subject + "/traces/" + version + "/" + subVersion + "/fine-grained-adaptive/");
+//		if(atd.isDirectory() && atd.exists()){
+//			boolean flag = FileUtility.removeDirectory(atd);
+//			assert(flag == true);
+//		}
+//		
+//		File od = new File(outputDir);
+//		if(od.isDirectory() && od.exists()){
+//			boolean flag = FileUtility.removeDirectory(od);
+//			assert(flag == true);
+//		}
+//		
+//		File td = new File(traceDir);
+//		if(td.isDirectory() && td.exists()){
+//			boolean flag = FileUtility.removeDirectory(td);
+//			assert(flag == true);
+//		}
 		
 		for(String method: methods){
 			//make directory for outputs
@@ -146,29 +157,5 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			}
 		}
 	}
-	
-	
-//	public void genInstrumentPredicateScripts(){
-//		final String instrumentCommand = "sampler-cc $SCHEME -fno-sample "; 
-//		final String extractSiteCommand = "$EXTRACTDIR/extract-section .debug_site_info ";
-//		
-//		StringBuffer code = new StringBuffer();
-//		code.append("echo instrumenting script: " + subject + "\n");
-//		code.append("export ROOTDIR=" + rootDir + subject + "\n");
-//		code.append("export EXTRACTDIR=" + extractToolsDir + "\n");
-//		code.append("export SCHEME=\"" + finerGrainedScheme + "\"\n");
-//		
-//		String[] fs = new File(rootDir + subject, "/versions").list(new VersionFoldernameFilter());
-//		Arrays.sort(fs, new FoldernameComparator());
-//		for (int i = 0; i < fs.length; i++) {
-//			code.append(instrumentInfo + fs[i] + "\"\n");
-//			String dir = "$ROOTDIR/versions/" + fs[i] + "/";
-//			code.append(instrumentCommand + dir + subject + ".c -o " + dir + fs[i] + "_inst.exe\n");
-//			code.append(extractSiteCommand + dir + fs[i] + "_inst.exe > " + dir + "sites.txt\n");
-//		}
-//		code.append("echo instrumentation finished\n");
-//		
-//		printToFile(code.toString(), rootDir + subject + "/scripts", "fineGrainedInstrument.sh");
-//	}
 
 }

@@ -413,7 +413,7 @@ public class FunctionClient {
 			
 			PrintWriter out = null;
 			try{
-				File fd = new File(this.methodsFileDir).getParentFile();
+				File fd = new File(this.methodsFileDir);
 				if (!fd.exists()) {
 					fd.mkdirs();
 				}

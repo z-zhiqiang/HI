@@ -71,28 +71,5 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 		}
 	}
 	
-	
-//	public void genInstrumentPredicateScripts(){
-//		final String instrumentCommand = "sampler-cc $SCHEME -fno-sample "; 
-//		final String extractSiteCommand = "$EXTRACTDIR/extract-section .debug_site_info ";
-//		
-//		StringBuffer code = new StringBuffer();
-//		code.append("echo instrumenting script: " + subject + "\n");
-//		code.append("export ROOTDIR=" + rootDir + subject + "\n");
-//		code.append("export EXTRACTDIR=" + extractToolsDir + "\n");
-//		code.append("export SCHEME=\"" + finerGrainedScheme + "\"\n");
-//		
-//		String[] fs = new File(rootDir + subject, "/versions").list(new VersionFoldernameFilter());
-//		Arrays.sort(fs, new FoldernameComparator());
-//		for (int i = 0; i < fs.length; i++) {
-//			code.append(instrumentInfo + fs[i] + "\"\n");
-//			String dir = "$ROOTDIR/versions/" + fs[i] + "/";
-//			code.append(instrumentCommand + dir + subject + ".c -o " + dir + fs[i] + "_inst.exe\n");
-//			code.append(extractSiteCommand + dir + fs[i] + "_inst.exe > " + dir + "sites.txt\n");
-//		}
-//		code.append("echo instrumentation finished\n");
-//		
-//		printToFile(code.toString(), rootDir + subject + "/scripts", "fineGrainedInstrument.sh");
-//	}
 
 }

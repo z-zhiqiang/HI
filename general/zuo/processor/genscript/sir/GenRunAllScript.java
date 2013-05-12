@@ -16,12 +16,10 @@ public class GenRunAllScript extends AbstractGenRunAllScript{
 		
 		code.append("echo " + version + "\n");
 		code.append("sh " + version + ".sh > ../outputs.alt/" + version + "/" + subject + "/execution\n");
-//		code.append("mv ../outputs/* ../outputs.alt/" + version + "/" + subject + "/\n");
 		code.append("\n");
 		code.append("for i in {1.." + subversionnum + "}\ndo\n");
 		code.append("\techo subv$i\n");
 		code.append("\tsh " + version + "\\_subv$i.sh > ../outputs.alt/" + version + "/versions/subv$i/outputs/execution\n");
-//		code.append("\tmv ../outputs/* ../outputs.alt/" + version + "/versions/subv$i/outputs/\n");
 		code.append("done");
 		
 		System.out.println(code.toString());

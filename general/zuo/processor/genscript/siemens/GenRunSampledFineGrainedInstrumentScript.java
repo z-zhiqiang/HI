@@ -25,7 +25,7 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 
 	@Override
 	public void genRunScript() {
-		String instrumentCommand = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=float-kinds -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed "
+		String instrumentCommand = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed "
 				+ sourceDir + subject + ".c" 
 				+ " -o " + executeDir + version + "_finst__" + sample + ".exe"
 				+ " -I" + sourceDir
@@ -84,30 +84,18 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 		if(!ft.exists()){
 			ft.mkdirs();
 		}
+		
+//		File od = new File(outputDir);
+//		if(od.isDirectory() && od.exists()){
+//			boolean flag = FileUtility.removeDirectory(od);
+//			assert(flag == true);
+//		}
+//		
+//		File td = new File(traceDir);
+//		if(td.isDirectory() && td.exists()){
+//			boolean flag = FileUtility.removeDirectory(td);
+//			assert(flag == true);
+//		}
 	}
 	
-	
-//	public void genInstrumentPredicateScripts(){
-//		final String instrumentCommand = "sampler-cc $SCHEME -fno-sample "; 
-//		final String extractSiteCommand = "$EXTRACTDIR/extract-section .debug_site_info ";
-//		
-//		StringBuffer code = new StringBuffer();
-//		code.append("echo instrumenting script: " + subject + "\n");
-//		code.append("export ROOTDIR=" + rootDir + subject + "\n");
-//		code.append("export EXTRACTDIR=" + extractToolsDir + "\n");
-//		code.append("export SCHEME=\"" + finerGrainedScheme + "\"\n");
-//		
-//		String[] fs = new File(rootDir + subject, "/versions").list(new VersionFoldernameFilter());
-//		Arrays.sort(fs, new FoldernameComparator());
-//		for (int i = 0; i < fs.length; i++) {
-//			code.append(instrumentInfo + fs[i] + "\"\n");
-//			String dir = "$ROOTDIR/versions/" + fs[i] + "/";
-//			code.append(instrumentCommand + dir + subject + ".c -o " + dir + fs[i] + "_inst.exe\n");
-//			code.append(extractSiteCommand + dir + fs[i] + "_inst.exe > " + dir + "sites.txt\n");
-//		}
-//		code.append("echo instrumentation finished\n");
-//		
-//		printToFile(code.toString(), rootDir + subject + "/scripts", "fineGrainedInstrument.sh");
-//	}
-
 }

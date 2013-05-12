@@ -89,7 +89,7 @@ public class GenSiemensScriptsClient {
 				+ " -o " + vexecuteDir + version + ".exe"
 				+ " -I" + vsourceDir
 				+ " -lm";
-		compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=float-kinds -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
+		compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
 				+ vsourceDir + subject + ".c" 
 				+ " -o " + vexecuteDir + version + "_finst.exe"
 				+ " -I" + vsourceDir
@@ -112,15 +112,14 @@ public class GenSiemensScriptsClient {
 //		gc = new GenSiemensScriptsClient(subject);
 //		gs = new GenRunSubjectScript(subject, gc.version, gc.compileSubject, gc.ssourceDir, gc.sexecuteDir, gc.soutputDir, gc.scriptDir);
 //		gs.genRunScript();
-		
-		
-		for(int i = 1; i <= vs; i++){
-			gc = new GenSiemensScriptsClient("v" + i);
-			System.out.println("generating run script for v" + i);
-			new GenRunVersionsScript(subject, gc.version, gc.compileVersion, gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
-		}
-		ga = new GenRunAllScript(subject, scriptDir, vs);
-		ga.genRunAllScript();
+//		
+//		for(int i = 1; i <= vs; i++){
+//			gc = new GenSiemensScriptsClient("v" + i);
+//			System.out.println("generating run script for v" + i);
+//			new GenRunVersionsScript(subject, gc.version, gc.compileVersion, gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
+//		}
+//		ga = new GenRunAllScript(subject, scriptDir, vs);
+//		ga.genRunAllScript();
 		
 		
 		//==========================================================================================================================================================//
@@ -135,10 +134,10 @@ public class GenSiemensScriptsClient {
 //			split.split();
 			
 			System.out.println("generating run instrument script for v" + i);
-			gs = new GenRunFineGrainedInstrumentScript(subject, gc.version, gc.compileFGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
-			gs.genRunScript();
-			gs = new GenRunCoarseGrainedInstrumentScript(subject, gc.version, gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
-			gs.genRunScript();
+//			gs = new GenRunFineGrainedInstrumentScript(subject, gc.version, gc.compileFGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+//			gs.genRunScript();
+//			gs = new GenRunCoarseGrainedInstrumentScript(subject, gc.version, gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+//			gs.genRunScript();
 			gs = new GenRunSampledFineGrainedInstrumentScript(subject, gc.version, gc.vsourceDir, gc.vsexecuteDir, gc.vsfoutputDir, gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
 			gs.genRunScript();
 			gs = new GenRunSampledFineGrainedInstrumentScript(subject, gc.version, gc.vsourceDir, gc.vsexecuteDir, gc.vsfoutputDir, gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
@@ -146,6 +145,9 @@ public class GenSiemensScriptsClient {
 			gs = new GenRunSampledFineGrainedInstrumentScript(subject, gc.version, gc.vsourceDir, gc.vsexecuteDir, gc.vsfoutputDir, gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
 			gs.genRunScript();
 			if(new File(gc.vexecuteDir).listFiles().length == 12){
+//				FileUtility.removeDirectory(new File(gc.vsexecuteDir));
+//				FileUtility.removeDirectory(new File(gc.vaexecuteDir));
+				
 				gs = new GenRunAdaptiveFineGrainedInstrumentScript(subject, gc.version, gc.vsourceDir, gc.vaexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", Score.H_2);
 				gs.genRunScript();
 				gs = new GenRunAdaptiveFineGrainedInstrumentScript(subject, gc.version, gc.vsourceDir, gc.vaexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", Score.H_1);
@@ -154,9 +156,9 @@ public class GenSiemensScriptsClient {
 			}
 		}
 		
-		//generate run all instrumented triggered version scripts
-		ga = new GenRunAllInstrumentedScript(subject, scriptDir, subs);
-		ga.genRunAllScript();
+//		//generate run all instrumented triggered version scripts
+//		ga = new GenRunAllInstrumentedScript(subject, scriptDir, subs);
+//		ga.genRunAllScript();
 		
 		//generate run all sampled instrumented triggered subversion scripts
 		ga = new GenRunAllSampledInstrumentedScript(subject, scriptDir, subs, 1);
