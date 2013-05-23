@@ -43,7 +43,7 @@ public class ReadResults {
 				@Override
 				public boolean accept(File dir, String name) {
 					// TODO Auto-generated method stub
-					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 9);
+					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 8);
 				}});
 			Arrays.sort(subversions, new Comparator(){
 				@Override
