@@ -49,6 +49,7 @@ public class FunctionClient {
 	final Map<String, Double> methodsMap;
 	
 	final double[][][][] result;
+	final double [][] pResult;
 	final double [][] wResult;
 	final int [] cResult;//{methods, sites, predicates}
 	
@@ -67,6 +68,7 @@ public class FunctionClient {
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
 		this.methodsMap = methodsM;
 		this.result = new double[Score.values().length][Order.values().length][2][5];
+		this.pResult = new double[Score.values().length][5];
 		this.wResult = new double[Score.values().length][5];
 		this.cResult = new int[3];
 		this.clientWriter = cWriter;
@@ -97,6 +99,7 @@ public class FunctionClient {
 		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
 		this.methodsMap = methodsM;
 		this.result = new double[Score.values().length][Order.values().length][2][5];
+		this.pResult = new double[Score.values().length][5];
 		this.wResult = new double[Score.values().length][5];
 		this.cResult = new int[3];
 		this.clientWriter = cWriter;
@@ -132,6 +135,7 @@ public class FunctionClient {
 		this.methodsMap = c.getMethodsMap();
 		
 		this.result = new double[Score.values().length][Order.values().length][2][5];
+		this.pResult = new double[Score.values().length][5];
 		this.wResult = new double[Score.values().length][5];
 		this.cResult = new int[3];
 		this.clientWriter = cWriter;
@@ -191,19 +195,95 @@ public class FunctionClient {
 			for(Order order: Order.values()){
 				printEntryAndPercentage(processor.getFrequencyMap(), score, order, bc);
 			}
-			printWorstCase(processor, score);
+			printPruningCase(processor.getFrequencyMap(), score, bc);
+			printWorstCase(processor.getFrequencyMap(), score, bc);
 		}
 		
 	}
 	
-	private void printWorstCase(SelectingProcessor processor, Score score) {
+	private void printPruningCase(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, BoundCalculator bc) {
+		// TODO Auto-generated method stub
+		List list = new ArrayList(frequencyMap.entrySet());
+		Collections.sort(list, new Comparator(){
+
+			@Override
+			public int compare(Object arg0, Object arg1) {
+				// TODO Auto-generated method stub
+				return rank(arg0, arg1, score, Order.RANDOM);
+			}});
+		
+		double threshold = 0;
+		int i = 0;
+		
+		int nSites = 0, nPredicates = 0;
+		double sp = 0, pp = 0;
+		double as = 0, ap = 0;
+		
+		for(int j = 0; j < list.size(); j++){
+			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(j);
+			String method = entry.getKey().getFunctionName();
+			FrequencyValue value = entry.getValue();
+			
+			boolean skip = skip(score, bc, threshold, value);
+			if(!skip){
+				i++;
+				nSites += sInfo.getMap().get(method).getNumSites();
+				nPredicates += sInfo.getMap().get(method).getNumPredicates();
+				double im = methodsMap.get(method);
+				if(im > threshold){
+					threshold = im;
+				}
+			}
+		}
+		
+		
+		sp = (double)100 * nSites / sInfo.getNumPredicateSites();
+		pp = (double)100 * nPredicates / sInfo.getNumPredicateItems();
+		as = (double) nSites / i;
+		ap = (double) nPredicates / i;
+		
+		System.out.println("==============================================================");
+		System.out.println(String.format("%-50s", "Pruning by <" + score + ">:")
+						+ String.format("%-15s", "s:" + nSites) 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "p:" + nPredicates) 
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "i:" + i) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
+		System.out.println("");
+		writer.println("==============================================================");
+		writer.println(String.format("%-50s", "Pruning by <" + score + ">:") 
+						+ String.format("%-15s", "s:" + nSites) 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "p:" + nPredicates) 
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "i:" + i) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
+		writer.println("");
+		clientWriter.println("==============================================================");
+		clientWriter.println(String.format("%-50s", "Pruning by <" + score + ">:") 
+						+ String.format("%-15s", "s:" + nSites) 
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "p:" + nPredicates) 
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "i:" + i) 
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
+		clientWriter.println("");
+		
+		pResult[score.ordinal()][0] = sp;
+		pResult[score.ordinal()][1] = pp;
+		pResult[score.ordinal()][2] = i;
+		pResult[score.ordinal()][3] = as;
+		pResult[score.ordinal()][4] = ap;
+	}
+
+	private void printWorstCase(Map<FunctionEntrySite, FrequencyValue> frequencyMap, Score score, BoundCalculator bc) {
 		// TODO Auto-generated method stub
 		double threshold = predictors.get(0).getValue();
 		assert(threshold == methodsMap.get(method));
-		
-		BoundCalculator bc = new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive());
-		Map<FunctionEntrySite, FrequencyValue> frequencyMap = processor.getFrequencyMap();
-		
 		int lb = bc.computeCBIBound(threshold);
 		
 		int i = 0;
@@ -678,20 +758,24 @@ public class FunctionClient {
 				result[score.ordinal()][order.ordinal()][0][3] = as;
 				result[score.ordinal()][order.ordinal()][0][4] = ap;
 				
+				
+				//---------------------------------------------------------------------------------------------------------------------//
+//				assert(skip(score, bc, threshold, value) == false);
+				i++;
 				nSites += sInfo.getMap().get(method).getNumSites();
 				nPredicates += sInfo.getMap().get(method).getNumPredicates();
 
 				sp = (double)100 * nSites / sInfo.getNumPredicateSites();
 				pp = (double)100 * nPredicates / sInfo.getNumPredicateItems();
-				as = (double)nSites / (i + 1);
-				ap = (double)nPredicates / (i + 1);
+				as = (double)nSites / (i);
+				ap = (double)nPredicates / (i);
 				
 				System.out.println(String.format("%-50s", "Including " + method) 
 						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
-						+ String.format("%-15s", "i:" + (i + 1)) 
+						+ String.format("%-15s", "i:" + (i)) 
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 				System.out.println();
@@ -700,7 +784,7 @@ public class FunctionClient {
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
-						+ String.format("%-15s", "i:" + (i + 1)) 
+						+ String.format("%-15s", "i:" + (i)) 
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 				writer.println();
@@ -709,14 +793,14 @@ public class FunctionClient {
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
-						+ String.format("%-15s", "i:" + (i + 1)) 
+						+ String.format("%-15s", "i:" + (i)) 
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 				clientWriter.println();
 				
 				result[score.ordinal()][order.ordinal()][1][0] = sp;
 				result[score.ordinal()][order.ordinal()][1][1] = pp;
-				result[score.ordinal()][order.ordinal()][1][2] = i + 1;
+				result[score.ordinal()][order.ordinal()][1][2] = i;
 				result[score.ordinal()][order.ordinal()][1][3] = as;
 				result[score.ordinal()][order.ordinal()][1][4] = ap;
 				
@@ -724,8 +808,6 @@ public class FunctionClient {
 			}
 			else{
 				boolean skip = skip(score, bc, threshold, value);
-//				System.out.println(skip);
-//				System.out.println(threshold);
 				if(!skip){
 					i++;
 					nSites += sInfo.getMap().get(method).getNumSites();
@@ -836,6 +918,10 @@ public class FunctionClient {
 
 	public double[][][][] getResult() {
 		return result;
+	}
+
+	public double[][] getpResult() {
+		return pResult;
 	}
 
 	public double[][] getwResult() {
