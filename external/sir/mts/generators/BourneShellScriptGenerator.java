@@ -27,8 +27,8 @@ import sir.mts.ScriptGenException;
 import java.util.List;
 import java.util.Map;
 import sir.mts.Configuration;
-import zuo.processor.genscript.client.GenSirScriptClient;
-import zuo.processor.genscript.sir.GenRunVersionsScript;
+import zuo.processor.genscript.client.iterative.GenSirScriptClient;
+import zuo.processor.genscript.sir.iterative.GenRunVersionsScript;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;

@@ -20,8 +20,8 @@ package sir.mts.generators;
 import sir.mts.Configuration;
 import sir.mts.TestScriptGenerator;
 import sir.mts.ScriptGenException;
-import zuo.processor.genscript.client.GenSirScriptClient;
-import zuo.processor.genscript.sir.GenRunVersionsScript;
+import zuo.processor.genscript.client.iterative.GenSirScriptClient;
+import zuo.processor.genscript.sir.iterative.GenRunVersionsScript;
 
 import java.util.List;
 import java.util.Map;
