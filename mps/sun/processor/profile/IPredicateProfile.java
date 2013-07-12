@@ -28,6 +28,8 @@ public interface IPredicateProfile extends IProfile {
 
 	List<ReturnPredicate> getReturnPredicates();
 
+//	FunctionEntryPredicate[] getFunctionEntryPredicates();
+
 	List<BranchPredicate> getBranchPredicates();
 	
 	List<FloatKindPredicate> getFloatKindPredicates();

@@ -70,17 +70,17 @@ public class FloatKindPredicate extends AbstractPredicate {
 			int nan, int positiveZero, int positiveDenormalized,
 			int positiveNormalized, int positiveInfinite) {
 		super(id, site);
-		this.negativeInfinite = this.normalize(negativeInfinite);
-		this.negativeNormalized = this.normalize(negativeNormalized);
-		this.negativeDenormalized = this.normalize(negativeDenormalized);
-		this.negativeZero = this.normalize(negativeZero);
+		this.negativeInfinite = normalize(negativeInfinite);
+		this.negativeNormalized = normalize(negativeNormalized);
+		this.negativeDenormalized = normalize(negativeDenormalized);
+		this.negativeZero = normalize(negativeZero);
 
-		this.nan = this.normalize(nan);
+		this.nan = normalize(nan);
 
-		this.positiveZero = this.normalize(positiveZero);
-		this.positiveDenormalized = this.normalize(positiveDenormalized);
-		this.positiveNormalized = this.normalize(positiveNormalized);
-		this.positiveInfinite = this.normalize(positiveInfinite);
+		this.positiveZero = normalize(positiveZero);
+		this.positiveDenormalized = normalize(positiveDenormalized);
+		this.positiveNormalized = normalize(positiveNormalized);
+		this.positiveInfinite = normalize(positiveInfinite);
 	}
 
 	@Override

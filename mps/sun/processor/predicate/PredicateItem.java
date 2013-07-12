@@ -2,200 +2,220 @@ package sun.processor.predicate;
 
 import sun.processor.profile.InstrumentationSites.AbstractSite;
 
-public class PredicateItem {
+public final class PredicateItem {
 
-	public static enum PredicateCategory {
-		RETURN, SCALAR_PAIR, BRANCH, FLOAT_KIND
-	}
+  public static enum PredicateCategory {
+    RETURN, SCALAR_PAIR, BRANCH, FLOAT_KIND
+  }
 
-	public static enum PredicateType {
+  public static enum PredicateType {
 
-		GREATER,
+    GREATER,
 
-		GREATER_EQUAL,
+    GREATER_EQUAL,
 
-		EQUAL,
+    EQUAL,
 
-		NOT_EQUAL,
+    NOT_EQUAL,
 
-		LESS,
+    LESS,
 
-		LESS_EQUAL,
+    LESS_EQUAL,
 
-		// tow branches
+    // tow branches
 
-		TRUE_BRANCH,
+    TRUE_BRANCH,
 
-		FALSE_BRANCH,
+    FALSE_BRANCH,
 
-		// float kinds
+    // float kinds
 
-		NEGATIVE_INF,
+    NEGATIVE_INF,
 
-		NEGATIVE_NORMALIZED,
+    NEGATIVE_NORMALIZED,
 
-		NEGATIVE_DENORMALIZED,
+    NEGATIVE_DENORMALIZED,
 
-		NEGATIVE_ZERO,
+    NEGATIVE_ZERO,
 
-		NAN,
+    NAN,
 
-		POSITIVE_ZERO,
+    POSITIVE_ZERO,
 
-		POSITIVE_DENORMALIZED,
+    POSITIVE_DENORMALIZED,
 
-		POSITIVE_NORMALIZED,
+    POSITIVE_NORMALIZED,
 
-		POSITIVE_INF;
+    POSITIVE_INF;
 
-	}
+  }
 
-	public static enum PredicateValue {
+  public static enum PredicateValue {
 
-		NOT_OBSERVED,
+    NOT_OBSERVED,
 
-		TRUE,
+    TRUE,
 
-		FALSE;
+    FALSE;
 
-	}
+  }
 
-	public static class PredicateKey {
+  public final static class PredicateKey {
 
-		private int id = Integer.MIN_VALUE;
+    private int id = Integer.MIN_VALUE;
 
-		private final PredicateCategory category;
+    private final PredicateCategory category;
 
-		private final PredicateType subcategory;
+    private final PredicateType subcategory;
 
-		// private final String methodName;
-		private final AbstractSite site;
+    private final AbstractSite site;
 
-		private final int originalId;
+    private final int originalId;
 
-		public void setId(int id) {
-			if (this.id != Integer.MIN_VALUE) {
-				throw new RuntimeException("id has been set.");
-			}
-			this.id = id;
-		}
+    private final int hashCode;
 
-		public PredicateType getPredicateType() {
-			return subcategory;
-		}
+    private final PredicateItem instanceNotObserved;
 
-		public AbstractSite getSite() {
-			return site;
-		}
+    private final PredicateItem instanceTrue;
 
-		public PredicateKey(PredicateCategory category,
-				PredicateType predicateType, int originalId, AbstractSite site) {
-			super();
-			this.category = category;
-			this.subcategory = predicateType;
-			this.originalId = originalId;
-			// this.methodName = methodName;
-			this.site = site;
-		}
+    private final PredicateItem instanceFalse;
 
-		public String getMethodName() {
-			// return methodName;
-			return this.site.getFunctionName();
-		}
+    public void setId(int id) {
+      if (this.id != Integer.MIN_VALUE) {
+        throw new RuntimeException("id has been set.");
+      }
+      this.id = id;
+    }
 
-		@Override
-		public String toString() {
-			StringBuilder builder = new StringBuilder();
-			builder.append("(").append(originalId).append(", ")
-					.append(category.toString()).append(", ")
-					.append(subcategory.toString()).append(')');
-			return builder.toString();
-		}
+    public PredicateType getPredicateType() {
+      return subcategory;
+    }
 
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((category == null) ? 0 : category.hashCode());
-			result = prime * result + originalId;
-			result = prime * result
-					+ ((subcategory == null) ? 0 : subcategory.hashCode());
-			return result;
-		}
+    public AbstractSite getSite() {
+      return site;
+    }
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			PredicateKey other = (PredicateKey) obj;
-			if (category != other.category)
-				return false;
-			if (originalId != other.originalId)
-				return false;
-			if (subcategory != other.subcategory)
-				return false;
-			return true;
-		}
+    public PredicateKey(PredicateCategory category,
+        PredicateType predicateType, int originalId, AbstractSite site) {
+      super();
+      this.category = category;
+      this.subcategory = predicateType;
+      this.originalId = originalId;
+      this.site = site;
 
-		public int getId() {
-			if (this.id == Integer.MIN_VALUE) {
-				throw new RuntimeException("the id has not been set.");
-			}
-			return this.id;
-		}
+      this.hashCode = this.computeHashCode();
 
-	}
+      this.instanceNotObserved = new PredicateItem(this,
+          PredicateValue.NOT_OBSERVED);
+      this.instanceFalse = new PredicateItem(this, PredicateValue.FALSE);
+      this.instanceTrue = new PredicateItem(this, PredicateValue.TRUE);
+    }
 
-	// private final int id;
+    public PredicateItem getInstance(PredicateValue value) {
+      switch (value) {
+      case FALSE:
+        return this.instanceFalse;
+      case TRUE:
+        return this.instanceTrue;
+      case NOT_OBSERVED:
+        return this.instanceNotObserved;
+      default:
+        throw new RuntimeException("Cannot reach here.");
+      }
+    }
 
-	// private final PredicateType predicateType;
-	//
-	// private final int originalId;
-	private final PredicateKey key;
+    public String getMethodName() {
+      return this.site.getFunctionName();
+    }
 
-	// private final int visitedCount;
-	private final PredicateValue predicateStatus;
+    @Override
+    public String toString() {
+      StringBuilder builder = new StringBuilder();
+      builder.append("(").append(originalId).append(", ")
+          .append(category.toString()).append(", ")
+          .append(subcategory.toString()).append(')');
+      return builder.toString();
+    }
 
-	public PredicateItem(PredicateKey key, PredicateValue predicateStatus) {
-		super();
-		// this.id = id;
-		// this.predicateType = predicateType;
-		// this.originalId = originalId;
-		this.key = key;
-		this.predicateStatus = predicateStatus;
-	}
+    @Override
+    public int hashCode() {
+      return this.hashCode;
+    }
 
-	public boolean isObserved() {
-		return !this.predicateStatus.equals(PredicateValue.NOT_OBSERVED);
-	}
+    public int computeHashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((category == null) ? 0 : category.hashCode());
+      result = prime * result + originalId;
+      result = prime * result
+          + ((subcategory == null) ? 0 : subcategory.hashCode());
+      return result;
+    }
 
-	public boolean isTrue() {
-		return this.predicateStatus.equals(PredicateValue.TRUE);
-	}
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      PredicateKey other = (PredicateKey) obj;
+      if (category != other.category)
+        return false;
+      if (originalId != other.originalId)
+        return false;
+      if (subcategory != other.subcategory)
+        return false;
+      return true;
+    }
 
-	public boolean isFalse() {
-		return this.predicateStatus.equals(PredicateValue.FALSE);
-	}
+    public int getId() {
+      if (this.id == Integer.MIN_VALUE) {
+        throw new RuntimeException("the id has not been set.");
+      }
+      return this.id;
+    }
 
-	public int getId() {
-		return this.key.getId();
-	}
+  }
 
-	public PredicateKey getKey() {
-		return key;
-	}
+  private final PredicateKey key;
 
-	public PredicateValue getPredicateStatus() {
-		return predicateStatus;
-	}
+  private final PredicateValue predicateStatus;
 
-	@Override
-	public String toString() {
-		return this.getId() + "";
-	}
+  private PredicateItem(PredicateKey key, PredicateValue predicateStatus) {
+    super();
+    this.key = key;
+    this.predicateStatus = predicateStatus;
+  }
+
+  public boolean isObserved() {
+    return this.predicateStatus != (PredicateValue.NOT_OBSERVED);
+  }
+
+  public boolean isTrue() {
+    return this.predicateStatus == (PredicateValue.TRUE);
+  }
+
+  public boolean isFalse() {
+    return this.predicateStatus == (PredicateValue.FALSE);
+  }
+
+  public int getId() {
+    return this.key.getId();
+  }
+
+  public PredicateKey getKey() {
+    return key;
+  }
+
+  public PredicateValue getPredicateStatus() {
+    return predicateStatus;
+  }
+
+  @Override
+  public String toString() {
+    return this.getId() + "";
+  }
 
 }

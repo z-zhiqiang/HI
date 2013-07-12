@@ -4,384 +4,416 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import com.google.common.collect.ImmutableList;
 
 public class InstrumentationSites {
 
-	public static abstract class AbstractSite {
-		final private String fileName;
-		final private int lineNumber;
-		final private String functionName;
-		final private int cfgNumber;
+  public static abstract class AbstractSite {
 
-		public AbstractSite(String fileName, int lineNumber, String functionName,
-				int cfgNumber) {
-			super();
-			this.fileName = fileName.intern();
-			this.lineNumber = lineNumber;
-			this.functionName = functionName.intern();
-			this.cfgNumber = cfgNumber;
-		}
+    final private String fileName;
 
-		public String getFileName() {
-			return fileName;
-		}
+    final private int lineNumber;
 
-		public int getLineNumber() {
-			return lineNumber;
-		}
+    final private String functionName;
 
-		public String getFunctionName() {
-			return functionName;
-		}
+    final private int cfgNumber;
 
-		public int getCfgNumber() {
-			return cfgNumber;
-		}
+    final private int hashCode;
 
-		public String getFileString() {
-			return "file = " + this.fileName + ", cfg = " + this.cfgNumber;
-		}
+    @Override
+    public int hashCode() {
+      return this.hashCode;
+    }
 
-		public String toStringWithoutFile() {
-			StringBuilder builder = new StringBuilder();
+    public int computeHashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + cfgNumber;
+      result = prime * result + ((fileName == null) ? 0 : fileName.hashCode());
+      result = prime * result
+          + ((functionName == null) ? 0 : functionName.hashCode());
+      result = prime * result + lineNumber;
+      return result;
+    }
 
-			this.toString(builder);
-			builder.append(", line=").append(lineNumber).append(", method=")
-					.append(functionName);
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      AbstractSite other = (AbstractSite) obj;
+      if (cfgNumber != other.cfgNumber)
+        return false;
+      if (fileName == null) {
+        if (other.fileName != null)
+          return false;
+      } else if (!fileName.equals(other.fileName))
+        return false;
+      if (functionName == null) {
+        if (other.functionName != null)
+          return false;
+      } else if (!functionName.equals(other.functionName))
+        return false;
+      if (lineNumber != other.lineNumber)
+        return false;
+      return true;
+    }
 
-			return builder.toString();
-		}
+    public AbstractSite(String fileName, int lineNumber, String functionName,
+        int cfgNumber) {
+      super();
+      this.fileName = fileName.intern();
+      this.lineNumber = lineNumber;
+      this.functionName = functionName.intern();
+      this.cfgNumber = cfgNumber;
+      this.hashCode = this.computeHashCode();
+    }
 
-		@Override
-		public String toString() {
-			StringBuilder builder = new StringBuilder();
+    public String getFileName() {
+      return fileName;
+    }
 
-			this.toString(builder);
-			builder.append(", line=").append(lineNumber).append(", method=")
-					.append(functionName).append(", file=").append(fileName)
-					.append(", cfg=").append(cfgNumber);
+    public int getLineNumber() {
+      return lineNumber;
+    }
 
-			return builder.toString();
-		}
+    public String getFunctionName() {
+      return functionName;
+    }
 
-		protected abstract void toString(StringBuilder builder);
-	}
+    public int getCfgNumber() {
+      return cfgNumber;
+    }
 
-	public static class BranchSite extends AbstractSite {
-		final private String predicate;
+    public String getFileString() {
+      return "file = " + this.fileName + ", cfg = " + this.cfgNumber;
+    }
 
-		public BranchSite(String fileName, int lineNumber, String functionName,
-				int cfgNumber, String predicate) {
-			super(fileName, lineNumber, functionName, cfgNumber);
-			this.predicate = predicate.intern();
-		}
+    public String toStringWithoutFile() {
+      StringBuilder builder = new StringBuilder();
 
-		public String getPredicate() {
-			return predicate;
-		}
+      this.toString(builder);
+      builder.append(", line=").append(lineNumber).append(", method=")
+          .append(functionName);
 
-		@Override
-		protected void toString(StringBuilder builder) {
-			builder.append("{predicate=").append(predicate).append('}');
-		}
-	}
+      return builder.toString();
+    }
 
-	public static class ReturnSite extends AbstractSite {
+    @Override
+    public String toString() {
+      StringBuilder builder = new StringBuilder();
 
-		private final String callee;
+      this.toString(builder);
+      builder.append(", line=").append(lineNumber).append(", method=")
+          .append(functionName).append(", file=").append(fileName)
+          .append(", cfg=").append(cfgNumber);
 
-		public ReturnSite(String fileName, int lineNumber, String functionName,
-				int cfgNumber, String callee) {
-			super(fileName, lineNumber, functionName, cfgNumber);
-			this.callee = callee.intern();
-		}
+      return builder.toString();
+    }
 
-		public String getCallee() {
-			return callee;
-		}
+    protected abstract void toString(StringBuilder builder);
+  }
 
-		@Override
-		protected void toString(StringBuilder builder) {
-			builder.append("{callee=").append(callee).append('}');
-		}
-	}
+  public static class BranchSite extends AbstractSite {
 
-	public static class ScalarSite extends AbstractSite {
+    final private String predicate;
 
-		// 5
-		private final String left;
-		// 6
-		private final String leftType;
-		// 7
-		private final String containerType;
-		// 8
-		private final String right;
-		// 9
-		private final String rightType;
+    public BranchSite(String fileName, int lineNumber, String functionName,
+        int cfgNumber, String predicate) {
+      super(fileName, lineNumber, functionName, cfgNumber);
+      this.predicate = predicate.intern();
+    }
 
-		public ScalarSite(String fileName, int lineNumber, String functionName,
-				int cfgNumber, String left, String leftType, String containerType,
-				String right, String rightType) {
-			super(fileName, lineNumber, functionName, cfgNumber);
-			this.left = left.intern();
-			this.leftType = leftType.intern();
-			this.containerType = containerType.intern();
-			this.right = right.intern();
-			this.rightType = rightType.intern();
-		}
+    public String getPredicate() {
+      return predicate;
+    }
 
-		@Override
-		protected void toString(StringBuilder builder) {
-			builder.append("{").append(this.left).append("[").append(this.leftType)
-					.append(",").append(this.containerType).append("]").append(", ")
-					.append(this.right).append("[").append(rightType).append("]")
-					.append("}");
-		}
+    @Override
+    protected void toString(StringBuilder builder) {
+      builder.append("{predicate=").append(predicate).append('}');
+    }
+  }
 
-	}
+  public static class ReturnSite extends AbstractSite {
 
-	public static class FloatKindSite extends AbstractSite {
+    private final String callee;
 
-		// 5
-		private final String left;
+    public ReturnSite(String fileName, int lineNumber, String functionName,
+        int cfgNumber, String callee) {
+      super(fileName, lineNumber, functionName, cfgNumber);
+      this.callee = callee.intern();
+    }
 
-		// 6
-		private final String leftType;
+    public String getCallee() {
+      return callee;
+    }
 
-		// 7
-		private final String containerType;
+    @Override
+    protected void toString(StringBuilder builder) {
+      builder.append("{callee=").append(callee).append('}');
+    }
+  }
 
-		public FloatKindSite(String fileName, int lineNumber, String functionName,
-				int cfgNumber, String left, String leftType, String containerType) {
-			super(fileName, lineNumber, functionName, cfgNumber);
-			this.left = left;
-			this.leftType = leftType;
-			this.containerType = containerType;
-		}
+  public static class ScalarSite extends AbstractSite {
 
-		@Override
-		protected void toString(StringBuilder builder) {
-			builder.append("{").append(this.left).append("[").append(this.leftType)
-					.append(",").append(this.containerType).append("]").append("}");
-		}
+    // 5
+    private final String left;
+    // 6
+    private final String leftType;
+    // 7
+    private final String containerType;
+    // 8
+    private final String right;
+    // 9
+    private final String rightType;
 
-	}
+    public ScalarSite(String fileName, int lineNumber, String functionName,
+        int cfgNumber, String left, String leftType, String containerType,
+        String right, String rightType) {
+      super(fileName, lineNumber, functionName, cfgNumber);
+      this.left = left.intern();
+      this.leftType = leftType.intern();
+      this.containerType = containerType.intern();
+      this.right = right.intern();
+      this.rightType = rightType.intern();
+    }
 
-	private final Map<String, List<ScalarSite>> scalarSites;
+    @Override
+    protected void toString(StringBuilder builder) {
+      builder.append("{").append(this.left).append("[").append(this.leftType)
+          .append(",").append(this.containerType).append("]").append(", ")
+          .append(this.right).append("[").append(rightType).append("]")
+          .append("}");
+    }
 
-	private final Map<String, List<ReturnSite>> returnSites;
+  }
 
-	private final Map<String, List<BranchSite>> branchSites;
+  public static class FloatKindSite extends AbstractSite {
 
-	private final Map<String, List<FloatKindSite>> floatSites;
+    // 5
+    private final String left;
 
-	public FloatKindSite getFloatKindSite(String unit, int index) {
-		return this.floatSites.get(unit).get(index);
-	}
+    // 6
+    private final String leftType;
 
-	public ScalarSite getScalarSite(String unit, int index) {
-		return this.scalarSites.get(unit).get(index);
-	}
+    // 7
+    private final String containerType;
 
-	public ReturnSite getReturnSite(String unit, int index) {
-		return this.returnSites.get(unit).get(index);
-	}
+    public FloatKindSite(String fileName, int lineNumber, String functionName,
+        int cfgNumber, String left, String leftType, String containerType) {
+      super(fileName, lineNumber, functionName, cfgNumber);
+      this.left = left;
+      this.leftType = leftType;
+      this.containerType = containerType;
+    }
 
-	public BranchSite getBranchSite(String unit, int index) {
-		return this.branchSites.get(unit).get(index);
-	}
+    @Override
+    protected void toString(StringBuilder builder) {
+      builder.append("{").append(this.left).append("[").append(this.leftType)
+          .append(",").append(this.containerType).append("]").append("}");
+    }
 
-	public InstrumentationSites(File sitesPath) {
-		Map<String, List<ScalarSite>> scalarSites = new HashMap<String, List<ScalarSite>>();
-		Map<String, List<ReturnSite>> returnSites = new HashMap<String, List<ReturnSite>>();
-		Map<String, List<BranchSite>> branchSites = new HashMap<String, List<BranchSite>>();
-		Map<String, List<FloatKindSite>> floatSites = new HashMap<String, List<FloatKindSite>>();
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(sitesPath));
-			for (String line = reader.readLine(); line != null; line = reader
-					.readLine()) {
-				if (line.startsWith("<sites")) {
-					String unit = getUnitID(line);
-					if (line.contains("scheme=\"branches\"")) {
-						this.readBranches(reader, branchSites, unit);
-					} else if (line.contains("scheme=\"returns\"")) {
-						this.readReturns(reader, returnSites, unit);
-					} else if (line.contains("scheme=\"scalar-pairs\"")) {
-						this.readScalarPairs(reader, scalarSites, unit);
-					} else if (line.contains("scheme=\"float-kinds\"")) {
-						this.readFloatKinds(reader, floatSites, unit);
-					} else {
-						throw new RuntimeException();
-					}
-				}
-			}
-			reader.close();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+  }
 
-		this.scalarSites = Collections.unmodifiableMap(scalarSites);
-		this.returnSites = Collections.unmodifiableMap(returnSites);
-		this.branchSites = Collections.unmodifiableMap(branchSites);
-		this.floatSites = Collections.unmodifiableMap(floatSites);
-	}
-	
-	public static String getUnitID(String line){
-		String[] segs = line.split("\\s+");
-		String unit = segs[1];
-		if(!unit.contains("unit=")){
-			throw new RuntimeException("wrong unit extraction");
-		}
-		String unitid = unit.substring(unit.indexOf("\"") + 1, unit.lastIndexOf("\"")); 
-	    assert(unitid.length() == 32);
-		return unitid;
-	}
+  private final ImmutableList<ScalarSite> scalarSites;
 
-	public void print() {
-//		for (BranchSite s : this.branchSites) {
-//			System.out.println(s);
-//		}
-//		for (ScalarSite s : this.scalarSites) {
-//			System.out.println(s);
-//		}
-//		for (ReturnSite s : this.returnSites) {
-//			System.out.println(s);
-//		}
-//		for (FloatKindSite s : this.floatSites)
-//			System.out.println(s);
-	}
+  private final ImmutableList<ReturnSite> returnSites;
 
-	private void readFloatKinds(BufferedReader reader, Map<String, List<FloatKindSite>> floatSites, String unit)
-			throws NumberFormatException, IOException {
-		ArrayList<FloatKindSite> sites = new ArrayList<InstrumentationSites.FloatKindSite>();
-		for (String line = reader.readLine(); line != null; line = reader
-				.readLine()) {
-			if (line.contains("</sites>")) {
-				break;
-			} else {
-				String[] s = line.split("\t");
-				if (s.length != 7) {
-					throw new RuntimeException();
-				}
-				String fileName = s[0];
-				int lineNumber = Integer.parseInt(s[1]);
-				String functionName = s[2];
-				int cfgNumber = Integer.parseInt(s[3]);
+  private final ImmutableList<BranchSite> branchSites;
 
-				String left = s[4];
-				String leftType = s[5];
-				String containerType = s[6];
-				sites.add(new FloatKindSite(fileName, lineNumber, functionName,
-						cfgNumber, left, leftType, containerType));
-			}
-		}
-		if(floatSites.containsKey(unit)){
-			throw new RuntimeException("Wrong sites information: <unit, scheme> is not unique!!");
-		}
-		floatSites.put(unit, sites);
-	}
+  private final ImmutableList<FloatKindSite> floatSites;
 
-	private void readBranches(BufferedReader reader, Map<String, List<BranchSite>> branchSites, String unit)
-			throws NumberFormatException, IOException {
-		ArrayList<BranchSite> sites = new ArrayList<InstrumentationSites.BranchSite>();
-		for (String line = reader.readLine(); line != null; line = reader
-				.readLine()) {
-			if (line.contains("</sites>")) {
-				break;
-			} else {
-				String[] s = line.split("\t");
-				if (s.length != 5) {
-					throw new RuntimeException();
-				}
-				String fileName = s[0];
-				int lineNumber = Integer.parseInt(s[1]);
-				String functionName = s[2];
-				int cfgNumber = Integer.parseInt(s[3]);
-				String predicate = s[4];
-				sites.add(new BranchSite(fileName, lineNumber, functionName, cfgNumber,
-						predicate));
-			}
-		}
-		if(branchSites.containsKey(unit)){
-			throw new RuntimeException("Wrong sites information: <unit, scheme> is not unique!!");
-		}
-		branchSites.put(unit, sites);
-	}
+  public FloatKindSite getFloatKindSite(int index) {
+    return this.floatSites.get(index);
+  }
 
-	private void skip(BufferedReader reader) throws IOException {
-		for (String line = reader.readLine(); line != null
-				&& !line.contains("</sites>"); line = reader.readLine()) {
-		}
-	}
+  public ScalarSite getScalarSite(int index) {
+    return this.scalarSites.get(index);
+  }
 
-	private void readReturns(BufferedReader reader, Map<String, List<ReturnSite>> returnSites, String unit)
-			throws NumberFormatException, IOException {
-		ArrayList<ReturnSite> sites = new ArrayList<InstrumentationSites.ReturnSite>();
-		for (String line = reader.readLine(); line != null; line = reader
-				.readLine()) {
-			if (line.contains("</sites>")) {
-				break;
-			} else {
-				String[] s = line.split("\t");
-				if (s.length != 5) {
-					throw new RuntimeException();
-				}
-				String fileName = s[0];
-				int lineNumber = Integer.parseInt(s[1]);
-				String functionName = s[2];
-				int cfgNumber = Integer.parseInt(s[3]);
-				String callee = s[4];
-				sites.add(new ReturnSite(fileName, lineNumber, functionName, cfgNumber,
-						callee));
-			}
-		}
-		if(returnSites.containsKey(unit)){
-			throw new RuntimeException("Wrong sites information: <unit, scheme> is not unique!!");
-		}
-		returnSites.put(unit, sites);
-	}
+  public ReturnSite getReturnSite(int index) {
+    return this.returnSites.get(index);
+  }
 
-	private void readScalarPairs(BufferedReader reader, Map<String, List<ScalarSite>> scalarSites, String unit)
-			throws IOException {
-		ArrayList<ScalarSite> sites = new ArrayList<InstrumentationSites.ScalarSite>();
-		for (String line = reader.readLine(); line != null; line = reader
-				.readLine()) {
-			if (line.contains("</sites>")) {
-				break;
-			} else {
-				String[] s = line.split("\t");
-				if (s.length != 9) {
-					throw new RuntimeException();
-				}
-				String fileName = s[0];
-				int lineNumber = Integer.parseInt(s[1]);
-				String functionName = s[2];
-				int cfgNumber = Integer.parseInt(s[3]);
-				String left = s[4];
-				String leftType = s[5];
-				String containerType = s[6];
-				String right = s[7];
-				String rightType = s[8];
-				sites.add(new ScalarSite(fileName, lineNumber, functionName, cfgNumber,
-						left, leftType, containerType, right, rightType));
-			}
-		}
-		if(scalarSites.containsKey(unit)){
-			throw new RuntimeException("Wrong sites information: <unit, scheme> is not unique!!");
-		}
-		scalarSites.put(unit, sites);
-	}
+  public BranchSite getBranchSite(int index) {
+    return this.branchSites.get(index);
+  }
 
-	public static void main(String[] args) {
+  public static InstrumentationSites manuallyCreateInstrumentationSitesForBranches(
+      ImmutableList<BranchSite> branchSites) {
+    return new InstrumentationSites(branchSites);
+  }
 
-		File file = new File(
-				"/home/neo/experiments/predicate-debug/print_tokens/versions/v1/sites.txt");
-		new InstrumentationSites(file).print();
-	}
+  private InstrumentationSites(ImmutableList<BranchSite> branchSites) {
+    this.scalarSites = ImmutableList.of();
+    this.returnSites = ImmutableList.of();
+    this.branchSites = branchSites;
+    this.floatSites = ImmutableList.of();
+  }
+
+  public InstrumentationSites(File sitesPath) {
+    ImmutableList.Builder<ScalarSite> scalarSites = ImmutableList.builder();
+    ImmutableList.Builder<ReturnSite> returnSites = ImmutableList.builder();
+    ImmutableList.Builder<BranchSite> branchSites = ImmutableList.builder();
+    ImmutableList.Builder<FloatKindSite> floats = ImmutableList.builder();
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(sitesPath));
+      for (String line = reader.readLine(); line != null; line = reader
+          .readLine()) {
+        if (line.startsWith("<sites")) {
+          if (line.contains("scheme=\"branches\"")) {
+            this.readBranches(reader, branchSites);
+          } else if (line.contains("scheme=\"returns\"")) {
+            this.readReturns(reader, returnSites);
+          } else if (line.contains("scheme=\"function-entries\"")) {
+            skip(reader);
+          } else if (line.contains("scheme=\"scalar-pairs\"")) {
+            this.readScalarPairs(reader, scalarSites);
+          } else if (line.contains("scheme=\"float-kinds\"")) {
+            this.readFloatKinds(reader, floats);
+          } else {
+            throw new RuntimeException();
+          }
+        }
+      }
+      reader.close();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    this.scalarSites = scalarSites.build();
+    this.returnSites = returnSites.build();
+    this.branchSites = branchSites.build();
+    this.floatSites = floats.build();
+  }
+
+  public void print() {
+    for (BranchSite s : this.branchSites) {
+      System.out.println(s);
+    }
+    for (ScalarSite s : this.scalarSites) {
+      System.out.println(s);
+    }
+    for (ReturnSite s : this.returnSites) {
+      System.out.println(s);
+    }
+    for (FloatKindSite s : this.floatSites)
+      System.out.println(s);
+  }
+
+  private void readFloatKinds(BufferedReader reader,
+      ImmutableList.Builder<FloatKindSite> builder)
+      throws NumberFormatException, IOException {
+    for (String line = reader.readLine(); line != null; line = reader
+        .readLine()) {
+      if (line.contains("</sites>")) {
+        break;
+      } else {
+        String[] s = line.split("\t");
+        if (s.length != 7) {
+          throw new RuntimeException();
+        }
+        String fileName = s[0];
+        int lineNumber = Integer.parseInt(s[1]);
+        String functionName = s[2];
+        int cfgNumber = Integer.parseInt(s[3]);
+
+        String left = s[4];
+        String leftType = s[5];
+        String containerType = s[6];
+        builder.add(new FloatKindSite(fileName, lineNumber, functionName,
+            cfgNumber, left, leftType, containerType));
+      }
+    }
+  }
+
+  private void readBranches(BufferedReader reader,
+      ImmutableList.Builder<BranchSite> builder) throws NumberFormatException,
+      IOException {
+    for (String line = reader.readLine(); line != null; line = reader
+        .readLine()) {
+      if (line.contains("</sites>")) {
+        break;
+      } else {
+        String[] s = line.split("\t");
+        if (s.length != 5) {
+          throw new RuntimeException();
+        }
+        String fileName = s[0];
+        int lineNumber = Integer.parseInt(s[1]);
+        String functionName = s[2];
+        int cfgNumber = Integer.parseInt(s[3]);
+        String predicate = s[4];
+        builder.add(new BranchSite(fileName, lineNumber, functionName,
+            cfgNumber, predicate));
+      }
+    }
+  }
+
+  private void skip(BufferedReader reader) throws IOException {
+    for (String line = reader.readLine(); line != null
+        && !line.contains("</sites>"); line = reader.readLine()) {
+    }
+  }
+
+  private void readReturns(BufferedReader reader,
+      ImmutableList.Builder<ReturnSite> builder) throws NumberFormatException,
+      IOException {
+    for (String line = reader.readLine(); line != null; line = reader
+        .readLine()) {
+      if (line.contains("</sites>")) {
+        break;
+      } else {
+        String[] s = line.split("\t");
+        if (s.length != 5) {
+          throw new RuntimeException();
+        }
+        String fileName = s[0];
+        int lineNumber = Integer.parseInt(s[1]);
+        String functionName = s[2];
+        int cfgNumber = Integer.parseInt(s[3]);
+        String callee = s[4];
+        builder.add(new ReturnSite(fileName, lineNumber, functionName,
+            cfgNumber, callee));
+      }
+    }
+  }
+
+  private void readScalarPairs(BufferedReader reader,
+      ImmutableList.Builder<ScalarSite> builder) throws IOException {
+    for (String line = reader.readLine(); line != null; line = reader
+        .readLine()) {
+      if (line.contains("</sites>")) {
+        break;
+      } else {
+        String[] s = line.split("\t");
+        if (s.length != 9) {
+          throw new RuntimeException();
+        }
+        String fileName = s[0];
+        int lineNumber = Integer.parseInt(s[1]);
+        String functionName = s[2];
+        int cfgNumber = Integer.parseInt(s[3]);
+        String left = s[4];
+        String leftType = s[5];
+        String containerType = s[6];
+        String right = s[7];
+        String rightType = s[8];
+        builder.add(new ScalarSite(fileName, lineNumber, functionName,
+            cfgNumber, left, leftType, containerType, right, rightType));
+      }
+    }
+  }
+
+  public static void main(String[] args) {
+
+    File file = new File(
+        "/home/neo/experiments/predicate-debug/print_tokens/versions/v1/sites.txt");
+    new InstrumentationSites(file).print();
+  }
 
 }

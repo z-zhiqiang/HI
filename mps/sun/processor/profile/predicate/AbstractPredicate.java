@@ -4,46 +4,67 @@ import sun.processor.profile.InstrumentationSites.AbstractSite;
 
 public abstract class AbstractPredicate {
 
-	protected final int id;
+  /**
+   * id is a unique identify for a predicate. two predicates are the same if
+   * they have the same id.
+   */
+  protected final int id;
 
-	// protected String containingMethodName;
-	protected final AbstractSite site;
+  protected final AbstractSite site;
 
-	public AbstractPredicate(int id, AbstractSite site) {
-		this.id = id;
-		// this.containingMethodName = containingMethodName;
-		this.site = site;
-	}
+  @Override
+  public int hashCode() {
+    return this.id;
+  }
 
-	public int getId() {
-		return id;
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    AbstractPredicate other = (AbstractPredicate) obj;
+    if (id != other.id)
+      return false;
+    return true;
+  }
 
-	public AbstractSite getSite() {
-		return site;
-	}
+  public AbstractPredicate(int id, AbstractSite site) {
+    this.id = id;
+    this.site = site;
+  }
 
-	public String getMethodName() {
-		return this.site.getFunctionName();
-	}
+  public int getId() {
+    return id;
+  }
 
-	protected byte normalize(int counter) {
-		return (byte) (counter > 0 ? 1 : 0);
-	}
+  public AbstractSite getSite() {
+    return site;
+  }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Preciate(scheme = ").append(this.getScheme())
-				.append(", id=").append(this.id).append(", method=")
-				.append(this.site.getFunctionName()).append(", ");
-		this.toSpecificString(builder);
-		builder.append(")");
-		return builder.toString();
-	}
+  public String getMethodName() {
+    return this.site.getFunctionName();
+  }
 
-	protected abstract String getScheme();
+  public static byte normalize(int counter) {
+    return (byte) (counter > 0 ? 1 : 0);
+  }
 
-	protected abstract void toSpecificString(StringBuilder builder);
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("Preciate(scheme = ").append(this.getScheme())
+        .append(", id=").append(this.id).append(", method=")
+        .append(this.site.getFunctionName()).append(", ");
+    this.toSpecificString(builder);
+    builder.append(")");
+    return builder.toString();
+  }
+
+  protected abstract String getScheme();
+
+  protected abstract void toSpecificString(StringBuilder builder);
 
 }

@@ -18,7 +18,7 @@ import zuo.util.file.FileUtility;
 
 
 public class GenSiemensScriptsClient {
-	public final static String rootDir = "/run/media/sunzzq/Research/Research/My_research/Automated_Bug_Isolation/Twopass/Subjects/";
+	public final static String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/";
 	final static String subject = "space";
 	final static int vs = 38;
 	final String version;
