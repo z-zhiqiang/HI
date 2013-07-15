@@ -1,8 +1,6 @@
 package zuo.processor.cbi.processor;
 
-import sun.processor.predicate.PredicateItem.PredicateKey;
 import zuo.processor.cbi.site.InstrumentationSites.AbstractSite;
-import zuo.processor.cbi.site.InstrumentationSites.SiteCategory;
 
 public class PredicateItem {
 	public static enum SiteCategory {

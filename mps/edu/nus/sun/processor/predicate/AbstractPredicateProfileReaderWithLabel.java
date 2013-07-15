@@ -37,13 +37,4 @@ public abstract class AbstractPredicateProfileReaderWithLabel extends
         this.scalarFactory, this.branchFactory, this.returnFactory);
   }
 
-  @Override
-  protected String mapToTestOutput(final String profileName) {
-    final int index = profileName.indexOf(".profile");
-    if (index < 0) {
-      throw new RuntimeException();
-    }
-    return profileName.substring(0, index);
-  }
-
 }
