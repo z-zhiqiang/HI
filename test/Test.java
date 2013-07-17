@@ -10,6 +10,6 @@ public class Test {
 //		MakeTestScript.main(args);
 		double a = 0.234;
 		System.out.println(new DecimalFormat(".#").format(a));
-		
+		assert(2 == 3);
 	}
 }

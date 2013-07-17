@@ -19,42 +19,50 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
  *
  */
 public class PruningProcessor {
-	private Map<FunctionEntrySite, Integer> frequencyMap = new LinkedHashMap<FunctionEntrySite, Integer>();
+	private Map<FunctionEntrySite, Integer> negativeFrequencyMap = new LinkedHashMap<FunctionEntrySite, Integer>();
+	private final int totalNegative;
 	
-	/**constructor based on data set
-	 * @param dataset
-	 */
-	public PruningProcessor(FunctionEntryDataSet dataset){
-		Set<Integer>[] itemSets = dataset.getDataset();
-		Map<Integer, FunctionEntrySite> map = dataset.getFunctionIdSiteMap();
-		
-		for(Set<Integer> itemset: itemSets){
-			for(int item: itemset){
-				FunctionEntrySite function = map.get(item);
-				if(frequencyMap.containsKey(function)){
-					frequencyMap.put(function, frequencyMap.get(function) + 1);
-				}
-				else{
-					frequencyMap.put(function, 1);
-				}
-			}
-		}
-	}
+//	/**constructor based on data set
+//	 * @param dataset
+//	 */
+//	public PruningProcessor(FunctionEntryDataSet dataset){
+//		Set<Integer>[] itemSets = dataset.getDataset();
+//		Map<Integer, FunctionEntrySite> map = dataset.getFunctionIdSiteMap();
+//		
+//		for(Set<Integer> itemset: itemSets){
+//			for(int item: itemset){
+//				FunctionEntrySite function = map.get(item);
+//				if(negativeFrequencyMap.containsKey(function)){
+//					negativeFrequencyMap.put(function, negativeFrequencyMap.get(function) + 1);
+//				}
+//				else{
+//					negativeFrequencyMap.put(function, 1);
+//				}
+//			}
+//		}
+//	}
 	
 	/**constructor based on profiles
 	 * @param profiles
 	 */
 	public PruningProcessor(FunctionEntryProfile[] profiles){
+		this.totalNegative = profiles.length;
+		
 		for(int i = 0; i < profiles.length; i++){
 			FunctionEntryProfile profile = profiles[i];
 			for(FunctionEntryItem item: profile.getFunctionEntryItems()){
+				FunctionEntrySite function = item.getSite();
 				if(item.getCounter() > 0){
-					FunctionEntrySite function = item.getSite();
-					if(frequencyMap.containsKey(function)){
-						frequencyMap.put(function, frequencyMap.get(function) + 1);
+					if(negativeFrequencyMap.containsKey(function)){
+						negativeFrequencyMap.put(function, negativeFrequencyMap.get(function) + 1);
 					}
 					else{
-						frequencyMap.put(function, 1);
+						negativeFrequencyMap.put(function, 1);
+					}
+				}
+				else{
+					if(!negativeFrequencyMap.containsKey(function)){
+						negativeFrequencyMap.put(function, 0);
 					}
 				}
 			}
@@ -69,8 +77,8 @@ public class PruningProcessor {
 	public List<String> getSuspectFunctions(int bound){
 		List<String> susList = new ArrayList<String>();
 		
-		for(FunctionEntrySite function: frequencyMap.keySet()){
-			if(frequencyMap.get(function) >= bound){
+		for(FunctionEntrySite function: negativeFrequencyMap.keySet()){
+			if(negativeFrequencyMap.get(function) >= bound){
 				susList.add(function.getNameAndLineNumber());
 			}
 		}
@@ -101,7 +109,7 @@ public class PruningProcessor {
 		System.out.println("\n\n");
 		
 		PruningProcessor pro = new PruningProcessor(profiles);
-		System.out.println(pro.frequencyMap);
+		System.out.println(pro.negativeFrequencyMap);
 		List<String> calls = pro.getSuspectFunctions(153);
 		System.out.println(calls.size());
 		for (int i = 0; i < calls.size(); i++) {

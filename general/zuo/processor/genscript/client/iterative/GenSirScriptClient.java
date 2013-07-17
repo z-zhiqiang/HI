@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import sir.mts.MakeTestScript;
-import zuo.processor.functionentry.client.Client;
-import zuo.processor.functionentry.client.FunctionClient.Score;
+import zuo.processor.functionentry.client.iterative.Client;
+import zuo.processor.functionentry.client.iterative.FunctionClient.Score;
 import zuo.processor.genscript.sir.iterative.AbstractGenRunAllScript;
 import zuo.processor.genscript.sir.iterative.AbstractGenRunScript;
 import zuo.processor.genscript.sir.iterative.GenRunAdaptiveFineGrainedInstrumentScript;

@@ -35,8 +35,20 @@ public class FileUtil {
 		};
 	}
 
+	public static FilenameFilter createFailingProfileFilter() {
+		return new FilenameFilter() {
+			@Override
+			public boolean accept(File arg0, String name) {
+				return Pattern.matches(failingProfileFilterPattern(), name);
+			}
+		};
+	}
+	
 	public static String profileFilterPattern() {
 		return "o[0-9]+\\.[fp]profile";
 	}
 
+	public static String failingProfileFilterPattern() {
+		return "o[0-9]+\\.fprofile";
+	}
 }

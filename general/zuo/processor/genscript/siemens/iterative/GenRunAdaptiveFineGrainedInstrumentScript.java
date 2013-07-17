@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import zuo.processor.functionentry.client.FunctionClient.Score;
+import zuo.processor.functionentry.client.iterative.FunctionClient.Score;
 import zuo.processor.genscript.client.iterative.GenSiemensScriptsClient;
 import zuo.processor.genscript.client.iterative.GenSirScriptClient;
 import zuo.util.file.FileUtility;

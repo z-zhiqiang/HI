@@ -1,4 +1,4 @@
-package zuo.processor.functionentry.client;
+package zuo.processor.functionentry.client.iterative;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
 import zuo.processor.cbi.client.CBIClient;
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
-import zuo.processor.functionentry.client.FunctionClient.Order;
-import zuo.processor.functionentry.client.FunctionClient.Score;
+import zuo.processor.functionentry.client.iterative.FunctionClient.Order;
+import zuo.processor.functionentry.client.iterative.FunctionClient.Score;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class Client {

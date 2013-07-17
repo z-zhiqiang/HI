@@ -24,13 +24,6 @@ public class FunctionEntryProfileReader {
 		if (profiles.length == 0)
 			throw new RuntimeException("No profiles in folder " + this.profileFolder);
 		
-//		for (int i = 0; i < numRuns; i++) {
-//			String name = profiles[i].getName();
-//			if(name.contains(".fprofile"))
-//			System.out.println(profiles[i].getName());
-//		}
-		
-//		FunctionEntryProfile[] FEProfiles = new FunctionEntryProfile[profiles.length];
 		int m = profiles.length/numRuns;
 		FunctionEntryProfile[] FEProfiles = new FunctionEntryProfile[numRuns];
 		for (int i = 0, j = 0; i < profiles.length && j < numRuns; i++) {
@@ -50,6 +43,30 @@ public class FunctionEntryProfileReader {
 		}
 		
 		return FEProfiles;
+	}
+	
+	public FunctionEntryProfile[] readFailingFunctionEntryProfiles(){
+		System.out.println("Reading failing profiles in folder: " + this.profileFolder);
+		File[] profiles = new File(profileFolder).listFiles(FileUtil.createFailingProfileFilter());
+		Arrays.sort(profiles, new FileUtil.FileComparator());
+		if (profiles.length == 0)
+			throw new RuntimeException("No failing profiles in folder " + this.profileFolder);
+		
+		FunctionEntryProfile[] FFEProfiles = new FunctionEntryProfile[profiles.length];
+		for(int i = 0; i < profiles.length; i++){
+			if((i + 1) % 5 == 0){
+				System.out.println(".");
+			}
+			if((i + 1) % 600 == 0){
+				System.out.println();
+			}
+			
+			assert(profiles[i].getName().endsWith(".fprofile"));
+			
+			FFEProfiles[i] = new FunctionEntryProfile(profiles[i], sites, false);
+		}
+		
+		return FFEProfiles;
 	}
 	
 
