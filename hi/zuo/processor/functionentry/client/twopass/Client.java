@@ -1,30 +1,24 @@
-package edu.nus.sun.processor.predicate;
+package zuo.processor.functionentry.client.twopass;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.regex.Pattern;
 
-public class MPSClient {
+import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
+
+public class Client {
 	private static final String DATASET_FOLDER_NAME = "predicate-dataset";
 
 	private static final String EXPERIMENT_ROOT = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/";
 
 
-	public static void main(String[] args) throws SecurityException, IllegalArgumentException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-		construct("gzip", DefaultPredicateProcessorWithLabel.class);
+	public static void main(String[] args) {
+		construct("gzip");
 	}
 	
-	
-	public static void construct(String projectName,
-			Class<? extends DefaultPredicateProcessorWithLabel> constructor)
-			throws SecurityException, NoSuchMethodException,
-			IllegalArgumentException, InstantiationException,
-			IllegalAccessException, InvocationTargetException {
-		
+	public static void construct(String projectName){
 		File projectRoot = new File(EXPERIMENT_ROOT, projectName);
 		if (!projectRoot.exists())
 			throw new RuntimeException("Project " + projectRoot + " does not exist!");
@@ -55,9 +49,7 @@ public class MPSClient {
 					resultOutputFolder.mkdir();
 				}
 				      
-				Constructor<? extends DefaultPredicateProcessorWithLabel> con = constructor
-						.getConstructor(File.class, File.class, File.class);
-				DefaultPredicateProcessorWithLabel instance = con.newInstance(profiles, resultOutputFolder, sitesInfoPath);
+				DefaultPredicateProcessorWithLabel instance = new DefaultPredicateProcessorWithLabel(profiles, resultOutputFolder, sitesInfoPath);
 				instance.run();
 			}
 		} 
@@ -103,9 +95,7 @@ public class MPSClient {
 						resultOutputFolder.mkdir();
 					}
 					
-					Constructor<? extends DefaultPredicateProcessorWithLabel> con = constructor
-							.getConstructor(File.class, File.class, File.class);
-					DefaultPredicateProcessorWithLabel instance = con.newInstance(profiles, resultOutputFolder, sitesInfoPath);
+					DefaultPredicateProcessorWithLabel instance = new DefaultPredicateProcessorWithLabel(profiles, resultOutputFolder, sitesInfoPath);
 					instance.run();
 				}
 				
