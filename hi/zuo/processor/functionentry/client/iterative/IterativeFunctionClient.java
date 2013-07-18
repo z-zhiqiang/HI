@@ -26,7 +26,7 @@ import zuo.processor.functionentry.profile.FunctionEntryProfileReader;
 import zuo.processor.functionentry.site.FunctionEntrySite;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 
-public class FunctionClient {
+public class IterativeFunctionClient {
 	public static final int TOP_K = 10;
 
 	public static enum Score{
@@ -58,7 +58,7 @@ public class FunctionClient {
 	
 	final String methodsFileDir;
 	
-	public FunctionClient(int runs, File sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, Map<String, Double> methodsM, PrintWriter cWriter, String methodsF) {
+	public IterativeFunctionClient(int runs, File sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, Map<String, Double> methodsM, PrintWriter cWriter, String methodsF) {
 		this.runs = runs;
 		this.sitesFile = sitesFile;
 		this.profilesFolder = profilesFolder;
@@ -89,7 +89,7 @@ public class FunctionClient {
 		}
 	}
 	
-	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, Map<String, Double> methodsM, PrintWriter cWriter){
+	public IterativeFunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, Map<String, Double> methodsM, PrintWriter cWriter){
 		this.runs = runs;
 		this.sitesFile = new File(rootDir + subject + "/versions/" + version + "/" + version + "_c.sites");
 		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";
@@ -121,7 +121,7 @@ public class FunctionClient {
 		
 	}
 	
-	public FunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, PrintWriter cWriter){
+	public IterativeFunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, PrintWriter cWriter){
 		this.runs = runs;
 		this.sitesFile = new File(rootDir + subject + "/versions/" + version + "/" + version + "_c.sites");
 		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";

@@ -3,7 +3,7 @@ package zuo.processor.genscript.siemens.iterative;
 import java.util.HashSet;
 import java.util.Set;
 
-import zuo.processor.functionentry.client.iterative.FunctionClient.Score;
+import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
 
 public class GenRunAllAdaptiveInstrumentedScript extends AbstractGenRunAllScript {
 	final Set<Integer> subs;

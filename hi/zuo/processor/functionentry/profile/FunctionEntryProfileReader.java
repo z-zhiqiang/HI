@@ -55,7 +55,7 @@ public class FunctionEntryProfileReader {
 		FunctionEntryProfile[] FFEProfiles = new FunctionEntryProfile[profiles.length];
 		for(int i = 0; i < profiles.length; i++){
 			if((i + 1) % 5 == 0){
-				System.out.println(".");
+				System.out.print(".");
 			}
 			if((i + 1) % 600 == 0){
 				System.out.println();
