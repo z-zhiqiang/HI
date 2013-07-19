@@ -27,7 +27,7 @@ public class TwopassFunctionClient {
 	final SitesInfo sInfo;
 	private List list;
 	
-	public TwopassFunctionClient(File csitesFile, String profilesFolder, File fsitesFile){
+	public TwopassFunctionClient(File csitesFile, File profilesFolder, File fsitesFile){
 		FunctionEntrySites sites = new FunctionEntrySites(csitesFile);
 		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFolder, sites);
 		failingProfiles = reader.readFailingFunctionEntryProfiles();
@@ -155,7 +155,7 @@ public class TwopassFunctionClient {
 	
 	public static void main(String[] args) {
 		TwopassFunctionClient client = new TwopassFunctionClient(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/grep/versions/v1/subv3/v1_subv3_c.sites"), 
-				"/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/grep/traces/v1/subv3/coarse-grained",
+				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/grep/traces/v1/subv3/coarse-grained"),
 				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/grep/versions/v1/subv3/v1_subv3_f.sites"));
 		System.out.println();
 		client.printEntry();

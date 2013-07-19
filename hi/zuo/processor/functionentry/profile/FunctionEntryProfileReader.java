@@ -8,10 +8,10 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
 import zuo.util.file.FileUtil;
 
 public class FunctionEntryProfileReader {
-	private final String profileFolder;
+	private final File profileFolder;
 	private final FunctionEntrySites sites;
 	
-	public FunctionEntryProfileReader(String proFolder, FunctionEntrySites sites){
+	public FunctionEntryProfileReader(File proFolder, FunctionEntrySites sites){
 		this.profileFolder = proFolder;
 		this.sites = sites;
 	}
@@ -19,7 +19,7 @@ public class FunctionEntryProfileReader {
 	public FunctionEntryProfile[] readFunctionEntryProfiles(int numRuns){
 		System.out.println("Reading profiles in folder: " + this.profileFolder);
 		
-		File[] profiles = new File(profileFolder).listFiles(FileUtil.createProfileFilter());
+		File[] profiles = profileFolder.listFiles(FileUtil.createProfileFilter());
 		Arrays.sort(profiles, new FileUtil.FileComparator());
 		if (profiles.length == 0)
 			throw new RuntimeException("No profiles in folder " + this.profileFolder);
@@ -47,7 +47,7 @@ public class FunctionEntryProfileReader {
 	
 	public FunctionEntryProfile[] readFailingFunctionEntryProfiles(){
 		System.out.println("Reading failing profiles in folder: " + this.profileFolder);
-		File[] profiles = new File(profileFolder).listFiles(FileUtil.createFailingProfileFilter());
+		File[] profiles = profileFolder.listFiles(FileUtil.createFailingProfileFilter());
 		Arrays.sort(profiles, new FileUtil.FileComparator());
 		if (profiles.length == 0)
 			throw new RuntimeException("No failing profiles in folder " + this.profileFolder);

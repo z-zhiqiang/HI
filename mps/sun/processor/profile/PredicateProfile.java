@@ -214,12 +214,12 @@ public class PredicateProfile extends AbstractProfile implements
     return list;
   }
 
-  public static void main(String[] args) {
-    System.out.println(Arrays.toString(split("1\t2", 2)));
-    System.out.println(Arrays.toString(split("1\t2\t3", 3)));
-    System.out.println(Arrays.toString(split("1", 1)));
-    System.out.println(Arrays.toString(split("1\t2\t3\t4", 4)));
-  }
+//  public static void main(String[] args) {
+//    System.out.println(Arrays.toString(split("1\t2", 2)));
+//    System.out.println(Arrays.toString(split("1\t2\t3", 3)));
+//    System.out.println(Arrays.toString(split("1", 1)));
+//    System.out.println(Arrays.toString(split("1\t2\t3\t4", 4)));
+//  }
 
   private void readReturns(BufferedReader reader,
       ImmutableList.Builder<ReturnPredicate> predicates,

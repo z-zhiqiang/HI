@@ -3,8 +3,6 @@ package sun.processor.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import sun.processor.graph.IDataSet;
-
 public class Processor {
 
 	public static class BackEnd {

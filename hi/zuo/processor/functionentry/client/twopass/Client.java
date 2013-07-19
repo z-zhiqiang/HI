@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
@@ -85,17 +86,31 @@ public class Client {
 					String vi = version.getName() + "/" + subversion.getName();
 					System.out.println(vi);
 					
-					File profiles = new File(new File(projectRoot, "traces"), vi + "/fine-grained/");
-					if (!profiles.exists()) {
-						throw new RuntimeException("Faulty version folder " + profiles + " does not exist.");
+					//profiles folders
+					File fProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/fine-grained/");
+					if (!fProfilesFolder.exists()) {
+						throw new RuntimeException("Fine-grained faulty profiles folder " + fProfilesFolder + " does not exist.");
 					}
-					final File sitesInfoPath = new File(projectRoot, "versions/" + vi + "/" + version.getName() + "_" + subversion.getName() + "_f.sites");
+					File cProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/coarse-grained/");
+					if(!cProfilesFolder.exists()){
+						throw new RuntimeException("Coarse-grained faulty profiles folder " + cProfilesFolder + " does not exist.");
+					}
+					
+					//instrumentation sites files
+					final File fSitesFile = new File(projectRoot, "versions/" + vi + "/" + version.getName() + "_" + subversion.getName() + "_f.sites");
+					final File cSitesFile = new File(projectRoot, "versions/" + vi + "/" + version.getName() + "_" + subversion.getName() + "_c.sites");
+					
+					//dataset output folder
 					final File resultOutputFolder = new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
 					if(!resultOutputFolder.exists()){
 						resultOutputFolder.mkdir();
 					}
 					
-					DefaultPredicateProcessorWithLabel instance = new DefaultPredicateProcessorWithLabel(profiles, resultOutputFolder, sitesInfoPath);
+//					TwopassFunctionClient funClient = new TwopassFunctionClient(cSitesFile, cProfilesFolder, fSitesFile);
+//					funClient.printEntry();
+//					Set<String> functionSet = funClient.getBoostFunctionSet((byte)0, 0.1f);
+					
+					DefaultPredicateProcessorWithLabel instance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, resultOutputFolder, fSitesFile);
 					instance.run();
 				}
 				

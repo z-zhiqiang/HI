@@ -2,9 +2,9 @@ package sun.processor.predicate.constructor;
 
 import java.util.ArrayList;
 
+import sun.processor.core.IDataSet;
 import sun.processor.core.IDataSetConstructor;
 import sun.processor.core.IProfile;
-import sun.processor.graph.IDataSet;
 import sun.processor.predicate.PredicateDataSet;
 import sun.processor.predicate.PredicateItem;
 import sun.processor.predicate.PredicateItem.PredicateKey;

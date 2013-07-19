@@ -1,7 +1,7 @@
 package sun.processor.predicate.processor;
 
+import sun.processor.core.IDataSet;
 import sun.processor.core.IDataSetProcessor;
-import sun.processor.graph.IDataSet;
 import sun.processor.predicate.PredicateDataSet;
 
 public abstract class AbstractPredicateDataSetProcessor implements

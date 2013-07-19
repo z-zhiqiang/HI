@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import edu.nus.sun.processor.predicate.DefaultPredicateProfileReaderWithLabel;
-import sun.main.AbstractProcessorWithLabels;
 import sun.processor.core.IDataSetConstructor;
 import sun.processor.core.IDataSetProcessor;
 import sun.processor.core.IProfileProcessor;

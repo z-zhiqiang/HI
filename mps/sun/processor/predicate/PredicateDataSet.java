@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import sun.processor.core.IDataSet;
 import sun.processor.core.IProfile;
-import sun.processor.graph.IDataSet;
 import sun.processor.predicate.PredicateItem.PredicateKey;
 import sun.processor.profile.IPredicateProfile;
 

@@ -40,7 +40,7 @@ public class IterativeFunctionClient {
 	final int runs;
 	
 	final File sitesFile;
-	final String profilesFolder;
+	final File profilesFolder;
 	final String consoleFile;
 	
 	final SitesInfo sInfo;
@@ -58,7 +58,7 @@ public class IterativeFunctionClient {
 	
 	final String methodsFileDir;
 	
-	public IterativeFunctionClient(int runs, File sitesFile, String profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, Map<String, Double> methodsM, PrintWriter cWriter, String methodsF) {
+	public IterativeFunctionClient(int runs, File sitesFile, File profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, Map<String, Double> methodsM, PrintWriter cWriter, String methodsF) {
 		this.runs = runs;
 		this.sitesFile = sitesFile;
 		this.profilesFolder = profilesFolder;
@@ -92,7 +92,7 @@ public class IterativeFunctionClient {
 	public IterativeFunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, Map<String, Double> methodsM, PrintWriter cWriter){
 		this.runs = runs;
 		this.sitesFile = new File(rootDir + subject + "/versions/" + version + "/" + version + "_c.sites");
-		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";
+		this.profilesFolder = new File(rootDir + subject + "/traces/" + version + "/coarse-grained");
 		this.consoleFile = consoleFolder + subject + "_" + version + "_function.out"; 
 		this.sInfo = sInfo;
 		this.predictors = predictors;
@@ -124,7 +124,7 @@ public class IterativeFunctionClient {
 	public IterativeFunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, PrintWriter cWriter){
 		this.runs = runs;
 		this.sitesFile = new File(rootDir + subject + "/versions/" + version + "/" + version + "_c.sites");
-		this.profilesFolder = rootDir + subject + "/traces/" + version + "/coarse-grained";
+		this.profilesFolder = new File(rootDir + subject + "/traces/" + version + "/coarse-grained");
 		this.consoleFile = consoleFolder + subject + "_" + version + "_function.out";
 		
 		this.sInfo = new SitesInfo(new InstrumentationSites(new File(rootDir + subject + "/versions/" + version + "/" + version + "_f.sites")));
@@ -900,7 +900,7 @@ public class IterativeFunctionClient {
 		return sitesFile;
 	}
 
-	public String getProfilesFolder() {
+	public File getProfilesFolder() {
 		return profilesFolder;
 	}
 

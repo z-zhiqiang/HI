@@ -1,4 +1,4 @@
-package sun.processor.graph;
+package sun.processor.core;
 
 public interface IDataSet {
 
