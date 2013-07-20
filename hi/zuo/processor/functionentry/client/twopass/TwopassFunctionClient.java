@@ -22,7 +22,7 @@ import zuo.processor.functionentry.site.FunctionEntrySite;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class TwopassFunctionClient {
-	private FunctionEntryProfile[] failingProfiles;
+	private FunctionEntryProfile[] profiles;
 	final PruningProcessor processor;
 	final SitesInfo sInfo;
 	private List list;
@@ -30,9 +30,10 @@ public class TwopassFunctionClient {
 	public TwopassFunctionClient(File csitesFile, File profilesFolder, File fsitesFile){
 		FunctionEntrySites sites = new FunctionEntrySites(csitesFile);
 		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFolder, sites);
-		failingProfiles = reader.readFailingFunctionEntryProfiles();
-		processor = new PruningProcessor(failingProfiles);
-		assert(processor.getTotalNegative() == failingProfiles.length);
+		profiles = reader.readFunctionEntryProfiles();
+		processor = new PruningProcessor(profiles);
+		processor.process();
+		assert(processor.getTotalNegative() + processor.getTotalPositive() == profiles.length);
 		assert(processor.getNegativeFrequencyMap().size() == sites.getNumFunctionEntrySites());
 		
 		this.sInfo = new SitesInfo(new InstrumentationSites(fsitesFile));
@@ -100,6 +101,11 @@ public class TwopassFunctionClient {
 		return Collections.unmodifiableSet(functionSet);
 	}
 
+	/**
+	 * @param mode
+	 * @param percent
+	 * @return
+	 */
 	public Set<String> getBoostFunctionSet(byte mode, float percent){
 		Set<String> functionSet = new LinkedHashSet<String>();
 		
@@ -151,6 +157,7 @@ public class TwopassFunctionClient {
 				throw new RuntimeException("filtering error");
 			}
 		}
+		System.out.println();
 	}
 	
 	public static void main(String[] args) {
@@ -158,16 +165,18 @@ public class TwopassFunctionClient {
 				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/grep/traces/v1/subv3/coarse-grained"),
 				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/grep/versions/v1/subv3/v1_subv3_f.sites"));
 		System.out.println();
+		System.out.println(client.processor.getTotalNegative() + "\t" + client.processor.getTotalPositive());
+		System.out.println(client.getFunctionSet(client.processor.getTotalNegative()).size());
+		System.out.println(client.processor.getNegativeFrequencyMap().size());
+		System.out.println(client.list.size());
+		System.out.println("\n");
+		
 		client.printEntry();
 		System.out.println("\n");
 		for(String function: client.getFunctionSet(client.processor.getTotalNegative())){
 			System.out.println(function);
 		}
-		System.out.println(client.getFunctionSet(client.processor.getTotalNegative()).size());
 		System.out.println("\n");
-		System.out.println(client.processor.getNegativeFrequencyMap().size());
-		System.out.println(client.list.size());
-		
 		for(String function: client.getBoostFunctionSet((byte) 0, 0.1f)){
 			System.out.println(function);
 		}
@@ -179,7 +188,6 @@ public class TwopassFunctionClient {
 		for(String function: client.getBoostFunctionSet((byte) 2, 0.5f)){
 			System.out.println(function);
 		}
-		
 		
 	}
 	

@@ -1,12 +1,13 @@
 package edu.nus.sun.processor.predicate;
 
 import java.io.File;
+import java.util.Set;
 
 public class DefaultPredicateProfileReaderWithLabel extends
     AbstractPredicateProfileReaderWithLabel {
 
-  public DefaultPredicateProfileReaderWithLabel(File profileFolder, File sitesPath) {
-    super(profileFolder, sitesPath);
+  public DefaultPredicateProfileReaderWithLabel(File profileFolder, File sitesPath, Set<String> functionSet) {
+    super(profileFolder, sitesPath, functionSet);
   }
 
   @Override

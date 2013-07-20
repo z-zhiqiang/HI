@@ -35,7 +35,6 @@ public abstract class AbstractProcessorWithLabels {
 
   protected abstract List<BackEnd> createBackends(File resultOutputFolder);
 
-  protected abstract List<IProfileProcessor> createProfileProcessors(
-      File resultOutputFolder);
+  protected abstract List<IProfileProcessor> createProfileProcessors(File resultOutputFolder);
 
 }

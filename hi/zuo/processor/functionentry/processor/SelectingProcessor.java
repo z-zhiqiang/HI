@@ -15,37 +15,16 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
  * @author sunzzq
  *
  */
-public class SelectingProcessor {
-	private final FunctionEntryProfile[] profiles;
+public class SelectingProcessor extends AbstractProcessor{
 	private Map<FunctionEntrySite, FrequencyValue> frequencyMap;
-	private int totalNegative;
-	private int totalPositive;
 	
 	public SelectingProcessor(FunctionEntryProfile[] profiles){
-		this.profiles = profiles;
+		super(profiles);
 		this.frequencyMap = new HashMap<FunctionEntrySite, FrequencyValue>();
-		this.totalNegative = 0;
-		this.totalPositive = 0;
 	}
 	
 	public void process(){
-		computeTotalPositiveNegative();
 		computeFrequencyPair();
-	}
-	
-	/**compute the number of passing runs and failing runs
-	 * 
-	 */
-	private void computeTotalPositiveNegative(){
-		for (int i = 0; i < profiles.length; i++) {
-			if(profiles[i].isCorrect()){
-				this.totalPositive++;
-			}
-			else{
-				this.totalNegative++;
-			}
-		}
-		assert(totalNegative + totalPositive == profiles.length);
 	}
 	
 	/**compute the frequency pair <F(m), S(m)> of each function m
@@ -87,7 +66,7 @@ public class SelectingProcessor {
 			frequencyMap.get(site).setF_score(F_score(p.getNegative(), p.getPositive(), totalNegative));
 			frequencyMap.get(site).setPrecision(Precision(p.getNegative(), p.getPositive()));
 			frequencyMap.get(site).setH_1(H_1(p.getNegative(), totalPositive, totalNegative));
-			frequencyMap.get(site).setH_2(H_2(p.getNegative(), p.getPositive()));
+			frequencyMap.get(site).setH_2(H_2(p.getNegative(), p.getPositive(), totalNegative));
 		}
 	}
 	
@@ -98,7 +77,7 @@ public class SelectingProcessor {
 		return (double) 2/(1 + ((double) neg / totalPositive) + (Math.log(totalNegative) / Math.log(neg)));
 	}
 	
-	private double H_2(int neg, int pos){
+	private double H_2(int neg, int pos, int totalNegative){
 		if(neg <= 1 || pos == 0){
 			return 0;
 		}
@@ -136,27 +115,6 @@ public class SelectingProcessor {
 	public void setFrequencyMap(Map<FunctionEntrySite, FrequencyValue> frequencyMap) {
 		this.frequencyMap = frequencyMap;
 	}
-
-	public int getTotalNegative() {
-		return totalNegative;
-	}
-
-	public void setTotalNegative(int totalNegative) {
-		this.totalNegative = totalNegative;
-	}
-
-	public int getTotalPositive() {
-		return totalPositive;
-	}
-
-	public void setTotalPositive(int totalPositive) {
-		this.totalPositive = totalPositive;
-	}
-
-	public FunctionEntryProfile[] getProfiles() {
-		return profiles;
-	}
-
 
 
 	public static class FrequencyValue{

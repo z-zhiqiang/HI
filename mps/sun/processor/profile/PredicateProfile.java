@@ -4,9 +4,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
+import sun.processor.profile.InstrumentationSites.BranchSite;
+import sun.processor.profile.InstrumentationSites.FloatKindSite;
+import sun.processor.profile.InstrumentationSites.ReturnSite;
+import sun.processor.profile.InstrumentationSites.ScalarSite;
 import sun.processor.profile.predicate.BranchPredicate;
 import sun.processor.profile.predicate.FloatKindPredicate;
 import sun.processor.profile.predicate.ReturnPredicate;
@@ -27,21 +31,26 @@ public class PredicateProfile extends AbstractProfile implements
   private ImmutableList<BranchPredicate> branchPredicates;
 
   private InstrumentationSites sites;
+  
+  private Set<String> functionSet;
 
   @Override
   public void dispose() {
     this.scalarPairs = null;
     this.returns = null;
     this.floats = null;
+    this.branchPredicates = null;
     this.sites = null;
+    this.functionSet = null;
   }
 
-  public PredicateProfile(File profilePath, InstrumentationSites sites,
+  public PredicateProfile(File profilePath, InstrumentationSites sites, Set<String> functionSet,
       boolean isCorrect, ScalarPairPredicate.Factory scalarFactory,
       BranchPredicate.Factory branchFactory,
       sun.processor.profile.predicate.ReturnPredicate.Factory returnFactory) {
     super(profilePath, isCorrect);
     this.sites = sites;
+    this.functionSet = functionSet;
 
     ImmutableList.Builder<ScalarPairPredicate> scalarPredicates = ImmutableList
         .builder();
@@ -121,9 +130,13 @@ public class PredicateProfile extends AbstractProfile implements
         final int lessThanCounter = Integer.parseInt(counters[0]);
         final int equalCounter = Integer.parseInt(counters[1]);
         final int greaterThanCounter = Integer.parseInt(counters[2]);
+        
         final int id = ++sequence;
-        predicates.add(factory.create(id, this.sites.getScalarSite(id),
-            lessThanCounter, equalCounter, greaterThanCounter));
+        
+        ScalarSite site = this.sites.getScalarSite(id);
+        if(this.functionSet.contains(site.getFunctionName())){
+        	predicates.add(factory.create(id, site, lessThanCounter, equalCounter, greaterThanCounter));
+        }
       }
     } catch (IOException e) {
       throw new RuntimeException();
@@ -157,10 +170,12 @@ public class PredicateProfile extends AbstractProfile implements
         int positiveInfinite = Integer.parseInt(counters[8]);
 
         int id = ++sequence;
-        predicates.add(new FloatKindPredicate(id, sites.getFloatKindSite(id),
-            negativeInfinite, negativeNormalized, negativeDenormalized,
-            negativeZero, nan, positiveZero, positiveDenormalized,
-            positiveNormalized, positiveInfinite));
+        
+        FloatKindSite site = this.sites.getFloatKindSite(id);
+        if (this.functionSet.contains(site.getFunctionName())) {
+			predicates.add(new FloatKindPredicate(id, site, negativeInfinite, negativeNormalized, negativeDenormalized, negativeZero,
+					nan, positiveZero, positiveDenormalized, positiveNormalized, positiveInfinite));
+		}
       }
     } catch (IOException e) {
       throw new RuntimeException();
@@ -185,9 +200,13 @@ public class PredicateProfile extends AbstractProfile implements
         }
         final int falseCounter = Integer.parseInt(counters[0]);
         final int trueCounter = Integer.parseInt(counters[1]);
+        
         int id = ++sequence;
-        predicates.add(branchFactory.create(id, sites.getBranchSite(id),
-            trueCounter, falseCounter));
+        
+        BranchSite site = this.sites.getBranchSite(id);
+        if (this.functionSet.contains(site.getFunctionName())) {
+			predicates.add(branchFactory.create(id, site, trueCounter, falseCounter));
+		}
       }
     } catch (IOException e) {
       throw new RuntimeException();
@@ -214,13 +233,6 @@ public class PredicateProfile extends AbstractProfile implements
     return list;
   }
 
-//  public static void main(String[] args) {
-//    System.out.println(Arrays.toString(split("1\t2", 2)));
-//    System.out.println(Arrays.toString(split("1\t2\t3", 3)));
-//    System.out.println(Arrays.toString(split("1", 1)));
-//    System.out.println(Arrays.toString(split("1\t2\t3\t4", 4)));
-//  }
-
   private void readReturns(BufferedReader reader,
       ImmutableList.Builder<ReturnPredicate> predicates,
       ReturnPredicate.Factory factory) {
@@ -241,9 +253,13 @@ public class PredicateProfile extends AbstractProfile implements
         final int negativeCounter = Integer.parseInt(counters[0]);
         final int zeroCounter = Integer.parseInt(counters[1]);
         final int positiveCounter = Integer.parseInt(counters[2]);
+        
         final int id = ++sequence;
-        predicates.add(factory.create(id, this.sites.getReturnSite(id),
-            negativeCounter, zeroCounter, positiveCounter));
+        
+        ReturnSite site = this.sites.getReturnSite(id);
+        if (this.functionSet.contains(site.getFunctionName())) {
+			predicates.add(factory.create(id, site, negativeCounter, zeroCounter, positiveCounter));
+		}
       }
     } catch (IOException e) {
       throw new RuntimeException(e);

@@ -1,16 +1,10 @@
 package edu.nus.sun.processor.mps.client;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Set;
 
-import edu.nus.sun.processor.predicate.DefaultPredicateProfileReaderWithLabel;
 import sun.processor.core.IDataSetConstructor;
 import sun.processor.core.IDataSetProcessor;
 import sun.processor.core.IProfileProcessor;
@@ -21,6 +15,7 @@ import sun.processor.predicate.constructor.PredicateDataSetConstructor;
 import sun.processor.predicate.processor.PredicateDataSetMappingOutputter;
 import sun.processor.predicate.processor.PredicateDataSetProtoBufOutputter;
 import sun.processor.profile.LabelPrinterProfileProcessor;
+import edu.nus.sun.processor.predicate.DefaultPredicateProfileReaderWithLabel;
 
 public class DefaultPredicateProcessorWithLabel extends
 		AbstractProcessorWithLabels {
@@ -28,10 +23,13 @@ public class DefaultPredicateProcessorWithLabel extends
 	private static final String MPS_PB = "mps-ds.pb";
 
 	protected final File sitesInfoPath;
+	
+	private final Set<String> functionSet;
 
-	public DefaultPredicateProcessorWithLabel(File profileFolder, File resultOutputFolder, File sitesInfoPath) {
+	public DefaultPredicateProcessorWithLabel(File profileFolder, File resultOutputFolder, File sitesInfoPath, Set<String> functionSet) {
 		super(profileFolder, resultOutputFolder);
 		this.sitesInfoPath = sitesInfoPath;
+		this.functionSet = functionSet;
 	}
 
 	
@@ -74,7 +72,7 @@ public class DefaultPredicateProcessorWithLabel extends
 
 	@Override
 	protected IProfileReader createProfileReader(final File profileFolder) {
-		return new DefaultPredicateProfileReaderWithLabel(profileFolder, this.sitesInfoPath);
+		return new DefaultPredicateProfileReaderWithLabel(profileFolder, this.sitesInfoPath, this.functionSet);
 	}
 
 }

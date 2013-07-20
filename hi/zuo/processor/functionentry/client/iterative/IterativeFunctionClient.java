@@ -198,7 +198,6 @@ public class IterativeFunctionClient {
 			printPruningCase(processor.getFrequencyMap(), score, bc);
 			printWorstCase(processor.getFrequencyMap(), score, bc);
 		}
-		
 	}
 	
 	private void printPruningCase(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, BoundCalculator bc) {

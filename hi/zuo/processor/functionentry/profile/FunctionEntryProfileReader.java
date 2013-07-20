@@ -45,6 +45,31 @@ public class FunctionEntryProfileReader {
 		return FEProfiles;
 	}
 	
+	public FunctionEntryProfile[] readFunctionEntryProfiles(){
+		System.out.println("Reading profiles in folder: " + this.profileFolder);
+		
+		File[] profiles = profileFolder.listFiles(FileUtil.createProfileFilter());
+		Arrays.sort(profiles, new FileUtil.FileComparator());
+		if (profiles.length == 0)
+			throw new RuntimeException("No profiles in folder " + this.profileFolder);
+		
+		FunctionEntryProfile[] FEProfiles = new FunctionEntryProfile[profiles.length];
+		for (int i = 0; i < profiles.length; i++) {
+			if ((i + 1) % (5) == 0)
+				System.out.print(".");
+			if ((i + 1) % (600) == 0)
+				System.out.println();
+			
+			boolean isCorrect = true;
+			if (profiles[i].getName().endsWith(".fprofile")) {
+				isCorrect = false;
+			}
+			FEProfiles[i] = new FunctionEntryProfile(profiles[i], sites, isCorrect);
+		}
+		System.out.println();
+		return FEProfiles;
+	}
+	
 	public FunctionEntryProfile[] readFailingFunctionEntryProfiles(){
 		System.out.println("Reading failing profiles in folder: " + this.profileFolder);
 		File[] profiles = profileFolder.listFiles(FileUtil.createFailingProfileFilter());

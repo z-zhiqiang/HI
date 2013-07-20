@@ -98,6 +98,11 @@ public class BoundCalculator {
 		}
 	}
 	
+	/** derivative of H score
+	 * @param f
+	 * @param p: for H_1, p==P
+	 * @return
+	 */
 	public double DH(int f, int p){
 		if(f <= 1 || p == 0){
 			return 0;
