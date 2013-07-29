@@ -31,10 +31,9 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 				+ "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed "
 				+ sourceDir + GenSirScriptClient.sourceName + ".c" 
 				+ " $COMPILE_PARAMETERS"
-				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"//for gzip
 				+ " -o " + executeDir + subVersion + "_finst__" + sample + ".exe"
-				+ " -I" + sourceDir
-				+ " -lm"
+				+ " -I" + sourceDir//for grep
 				;
 		
 		StringBuffer code = new StringBuffer();

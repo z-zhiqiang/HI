@@ -24,11 +24,11 @@ import zuo.util.file.FileUtility;
 
 
 public class GenSiemensScriptsClient {
-	public final static String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/";
-	final static String subject = "space";
-	final static int vs = 38;
-	final String version;
-	final static String inputs = rootDir + subject + "/testplans.alt/" + "universe";
+	public final static String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/";
+	public final static String subject = "space";
+	public final static int vs = 38;
+	public final String version;
+	public final static String inputs = rootDir + subject + "/testplans.alt/" + "universe";
 	public final static String inputsMapFile = rootDir + subject + "/testplans.alt/" + "inputs.map";
 	
 	final String ssourceDir;
@@ -108,18 +108,18 @@ public class GenSiemensScriptsClient {
 		AbstractGenRunAllScript ga;
 		
 		
-//		FileUtility.constructSiemensInputsMapFile(inputs, inputsMapFile);
-//		gc = new GenSiemensScriptsClient(subject);
-//		gs = new GenRunSubjectScript(subject, gc.version, gc.compileSubject, gc.ssourceDir, gc.sexecuteDir, gc.soutputDir, gc.scriptDir);
-//		gs.genRunScript();
-//		
-//		for(int i = 1; i <= vs; i++){
-//			gc = new GenSiemensScriptsClient("v" + i);
-//			System.out.println("generating run script for v" + i);
-//			new GenRunVersionsScript(subject, gc.version, gc.compileVersion, gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
-//		}
-//		ga = new GenRunAllScript(subject, scriptDir, vs);
-//		ga.genRunAllScript();
+		FileUtility.constructSiemensInputsMapFile(inputs, inputsMapFile);
+		gc = new GenSiemensScriptsClient(subject);
+		gs = new GenRunSubjectScript(subject, gc.version, gc.compileSubject, gc.ssourceDir, gc.sexecuteDir, gc.soutputDir, gc.scriptDir);
+		gs.genRunScript();
+		
+		for(int i = 1; i <= vs; i++){
+			gc = new GenSiemensScriptsClient("v" + i);
+			System.out.println("generating run script for v" + i);
+			new GenRunVersionsScript(subject, gc.version, gc.compileVersion, gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
+		}
+		ga = new GenRunAllScript(subject, scriptDir, vs);
+		ga.genRunAllScript();
 		
 		
 		//==========================================================================================================================================================//

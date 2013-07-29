@@ -30,13 +30,13 @@ import zuo.processor.splitinputs.SplitInputs;
 import zuo.util.file.FileUtility;
 
 public class GenSirScriptClient {
-	public final static String rootDir = "/home/sunzzq/Research/Automated_Debugging/Subjects/";
-	final static String subject = "gzip";
+	public final static String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/";
+	public final static String subject = "gzip";
 	public final static String sourceName = "allfile";
-	final static String version = "v5";
-	final String subVersion;
-	final static String inputScript = rootDir + subject + "/scripts/" + subject + ".sh";
-	final static String inputCompScript = rootDir + subject + "/scripts/" + subject + "Comp.sh";
+	public final static String version = "v5";
+	public final String subVersion;
+	public final static String inputScript = rootDir + subject + "/scripts/" + subject + ".sh";
+	public final static String inputCompScript = rootDir + subject + "/scripts/" + subject + "Comp.sh";
 	
 	public final static String inputsMapFile = rootDir + subject + "/testplans.alt/" + "inputs.map";
 	public final static String inputsCompMapFile = rootDir + subject + "/testplans.alt/" + "inputsComp.map";
@@ -64,10 +64,9 @@ public class GenSirScriptClient {
 	
 	final static String compileSubject = "gcc " 
 			+ ssourceDir + sourceName + ".c" 
-			+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+			+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"//for gzip
 			+ " -o " + sexecuteDir + version + ".exe" 
-			+ " -I" + ssourceDir
-			+ " -lm"
+			+ " -I" + ssourceDir//for grep
 			;
 	final String compileVersion;
 	final String compileFGInstrument;
@@ -98,26 +97,23 @@ public class GenSirScriptClient {
 		compileVersion = "gcc " 
 				+ vsourceDir + sourceName + ".c"
 				+ " $COMPILE_PARAMETERS"
-				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"//for gzip 
 				+ " -o " + vexecuteDir + version + ".exe"
-				+ " -I" + vsourceDir
-				+ " -lm"
+				+ " -I" + vsourceDir//for grep
 				;
 		compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
 				+ vsourceDir + sourceName + ".c" 
 				+ " $COMPILE_PARAMETERS"
-				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"//for gzip
 				+ " -o " + vexecuteDir + subVersion + "_finst.exe"
-				+ " -I" + vsourceDir
-				+ " -lm"
+				+ " -I" + vsourceDir//for grep
 				;
 		compileCGInstrument = "sampler-cc -fsampler-scheme=function-entries -fno-sample "
 				+ vsourceDir + sourceName + ".c" 
 				+ " $COMPILE_PARAMETERS"
-				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"//for gzip
 				+ " -o " + vexecuteDir + subVersion + "_cinst.exe"
-				+ " -I" + vsourceDir
-				+ " -lm"
+				+ " -I" + vsourceDir//for grep
 				;
 		
 	}
@@ -136,31 +132,31 @@ public class GenSirScriptClient {
 		System.out.println(faults.toString());
 		
 		
-//		//generate test scripts
-//		String[] argvs = {"-sf", sf, "-sn", inputScript, "-en", AbstractGenRunScript.EXE, "-ed", rootDir + subject, "-tg", "bsh", "-nesc"};
-//		MakeTestScript.main(argvs);
-//		FileUtility.constructSIRInputsMapFile(inputScript, inputsMapFile);
-//		
-//		String[] argvsC = {"-sf", sf, "-sn", inputCompScript, "-en", AbstractGenRunScript.EXE, "-ed", rootDir + subject, "-c", soutputDir, "-tg", "bsh", "-nesc"};
-//		MakeTestScript.main(argvsC);
-//		FileUtility.constructSIRInputsMapFile(inputCompScript, inputsCompMapFile);//read inputsMap
-//		
-//		//generate run subject and subversion scripts
-//		gs = new GenRunSubjectScript(subject, version, setEnv + compileSubject, ssourceDir, sexecuteDir, soutputDir, scriptDir);
-//		gs.genRunScript();
-//		
-//		for(int index: faults.keySet()){
-//			gc = new GenSirScriptClient("subv" + index);
-//			
-//			String export = "export COMPILE_PARAMETERS=-D" + faults.get(index) + "\n";
-//			System.out.println("generating run script for subVersion" + index);
-//			new GenRunVersionsScript(subject, version, gc.subVersion, setEnv + export + gc.compileVersion, gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
-//		}
-//		
-//		//generate run all scripts  
-//		assert(FileUtility.readInputsMap(inputsMapFile).size() == FileUtility.readInputsMap(inputsCompMapFile).size());
-//		ga = new GenRunAllScript(version, subject, scriptDir, faults.size());
-//		ga.genRunAllScript();
+		//generate test scripts
+		String[] argvs = {"-sf", sf, "-sn", inputScript, "-en", AbstractGenRunScript.EXE, "-ed", rootDir + subject, "-tg", "bsh", "-nesc"};
+		MakeTestScript.main(argvs);
+		FileUtility.constructSIRInputsMapFile(inputScript, inputsMapFile);
+		
+		String[] argvsC = {"-sf", sf, "-sn", inputCompScript, "-en", AbstractGenRunScript.EXE, "-ed", rootDir + subject, "-c", soutputDir, "-tg", "bsh", "-nesc"};
+		MakeTestScript.main(argvsC);
+		FileUtility.constructSIRInputsMapFile(inputCompScript, inputsCompMapFile);//read inputsMap
+		
+		//generate run subject and subversion scripts
+		gs = new GenRunSubjectScript(subject, version, setEnv + compileSubject, ssourceDir, sexecuteDir, soutputDir, scriptDir);
+		gs.genRunScript();
+		
+		for(int index: faults.keySet()){
+			gc = new GenSirScriptClient("subv" + index);
+			
+			String export = "export COMPILE_PARAMETERS=-D" + faults.get(index) + "\n";
+			System.out.println("generating run script for subVersion" + index);
+			new GenRunVersionsScript(subject, version, gc.subVersion, setEnv + export + gc.compileVersion, gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
+		}
+		
+		//generate run all scripts  
+		assert(FileUtility.readInputsMap(inputsMapFile).size() == FileUtility.readInputsMap(inputsCompMapFile).size());
+		ga = new GenRunAllScript(version, subject, scriptDir, faults.size());
+		ga.genRunAllScript();
 		
 		
 		//=========================================================================================================================================================================//

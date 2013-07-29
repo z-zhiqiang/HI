@@ -24,12 +24,12 @@ import zuo.util.file.FileUtility;
 
 public class GenSirScriptClient {
 	public final static String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/";
-	final static String subject = "gzip";
+	public final static String subject = "gzip";
 	public final static String sourceName = "allfile";
-	final static String version = "v5";
-	final String subVersion;
-	final static String inputScript = rootDir + subject + "/scripts/" + subject + ".sh";
-	final static String inputCompScript = rootDir + subject + "/scripts/" + subject + "Comp.sh";
+	public final static String version = "v5";
+	public final String subVersion;
+	public final static String inputScript = rootDir + subject + "/scripts/" + subject + ".sh";
+	public final static String inputCompScript = rootDir + subject + "/scripts/" + subject + "Comp.sh";
 	
 	public final static String inputsMapFile = rootDir + subject + "/testplans.alt/" + "inputs.map";
 	public final static String inputsCompMapFile = rootDir + subject + "/testplans.alt/" + "inputsComp.map";
@@ -57,10 +57,9 @@ public class GenSirScriptClient {
 	
 	final static String compileSubject = "gcc " 
 			+ ssourceDir + sourceName + ".c" 
-			+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+			+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"//for gzip
 			+ " -o " + sexecuteDir + version + ".exe" 
-			+ " -I" + ssourceDir
-			+ " -lm"
+			+ " -I" + ssourceDir//for grep
 			;
 	final String compileVersion;
 	final String compileFGInstrument;
@@ -91,26 +90,23 @@ public class GenSirScriptClient {
 		compileVersion = "gcc " 
 				+ vsourceDir + sourceName + ".c"
 				+ " $COMPILE_PARAMETERS"
-				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"//for gzip
 				+ " -o " + vexecuteDir + version + ".exe"
-				+ " -I" + vsourceDir
-				+ " -lm"
+				+ " -I" + vsourceDir//for grep
 				;
 		compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
 				+ vsourceDir + sourceName + ".c" 
 				+ " $COMPILE_PARAMETERS"
-				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"//for gzip
 				+ " -o " + vexecuteDir + subVersion + "_finst.exe"
-				+ " -I" + vsourceDir
-				+ " -lm"
+				+ " -I" + vsourceDir//for grep
 				;
 		compileCGInstrument = "sampler-cc -fsampler-scheme=function-entries -fno-sample "
 				+ vsourceDir + sourceName + ".c" 
 				+ " $COMPILE_PARAMETERS"
-				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"
+				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"//for gzip
 				+ " -o " + vexecuteDir + subVersion + "_cinst.exe"
-				+ " -I" + vsourceDir
-				+ " -lm"
+				+ " -I" + vsourceDir//for grep
 				;
 		
 	}
