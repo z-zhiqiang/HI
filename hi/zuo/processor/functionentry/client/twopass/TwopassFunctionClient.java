@@ -102,7 +102,7 @@ public class TwopassFunctionClient {
 	}
 
 	/**
-	 * @param mode
+	 * @param mode: 0->F&%; 1->F; 2->%
 	 * @param percent
 	 * @return
 	 */

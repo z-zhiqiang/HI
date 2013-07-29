@@ -17,7 +17,7 @@ public class Client {
 
 
 	public static void main(String[] args) {
-		construct("sed");
+		construct("gzip");
 	}
 	
 	public static void construct(String projectName){
@@ -30,7 +30,7 @@ public class Client {
 				@Override
 				public boolean accept(File dir, String name) {
 					// TODO Auto-generated method stub
-					return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == 10);
+					return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length >= 10);
 				}});
 			Arrays.sort(versions, new Comparator(){
 				@Override
@@ -119,26 +119,38 @@ public class Client {
 	private static void run(File fProfilesFolder, File cProfilesFolder, final File fSitesFile, final File cSitesFile, final File resultOutputFolder) {
 		TwopassFunctionClient funClient = new TwopassFunctionClient(cSitesFile, cProfilesFolder, fSitesFile);
 		funClient.printEntry();
-		Set<String> boostFunctionSet = funClient.getBoostFunctionSet((byte)2, 1.0f);
+		BoundCalculator bc = new BoundCalculator(funClient.processor.getTotalNegative(), funClient.processor.getTotalPositive());
 		
-		File boostDatasetFolder = new File(resultOutputFolder, "boost");
+		Set<String> originalFunctionSet = funClient.getFunctionSet(0);
+		File originalDatasetFolder = new File(resultOutputFolder, "original_all");
+		if(!originalDatasetFolder.exists()){
+			originalDatasetFolder.mkdirs();
+		}
+		DefaultPredicateProcessorWithLabel originalInstance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, originalDatasetFolder, fSitesFile, originalFunctionSet);
+		originalInstance.run();
+		
+		
+		/*=================================================================================================*/
+		
+		
+		Set<String> boostFunctionSet = funClient.getBoostFunctionSet((byte)1, 0.1f);
+		File boostDatasetFolder = new File(resultOutputFolder, "boost_all");
 		if(!boostDatasetFolder.exists()){
 			boostDatasetFolder.mkdirs();
 		}
-		
 		DefaultPredicateProcessorWithLabel boostInstance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, boostDatasetFolder, fSitesFile, boostFunctionSet);
 		boostInstance.run();
 		
-		//-------------------------------------------------------------------------------------------------//
-		
-//		BoundCalculator bc = new BoundCalculator(funClient.processor.getTotalNegative(), funClient.processor.getTotalPositive());
-//		Set<String> functionSet = funClient.getFunctionSet(bc.computeIGBound(0.5));
+//		//-------------------------------------------------------------------------------------------------//
+//		
+//		Set<String> pruneFunctionSet = funClient.getFunctionSet(bc.computeIGBound(0.5));
 //		File datasetFolder = new File(resultOutputFolder, "prune");
 //		if(!datasetFolder.exists()){
 //			datasetFolder.mkdirs();
 //		}
-//		DefaultPredicateProcessorWithLabel instance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, datasetFolder, fSitesFile, functionSet);
-//		instance.run();
+//		DefaultPredicateProcessorWithLabel pruneInstance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, datasetFolder, fSitesFile, pruneFunctionSet);
+//		pruneInstance.run();
+		
 	}
 
 }

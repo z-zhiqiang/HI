@@ -12,7 +12,7 @@ import sun.processor.profile.predicate.ScalarPairPredicate;
 import sun.processor.profile.predicate.ScalarPairPredicate.Factory;
 import sun.processor.profile.reader.AbstractProfileReaderWithLabel;
 
-public abstract class AbstractPredicateProfileReaderWithLabel extends
+public class PredicateProfileReaderWithLabel extends
     AbstractProfileReaderWithLabel {
 
   private final InstrumentationSites sites;
@@ -25,7 +25,7 @@ public abstract class AbstractPredicateProfileReaderWithLabel extends
 
   private final ReturnPredicate.Factory returnFactory;
 
-  public AbstractPredicateProfileReaderWithLabel(final File profileFolder, final File sitesPath, final Set<String> functionSet) {
+  public PredicateProfileReaderWithLabel(final File profileFolder, final File sitesPath, final Set<String> functionSet) {
     super(profileFolder);
     this.sites = new InstrumentationSites(sitesPath);
     this.functionSet = functionSet;
@@ -40,4 +40,7 @@ public abstract class AbstractPredicateProfileReaderWithLabel extends
         this.scalarFactory, this.branchFactory, this.returnFactory);
   }
 
+  protected String profileFilterPattern() {
+	    return "o[0-9]+\\.[fp]profile";
+  }
 }

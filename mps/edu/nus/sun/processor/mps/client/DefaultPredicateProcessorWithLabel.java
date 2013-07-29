@@ -15,7 +15,7 @@ import sun.processor.predicate.constructor.PredicateDataSetConstructor;
 import sun.processor.predicate.processor.PredicateDataSetMappingOutputter;
 import sun.processor.predicate.processor.PredicateDataSetProtoBufOutputter;
 import sun.processor.profile.LabelPrinterProfileProcessor;
-import edu.nus.sun.processor.predicate.DefaultPredicateProfileReaderWithLabel;
+import edu.nus.sun.processor.predicate.PredicateProfileReaderWithLabel;
 
 public class DefaultPredicateProcessorWithLabel extends
 		AbstractProcessorWithLabels {
@@ -72,7 +72,7 @@ public class DefaultPredicateProcessorWithLabel extends
 
 	@Override
 	protected IProfileReader createProfileReader(final File profileFolder) {
-		return new DefaultPredicateProfileReaderWithLabel(profileFolder, this.sitesInfoPath, this.functionSet);
+		return new PredicateProfileReaderWithLabel(profileFolder, this.sitesInfoPath, this.functionSet);
 	}
 
 }

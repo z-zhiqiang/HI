@@ -70,8 +70,6 @@ public class Processor {
 		System.out.println("###############################################");
 		System.out.println("################## ...END... ##################");
 		System.out.println("###############################################");
-		System.out.println();
-		System.out.println();
 	}
 
 }

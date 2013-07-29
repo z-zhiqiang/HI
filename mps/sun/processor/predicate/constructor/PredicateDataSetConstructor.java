@@ -510,7 +510,8 @@ public class PredicateDataSetConstructor implements IDataSetConstructor {
     boolean scnFiltering = ((double) stat.numberOfFailuresWherePisTrue)
         / stat.negative <= ((double) stat.numberOfSuccessWherePisTrue)
         / stat.positive;
-    stat.filteringResult = increase || scnFiltering;
+//    stat.filteringResult = increase || scnFiltering;
+    stat.filteringResult = scnFiltering;
     return stat;
   }
 
