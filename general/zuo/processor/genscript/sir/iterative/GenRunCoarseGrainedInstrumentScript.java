@@ -15,8 +15,8 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 //	final int pNum;
 	
 	
-	public GenRunCoarseGrainedInstrumentScript(String sub, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing) {
-		super(sub, ver, subV, cc, sD, eD, oD, scD);
+	public GenRunCoarseGrainedInstrumentScript(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing) {
+		super(sub, srcN, ver, subV, cc, sD, eD, oD, scD);
 		this.traceDir = tD;
 		this.mkOutDir();
 		this.failingTests = FileUtility.readInputsArray(failing);

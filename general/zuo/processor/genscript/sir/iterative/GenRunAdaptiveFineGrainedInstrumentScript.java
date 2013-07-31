@@ -21,8 +21,8 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 	private List<String> methods;
 	private Score methodsFile;
 	
-	public GenRunAdaptiveFineGrainedInstrumentScript(String sub, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, Score methodsF) {
-		super(sub, ver, subV, cc, sD, eD, oD + methodsF + "/", scD);
+	public GenRunAdaptiveFineGrainedInstrumentScript(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, Score methodsF) {
+		super(sub, srcN, ver, subV, cc, sD, eD, oD + methodsF + "/", scD);
 		this.traceDir = tD + methodsF + "/";
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
@@ -64,6 +64,15 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 
 	@Override
 	public void genRunScript() {
+		String includeC = "";
+		String paraC = "";
+		if(subject.equals("gzip")){
+			paraC = " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1";
+		}
+		if(subject.equals("grep")){
+			includeC = " -I" + sourceDir;
+		}
+		
 		int num = methods.size();
 		StringBuffer code = new StringBuffer();
 		code.append("tTime=0\n");
@@ -73,11 +82,11 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			instrumentCommand = compileCommand 
 					+ "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
 					+ "-finclude-function=" + method + " -fexclude-function=* "
-					+ sourceDir + GenSirScriptClient.sourceName + ".c" 
+					+ sourceDir + srcName + ".c" 
 					+ " $COMPILE_PARAMETERS"
-					+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"//for gzip
+					+ paraC
 					+ " -o " + executeDir + subVersion + "_finst__" + methodsFile + "__" + method + ".exe"
-					+ " -I" + sourceDir//for grep
+					+ includeC//for grep
 					;
 			
 			code.append(instrumentCommand + "\n");

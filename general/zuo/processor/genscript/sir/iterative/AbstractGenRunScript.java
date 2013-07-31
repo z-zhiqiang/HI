@@ -15,6 +15,7 @@ public abstract class AbstractGenRunScript {
 	final String subVersion;
 	final String version;
 	final String subject;
+	final String srcName;
 	final String compileCommand;
 	
 	final String sourceDir;
@@ -34,8 +35,9 @@ public abstract class AbstractGenRunScript {
 			"echo \"Time in seconds: $((time/1000000000)) \nTime in milliseconds: $((time/1000000))\"";
 	
 	
-	public AbstractGenRunScript(String sub, String ver, String subV, String cc, String source, String execute, String output, String script){
+	public AbstractGenRunScript(String sub, String srcN, String ver, String subV, String cc, String source, String execute, String output, String script){
 		this.subject = sub;
+		this.srcName = srcN;
 		this.version = ver;
 		this.subVersion = subV;
 		this.compileCommand = cc;
@@ -44,8 +46,8 @@ public abstract class AbstractGenRunScript {
 		this.outputDir = output;
 		this.scriptDir = script;
 		
-		inputsMap = FileUtility.readInputsMap(GenSirScriptClient.inputsMapFile);
-		inputsCompMap = FileUtility.readInputsMap(GenSirScriptClient.inputsCompMapFile);
+		inputsMap = FileUtility.readInputsMap(GenSirScriptClient.rootDir + subject + "/testplans.alt/" + "inputs.map");
+		inputsCompMap = FileUtility.readInputsMap(GenSirScriptClient.rootDir + subject + "/testplans.alt/" + "inputsComp.map");
 	}
 	
     public abstract void genRunScript() throws IOException;

@@ -13,8 +13,8 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 	private final List<Integer> passingTests;
 	
 	
-	public GenRunFineGrainedInstrumentScript(String sub, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing) {
-		super(sub, ver, subV, cc, sD, eD, oD, scD);
+	public GenRunFineGrainedInstrumentScript(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing) {
+		super(sub, srcN, ver, subV, cc, sD, eD, oD, scD);
 		this.traceDir = tD;
 		this.mkOutDir();
 		this.failingTests = FileUtility.readInputsArray(failing);

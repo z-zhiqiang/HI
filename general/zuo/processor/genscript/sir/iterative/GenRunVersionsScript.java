@@ -13,8 +13,8 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 	public static final String SUBV = "SUBV";
 
 
-	public GenRunVersionsScript(String sub, String ver, String subV, String cc, String sD, String eD, String oD, String scD) {
-		super(sub, ver, subV, cc, sD, eD, oD, scD);
+	public GenRunVersionsScript(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD) {
+		super(sub, srcN, ver, subV, cc, sD, eD, oD, scD);
 	    this.mkOutDir();
 	}
 

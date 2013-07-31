@@ -15,8 +15,8 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 	final int sample;
 	
 	
-	public GenRunSampledFineGrainedInstrumentScript(String sub, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, int sample) {
-		super(sub, ver, subV, cc, sD, eD, oD + sample + "/", scD);
+	public GenRunSampledFineGrainedInstrumentScript(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, int sample) {
+		super(sub, srcN, ver, subV, cc, sD, eD, oD + sample + "/", scD);
 		this.traceDir = tD + sample + "/";
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
@@ -27,13 +27,22 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 
 	@Override
 	public void genRunScript() {
+		String includeC = "";
+		String paraC = "";
+		if(subject.equals("gzip")){
+			paraC = " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1";
+		}
+		if(subject.equals("grep")){
+			includeC = " -I" + sourceDir;
+		}
+		
 		String instrumentCommand = compileCommand 
 				+ "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed "
-				+ sourceDir + GenSirScriptClient.sourceName + ".c" 
+				+ sourceDir + srcName + ".c" 
 				+ " $COMPILE_PARAMETERS"
-				+ " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1"//for gzip
+				+ paraC
 				+ " -o " + executeDir + subVersion + "_finst__" + sample + ".exe"
-				+ " -I" + sourceDir//for grep
+				+ includeC
 				;
 		
 		StringBuffer code = new StringBuffer();

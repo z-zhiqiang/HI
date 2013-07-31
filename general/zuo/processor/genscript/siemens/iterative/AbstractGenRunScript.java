@@ -39,7 +39,7 @@ public abstract class AbstractGenRunScript {
 		this.outputDir = output;
 		this.scriptDir = script;
 		
-		inputsMap = FileUtility.readInputsMap(GenSiemensScriptsClient.inputsMapFile);
+		inputsMap = FileUtility.readInputsMap(GenSiemensScriptsClient.rootDir + subject + "/testplans.alt/" + "inputs.map");
 	}
 	
     public abstract void genRunScript() throws IOException;

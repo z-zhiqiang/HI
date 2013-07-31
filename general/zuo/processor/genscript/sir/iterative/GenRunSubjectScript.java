@@ -9,8 +9,8 @@ import zuo.util.file.FileUtility;
 
 public class GenRunSubjectScript extends AbstractGenRunScript {
 	
-	public GenRunSubjectScript(String sub, String ver, String cc, String sD, String eD, String oD, String scD) {
-		super(sub, ver, null, cc, sD, eD, oD, scD);
+	public GenRunSubjectScript(String sub, String srcN, String ver, String cc, String sD, String eD, String oD, String scD) {
+		super(sub, srcN, ver, null, cc, sD, eD, oD, scD);
 		this.mkOutDir();
 	}
 
