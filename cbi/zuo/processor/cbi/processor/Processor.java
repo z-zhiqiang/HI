@@ -368,36 +368,6 @@ public class Processor {
 		return (double) 2/(1/increase + Math.log(totalNegative)/Math.log(statisticData[0]));
 	}
 	
-//	public void printTopKPredictors(int k){
-//		Set<String> methods = new LinkedHashSet<String>();
-//		List list = new ArrayList(predictors.entrySet());
-//		Collections.sort(list, new Comparator(){
-//			@Override
-//			public int compare(Object arg0, Object arg1) {
-//				// TODO Auto-generated method stub
-//				return ((Map.Entry<PredicateItem, Double>) arg1).getValue()
-//						.compareTo(((Entry<PredicateItem, Double>) arg0).getValue());
-//			}
-//			});
-//		
-//		System.out.println("The top " + k + " predicates are as follows:\n=========================================================");
-//		for (int i = 0; i < k && i < list.size(); i++) {
-//			Entry<PredicateItem, Double> entry = (Entry<PredicateItem, Double>) list.get(i);
-//			System.out.println("(" + (i + 1) + ") : " + entry.getValue() + "\n" + entry.getKey().toString());
-//			System.out.println();
-//			
-//			//collect the method
-//			String method = entry.getKey().getSite().getFunctionName();
-//			if(!methods.contains(method)){
-//				methods.add(method);
-//			}
-//		}
-//		
-//		System.out.println("\n");
-//		System.out.println("The corresponding top " + methods.size() + " methods are as follows:\n=========================================================");
-//		System.out.println(methods.toString());
-//	}
-
 	
 	public static void main(String[] args) {
 		InstrumentationSites sites = new InstrumentationSites(new File("/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions/v3/v3_f.sites"));
