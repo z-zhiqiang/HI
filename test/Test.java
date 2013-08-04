@@ -1,4 +1,7 @@
 import java.text.DecimalFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Test {
@@ -11,5 +14,9 @@ public class Test {
 		double a = 0.234;
 		System.out.println(new DecimalFormat(".#").format(a));
 		assert(2 == 3);
+		
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		map.put("2", 2);
+		map.put("1", 1);
 	}
 }

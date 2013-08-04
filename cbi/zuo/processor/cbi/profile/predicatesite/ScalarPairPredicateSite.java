@@ -50,10 +50,6 @@ public class ScalarPairPredicateSite extends AbstractPredicateSite {
 		return greaterThanCount;
 	}
 
-	@Override
-	protected String getScheme() {
-		return "scalar-pairs";
-	}
 
 	@Override
 	protected void toSpecificString(StringBuilder builder) {

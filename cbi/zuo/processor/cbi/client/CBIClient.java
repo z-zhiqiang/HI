@@ -26,16 +26,16 @@ public class CBIClient {
 	final int runs;
 	final int k;
 	final File sitesFile;
-	final String profilesFile;
+	final String profilesFolder;
 	final String consoleFile;
 	private List<Map.Entry<PredicateItem, Double>> predictorEntryList;
 	private Map<String, Double> methodsMap;
 	
-	public CBIClient(int runs, int k, File sitesFile, String profilesFile, String consoleF) {
+	public CBIClient(int runs, int k, File sitesFile, String profilesFolder, String consoleF) {
 		this.runs = runs;
 		this.k = k;
 		this.sitesFile = sitesFile;
-		this.profilesFile = profilesFile;
+		this.profilesFolder = profilesFolder;
 		this.consoleFile = consoleF;
 		
 		PrintWriter writer = null;
@@ -54,13 +54,14 @@ public class CBIClient {
 	}
 	
 	public static void main(String[] args) {
-		CBIClient client = new CBIClient(9, 1, new File("/home/sunzzq/Downloads/debug/matrix.sites"), 
-				"/home/sunzzq/Downloads/debug", "/home/sunzzq/Downloads/debug/m.out");
+		CBIClient client = new CBIClient(363, 10, new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/sed/versions/v2/subv1/v2_subv1_f.sites"), 
+				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/sed/traces/v2/subv1/fine-grained/", 
+				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/m2.out");
 	}
 	
 	private void printResults(PrintWriter writer){
 		InstrumentationSites sites = new InstrumentationSites(sitesFile);
-		PredicateProfileReader reader = new PredicateProfileReader(profilesFile, sites);
+		PredicateProfileReader reader = new PredicateProfileReader(profilesFolder, sites);
 		PredicateProfile[] profiles = reader.readProfiles(runs);
 		Processor p = new Processor(profiles);
 		p.process();
@@ -98,7 +99,7 @@ public class CBIClient {
 		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
 		for (int i = 0; i < list.size(); i++) {
 			Map.Entry<PredicateItem, Double> entry = (Map.Entry<PredicateItem, Double>) list.get(i);
-			String method = entry.getKey().getSite().getFunctionName();
+			String method = entry.getKey().getPredicateSite().getSite().getFunctionName();
 			double value = entry.getValue();
 			
 			if (i < k) {
@@ -165,7 +166,7 @@ public class CBIClient {
 	}
 
 	public String getProfilesFile() {
-		return profilesFile;
+		return profilesFolder;
 	}
 
 	public String getConsoleFile() {

@@ -47,22 +47,6 @@ public class ReturnPredicateSite extends AbstractPredicateSite {
 		return this.negativeCount + this.zeroCount;
 	}
 
-	// public int getNegativeCount() {
-	// return negativeCount;
-	// }
-	//
-	// public int getZeroCount() {
-	// return zeroCount;
-	// }
-	//
-	// public int getPositveCount() {
-	// return positveCount;
-	// }
-
-	@Override
-	protected String getScheme() {
-		return "returns";
-	}
 
 	@Override
 	protected void toSpecificString(StringBuilder builder) {

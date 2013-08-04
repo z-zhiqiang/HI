@@ -336,7 +336,7 @@ public class Processor {
 //		}		
 		
 		for (int i = 0; i < statistics.length; i++) {
-			PredicateItem predicate = new PredicateItem(predicateSite.getSite(), predicateSite.getId(), i);
+			PredicateItem predicate = new PredicateItem(predicateSite, i);
 			double importance = Importance(statistics[i]);
 //			//for debugging
 //			if(predicateSite.getSite().getFunctionName().equals("nodedef")){

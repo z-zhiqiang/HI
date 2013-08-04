@@ -26,19 +26,6 @@ public abstract class AbstractPredicateSite {
 		return (byte) (counter > 0 ? 1 : 0);
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Preciate(scheme = ").append(this.getScheme())
-				.append(", id=").append(this.id).append(", site=")
-				.append(this.site.toStringWithoutFile()).append(", ");
-		this.toSpecificString(builder);
-		builder.append(")");
-		return builder.toString();
-	}
-
-	protected abstract String getScheme();
-
 	protected abstract void toSpecificString(StringBuilder builder);
 
 }

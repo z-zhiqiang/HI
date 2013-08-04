@@ -1,6 +1,6 @@
 package zuo.processor.cbi.processor;
 
-import zuo.processor.cbi.site.InstrumentationSites.AbstractSite;
+import zuo.processor.cbi.profile.predicatesite.AbstractPredicateSite;
 
 public class PredicateItem {
 	public static enum SiteCategory {
@@ -49,20 +49,19 @@ public class PredicateItem {
 		NOT_EQUAL
 	}
 	
-	private final AbstractSite site;
-	private final int id;
+	private final AbstractPredicateSite predicateSite;
 	private final int type;
 	
-	public PredicateItem(AbstractSite site, int id, int type){
-		this.site = site;
-		this.id = id;
+	
+	public PredicateItem(AbstractPredicateSite pSite, int type){
+		this.predicateSite = pSite;
 		this.type = type;
 	}
 	
 	public String toString(){
 		String tp = null;
 		
-		switch(site.getCategory()) {
+		switch(predicateSite.getSite().getCategory()) {
 		case BRANCH: {
 			tp = BranchPredicateType.values()[type].toString();
 			break;
@@ -85,34 +84,30 @@ public class PredicateItem {
 		}
 		
 		StringBuilder string = new StringBuilder();
-		string.append("(").append(id).append(", ").append(site.getCategory().toString()).append(", ").append(tp).append(", ").append(type).append(")\n")
-			.append(site.toStringWithoutFile()).append("\n")
-			.append(site.getFileString());
+		string.append("(").append(predicateSite.getId()).append(", ").append(predicateSite.getSite().getCategory().toString()).append(", ").append(tp).append(", ").append(type).append(")\n")
+			.append(predicateSite.getSite().toStringWithoutFile()).append("\n")
+			.append(predicateSite.getSite().getFileString());
 		return string.toString();
 	}
 	
-	public int hashCode(){
-		int result = 1;
-		result = 31 * result + id;
-		result = 31 * result + type;
-		return result;
-	}
-	
-	public boolean equals(Object o){
-		PredicateItem obj = (PredicateItem) o;
-		return (o instanceof PredicateItem) && (id == obj.id) && (type == obj.type);
-	}
-
-	public AbstractSite getSite() {
-		return site;
-	}
-
-	public int getId() {
-		return id;
-	}
+//	public int hashCode(){
+//		int result = 1;
+//		result = 31 * result + predicateSite.getId();
+//		result = 31 * result + type;
+//		return result;
+//	}
+//	
+//	public boolean equals(Object o){
+//		PredicateItem obj = (PredicateItem) o;
+//		return (o instanceof PredicateItem) && (predicateSite.getId() == obj.predicateSite.getId()) && (type == obj.type);
+//	}
 
 	public int getType() {
 		return type;
+	}
+
+	public AbstractPredicateSite getPredicateSite() {
+		return predicateSite;
 	}
 	
 	

@@ -84,10 +84,6 @@ public class FloatKindPredicateSite extends AbstractPredicateSite {
 		this.positiveInfinite = this.normalize(positiveInfinite);
 	}
 
-	@Override
-	protected String getScheme() {
-		return "float-kinds";
-	}
 
 	@Override
 	protected void toSpecificString(StringBuilder builder) {

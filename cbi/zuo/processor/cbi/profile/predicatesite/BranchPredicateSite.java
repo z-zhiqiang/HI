@@ -28,11 +28,6 @@ public class BranchPredicateSite extends AbstractPredicateSite {
 	}
 
 	@Override
-	protected String getScheme() {
-		return "branches";
-	}
-
-	@Override
 	protected void toSpecificString(StringBuilder builder) {
 		builder.append("true = ").append(trueCount).append(", false = ")
 				.append(falseCount);

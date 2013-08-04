@@ -65,7 +65,7 @@ public class IterativeFunctionClient {
 		this.consoleFile = consoleFile;
 		this.sInfo = sInfo;
 		this.predictors = predictors;
-		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
+		this.method = this.predictors.get(0).getKey().getPredicateSite().getSite().getFunctionName();
 		this.methodsMap = methodsM;
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.pResult = new double[Score.values().length][5];
@@ -96,7 +96,7 @@ public class IterativeFunctionClient {
 		this.consoleFile = consoleFolder + subject + "_" + version + "_function.out"; 
 		this.sInfo = sInfo;
 		this.predictors = predictors;
-		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
+		this.method = this.predictors.get(0).getKey().getPredicateSite().getSite().getFunctionName();
 		this.methodsMap = methodsM;
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.pResult = new double[Score.values().length][5];
@@ -131,7 +131,7 @@ public class IterativeFunctionClient {
 		CBIClient c = new CBIClient(runs, TOP_K, this.sInfo.getSites().getSitesFile(), 
 				rootDir + subject + "/traces/" + version +"/fine-grained", consoleFolder + subject + "_" + version + "_cbi.out");
 		this.predictors = c.getPredictorEntryList();
-		this.method = this.predictors.get(0).getKey().getSite().getFunctionName();
+		this.method = this.predictors.get(0).getKey().getPredicateSite().getSite().getFunctionName();
 		this.methodsMap = c.getMethodsMap();
 		
 		this.result = new double[Score.values().length][Order.values().length][2][5];
