@@ -27,22 +27,29 @@ public class CBIClient {
 	final int runs;
 	final int k;
 	final File sitesFile;
-	final String profilesFolder;
-	final String consoleFile;
+	final File profilesFolder;
+	final File consoleFile;
 	private List<PredicateItemWithImportance> sortedPredictorsList;
-	private Map<String, Double> methodsMap;
+//	private Map<String, Double> methodsMap;
 	
-	public CBIClient(int runs, int k, File sitesFile, String profilesFolder, String consoleF) {
+	private final Set<String> functions;
+	private final Set<Integer> samples; 
+	
+	
+	public CBIClient(int runs, int k, File sitesFile, File profilesFolder, File consoleF, Set<String> functions, Set<Integer> samples) {
 		this.runs = runs;
 		this.k = k;
 		this.sitesFile = sitesFile;
 		this.profilesFolder = profilesFolder;
 		this.consoleFile = consoleF;
 		
+		this.functions = functions;
+		this.samples = samples;
+		
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
-			printResults(writer);
+			run(writer);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -55,12 +62,12 @@ public class CBIClient {
 	}
 	
 	public static void main(String[] args) {
-		CBIClient client = new CBIClient(363, 10, new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/sed/versions/v2/subv1/v2_subv1_f.sites"), 
-				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/sed/traces/v2/subv1/fine-grained/", 
-				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/m3.out");
+//		CBIClient client = new CBIClient(363, 10, new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/sed/versions/v2/subv1/v2_subv1_f.sites"), 
+//				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/sed/traces/v2/subv1/fine-grained/", 
+//				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/m3.out");
 	}
 	
-	private void printResults(PrintWriter writer){
+	private void run(PrintWriter writer){
 		InstrumentationSites sites = new InstrumentationSites(sitesFile);
 		PredicateProfileReader reader = new PredicateProfileReader(profilesFolder, sites);
 		PredicateProfile[] profiles = reader.readProfiles(runs);
@@ -131,7 +138,7 @@ public class CBIClient {
 				methodsM.put(method, value);
 			}
 		}
-		this.methodsMap = Collections.unmodifiableMap(methodsM);
+//		this.methodsMap = Collections.unmodifiableMap(methodsM);
 	    assert(methodsM.size() == new SitesInfo(new InstrumentationSites(sitesFile)).getMap().size());
 		
 		writer.println();
@@ -157,9 +164,9 @@ public class CBIClient {
 	
 
 	
-	public Map<String, Double> getMethodsMap() {
-		return methodsMap;
-	}
+//	public Map<String, Double> getMethodsMap() {
+//		return methodsMap;
+//	}
 
 	public int getRuns() {
 		return runs;
@@ -169,17 +176,17 @@ public class CBIClient {
 		return k;
 	}
 
-	public File getSitesFile() {
-		return sitesFile;
-	}
-
-	public String getProfilesFile() {
-		return profilesFolder;
-	}
-
-	public String getConsoleFile() {
-		return consoleFile;
-	}
+//	public File getSitesFile() {
+//		return sitesFile;
+//	}
+//
+//	public String getProfilesFile() {
+//		return profilesFolder;
+//	}
+//
+//	public String getConsoleFile() {
+//		return consoleFile;
+//	}
 
 	public List<PredicateItemWithImportance> getSortedPredictorsList() {
 		return sortedPredictorsList;

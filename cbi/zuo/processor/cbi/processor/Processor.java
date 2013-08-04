@@ -370,7 +370,7 @@ public class Processor {
 	public static void main(String[] args) {
 		InstrumentationSites sites = new InstrumentationSites(new File("/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions/v3/v3_f.sites"));
 		SitesInfo sInfo = new SitesInfo(sites);
-		PredicateProfileReader reader = new PredicateProfileReader("/home/sunzzq/Research/Automated_Debugging/Subjects/space/traces/v3/fine-grained", sites);
+		PredicateProfileReader reader = new PredicateProfileReader(new File("/home/sunzzq/Research/Automated_Debugging/Subjects/space/traces/v3/fine-grained"), sites);
 		PredicateProfile[] profiles = reader.readProfiles(2717);
 		Processor p = new Processor(profiles);
 		p.process();

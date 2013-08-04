@@ -15,8 +15,8 @@ public class PredicateProfileReader {
 	private final InstrumentationSites sites;
 	private final File profileFolder;
 
-	public PredicateProfileReader(String profileFolder, InstrumentationSites sites) {
-		this.profileFolder = new File(profileFolder);
+	public PredicateProfileReader(File profileFolder, InstrumentationSites sites) {
+		this.profileFolder = profileFolder;
 		this.sites = sites;
 	}
 	

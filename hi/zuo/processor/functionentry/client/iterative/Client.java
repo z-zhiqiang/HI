@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import zuo.processor.cbi.client.CBIClient;
+import zuo.processor.cbi.client.CBIClients;
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Order;
@@ -115,10 +116,15 @@ public class Client {
 			cWriter.println(vi);
 			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version.getAbsolutePath(), vi + "_f.sites")));
 			CBIClient c = new CBIClient(runs, IterativeFunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
-					rootDir + subject + "/traces/" + vi +"/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
+					new File(rootDir + subject + "/traces/" + vi +"/fine-grained"), 
+					new File(consoleFolder + subject + "_" + vi + "_cbi.out"), null, null);
+			
+			CBIClients cs = new CBIClients();
+			
 			IterativeFunctionClient client = new IterativeFunctionClient(runs, new File(version.getAbsolutePath(), vi + "_c.sites"), 
-					new File(rootDir + subject + "/traces/" + vi + "/coarse-grained"), consoleFolder + subject + "_" + vi + "_function.out", 
-					sInfo, c.getSortedPredictorsList(), c.getMethodsMap(), cWriter, version.getAbsolutePath() + "/adaptive/");
+					new File(rootDir + subject + "/traces/" + vi + "/coarse-grained"), 
+					new File(consoleFolder + subject + "_" + vi + "_function.out"), 
+					sInfo, cs.getTargetFunction(), cs.getClientsMap(), cWriter, version.getAbsolutePath() + "/adaptive/");
 			FunctionEntrySites sites = new FunctionEntrySites(client.getSitesFile());
 			results.put(vi, client.getResult());
 			pResults.put(vi, client.getpResult());
@@ -183,10 +189,15 @@ public class Client {
 				cWriter.println(vi);
 				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion.getAbsolutePath(), vi + "_f.sites")));
 				CBIClient c = new CBIClient(runs, IterativeFunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
-						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
+						new File(rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), 
+						new File(consoleFolder + subject + "_" + vi + "_cbi.out"), null, null);
+				
+				CBIClients cs = new CBIClients();
+				
 				IterativeFunctionClient client = new IterativeFunctionClient(runs, new File(subversion.getAbsolutePath(), vi + "_c.sites"), 
-						new File(rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), consoleFolder + subject + "_" + vi + "_function.out", 
-						sInfo, c.getSortedPredictorsList(), c.getMethodsMap(), cWriter, subversion.getAbsolutePath() + "/adaptive/");
+						new File(rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), 
+						new File(consoleFolder + subject + "_" + vi + "_function.out"), 
+						sInfo, cs.getTargetFunction(), cs.getClientsMap(), cWriter, subversion.getAbsolutePath() + "/adaptive/");
 				results.put(vi, client.getResult());
 				pResults.put(vi, client.getpResult());
 				wResults.put(vi, client.getwResult());
