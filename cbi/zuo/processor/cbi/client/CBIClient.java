@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import zuo.processor.cbi.processor.PredicateItem;
+import zuo.processor.cbi.processor.PredicateItemWithImportance;
 import zuo.processor.cbi.processor.Processor;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.PredicateProfileReader;
@@ -28,7 +29,7 @@ public class CBIClient {
 	final File sitesFile;
 	final String profilesFolder;
 	final String consoleFile;
-	private List<Map.Entry<PredicateItem, Double>> predictorEntryList;
+	private List<PredicateItemWithImportance> sortedPredictorsList;
 	private Map<String, Double> methodsMap;
 	
 	public CBIClient(int runs, int k, File sitesFile, String profilesFolder, String consoleF) {
@@ -56,7 +57,7 @@ public class CBIClient {
 	public static void main(String[] args) {
 		CBIClient client = new CBIClient(363, 10, new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/sed/versions/v2/subv1/v2_subv1_f.sites"), 
 				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/sed/traces/v2/subv1/fine-grained/", 
-				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/m2.out");
+				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/m3.out");
 	}
 	
 	private void printResults(PrintWriter writer){
@@ -78,37 +79,45 @@ public class CBIClient {
 		writer.println("\n");
 		printSitesInfo(new SitesInfo(sites), writer);
 		
+		//sort the list of predictors according to the importance value
+		sortingPreditorsList(p.getPredictorsList());
+		
 		//print out top-k predictors information
 		writer.println("\n");
-		printTopKPredictors(p.getPredictors(), k, writer);
+		printTopKPredictors(writer);
 	}
 
-	public void printTopKPredictors(Map<PredicateItem, Double> predictors, int k, PrintWriter writer){
-		Set<String> topMethods = new LinkedHashSet<String>();
-		Map<String, Double> methodsM = new HashMap<String, Double>();
-		List list = new ArrayList(predictors.entrySet());
-		Collections.sort(list, new Comparator(){
+	private void sortingPreditorsList(List<PredicateItemWithImportance> predictorsList) {
+		sortedPredictorsList = new ArrayList<PredicateItemWithImportance>(predictorsList);
+		// TODO Auto-generated method stub
+		Collections.sort(sortedPredictorsList, new Comparator(){
+
 			@Override
 			public int compare(Object arg0, Object arg1) {
 				// TODO Auto-generated method stub
-				return ((Map.Entry<PredicateItem, Double>) arg1).getValue()
-						.compareTo(((Entry<PredicateItem, Double>) arg0).getValue());
+				return new Double(((PredicateItemWithImportance) arg1).getImportance())
+				.compareTo(new Double(((PredicateItemWithImportance) arg0).getImportance()));
 			}
-			});
+			
+		});
+	}
+
+	public void printTopKPredictors(PrintWriter writer){
+		Set<String> topMethods = new LinkedHashSet<String>();
+		Map<String, Double> methodsM = new HashMap<String, Double>();
 		
 		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
-		for (int i = 0; i < list.size(); i++) {
-			Map.Entry<PredicateItem, Double> entry = (Map.Entry<PredicateItem, Double>) list.get(i);
-			String method = entry.getKey().getPredicateSite().getSite().getFunctionName();
-			double value = entry.getValue();
+		for (int i = 0; i < sortedPredictorsList.size(); i++) {
+			PredicateItemWithImportance pItemWI = sortedPredictorsList.get(i);
+			String method = pItemWI.getPredicateItem().getPredicateSite().getSite().getFunctionName();
+			double value = pItemWI.getImportance();
 			
 			if (i < k) {
 				//collect the method
 				if (!topMethods.contains(method)) {
 					topMethods.add(method);
 				}
-				writer.println("(" + (i + 1) + "): " + entry.getValue() + "\n"
-						+ entry.getKey().toString());
+				writer.println("(" + (i + 1) + "): " + pItemWI.toString());
 				writer.println();
 			}
 			
@@ -122,7 +131,6 @@ public class CBIClient {
 				methodsM.put(method, value);
 			}
 		}
-		this.predictorEntryList = Collections.unmodifiableList(list);
 		this.methodsMap = Collections.unmodifiableMap(methodsM);
 	    assert(methodsM.size() == new SitesInfo(new InstrumentationSites(sitesFile)).getMap().size());
 		
@@ -173,8 +181,8 @@ public class CBIClient {
 		return consoleFile;
 	}
 
-	public List<Map.Entry<PredicateItem, Double>> getPredictorEntryList() {
-		return predictorEntryList;
+	public List<PredicateItemWithImportance> getSortedPredictorsList() {
+		return sortedPredictorsList;
 	}
 
 

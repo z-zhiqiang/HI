@@ -23,14 +23,14 @@ import zuo.processor.cbi.site.SitesInfo;
 
 public class Processor {
 	private final PredicateProfile[] profiles; // profiles
-	private Map<PredicateItem, Double> predictors; // the results
+	private List<PredicateItemWithImportance> predictorsList; // the results
 	
 	private int totalPositive; // number of passing runs
 	private int totalNegative; // number of failing runs
 	
 	public Processor(PredicateProfile[] predicateProfiles){
 		this.profiles = predicateProfiles;
-		predictors = new HashMap<PredicateItem, Double>();
+		predictorsList = new ArrayList<PredicateItemWithImportance>();
 		totalPositive = totalNegative = 0;
 	}
 	
@@ -346,10 +346,8 @@ public class Processor {
 //				System.out.println(importance);
 //			}
 			
-			if(predictors.containsKey(predicate)){
-				throw new RuntimeException("key value wrong");
-			}
-			predictors.put(predicate, importance);
+			PredicateItemWithImportance pItemWI = new PredicateItemWithImportance(predicate, importance);
+			predictorsList.add(pItemWI);
 		}
 	}
 
@@ -395,17 +393,13 @@ public class Processor {
 		this.totalNegative = totalNegative;
 	}
 
-	public Map<PredicateItem, Double> getPredictors() {
-		return predictors;
-	}
-
-	public void setPredictors(Map<PredicateItem, Double> predictors) {
-		this.predictors = predictors;
-	}
-
-
 	public PredicateProfile[] getProfiles() {
 		return profiles;
 	}
+
+	public List<PredicateItemWithImportance> getPredictorsList() {
+		return predictorsList;
+	}
+
 
 }

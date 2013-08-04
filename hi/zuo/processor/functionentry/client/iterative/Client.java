@@ -118,7 +118,7 @@ public class Client {
 					rootDir + subject + "/traces/" + vi +"/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
 			IterativeFunctionClient client = new IterativeFunctionClient(runs, new File(version.getAbsolutePath(), vi + "_c.sites"), 
 					new File(rootDir + subject + "/traces/" + vi + "/coarse-grained"), consoleFolder + subject + "_" + vi + "_function.out", 
-					sInfo, c.getPredictorEntryList(), c.getMethodsMap(), cWriter, version.getAbsolutePath() + "/adaptive/");
+					sInfo, c.getSortedPredictorsList(), c.getMethodsMap(), cWriter, version.getAbsolutePath() + "/adaptive/");
 			FunctionEntrySites sites = new FunctionEntrySites(client.getSitesFile());
 			results.put(vi, client.getResult());
 			pResults.put(vi, client.getpResult());
@@ -186,7 +186,7 @@ public class Client {
 						rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained", consoleFolder + subject + "_" + vi + "_cbi.out");
 				IterativeFunctionClient client = new IterativeFunctionClient(runs, new File(subversion.getAbsolutePath(), vi + "_c.sites"), 
 						new File(rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), consoleFolder + subject + "_" + vi + "_function.out", 
-						sInfo, c.getPredictorEntryList(), c.getMethodsMap(), cWriter, subversion.getAbsolutePath() + "/adaptive/");
+						sInfo, c.getSortedPredictorsList(), c.getMethodsMap(), cWriter, subversion.getAbsolutePath() + "/adaptive/");
 				results.put(vi, client.getResult());
 				pResults.put(vi, client.getpResult());
 				wResults.put(vi, client.getwResult());

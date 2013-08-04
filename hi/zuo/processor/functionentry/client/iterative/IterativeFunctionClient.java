@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 
 import zuo.processor.cbi.client.CBIClient;
 import zuo.processor.cbi.processor.PredicateItem;
+import zuo.processor.cbi.processor.PredicateItemWithImportance;
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.processor.BoundCalculator;
@@ -44,7 +45,6 @@ public class IterativeFunctionClient {
 	final String consoleFile;
 	
 	final SitesInfo sInfo;
-	final List<Map.Entry<PredicateItem, Double>> predictors;
 	final String method;
 	final Map<String, Double> methodsMap;
 	
@@ -58,14 +58,13 @@ public class IterativeFunctionClient {
 	
 	final String methodsFileDir;
 	
-	public IterativeFunctionClient(int runs, File sitesFile, File profilesFolder, String consoleFile, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, Map<String, Double> methodsM, PrintWriter cWriter, String methodsF) {
+	public IterativeFunctionClient(int runs, File sitesFile, File profilesFolder, String consoleFile, SitesInfo sInfo, List<PredicateItemWithImportance> list, Map<String, Double> methodsM, PrintWriter cWriter, String methodsF) {
 		this.runs = runs;
 		this.sitesFile = sitesFile;
 		this.profilesFolder = profilesFolder;
 		this.consoleFile = consoleFile;
 		this.sInfo = sInfo;
-		this.predictors = predictors;
-		this.method = this.predictors.get(0).getKey().getPredicateSite().getSite().getFunctionName();
+		this.method = list.get(0).getPredicateItem().getPredicateSite().getSite().getFunctionName();
 		this.methodsMap = methodsM;
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.pResult = new double[Score.values().length][5];
@@ -89,14 +88,13 @@ public class IterativeFunctionClient {
 		}
 	}
 	
-	public IterativeFunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<Map.Entry<PredicateItem, Double>> predictors, Map<String, Double> methodsM, PrintWriter cWriter){
+	public IterativeFunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<PredicateItemWithImportance> list, Map<String, Double> methodsM, PrintWriter cWriter){
 		this.runs = runs;
 		this.sitesFile = new File(rootDir + subject + "/versions/" + version + "/" + version + "_c.sites");
 		this.profilesFolder = new File(rootDir + subject + "/traces/" + version + "/coarse-grained");
 		this.consoleFile = consoleFolder + subject + "_" + version + "_function.out"; 
 		this.sInfo = sInfo;
-		this.predictors = predictors;
-		this.method = this.predictors.get(0).getKey().getPredicateSite().getSite().getFunctionName();
+		this.method = list.get(0).getPredicateItem().getPredicateSite().getSite().getFunctionName();
 		this.methodsMap = methodsM;
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.pResult = new double[Score.values().length][5];
@@ -130,8 +128,7 @@ public class IterativeFunctionClient {
 		this.sInfo = new SitesInfo(new InstrumentationSites(new File(rootDir + subject + "/versions/" + version + "/" + version + "_f.sites")));
 		CBIClient c = new CBIClient(runs, TOP_K, this.sInfo.getSites().getSitesFile(), 
 				rootDir + subject + "/traces/" + version +"/fine-grained", consoleFolder + subject + "_" + version + "_cbi.out");
-		this.predictors = c.getPredictorEntryList();
-		this.method = this.predictors.get(0).getKey().getPredicateSite().getSite().getFunctionName();
+		this.method = c.getSortedPredictorsList().get(0).getPredicateItem().getPredicateSite().getSite().getFunctionName();
 		this.methodsMap = c.getMethodsMap();
 		
 		this.result = new double[Score.values().length][Order.values().length][2][5];
@@ -912,10 +909,6 @@ public class IterativeFunctionClient {
 
 	public SitesInfo getsInfo() {
 		return sInfo;
-	}
-
-	public List<Map.Entry<PredicateItem, Double>> getPredictors() {
-		return predictors;
 	}
 
 	public double[][][][] getResult() {
