@@ -29,16 +29,16 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class Client {
 	final int runs;
-	final String rootDir;
+	final File rootDir;
 	final String subject;
-	final String consoleFolder;
+	final File consoleFolder;
 	
 	final Map<String, double[][][][]> results;
 	final Map<String, double[][]> pResults;
 	final Map<String, double[][]> wResults;
 	final Map<String, int[]> cResults;
 	
-	public Client(int runs, String rootDir, String subject, String consoleFolder) {
+	public Client(int runs, File rootDir, String subject, File consoleFolder) {
 		this.runs = runs;
 		this.rootDir = rootDir;
 		this.subject = subject;
@@ -55,9 +55,8 @@ public class Client {
 	private void computeSirResults() {
 		PrintWriter clientWriter = null;
 		try {
-			File file = new File(this.consoleFolder);
-			if(!file.exists()){
-				file.mkdirs();
+			if(!consoleFolder.exists()){
+				consoleFolder.mkdirs();
 			}
 			clientWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + ".out"))));
 			printSirResults(clientWriter);
@@ -78,9 +77,8 @@ public class Client {
 	private void computeSiemensResults() {
 		PrintWriter clientWriter = null;
 		try {
-			File file = new File(this.consoleFolder);
-			if(!file.exists()){
-				file.mkdirs();
+			if(!consoleFolder.exists()){
+				consoleFolder.mkdirs();
 			}
 			clientWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + ".out"))));
 			printSiemensResults(clientWriter);
@@ -96,7 +94,7 @@ public class Client {
 	}
 	
 	private void printSiemensResults(PrintWriter cWriter){
-		File[] versions = new File(rootDir + subject + "/versions").listFiles(new FilenameFilter(){
+		File[] versions = new File(rootDir, subject + "/versions").listFiles(new FilenameFilter(){
 			@Override
 			public boolean accept(File dir, String name) {
 				// TODO Auto-generated method stub
@@ -114,18 +112,19 @@ public class Client {
 			versionsList.add(vi);
 			System.out.println(vi);
 			cWriter.println(vi);
-			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version.getAbsolutePath(), vi + "_f.sites")));
-			CBIClient c = new CBIClient(runs, IterativeFunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
-					new File(rootDir + subject + "/traces/" + vi +"/fine-grained"), 
-					new File(consoleFolder + subject + "_" + vi + "_cbi.out"), null, null);
+			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version, vi + "_f.sites")));
+//			CBIClient c = new CBIClient(runs, IterativeFunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
+//					new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), 
+//					new File(consoleFolder, subject + "_" + vi + "_cbi.out"), null, null);
 			
-			CBIClients cs = new CBIClients();
+			CBIClients cs = new CBIClients(sInfo, new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), consoleFolder);
 			
-			IterativeFunctionClient client = new IterativeFunctionClient(runs, new File(version.getAbsolutePath(), vi + "_c.sites"), 
-					new File(rootDir + subject + "/traces/" + vi + "/coarse-grained"), 
-					new File(consoleFolder + subject + "_" + vi + "_function.out"), 
-					sInfo, cs.getTargetFunction(), cs.getClientsMap(), cWriter, version.getAbsolutePath() + "/adaptive/");
-			FunctionEntrySites sites = new FunctionEntrySites(client.getSitesFile());
+			IterativeFunctionClient client = new IterativeFunctionClient(runs, 
+					new File(version, vi + "_c.sites"), 
+					new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), 
+					new File(consoleFolder, subject + "_" + vi + "_function.out"), 
+					sInfo, 
+					cs.getTargetFunction(), cs.getClientsMap(), cWriter, new File(version, "adaptive"));
 			results.put(vi, client.getResult());
 			pResults.put(vi, client.getpResult());
 			wResults.put(vi, client.getwResult());
@@ -155,7 +154,7 @@ public class Client {
 	private void printSirResults(PrintWriter cWriter){
 		List<String> versionsList = new ArrayList<String>();
 		
-		File[] versions = new File(rootDir + subject + "/versions").listFiles(new FilenameFilter(){
+		File[] versions = new File(rootDir, subject + "/versions").listFiles(new FilenameFilter(){
 			@Override
 			public boolean accept(File dir, String name) {
 				// TODO Auto-generated method stub
@@ -187,17 +186,19 @@ public class Client {
 				versionsList.add(vi);
 				System.out.println(vi);
 				cWriter.println(vi);
-				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion.getAbsolutePath(), vi + "_f.sites")));
-				CBIClient c = new CBIClient(runs, IterativeFunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
-						new File(rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), 
-						new File(consoleFolder + subject + "_" + vi + "_cbi.out"), null, null);
+				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion, vi + "_f.sites")));
+//				CBIClient c = new CBIClient(runs, IterativeFunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
+//						new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), 
+//						new File(consoleFolder, subject + "_" + vi + "_cbi.out"), null, null);
 				
-				CBIClients cs = new CBIClients();
+				CBIClients cs = new CBIClients(sInfo, new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), consoleFolder);
 				
-				IterativeFunctionClient client = new IterativeFunctionClient(runs, new File(subversion.getAbsolutePath(), vi + "_c.sites"), 
-						new File(rootDir + subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), 
-						new File(consoleFolder + subject + "_" + vi + "_function.out"), 
-						sInfo, cs.getTargetFunction(), cs.getClientsMap(), cWriter, subversion.getAbsolutePath() + "/adaptive/");
+				IterativeFunctionClient client = new IterativeFunctionClient(runs, 
+						new File(subversion, vi + "_c.sites"), 
+						new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), 
+						new File(consoleFolder, subject + "_" + vi + "_function.out"), 
+						sInfo, 
+						cs.getTargetFunction(), cs.getClientsMap(), cWriter, new File(subversion, "adaptive"));
 				results.put(vi, client.getResult());
 				pResults.put(vi, client.getpResult());
 				wResults.put(vi, client.getwResult());
@@ -412,7 +413,7 @@ public class Client {
 		}
 		
 		if(args.length == 5){
-			Client c = new Client(Integer.parseInt(args[1]), args[2], args[3], args[4] + "/");
+			Client c = new Client(Integer.parseInt(args[1]), new File(args[2]), args[3], new File(args[4] + "/"));
 			if(Integer.parseInt(args[0]) == 0){
 				c.computeSiemensResults();
 			}
@@ -423,7 +424,7 @@ public class Client {
 		else if(args.length == 3){
 			assert(Integer.parseInt(args[0]) == 0);
 			for(int i = 4; i < argvs.length; i++){
-				Client c = new Client(Integer.parseInt(argvs[i][0]), args[1], argvs[i][1], args[2] + "/" + argvs[i][1] + "/");
+				Client c = new Client(Integer.parseInt(argvs[i][0]), new File(args[1]), argvs[i][1], new File(args[2] + "/" + argvs[i][1] + "/"));
 				c.computeSiemensResults();
 			}
 		}

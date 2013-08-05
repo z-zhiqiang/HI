@@ -12,43 +12,37 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-import zuo.processor.cbi.processor.PredicateItem;
 import zuo.processor.cbi.processor.PredicateItemWithImportance;
 import zuo.processor.cbi.processor.Processor;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.PredicateProfileReader;
-import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
 
 public class CBIClient {
 	final int runs;
 	final int k;
-	final File sitesFile;
+	final SitesInfo sitesInfo;
 	final File profilesFolder;
-	final File consoleFile;
 	private List<PredicateItemWithImportance> sortedPredictorsList;
-//	private Map<String, Double> methodsMap;
 	
 	private final Set<String> functions;
 	private final Set<Integer> samples; 
 	
 	
-	public CBIClient(int runs, int k, File sitesFile, File profilesFolder, File consoleF, Set<String> functions, Set<Integer> samples) {
+	public CBIClient(int runs, int k, SitesInfo sInfo, File profilesFolder, File consoleFile, Set<String> functions, Set<Integer> samples) {
 		this.runs = runs;
 		this.k = k;
-		this.sitesFile = sitesFile;
+		this.sitesInfo = sInfo;
 		this.profilesFolder = profilesFolder;
-		this.consoleFile = consoleF;
 		
 		this.functions = functions;
 		this.samples = samples;
 		
 		PrintWriter writer = null;
 		try {
-			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
+			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
 			run(writer);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -68,8 +62,7 @@ public class CBIClient {
 	}
 	
 	private void run(PrintWriter writer){
-		InstrumentationSites sites = new InstrumentationSites(sitesFile);
-		PredicateProfileReader reader = new PredicateProfileReader(profilesFolder, sites);
+		PredicateProfileReader reader = new PredicateProfileReader(profilesFolder, sitesInfo.getSites());
 		PredicateProfile[] profiles = reader.readProfiles(runs);
 		Processor p = new Processor(profiles);
 		p.process();
@@ -84,7 +77,7 @@ public class CBIClient {
 	
 		//print out the static instrumentation sites information 
 		writer.println("\n");
-		printSitesInfo(new SitesInfo(sites), writer);
+		printSitesInfo(writer);
 		
 		//sort the list of predictors according to the importance value
 		sortingPreditorsList(p.getPredictorsList());
@@ -131,15 +124,13 @@ public class CBIClient {
 			if(methodsM.containsKey(method)){
 				if(value > methodsM.get(method)){
 					throw new RuntimeException("Error");
-//					methodsM.put(method, value);
 				}
 			}
 			else{
 				methodsM.put(method, value);
 			}
 		}
-//		this.methodsMap = Collections.unmodifiableMap(methodsM);
-	    assert(methodsM.size() == new SitesInfo(new InstrumentationSites(sitesFile)).getMap().size());
+	    assert(methodsM.size() == sitesInfo.getMap().size());
 		
 		writer.println();
 		writer.println("The corresponding top " + topMethods.size() + " of " + methodsM.size() + " methods are as follows:\n--------------------------------------------------------------");
@@ -150,44 +141,18 @@ public class CBIClient {
 	 * @param sInfo
 	 * @param writer
 	 */
-	public static void printSitesInfo(SitesInfo sInfo, PrintWriter writer) {
+	public void printSitesInfo(PrintWriter writer) {
 		writer.println("The general sites information are as follows:\n==============================================================");
-		writer.println(String.format("%-60s", "Total number of sites instrumented:") + sInfo.getNumPredicateSites());
-		writer.println(String.format("%-60s", "Total number of predicates instrumented:") + sInfo.getNumPredicateItems());
-		writer.println(String.format("%-60s", "Total number of methods having sites instrumented:") + sInfo.getMap().size());
+		writer.println(String.format("%-60s", "Total number of sites instrumented:") + sitesInfo.getNumPredicateSites());
+		writer.println(String.format("%-60s", "Total number of predicates instrumented:") + sitesInfo.getNumPredicateItems());
+		writer.println(String.format("%-60s", "Total number of methods having sites instrumented:") + sitesInfo.getMap().size());
 		writer.println();
 		writer.println("The information of sites and predicates in each method:\n--------------------------------------------------------------");
-		for(String method: sInfo.getMap().keySet()){
-			writer.println(String.format("%-45s", method) + String.format("%-20s", ":" + sInfo.getMap().get(method).getNumSites()) + String.format("%-20s", ":" + sInfo.getMap().get(method).getNumPredicates()));
+		for(String method: sitesInfo.getMap().keySet()){
+			writer.println(String.format("%-45s", method) + String.format("%-20s", ":" + sitesInfo.getMap().get(method).getNumSites()) + String.format("%-20s", ":" + sitesInfo.getMap().get(method).getNumPredicates()));
 		}
 	}
 	
-
-	
-//	public Map<String, Double> getMethodsMap() {
-//		return methodsMap;
-//	}
-
-	public int getRuns() {
-		return runs;
-	}
-
-	public int getK() {
-		return k;
-	}
-
-//	public File getSitesFile() {
-//		return sitesFile;
-//	}
-//
-//	public String getProfilesFile() {
-//		return profilesFolder;
-//	}
-//
-//	public String getConsoleFile() {
-//		return consoleFile;
-//	}
-
 	public List<PredicateItemWithImportance> getSortedPredictorsList() {
 		return sortedPredictorsList;
 	}

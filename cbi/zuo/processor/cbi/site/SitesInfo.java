@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import zuo.processor.cbi.site.InstrumentationSites.AbstractSite;
@@ -14,7 +13,7 @@ import zuo.processor.cbi.site.InstrumentationSites.ReturnSite;
 import zuo.processor.cbi.site.InstrumentationSites.ScalarSite;
 
 public class SitesInfo {
-	public static class InfoValue{ 
+	public static class InfoValue{
 		int numSites;
 		int numPredicates;
 		HashSet<AbstractSite> sitesSet;

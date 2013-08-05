@@ -42,7 +42,6 @@ public class IterativeFunctionClient {
 	
 	final File sitesFile;
 	final File profilesFolder;
-	final File consoleFile;
 	
 	final SitesInfo sInfo;
 	final String targetFunction;
@@ -53,16 +52,12 @@ public class IterativeFunctionClient {
 	final double [][] wResult;
 	final int [] cResult;//{methods, sites, predicates}
 	
-	private PrintWriter writer;
-	final PrintWriter clientWriter;
+	final File methodsFileDir;
 	
-	final String methodsFileDir;
-	
-	public IterativeFunctionClient(int runs, File sitesFile, File profilesFolder, File consoleFile, SitesInfo sInfo, String function, Map<String, CBIClient> map, PrintWriter cWriter, String methodsF) {
+	public IterativeFunctionClient(int runs, File sitesFile, File profilesFolder, File consoleFile, SitesInfo sInfo, String function, Map<String, CBIClient> map, PrintWriter clientWriter, File methodsF) {
 		this.runs = runs;
 		this.sitesFile = sitesFile;
 		this.profilesFolder = profilesFolder;
-		this.consoleFile = consoleFile;
 		this.sInfo = sInfo;
 		this.targetFunction = function;
 		this.clientsMap = map;
@@ -70,13 +65,13 @@ public class IterativeFunctionClient {
 		this.pResult = new double[Score.values().length][5];
 		this.wResult = new double[Score.values().length][5];
 		this.cResult = new int[3];
-		this.clientWriter = cWriter;
 		
 		this.methodsFileDir = methodsF;
 		
+		PrintWriter writer = null;
 		try {
-			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
-			run();
+			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
+			run(writer, clientWriter);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -154,7 +149,7 @@ public class IterativeFunctionClient {
 //	}
 
 	
-	private void run(){
+	private void run(PrintWriter writer, PrintWriter clientWriter){
 		FunctionEntrySites sites = new FunctionEntrySites(sitesFile);
 		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFolder, sites);
 		FunctionEntryProfile[] profiles = reader.readFunctionEntryProfiles(runs);
@@ -188,9 +183,9 @@ public class IterativeFunctionClient {
 			
 			BoundCalculator bc = new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive());
 			for(Order order: Order.values()){
-				printEntryAndPercentage(processor.getFrequencyMap(), score, order, bc);
+				printEntryAndPercentage(processor.getFrequencyMap(), score, order, bc, writer, clientWriter);
 			}
-			printPruningCase(processor.getFrequencyMap(), score, bc);
+			printPruningCase(processor.getFrequencyMap(), score, bc, writer, clientWriter);
 //			printWorstCase(processor.getFrequencyMap(), score, bc);
 		}
 	}
@@ -199,8 +194,10 @@ public class IterativeFunctionClient {
 	 * @param frequencyMap
 	 * @param score
 	 * @param bc
+	 * @param clientWriter 
+	 * @param writer 
 	 */
-	private void printPruningCase(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, BoundCalculator bc) {
+	private void printPruningCase(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, BoundCalculator bc, PrintWriter writer, PrintWriter clientWriter) {
 		// TODO Auto-generated method stub
 		List list = new ArrayList(frequencyMap.entrySet());
 		Collections.sort(list, new Comparator(){
@@ -449,8 +446,10 @@ public class IterativeFunctionClient {
 	 * @param score
 	 * @param order
 	 * @param bc 
+	 * @param clientWriter 
+	 * @param writer 
 	 */
-	private void printEntryAndPercentage(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, final Order order, BoundCalculator bc) {
+	private void printEntryAndPercentage(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, final Order order, BoundCalculator bc, PrintWriter writer, PrintWriter clientWriter) {
 		// TODO Auto-generated method stub
 		List list = new ArrayList(frequencyMap.entrySet());
 		Collections.sort(list, new Comparator(){
@@ -462,12 +461,12 @@ public class IterativeFunctionClient {
 			}});
 		String mode = "<" + score + "," + order + ">";
 		writer.println("The methods ordered by " + mode + " are as follows:\n--------------------------------------------------------------");
-		printEntry(list);
+		printEntry(list, writer);
 		writer.println();
 		System.out.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		writer.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		clientWriter.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
-		printPercentage(list, score, order, bc);
+		printPercentage(list, score, order, bc, writer, clientWriter);
 		getMethodsList(list, score, order);
 	}
 		
@@ -492,12 +491,11 @@ public class IterativeFunctionClient {
 			
 			PrintWriter out = null;
 			try{
-				File fd = new File(this.methodsFileDir);
-				if (!fd.exists()) {
-					fd.mkdirs();
+				if (!methodsFileDir.exists()) {
+					methodsFileDir.mkdirs();
 				}
 				//write the passing inputs
-				out = new PrintWriter(new BufferedWriter(new FileWriter(this.methodsFileDir + score)));
+				out = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.methodsFileDir, String.valueOf(score)))));
 				for(String method: methods){
 					out.println(method);
 				}
@@ -680,8 +678,9 @@ public class IterativeFunctionClient {
 	
 	/**print out the method entries
 	 * @param list
+	 * @param writer 
 	 */
-	private void printEntry(List list) {
+	private void printEntry(List list, PrintWriter writer) {
 		for(int i = 0; i < list.size(); i++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
 			String method = entry.getKey().getFunctionName();
@@ -700,8 +699,10 @@ public class IterativeFunctionClient {
 	 * @param score
 	 * @param order
 	 * @param bc 
+	 * @param clientWriter 
+	 * @param writer 
 	 */
-	private void printPercentage(List list, Score score, Order order, BoundCalculator bc) {
+	private void printPercentage(List list, Score score, Order order, BoundCalculator bc, PrintWriter writer, PrintWriter clientWriter) {
 		double threshold = 0;
 		int i = 0;
 		
@@ -898,14 +899,6 @@ public class IterativeFunctionClient {
 	public File getSitesFile() {
 		return sitesFile;
 	}
-//
-//	public File getProfilesFolder() {
-//		return profilesFolder;
-//	}
-//
-//	public String getConsoleFile() {
-//		return consoleFile;
-//	}
 
 	public SitesInfo getsInfo() {
 		return sInfo;
