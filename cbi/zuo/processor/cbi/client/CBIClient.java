@@ -75,10 +75,6 @@ public class CBIClient {
 		writer.println(String.format("%-50s", "Total number of negative runs:") + p.getTotalNegative());
 		writer.println(String.format("%-50s", "Total number of positive runs:") + p.getTotalPositive());
 	
-//		//print out the static instrumentation sites information 
-//		writer.println("\n");
-//		printSitesInfo(writer);
-		
 		//sort the list of predictors according to the importance value
 		sortingPreditorsList(p.getPredictorsList());
 		
@@ -104,7 +100,6 @@ public class CBIClient {
 
 	public void printTopKPredictors(PrintWriter writer){
 		Set<String> topMethods = new LinkedHashSet<String>();
-//		Map<String, Double> methodsM = new HashMap<String, Double>();
 		
 		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
 		for (int i = 0; i < sortedPredictorsList.size(); i++) {
@@ -120,38 +115,14 @@ public class CBIClient {
 				writer.println("(" + (i + 1) + "): " + pItemWI.toString());
 				writer.println();
 			}
-			
-//			if(methodsM.containsKey(method)){
-//				if(value > methodsM.get(method)){
-//					throw new RuntimeException("Error");
-//				}
-//			}
-//			else{
-//				methodsM.put(method, value);
-//			}
 		}
-//	    assert(methodsM.size() == sitesInfo.getMap().size());
 		
 //		writer.println();
 //		writer.println("The corresponding top " + topMethods.size() + " of " + methodsM.size() + " methods are as follows:\n--------------------------------------------------------------");
 //		writer.println(topMethods.toString());
 	}
 
-	/**print the sites information
-	 * @param sInfo
-	 * @param writer
-	 */
-	public static void printSitesInfo(SitesInfo sitesInfo, PrintWriter writer) {
-		writer.println("The general sites information are as follows:\n==============================================================");
-		writer.println(String.format("%-60s", "Total number of sites instrumented:") + sitesInfo.getNumPredicateSites());
-		writer.println(String.format("%-60s", "Total number of predicates instrumented:") + sitesInfo.getNumPredicateItems());
-		writer.println(String.format("%-60s", "Total number of methods having sites instrumented:") + sitesInfo.getMap().size());
-		writer.println();
-		writer.println("The information of sites and predicates in each method:\n--------------------------------------------------------------");
-		for(String method: sitesInfo.getMap().keySet()){
-			writer.println(String.format("%-45s", method) + String.format("%-20s", ":" + sitesInfo.getMap().get(method).getNumSites()) + String.format("%-20s", ":" + sitesInfo.getMap().get(method).getNumPredicates()));
-		}
-	}
+	
 	
 	public List<PredicateItemWithImportance> getSortedPredictorsList() {
 		return sortedPredictorsList;
