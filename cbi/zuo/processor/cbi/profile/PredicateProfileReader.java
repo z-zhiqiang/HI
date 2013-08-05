@@ -1,11 +1,8 @@
 package zuo.processor.cbi.profile;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.regex.Pattern;
-
+import java.util.Set;
 
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.util.file.FileUtil;
@@ -14,10 +11,15 @@ import zuo.util.file.FileUtil;
 public class PredicateProfileReader {
 	private final InstrumentationSites sites;
 	private final File profileFolder;
+	
+	private final Set<String> functions;
+	private final Set<Integer> samples;
 
-	public PredicateProfileReader(File profileFolder, InstrumentationSites sites) {
+	public PredicateProfileReader(File profileFolder, InstrumentationSites sites, final Set<String> functions, final Set<Integer> samples) {
 		this.profileFolder = profileFolder;
 		this.sites = sites;
+		this.functions = functions;
+		this.samples = samples;
 	}
 	
 	public final PredicateProfile[] readProfiles(int numRuns) {
@@ -40,7 +42,6 @@ public class PredicateProfileReader {
 					System.out.println();
 				
 				PProfiles[j++] = this.createProfile(profiles[i]);
-//				System.out.println(profiles[i].getName());
 			}
 		}
 		System.out.println();
@@ -56,7 +57,7 @@ public class PredicateProfileReader {
 		if(filename.endsWith(".fprofile")){
 			isCorrect = false;
 		}
-		return new PredicateProfile(profileFile, sites, isCorrect);
+		return new PredicateProfile(profileFile, sites, isCorrect, functions);
 	}
 	
 

@@ -7,13 +7,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import zuo.processor.cbi.profile.predicatesite.AbstractPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.BranchPredicateSite;
-import zuo.processor.cbi.profile.predicatesite.FloatKindPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ReturnPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
 import zuo.processor.cbi.site.InstrumentationSites;
+import zuo.processor.cbi.site.InstrumentationSites.BranchSite;
+import zuo.processor.cbi.site.InstrumentationSites.ReturnSite;
+import zuo.processor.cbi.site.InstrumentationSites.ScalarSite;
 
 
 public class PredicateProfile {
@@ -30,16 +33,19 @@ public class PredicateProfile {
 
 	private final InstrumentationSites sites;
 	
+	private final Set<String> functions;
+	
 	public void dispose() {
 		this.scalarPairs.clear();
 		this.returns.clear();
 		this.branchs.clear();
 	}
 
-	public PredicateProfile(File profilePath, InstrumentationSites sites, boolean isCorrect) {
+	public PredicateProfile(File profilePath, InstrumentationSites sites, boolean isCorrect, Set<String> functions) {
 		this.path = profilePath;
 		this.isCorrect = isCorrect;
 		this.sites = sites;
+		this.functions = functions;
 
 		List<ScalarPairPredicateSite> scalarPredicateSites = new ArrayList<ScalarPairPredicateSite>();
 		List<ReturnPredicateSite> returnPredicateSites = new ArrayList<ReturnPredicateSite>();
@@ -109,9 +115,10 @@ public class PredicateProfile {
 				final int equalCounter = Integer.parseInt(counters[1]);
 				final int greaterThanCounter = Integer.parseInt(counters[2]);
 				
-				predicateSites.add(new ScalarPairPredicateSite(allo.allocateID(),
-						this.sites.getScalarSite(unit, ++sequence), lessThanCounter, equalCounter,
-						greaterThanCounter));
+				ScalarSite site = this.sites.getScalarSite(unit, ++sequence);
+				if(this.functions.contains(site.getFunctionName())){
+					predicateSites.add(new ScalarPairPredicateSite(allo.allocateID(), site, lessThanCounter, equalCounter, greaterThanCounter));
+				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException();
@@ -137,8 +144,10 @@ public class PredicateProfile {
 				final int falseCounter = Integer.parseInt(counters[0]);
 				final int trueCounter = Integer.parseInt(counters[1]);
 				
-				predicateSites.add(new BranchPredicateSite(allo.allocateID(), sites.getBranchSite(unit, ++sequence),
-						trueCounter, falseCounter));
+				BranchSite site = this.sites.getBranchSite(unit, ++sequence);
+				if(this.functions.contains(site.getFunctionName())){
+					predicateSites.add(new BranchPredicateSite(allo.allocateID(), site, trueCounter, falseCounter));
+				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException();
@@ -164,19 +173,21 @@ public class PredicateProfile {
 				final int zeroCounter = Integer.parseInt(counters[1]);
 				final int positiveCounter = Integer.parseInt(counters[2]);
 				
-				predicateSites.add(new ReturnPredicateSite(allo.allocateID(), this.sites.getReturnSite(unit, ++sequence),
-						negativeCounter, zeroCounter, positiveCounter));
+				ReturnSite site = this.sites.getReturnSite(unit, ++sequence);
+				if(this.functions.contains(site.getFunctionName())){
+					predicateSites.add(new ReturnPredicateSite(allo.allocateID(), site, negativeCounter, zeroCounter, positiveCounter));
+				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException();
 		}
 	}
 
-	private void skip(BufferedReader reader) throws IOException {
-		for (String line = reader.readLine(); line != null
-				&& !line.contains("</samples>"); line = reader.readLine()) {
-		}
-	}
+//	private void skip(BufferedReader reader) throws IOException {
+//		for (String line = reader.readLine(); line != null
+//				&& !line.contains("</samples>"); line = reader.readLine()) {
+//		}
+//	}
 
 	public List<ScalarPairPredicateSite> getScalarPredicateSites() {
 		return this.scalarPairs;

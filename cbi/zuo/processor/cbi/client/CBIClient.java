@@ -62,7 +62,7 @@ public class CBIClient {
 	}
 	
 	private void run(PrintWriter writer){
-		PredicateProfileReader reader = new PredicateProfileReader(profilesFolder, sitesInfo.getSites());
+		PredicateProfileReader reader = new PredicateProfileReader(profilesFolder, sitesInfo.getSites(), functions, samples);
 		PredicateProfile[] profiles = reader.readProfiles(runs);
 		Processor p = new Processor(profiles);
 		p.process();
