@@ -8,37 +8,32 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import zuo.processor.cbi.processor.PredicateItemWithImportance;
 import zuo.processor.cbi.processor.Processor;
 import zuo.processor.cbi.profile.PredicateProfile;
-import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.site.SitesInfo;
 
 public class CBIClient {
-	final int runs;
 	final int k;
-	final SitesInfo sitesInfo;
-	final File profilesFolder;
+	final PredicateProfile[] selectedPredicateProfiles;
 	private List<PredicateItemWithImportance> sortedPredictorsList;
 	
 	private final Set<String> functions;
 	private final Set<Integer> samples; 
 	
 	
-	public CBIClient(int runs, int k, SitesInfo sInfo, File profilesFolder, File consoleFile, Set<String> functions, Set<Integer> samples) {
-		this.runs = runs;
+	public CBIClient(int k, PredicateProfile[] profiles, File consoleFile, Set<String> functions, Set<Integer> samples) {
 		this.k = k;
-		this.sitesInfo = sInfo;
-		this.profilesFolder = profilesFolder;
 		
 		this.functions = functions;
 		this.samples = samples;
+		
+		this.selectedPredicateProfiles = constructSelectedPredicateProfiles(profiles);
+		
 		
 		PrintWriter writer = null;
 		try {
@@ -55,6 +50,11 @@ public class CBIClient {
 		}
 	}
 	
+	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] profiles) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public static void main(String[] args) {
 //		CBIClient client = new CBIClient(363, 10, new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/sed/versions/v2/subv1/v2_subv1_f.sites"), 
 //				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/sed/traces/v2/subv1/fine-grained/", 
@@ -62,22 +62,22 @@ public class CBIClient {
 	}
 	
 	private void run(PrintWriter writer){
-		PredicateProfileReader reader = new PredicateProfileReader(profilesFolder, sitesInfo.getSites(), functions, samples);
-		PredicateProfile[] profiles = reader.readProfiles(runs);
-		Processor p = new Processor(profiles);
+//		PredicateProfileReader reader = new PredicateProfileReader(profilesFolder, sitesInfo.getSites(), functions, samples);
+//		PredicateProfile[] profiles = reader.readProfiles(runs);
+		Processor p = new Processor(selectedPredicateProfiles);
 		p.process();
 		
 		
-		assert(p.getTotalNegative() + p.getTotalPositive() == runs);
+		assert(p.getTotalNegative() + p.getTotalPositive() == selectedPredicateProfiles.length);
 		writer.println("\n");
 		writer.println("The general runs information are as follows:\n==============================================================");
-		writer.println(String.format("%-50s", "Total number of runs:") + runs);
+		writer.println(String.format("%-50s", "Total number of runs:") + selectedPredicateProfiles.length);
 		writer.println(String.format("%-50s", "Total number of negative runs:") + p.getTotalNegative());
 		writer.println(String.format("%-50s", "Total number of positive runs:") + p.getTotalPositive());
 	
-		//print out the static instrumentation sites information 
-		writer.println("\n");
-		printSitesInfo(writer);
+//		//print out the static instrumentation sites information 
+//		writer.println("\n");
+//		printSitesInfo(writer);
 		
 		//sort the list of predictors according to the importance value
 		sortingPreditorsList(p.getPredictorsList());
@@ -104,7 +104,7 @@ public class CBIClient {
 
 	public void printTopKPredictors(PrintWriter writer){
 		Set<String> topMethods = new LinkedHashSet<String>();
-		Map<String, Double> methodsM = new HashMap<String, Double>();
+//		Map<String, Double> methodsM = new HashMap<String, Double>();
 		
 		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
 		for (int i = 0; i < sortedPredictorsList.size(); i++) {
@@ -121,27 +121,27 @@ public class CBIClient {
 				writer.println();
 			}
 			
-			if(methodsM.containsKey(method)){
-				if(value > methodsM.get(method)){
-					throw new RuntimeException("Error");
-				}
-			}
-			else{
-				methodsM.put(method, value);
-			}
+//			if(methodsM.containsKey(method)){
+//				if(value > methodsM.get(method)){
+//					throw new RuntimeException("Error");
+//				}
+//			}
+//			else{
+//				methodsM.put(method, value);
+//			}
 		}
-	    assert(methodsM.size() == sitesInfo.getMap().size());
+//	    assert(methodsM.size() == sitesInfo.getMap().size());
 		
-		writer.println();
-		writer.println("The corresponding top " + topMethods.size() + " of " + methodsM.size() + " methods are as follows:\n--------------------------------------------------------------");
-		writer.println(topMethods.toString());
+//		writer.println();
+//		writer.println("The corresponding top " + topMethods.size() + " of " + methodsM.size() + " methods are as follows:\n--------------------------------------------------------------");
+//		writer.println(topMethods.toString());
 	}
 
 	/**print the sites information
 	 * @param sInfo
 	 * @param writer
 	 */
-	public void printSitesInfo(PrintWriter writer) {
+	public static void printSitesInfo(SitesInfo sitesInfo, PrintWriter writer) {
 		writer.println("The general sites information are as follows:\n==============================================================");
 		writer.println(String.format("%-60s", "Total number of sites instrumented:") + sitesInfo.getNumPredicateSites());
 		writer.println(String.format("%-60s", "Total number of predicates instrumented:") + sitesInfo.getNumPredicateItems());

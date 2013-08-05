@@ -1,25 +1,13 @@
 package zuo.processor.cbi.processor;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import zuo.processor.cbi.profile.PredicateProfile;
-import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.profile.predicatesite.AbstractPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.BranchPredicateSite;
-import zuo.processor.cbi.profile.predicatesite.FloatKindPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ReturnPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
-import zuo.processor.cbi.site.InstrumentationSites;
-import zuo.processor.cbi.site.SitesInfo;
 
 public class Processor {
 	private final PredicateProfile[] profiles; // profiles

@@ -33,7 +33,7 @@ public class PredicateProfile {
 
 	private final InstrumentationSites sites;
 	
-	private final Set<String> functions;
+//	private final Set<String> functions;
 	
 	public void dispose() {
 		this.scalarPairs.clear();
@@ -41,11 +41,11 @@ public class PredicateProfile {
 		this.branchs.clear();
 	}
 
-	public PredicateProfile(File profilePath, InstrumentationSites sites, boolean isCorrect, Set<String> functions) {
+	public PredicateProfile(File profilePath, InstrumentationSites sites, boolean isCorrect) {
 		this.path = profilePath;
 		this.isCorrect = isCorrect;
 		this.sites = sites;
-		this.functions = functions;
+//		this.functions = functions;
 
 		List<ScalarPairPredicateSite> scalarPredicateSites = new ArrayList<ScalarPairPredicateSite>();
 		List<ReturnPredicateSite> returnPredicateSites = new ArrayList<ReturnPredicateSite>();
@@ -116,9 +116,9 @@ public class PredicateProfile {
 				final int greaterThanCounter = Integer.parseInt(counters[2]);
 				
 				ScalarSite site = this.sites.getScalarSite(unit, ++sequence);
-				if(this.functions.contains(site.getFunctionName())){
+//				if(this.functions.contains(site.getFunctionName())){
 					predicateSites.add(new ScalarPairPredicateSite(allo.allocateID(), site, lessThanCounter, equalCounter, greaterThanCounter));
-				}
+//				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException();
@@ -145,9 +145,9 @@ public class PredicateProfile {
 				final int trueCounter = Integer.parseInt(counters[1]);
 				
 				BranchSite site = this.sites.getBranchSite(unit, ++sequence);
-				if(this.functions.contains(site.getFunctionName())){
+//				if(this.functions.contains(site.getFunctionName())){
 					predicateSites.add(new BranchPredicateSite(allo.allocateID(), site, trueCounter, falseCounter));
-				}
+//				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException();
@@ -174,9 +174,9 @@ public class PredicateProfile {
 				final int positiveCounter = Integer.parseInt(counters[2]);
 				
 				ReturnSite site = this.sites.getReturnSite(unit, ++sequence);
-				if(this.functions.contains(site.getFunctionName())){
+//				if(this.functions.contains(site.getFunctionName())){
 					predicateSites.add(new ReturnPredicateSite(allo.allocateID(), site, negativeCounter, zeroCounter, positiveCounter));
-				}
+//				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException();
