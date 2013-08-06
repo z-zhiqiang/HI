@@ -17,7 +17,7 @@ public class Processor {
 	private int totalNegative; // number of failing runs
 	
 	public Processor(PredicateProfile[] predicateProfiles){
-		this.profiles = predicateProfiles;
+		profiles = predicateProfiles;
 		predictorsList = new ArrayList<PredicateItemWithImportance>();
 		totalPositive = totalNegative = 0;
 	}

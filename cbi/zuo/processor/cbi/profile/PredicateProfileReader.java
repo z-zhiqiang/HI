@@ -12,14 +12,9 @@ public class PredicateProfileReader {
 	private final InstrumentationSites sites;
 	private final File profileFolder;
 	
-//	private final Set<String> functions;
-//	private final Set<Integer> samples;
-
 	public PredicateProfileReader(File profileFolder, InstrumentationSites sites) {
 		this.profileFolder = profileFolder;
 		this.sites = sites;
-//		this.functions = functions;
-//		this.samples = samples;
 	}
 	
 	public final PredicateProfile[] readProfiles(int numRuns) {

@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +16,9 @@ import java.util.Set;
 import zuo.processor.cbi.processor.PredicateItemWithImportance;
 import zuo.processor.cbi.processor.Processor;
 import zuo.processor.cbi.profile.PredicateProfile;
-import zuo.processor.cbi.site.SitesInfo;
+import zuo.processor.cbi.profile.predicatesite.BranchPredicateSite;
+import zuo.processor.cbi.profile.predicatesite.ReturnPredicateSite;
+import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
 
 public class CBIClient {
 	final int k;
@@ -52,7 +55,44 @@ public class CBIClient {
 	
 	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] profiles) {
 		// TODO Auto-generated method stub
-		return null;
+		PredicateProfile[] pProfiles = new PredicateProfile[samples.size()];
+		
+		int j = 0;
+		for(int k: samples){
+			PredicateProfile fullProfile = pProfiles[k];
+			
+			List<ScalarPairPredicateSite> scalarPairs = new ArrayList<ScalarPairPredicateSite>();
+			List<ReturnPredicateSite> returns = new ArrayList<ReturnPredicateSite>();
+			List<BranchPredicateSite> branches = new ArrayList<BranchPredicateSite>();
+			
+			for(int i = 0; i < fullProfile.getScalarPredicateSites().size(); i++){
+				ScalarPairPredicateSite scalarPairPSite = fullProfile.getScalarPredicateSites().get(i);
+				if(this.functions.contains(scalarPairPSite.getSite().getFunctionName())){
+					scalarPairs.add(scalarPairPSite);
+				}
+			}
+			for(int i = 0; i < fullProfile.getReturnPredicateSites().size(); i++){
+				ReturnPredicateSite returnPSite = fullProfile.getReturnPredicateSites().get(i);
+				if(this.functions.contains(returnPSite.getSite().getFunctionName())){
+					returns.add(returnPSite);
+				}
+			}
+			for(int i = 0; i < fullProfile.getBranchPredicateSites().size(); i++){
+				BranchPredicateSite branchPSite = fullProfile.getBranchPredicateSites().get(i);
+				if(this.functions.contains(branchPSite.getSite().getFunctionName())){
+					branches.add(branchPSite);
+				}
+			}
+			
+		    pProfiles[j++] = new PredicateProfile(fullProfile.getPath(), fullProfile.isCorrect(), 
+		    		Collections.unmodifiableList(scalarPairs), 
+		    		Collections.unmodifiableList(returns), 
+		    		Collections.unmodifiableList(branches), 
+		    		fullProfile.getSites());
+			
+		}
+		assert(j == samples.size());
+		return pProfiles;
 	}
 
 	public static void main(String[] args) {
@@ -62,8 +102,6 @@ public class CBIClient {
 	}
 	
 	private void run(PrintWriter writer){
-//		PredicateProfileReader reader = new PredicateProfileReader(profilesFolder, sitesInfo.getSites(), functions, samples);
-//		PredicateProfile[] profiles = reader.readProfiles(runs);
 		Processor p = new Processor(selectedPredicateProfiles);
 		p.process();
 		

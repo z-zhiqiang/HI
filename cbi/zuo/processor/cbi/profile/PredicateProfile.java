@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import zuo.processor.cbi.profile.predicatesite.AbstractPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.BranchPredicateSite;
@@ -29,23 +28,30 @@ public class PredicateProfile {
 
 	private final List<ReturnPredicateSite> returns;
 
-	private final List<BranchPredicateSite> branchs;
+	private final List<BranchPredicateSite> branches;
 
 	private final InstrumentationSites sites;
 	
-//	private final Set<String> functions;
 	
 	public void dispose() {
 		this.scalarPairs.clear();
 		this.returns.clear();
-		this.branchs.clear();
+		this.branches.clear();
 	}
 
+	public PredicateProfile(File path, boolean isCorrect, List<ScalarPairPredicateSite> scalarPairs, List<ReturnPredicateSite> returns, List<BranchPredicateSite> branches, InstrumentationSites sites){
+		this.path = path;
+		this.isCorrect = isCorrect;
+		this.scalarPairs = scalarPairs;
+		this.returns = returns;
+		this.branches = branches;
+		this.sites = sites;
+	}
+	
 	public PredicateProfile(File profilePath, InstrumentationSites sites, boolean isCorrect) {
 		this.path = profilePath;
 		this.isCorrect = isCorrect;
 		this.sites = sites;
-//		this.functions = functions;
 
 		List<ScalarPairPredicateSite> scalarPredicateSites = new ArrayList<ScalarPairPredicateSite>();
 		List<ReturnPredicateSite> returnPredicateSites = new ArrayList<ReturnPredicateSite>();
@@ -69,7 +75,7 @@ public class PredicateProfile {
 
 		this.scalarPairs = Collections.unmodifiableList(scalarPredicateSites);
 		this.returns = Collections.unmodifiableList(returnPredicateSites);
-		this.branchs = Collections.unmodifiableList(branchPredicateSites);
+		this.branches = Collections.unmodifiableList(branchPredicateSites);
 	}
 
 	private void readReport(BufferedReader reader,
@@ -183,18 +189,13 @@ public class PredicateProfile {
 		}
 	}
 
-//	private void skip(BufferedReader reader) throws IOException {
-//		for (String line = reader.readLine(); line != null
-//				&& !line.contains("</samples>"); line = reader.readLine()) {
-//		}
-//	}
 
 	public List<ScalarPairPredicateSite> getScalarPredicateSites() {
 		return this.scalarPairs;
 	}
 
 	public List<BranchPredicateSite> getBranchPredicateSites() {
-		return this.branchs;
+		return this.branches;
 	}
 
 	public List<ReturnPredicateSite> getReturnPredicateSites() {
@@ -209,6 +210,12 @@ public class PredicateProfile {
 		return isCorrect;
 	}
 	
+	public InstrumentationSites getSites() {
+		return sites;
+	}
+
+
+
 	public static class PredicateSiteIDAllocator{
 		private int id;
 		public PredicateSiteIDAllocator(){
@@ -224,8 +231,8 @@ public class PredicateProfile {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.path.getName()).append("\n").append(this.isCorrect).append("\n-----------------------------------------------------------\n");
 		
-		builder.append(this.branchs.size()).append(" branches").append("\n");
-		for (AbstractPredicateSite predicateSite: this.branchs) {
+		builder.append(this.branches.size()).append(" branches").append("\n");
+		for (AbstractPredicateSite predicateSite: this.branches) {
 			builder.append(predicateSite.toString()).append("\n");
 		}
 		builder.append("\n");
