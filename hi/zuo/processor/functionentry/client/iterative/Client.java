@@ -164,7 +164,7 @@ public class Client {
 				@Override
 				public boolean accept(File dir, String name) {
 					// TODO Auto-generated method stub
-					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 12);
+					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 11);
 				}});
 			Arrays.sort(subversions, new Comparator(){
 				@Override
@@ -180,7 +180,7 @@ public class Client {
 				cWriter.println(vi);
 				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion, vi + "_f.sites")));
 				
-				CBIClients cs = new CBIClients(sInfo, new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), consoleFolder);
+				CBIClients cs = new CBIClients(sInfo, new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
 				
 				IterativeFunctionClient client = new IterativeFunctionClient(new File(subversion, vi + "_c.sites"), 
 						new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), 
@@ -376,52 +376,52 @@ public class Client {
 	}
 
 	public static void main(String[] args) {
-		String[][] argvs = {
-				{"809", "grep"},
-				{"213", "gzip"},
-				{"363", "sed"},
-				{"13585", "space"},
-				{"1608", "tcas"},
-				{"1052", "totinfo"},
-				{"5542", "replace"},
-				{"4130", "printtokens"},
-				{"4115", "printtokens2"},
-				{"2650", "schedule"},
-				{"2710", "schedule2"}
-		};
-		
-		if(args.length != 5 && args.length != 3){
-			System.out.println("The characteristics of subjects are as follows:");
-			for(int i = 0; i < argvs.length; i++){
-				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
-			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') subject consoleDir(excluding '/') " +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') consoleDir(excluding '/')");
-			return;
-		}
-		
-		if(args.length == 4){
-			Client c = new Client(new File(args[2]), args[3], new File(args[4] + "/"));
-			if(Integer.parseInt(args[0]) == 0){
-				c.computeSiemensResults();
-			}
-			else if(Integer.parseInt(args[0]) == 1){
-				c.computeSirResults();
-			}
-		}
-		else if(args.length == 3){
-			assert(Integer.parseInt(args[0]) == 0);
-			for(int i = 4; i < argvs.length; i++){
-				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "/" + argvs[i][1] + "/"));
-				c.computeSiemensResults();
-			}
-		}
+//		String[][] argvs = {
+//				{"809", "grep"},
+//				{"213", "gzip"},
+//				{"363", "sed"},
+//				{"13585", "space"},
+//				{"1608", "tcas"},
+//				{"1052", "totinfo"},
+//				{"5542", "replace"},
+//				{"4130", "printtokens"},
+//				{"4115", "printtokens2"},
+//				{"2650", "schedule"},
+//				{"2710", "schedule2"}
+//		};
+//		
+//		if(args.length != 5 && args.length != 3){
+//			System.out.println("The characteristics of subjects are as follows:");
+//			for(int i = 0; i < argvs.length; i++){
+//				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
+//			}
+//			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') subject consoleDir(excluding '/') " +
+//					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') consoleDir(excluding '/')");
+//			return;
+//		}
+//		
+//		if(args.length == 4){
+//			Client c = new Client(new File(args[2]), args[3], new File(args[4] + "/"));
+//			if(Integer.parseInt(args[0]) == 0){
+//				c.computeSiemensResults();
+//			}
+//			else if(Integer.parseInt(args[0]) == 1){
+//				c.computeSirResults();
+//			}
+//		}
+//		else if(args.length == 3){
+//			assert(Integer.parseInt(args[0]) == 0);
+//			for(int i = 4; i < argvs.length; i++){
+//				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "/" + argvs[i][1] + "/"));
+//				c.computeSiemensResults();
+//			}
+//		}
 
-//		Client cc;
-//		cc = new Client("/home/sunzzq/Research/Automated_Debugging/Subjects/", "gzip", "/home/sunzzq/Console/gzip3/");
+		Client cc;
+//		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip/"));
 //		cc.computeSirResults();	
-//		cc = new Client("/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed3/");
-//		cc.computeSirResults();	
+		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed/"));
+		cc.computeSirResults();	
 //		cc = new Client("/home/sunzzq/Research/Automated_Debugging/Subjects/", "space", "/home/sunzzq/Console/space2/");
 //		cc.computeSiemensResults();	
 	}

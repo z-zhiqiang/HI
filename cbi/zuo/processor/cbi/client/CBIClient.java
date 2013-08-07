@@ -27,6 +27,7 @@ public class CBIClient {
 		this.k = k;
 		this.functions = functions;
 		this.samples = samples;
+		assert(samples.size() == (int) (profiles.length * CBIClients.percent) || samples.size() == profiles.length);
 		this.selectedPredicateProfiles = constructSelectedPredicateProfiles(profiles);
 		
 		run(writer);
@@ -38,7 +39,7 @@ public class CBIClient {
 		
 		int j = 0;
 		for(int k: samples){
-			PredicateProfile fullProfile = pProfiles[k];
+			PredicateProfile fullProfile = profiles[k];
 			
 			List<ScalarPairPredicateSite> scalarPairs = new ArrayList<ScalarPairPredicateSite>();
 			List<ReturnPredicateSite> returns = new ArrayList<ReturnPredicateSite>();

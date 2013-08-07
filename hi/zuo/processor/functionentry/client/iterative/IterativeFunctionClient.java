@@ -394,7 +394,7 @@ public class IterativeFunctionClient {
 		writer.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		clientWriter.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		printPercentage(list, score, order, bc, writer, clientWriter);
-		getMethodsList(list, score, order);
+//		getMethodsList(list, score, order);
 	}
 		
 	/**get the list of methods to be instrumented

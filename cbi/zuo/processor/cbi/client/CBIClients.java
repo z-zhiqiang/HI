@@ -19,7 +19,7 @@ import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.site.SitesInfo;
 
 public class CBIClients {
-	public static final double percent = 0.8;
+	public static final double percent = 1.0;
 	private final PredicateProfile[] profiles;
 	private List<Integer> failings;
 	private List<Integer> passings;
@@ -75,7 +75,7 @@ public class CBIClients {
 		printSitesInfo(sitesInfo, writer);
 		
 		//full CBIClient
-		int fk = 10;
+		int fk = 30;
 		Set<Integer> fullSamples = buildFullSamples();
 		CBIClient fc = new CBIClient(fk, profiles, writer, functions, fullSamples);
 		targetFunction = fc.getSortedPredictorsList().get(0).getPredicateItem().getPredicateSite().getSite().getFunctionName();
