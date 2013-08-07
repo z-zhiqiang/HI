@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import zuo.processor.cbi.client.CBIClient;
-import zuo.processor.cbi.processor.PredicateItem;
-import zuo.processor.cbi.processor.PredicateItemWithImportance;
-import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.processor.BoundCalculator;
 import zuo.processor.functionentry.processor.SelectingProcessor;
@@ -38,10 +35,9 @@ public class IterativeFunctionClient {
 		RANDOM, LESS_FIRST, MORE_FIRST, BEST, WORST, //CLOSER_FIRST 
 	}
 	
-	final int runs;
 	
-	final File sitesFile;
-	final File profilesFolder;
+	final FunctionEntrySites sites;
+	final FunctionEntryProfile[] profiles;
 	
 	final SitesInfo sInfo;
 	final String targetFunction;
@@ -54,10 +50,9 @@ public class IterativeFunctionClient {
 	
 	final File methodsFileDir;
 	
-	public IterativeFunctionClient(int runs, File sitesFile, File profilesFolder, File consoleFile, SitesInfo sInfo, String function, Map<String, CBIClient> map, PrintWriter clientWriter, File methodsF) {
-		this.runs = runs;
-		this.sitesFile = sitesFile;
-		this.profilesFolder = profilesFolder;
+	public IterativeFunctionClient(File sitesFile, File profilesFolder, File consoleFile, SitesInfo sInfo, String function, Map<String, CBIClient> map, PrintWriter clientWriter, File methodsF) {
+		this.sites = new FunctionEntrySites(sitesFile);
+		this.profiles = new FunctionEntryProfileReader(profilesFolder, sites).readFunctionEntryProfiles();
 		this.sInfo = sInfo;
 		this.targetFunction = function;
 		this.clientsMap = map;
@@ -83,84 +78,16 @@ public class IterativeFunctionClient {
 		}
 	}
 	
-//	public IterativeFunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, SitesInfo sInfo, List<PredicateItemWithImportance> list, Map<String, Double> methodsM, PrintWriter cWriter){
-//		this.runs = runs;
-//		this.sitesFile = new File(rootDir + subject + "/versions/" + version + "/" + version + "_c.sites");
-//		this.profilesFolder = new File(rootDir + subject + "/traces/" + version + "/coarse-grained");
-//		this.consoleFile = consoleFolder + subject + "_" + version + "_function.out"; 
-//		this.sInfo = sInfo;
-//		this.method = list.get(0).getPredicateItem().getPredicateSite().getSite().getFunctionName();
-//		this.methodsMap = methodsM;
-//		this.result = new double[Score.values().length][Order.values().length][2][5];
-//		this.pResult = new double[Score.values().length][5];
-//		this.wResult = new double[Score.values().length][5];
-//		this.cResult = new int[3];
-//		this.clientWriter = cWriter;
-//		
-//		this.methodsFileDir = rootDir + subject + "/versions/" + version + "/adaptive/";
-//		
-//		try {
-//			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
-//			run();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		finally{
-//			if(writer != null){
-//				writer.close();
-//			}
-//		}
-//		
-//	}
-//	
-//	public IterativeFunctionClient(int runs, String rootDir, String subject, String version, String consoleFolder, PrintWriter cWriter){
-//		this.runs = runs;
-//		this.sitesFile = new File(rootDir + subject + "/versions/" + version + "/" + version + "_c.sites");
-//		this.profilesFolder = new File(rootDir + subject + "/traces/" + version + "/coarse-grained");
-//		this.consoleFile = consoleFolder + subject + "_" + version + "_function.out";
-//		
-//		this.sInfo = new SitesInfo(new InstrumentationSites(new File(rootDir + subject + "/versions/" + version + "/" + version + "_f.sites")));
-//		CBIClient c = new CBIClient(runs, TOP_K, this.sInfo.getSites().getSitesFile(), 
-//				rootDir + subject + "/traces/" + version +"/fine-grained", consoleFolder + subject + "_" + version + "_cbi.out", null, null);
-//		this.method = c.getSortedPredictorsList().get(0).getPredicateItem().getPredicateSite().getSite().getFunctionName();
-//		this.methodsMap = c.getMethodsMap();
-//		
-//		this.result = new double[Score.values().length][Order.values().length][2][5];
-//		this.pResult = new double[Score.values().length][5];
-//		this.wResult = new double[Score.values().length][5];
-//		this.cResult = new int[3];
-//		this.clientWriter = cWriter;
-//		
-//		this.methodsFileDir = rootDir + subject + "/versions/" + version + "/adaptive/";
-//		
-//		try {
-//			writer = new PrintWriter(new BufferedWriter(new FileWriter(this.consoleFile)));
-//			run();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		finally{
-//			if(writer != null){
-//				writer.close();
-//			}
-//		}
-//	}
-
 	
 	private void run(PrintWriter writer, PrintWriter clientWriter){
-		FunctionEntrySites sites = new FunctionEntrySites(sitesFile);
-		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFolder, sites);
-		FunctionEntryProfile[] profiles = reader.readFunctionEntryProfiles(runs);
 		SelectingProcessor processor = new SelectingProcessor(profiles);
 		processor.process();
 		
 		//print out the general runs information
-		assert(processor.getTotalNegative() + processor.getTotalPositive() == runs);
+		assert(processor.getTotalNegative() + processor.getTotalPositive() == profiles.length);
 		writer.println("\n");
 		writer.println("The general runs information are as follows:\n==============================================================");
-		writer.println(String.format("%-50s", "Total number of runs:") + runs);
+		writer.println(String.format("%-50s", "Total number of runs:") + profiles.length);
 		writer.println(String.format("%-50s", "Total number of negative runs:") + processor.getTotalNegative());
 		writer.println(String.format("%-50s", "Total number of positive runs:") + processor.getTotalPositive());
 		
@@ -890,15 +817,6 @@ public class IterativeFunctionClient {
 		return true;
 	}
 	
-	
-
-	public int getRuns() {
-		return runs;
-	}
-
-	public File getSitesFile() {
-		return sitesFile;
-	}
 
 	public SitesInfo getsInfo() {
 		return sInfo;

@@ -1,15 +1,9 @@
 package zuo.processor.cbi.client;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,28 +23,13 @@ public class CBIClient {
 	private final Set<Integer> samples; 
 	
 	
-	public CBIClient(int k, PredicateProfile[] profiles, File consoleFile, Set<String> functions, Set<Integer> samples) {
+	public CBIClient(int k, PredicateProfile[] profiles, PrintWriter writer, Set<String> functions, Set<Integer> samples) {
 		this.k = k;
-		
 		this.functions = functions;
 		this.samples = samples;
-		
 		this.selectedPredicateProfiles = constructSelectedPredicateProfiles(profiles);
 		
-		
-		PrintWriter writer = null;
-		try {
-			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
-			run(writer);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		finally{
-			if(writer != null){
-				writer.close();
-			}
-		}
+		run(writer);
 	}
 	
 	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] profiles) {
@@ -137,27 +116,15 @@ public class CBIClient {
 	}
 
 	public void printTopKPredictors(PrintWriter writer){
-		Set<String> topMethods = new LinkedHashSet<String>();
-		
 		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
 		for (int i = 0; i < sortedPredictorsList.size(); i++) {
 			PredicateItemWithImportance pItemWI = sortedPredictorsList.get(i);
-			String method = pItemWI.getPredicateItem().getPredicateSite().getSite().getFunctionName();
-			double value = pItemWI.getImportance();
-			
 			if (i < k) {
-				//collect the method
-				if (!topMethods.contains(method)) {
-					topMethods.add(method);
-				}
 				writer.println("(" + (i + 1) + "): " + pItemWI.toString());
 				writer.println();
 			}
 		}
 		
-//		writer.println();
-//		writer.println("The corresponding top " + topMethods.size() + " of " + methodsM.size() + " methods are as follows:\n--------------------------------------------------------------");
-//		writer.println(topMethods.toString());
 	}
 
 	

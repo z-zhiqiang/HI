@@ -1,7 +1,6 @@
 package zuo.processor.functionentry.profile;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Arrays;
 
 import zuo.processor.functionentry.site.FunctionEntrySites;

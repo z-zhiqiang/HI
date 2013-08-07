@@ -2,7 +2,6 @@ package zuo.processor.cbi.profile;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Set;
 
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.util.file.FileUtil;

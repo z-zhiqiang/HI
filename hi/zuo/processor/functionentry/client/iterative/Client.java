@@ -19,16 +19,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import zuo.processor.cbi.client.CBIClient;
 import zuo.processor.cbi.client.CBIClients;
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Order;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
-import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class Client {
-	final int runs;
 	final File rootDir;
 	final String subject;
 	final File consoleFolder;
@@ -38,8 +35,7 @@ public class Client {
 	final Map<String, double[][]> wResults;
 	final Map<String, int[]> cResults;
 	
-	public Client(int runs, File rootDir, String subject, File consoleFolder) {
-		this.runs = runs;
+	public Client(File rootDir, String subject, File consoleFolder) {
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
@@ -113,14 +109,10 @@ public class Client {
 			System.out.println(vi);
 			cWriter.println(vi);
 			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version, vi + "_f.sites")));
-//			CBIClient c = new CBIClient(runs, IterativeFunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
-//					new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), 
-//					new File(consoleFolder, subject + "_" + vi + "_cbi.out"), null, null);
 			
-			CBIClients cs = new CBIClients(sInfo, new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), consoleFolder);
+			CBIClients cs = new CBIClients(sInfo, new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
 			
-			IterativeFunctionClient client = new IterativeFunctionClient(runs, 
-					new File(version, vi + "_c.sites"), 
+			IterativeFunctionClient client = new IterativeFunctionClient(new File(version, vi + "_c.sites"), 
 					new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), 
 					new File(consoleFolder, subject + "_" + vi + "_function.out"), 
 					sInfo, 
@@ -187,14 +179,10 @@ public class Client {
 				System.out.println(vi);
 				cWriter.println(vi);
 				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion, vi + "_f.sites")));
-//				CBIClient c = new CBIClient(runs, IterativeFunctionClient.TOP_K, sInfo.getSites().getSitesFile(), 
-//						new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), 
-//						new File(consoleFolder, subject + "_" + vi + "_cbi.out"), null, null);
 				
 				CBIClients cs = new CBIClients(sInfo, new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), consoleFolder);
 				
-				IterativeFunctionClient client = new IterativeFunctionClient(runs, 
-						new File(subversion, vi + "_c.sites"), 
+				IterativeFunctionClient client = new IterativeFunctionClient(new File(subversion, vi + "_c.sites"), 
 						new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), 
 						new File(consoleFolder, subject + "_" + vi + "_function.out"), 
 						sInfo, 
@@ -407,13 +395,13 @@ public class Client {
 			for(int i = 0; i < argvs.length; i++){
 				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
 			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) numTests rootDir(including '/') subject consoleDir(excluding '/') " +
+			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') subject consoleDir(excluding '/') " +
 					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') consoleDir(excluding '/')");
 			return;
 		}
 		
-		if(args.length == 5){
-			Client c = new Client(Integer.parseInt(args[1]), new File(args[2]), args[3], new File(args[4] + "/"));
+		if(args.length == 4){
+			Client c = new Client(new File(args[2]), args[3], new File(args[4] + "/"));
 			if(Integer.parseInt(args[0]) == 0){
 				c.computeSiemensResults();
 			}
@@ -424,17 +412,17 @@ public class Client {
 		else if(args.length == 3){
 			assert(Integer.parseInt(args[0]) == 0);
 			for(int i = 4; i < argvs.length; i++){
-				Client c = new Client(Integer.parseInt(argvs[i][0]), new File(args[1]), argvs[i][1], new File(args[2] + "/" + argvs[i][1] + "/"));
+				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "/" + argvs[i][1] + "/"));
 				c.computeSiemensResults();
 			}
 		}
 
 //		Client cc;
-//		cc = new Client(213, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "gzip", "/home/sunzzq/Console/gzip3/");
+//		cc = new Client("/home/sunzzq/Research/Automated_Debugging/Subjects/", "gzip", "/home/sunzzq/Console/gzip3/");
 //		cc.computeSirResults();	
-//		cc = new Client(363, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed3/");
+//		cc = new Client("/home/sunzzq/Research/Automated_Debugging/Subjects/", "sed", "/home/sunzzq/Console/sed3/");
 //		cc.computeSirResults();	
-//		cc = new Client(5434, "/home/sunzzq/Research/Automated_Debugging/Subjects/", "space", "/home/sunzzq/Console/space2/");
+//		cc = new Client("/home/sunzzq/Research/Automated_Debugging/Subjects/", "space", "/home/sunzzq/Console/space2/");
 //		cc.computeSiemensResults();	
 	}
 	

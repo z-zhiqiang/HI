@@ -1,11 +1,17 @@
 package zuo.processor.cbi.client;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import zuo.processor.cbi.profile.PredicateProfile;
@@ -13,34 +19,43 @@ import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.site.SitesInfo;
 
 public class CBIClients {
-	private final File consoleFolder;
-	
+	public static final double percent = 0.8;
 	private final PredicateProfile[] profiles;
-	private Set<Integer> failings;
-	private Set<Integer> passings;
+	private List<Integer> failings;
+	private List<Integer> passings;
 	private Set<String> functions;
 	
 	private String targetFunction;
 	private final Map<String, CBIClient> clientsMap;
 	
 
-	public CBIClients(SitesInfo sitesInfo, File profilesFolder, File consoleFolder){
-		this.consoleFolder = consoleFolder;
+	public CBIClients(SitesInfo sitesInfo, File profilesFolder, File consoleFile){
 		clientsMap = new HashMap<String, CBIClient>();
 		
-		PredicateProfileReader reader = new PredicateProfileReader(profilesFolder, sitesInfo.getSites());
-		profiles = reader.readProfiles();
+		profiles = new PredicateProfileReader(profilesFolder, sitesInfo.getSites()).readProfiles();
 		divideProfiles();
 		functions = Collections.unmodifiableSet(sitesInfo.getMap().keySet());
-		
-		run();
+
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
+			run(sitesInfo, writer);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally{
+			if(writer != null){
+				writer.close();
+			}
+		}
 	}
 
 
 	private void divideProfiles() {
 		// TODO Auto-generated method stub
-		Set<Integer> passings = new HashSet<Integer>();
-		Set<Integer> failings = new HashSet<Integer>();
+		List<Integer> passings = new ArrayList<Integer>();
+		List<Integer> failings = new ArrayList<Integer>();
 		for(int i = 0; i < profiles.length; i++){
 			if(profiles[i].isCorrect()){
 				passings.add(i);
@@ -50,17 +65,19 @@ public class CBIClients {
 			}
 		}
 		assert(passings.size() + failings.size() == profiles.length);
-		this.failings = Collections.unmodifiableSet(failings);
-		this.passings = Collections.unmodifiableSet(passings);
+		this.failings = Collections.unmodifiableList(failings);
+		this.passings = Collections.unmodifiableList(passings);
 	}
 
 
-	private void run() {
+	private void run(SitesInfo sitesInfo, PrintWriter writer) {
+		//print the information of instrumentation sites
+		printSitesInfo(sitesInfo, writer);
+		
 		//full CBIClient
 		int fk = 10;
 		Set<Integer> fullSamples = buildFullSamples();
-		File consoleFFile = new File(consoleFolder, "CBI.out");
-		CBIClient fc = new CBIClient(fk, profiles, consoleFFile, functions, fullSamples);
+		CBIClient fc = new CBIClient(fk, profiles, writer, functions, fullSamples);
 		targetFunction = fc.getSortedPredictorsList().get(0).getPredicateItem().getPredicateSite().getSite().getFunctionName();
 		
 		//iterative CBIClient each for each function
@@ -73,8 +90,7 @@ public class CBIClients {
 			
 			pSamples = buildPartialSamples();
 			
-			File consolePFile = new File(consoleFolder, "CBI_" + function + ".out");
-			CBIClient pc = new CBIClient(pk, profiles, consolePFile, pFunctions, pSamples);
+			CBIClient pc = new CBIClient(pk, profiles, writer, pFunctions, pSamples);
 			clientsMap.put(function, pc);
 		}
 		
@@ -98,6 +114,20 @@ public class CBIClients {
 	private Set<Integer> buildPartialSamples() {
 		// TODO Auto-generated method stub
 		Set<Integer> partialSamples = new HashSet<Integer>();
+		
+		Random randomFGenerator = new Random();
+		int fs = (int) (failings.size() * percent);
+		for(; partialSamples.size() < (fs > 2 ? fs : 2);){
+			int fSample = randomFGenerator.nextInt(failings.size());
+			partialSamples.add(failings.get(fSample));
+		}
+		
+		Random randomPGenerator = new Random();
+		int ps = (int) (passings.size() * percent);
+		for(; partialSamples.size() < ps + (fs > 2 ? fs : 2);){
+			int pSample = randomPGenerator.nextInt(passings.size());
+			partialSamples.add(passings.get(pSample));
+		}
 		
 		return partialSamples;
 	}
