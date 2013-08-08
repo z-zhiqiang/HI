@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import zuo.processor.genscript.client.iterative.GenSirScriptClient;
 import zuo.util.file.FileUtility;
 
 
@@ -52,8 +51,8 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		code.append(startTimeCommand + "\n");
 		
-		for (Iterator it = failingTests.iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
@@ -61,8 +60,8 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 			code.append("\n");
 		}
 		
-		for (Iterator it = passingTests.iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");

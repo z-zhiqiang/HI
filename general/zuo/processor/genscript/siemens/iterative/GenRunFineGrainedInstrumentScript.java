@@ -32,8 +32,8 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		code.append(startTimeCommand + "\n");
 		
-		for (Iterator it = failingTests.iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
 			code.append("$VERSIONSDIR/" + version + "_finst.exe ");//executables
@@ -41,8 +41,8 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
 		}
 		
-		for (Iterator it = passingTests.iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
 			code.append("$VERSIONSDIR/" + version + "_finst.exe ");//executables

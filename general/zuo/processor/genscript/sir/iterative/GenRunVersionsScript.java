@@ -1,23 +1,18 @@
 package zuo.processor.genscript.sir.iterative;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Iterator;
 
 import zuo.processor.genscript.client.iterative.GenSirScriptClient;
-import zuo.util.file.FileUtility;
 
 
 public class GenRunVersionsScript extends AbstractGenRunScript {
-	
 	public static final String SUBV = "SUBV";
-
 
 	public GenRunVersionsScript(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD) {
 		super(sub, srcN, ver, subV, cc, sD, eD, oD, scD);
 	    this.mkOutDir();
 	}
-
 
 	@Override
 	public void genRunScript() {
@@ -26,8 +21,8 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append(startTimeCommand + "\n");
-		for (Iterator it = inputsMap.keySet().iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = inputsMap.keySet().iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + version + ".exe "));//executables
 			code.append("\n");
@@ -38,8 +33,8 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		
 		code.append("rm $VERSIONSDIR/" + GenSirScriptClient.outCompFile + "\n");
 		code.append("echo script: " + subVersion + "\n");
-		for (Iterator it = inputsCompMap.keySet().iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = inputsCompMap.keySet().iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append(inputsCompMap.get(index).replace(EXE, "$VERSIONSDIR/" + version + ".exe ").replace(SUBV, version + "/" + subVersion));//executables
 			code.append("\n");
@@ -48,7 +43,6 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + ".sh");
 		
 	}
-	
 	
 	protected void mkOutDir(){
 		File fp = new File(outputDir);

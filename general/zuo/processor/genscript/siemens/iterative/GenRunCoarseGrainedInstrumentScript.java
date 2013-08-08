@@ -12,8 +12,6 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 	
 	final List<Integer> failingTests;
 	final List<Integer> passingTests;
-//	final int pNum;
-	
 	
 	public GenRunCoarseGrainedInstrumentScript(String sub, String ver, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing) {
 		super(sub, ver, cc, sD, eD, oD, scD);
@@ -33,8 +31,8 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		code.append(startTimeCommand + "\n");
 		
-		for (Iterator it = failingTests.iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
 			code.append("$VERSIONSDIR/" + version + "_cinst.exe ");//executables

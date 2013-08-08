@@ -179,31 +179,31 @@ public class GenSirScriptClient {
 		
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 		
-//		//generate test scripts
-//		String[] argvs = {"-sf", sf, "-sn", inputScript, "-en", AbstractGenRunScript.EXE, "-ed", rootDir + subject, "-tg", "bsh", "-nesc"};
-//		MakeTestScript.main(argvs);
-//		FileUtility.constructSIRInputsMapFile(inputScript, inputsMapFile);
-//		
-//		String[] argvsC = {"-sf", sf, "-sn", inputCompScript, "-en", AbstractGenRunScript.EXE, "-ed", rootDir + subject, "-c", soutputDir, "-tg", "bsh", "-nesc"};
-//		MakeTestScript.main(argvsC);
-//		FileUtility.constructSIRInputsMapFile(inputCompScript, inputsCompMapFile);//read inputsMap
-//		
-//		//generate run subject and subversion scripts
-//		gs = new GenRunSubjectScript(subject, sourceName, version, setEnv + compileSubject, ssourceDir, sexecuteDir, soutputDir, scriptDir);
-//		gs.genRunScript();
-//		
-//		for(int index: faults.keySet()){
-//			GenSirScriptClient gc = new GenSirScriptClient(subject, sourceName, version, "subv" + index);
-//			
-//			String export = "export COMPILE_PARAMETERS=-D" + faults.get(index) + "\n";
-//			System.out.println("generating run script for subVersion" + index);
-//			new GenRunVersionsScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export + gc.compileVersion, gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
-//		}
-//		
-//		//generate run all scripts  
-//		assert(FileUtility.readInputsMap(inputsMapFile).size() == FileUtility.readInputsMap(inputsCompMapFile).size());
-//		ga = new GenRunAllScript(version, subject, scriptDir, faults.size());
-//		ga.genRunAllScript();
+		//generate test scripts
+		String[] argvs = {"-sf", sf, "-sn", inputScript, "-en", AbstractGenRunScript.EXE, "-ed", rootDir + subject, "-tg", "bsh", "-nesc"};
+		MakeTestScript.main(argvs);
+		FileUtility.constructSIRInputsMapFile(inputScript, inputsMapFile);
+		
+		String[] argvsC = {"-sf", sf, "-sn", inputCompScript, "-en", AbstractGenRunScript.EXE, "-ed", rootDir + subject, "-c", soutputDir, "-tg", "bsh", "-nesc"};
+		MakeTestScript.main(argvsC);
+		FileUtility.constructSIRInputsMapFile(inputCompScript, inputsCompMapFile);//read inputsMap
+		
+		//generate run subject and subversion scripts
+		gs = new GenRunSubjectScript(subject, sourceName, version, setEnv + compileSubject, ssourceDir, sexecuteDir, soutputDir, scriptDir);
+		gs.genRunScript();
+		
+		for(int index: faults.keySet()){
+			GenSirScriptClient gc = new GenSirScriptClient(subject, sourceName, version, "subv" + index);
+			
+			String export = "export COMPILE_PARAMETERS=-D" + faults.get(index) + "\n";
+			System.out.println("generating run script for subVersion" + index);
+			new GenRunVersionsScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export + gc.compileVersion, gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
+		}
+		
+		//generate run all scripts  
+		assert(FileUtility.readInputsMap(inputsMapFile).size() == FileUtility.readInputsMap(inputsCompMapFile).size());
+		ga = new GenRunAllScript(version, subject, scriptDir, faults.size());
+		ga.genRunAllScript();
 		
 		
 		//=========================================================================================================================================================================//
@@ -229,41 +229,41 @@ public class GenSirScriptClient {
 			gs.genRunScript();
 			gs = new GenRunCoarseGrainedInstrumentScript(gc.subject,gc.sourceName, gc.version, gc.subVersion, setEnv + export + gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 			gs.genRunScript();
-//			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vsexecuteDir, gc.vsfoutputDir, gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
-//			gs.genRunScript();
-//			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vsexecuteDir, gc.vsfoutputDir, gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
-//			gs.genRunScript();
-//			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vsexecuteDir, gc.vsfoutputDir, gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
-//			gs.genRunScript();
-//			if(new File(gc.vexecuteDir).listFiles().length == 13){
-////				FileUtility.removeDirectory(new File(gc.vsexecuteDir));
-////				FileUtility.removeDirectory(new File(gc.vaexecuteDir));
-//				
-//				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vaexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", Score.H_2);
-//				gs.genRunScript();
-//				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vaexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", Score.H_1);
-//				gs.genRunScript();
-//				subs.add(index);
-//			}
+			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vsexecuteDir, gc.vsfoutputDir, gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
+			gs.genRunScript();
+			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vsexecuteDir, gc.vsfoutputDir, gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
+			gs.genRunScript();
+			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vsexecuteDir, gc.vsfoutputDir, gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
+			gs.genRunScript();
+			if(new File(gc.vexecuteDir).listFiles().length == 13){
+//				FileUtility.removeDirectory(new File(gc.vsexecuteDir));
+//				FileUtility.removeDirectory(new File(gc.vaexecuteDir));
+				
+				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vaexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", String.valueOf(Score.H_2));
+				gs.genRunScript();
+				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vaexecuteDir, gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", String.valueOf(Score.H_1));
+				gs.genRunScript();
+				subs.add(index);
+			}
 		}
 		
 		//generate run all instrumented triggered subversion scripts
 		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
 		ga.genRunAllScript();
 
-//		//generate run all sampled instrumented triggered subversion scripts
-//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 1);
-//		ga.genRunAllScript();
-//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 100);
-//		ga.genRunAllScript();
-//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
-//		ga.genRunAllScript();
-//		
-//		//generate run all adaptive instrumented triggered subversion scripts
-//		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs, Score.H_2);
-//		ga.genRunAllScript();
-//		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs, Score.H_1);
-//		ga.genRunAllScript();
+		//generate run all sampled instrumented triggered subversion scripts
+		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 1);
+		ga.genRunAllScript();
+		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 100);
+		ga.genRunAllScript();
+		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
+		ga.genRunAllScript();
+		
+		//generate run all adaptive instrumented triggered subversion scripts
+		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs, String.valueOf(Score.H_2));
+		ga.genRunAllScript();
+		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs, String.valueOf(Score.H_1));
+		ga.genRunAllScript();
 	}
 	
 	

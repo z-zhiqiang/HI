@@ -1,6 +1,5 @@
 package zuo.processor.genscript.sir.iterative;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class GenRunAllInstrumentedScript extends AbstractGenRunAllScript {
@@ -29,11 +28,4 @@ public class GenRunAllInstrumentedScript extends AbstractGenRunAllScript {
 		AbstractGenRunScript.printToFile(code.toString(), scriptDir, "runAll_" + version + "_inst.sh");
 	}
 
-	public static void main(String[] args) {
-		Set<Integer> set = new HashSet<Integer>();
-		set.add(1);
-		set.add(3);
-			
-		new GenRunAllInstrumentedScript("v1", "grep", "", set).genRunAllScript();
-	}
 }

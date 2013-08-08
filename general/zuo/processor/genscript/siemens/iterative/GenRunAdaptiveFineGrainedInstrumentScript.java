@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
-import zuo.processor.genscript.client.iterative.GenSiemensScriptsClient;
-import zuo.processor.genscript.client.iterative.GenSirScriptClient;
 import zuo.util.file.FileUtility;
 
 
@@ -20,10 +17,10 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 	private final List<Integer> failingTests;
 	private final List<Integer> passingTests;
 	private List<String> methods;
-	private Score methodsFile;
+	private String methodsFile;
 	
 	
-	public GenRunAdaptiveFineGrainedInstrumentScript(String sub, String ver, String sD, String eD, String oD, String scD, String tD, String failing, String passing, Score methodsF) {
+	public GenRunAdaptiveFineGrainedInstrumentScript(String sub, String ver, String sD, String eD, String oD, String scD, String tD, String failing, String passing, String methodsF) {
 		super(sub, ver, null, sD, eD, oD + methodsF + "/", scD);
 		this.traceDir = tD + methodsF + "/";
 		this.failingTests = FileUtility.readInputsArray(failing);
@@ -86,8 +83,8 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			code.append("export TRACESDIR=" + traceDir + method + "/\n");
 			code.append(startTimeCommand + "\n");
 			
-			for (Iterator it = failingTests.iterator(); it.hasNext();) {
-				int index = (Integer) it.next();
+			for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+				int index = it.next();
 				code.append(runinfo + index + "\"\n");// running info
 				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
 				code.append("$VERSIONSDIR/" + version + "_finst__" + methodsFile + "__" + method + ".exe ");//executables
@@ -95,8 +92,8 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 				code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
 			}
 			
-			for (Iterator it = passingTests.iterator(); it.hasNext();) {
-				int index = (Integer) it.next();
+			for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
+				int index = it.next();
 				code.append(runinfo + index + "\"\n");// running info
 				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
 				code.append("$VERSIONSDIR/" + version + "_finst__" + methodsFile + "__" + method + ".exe ");//executables

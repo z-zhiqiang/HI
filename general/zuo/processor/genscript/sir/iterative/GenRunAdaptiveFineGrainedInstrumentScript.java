@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
-import zuo.processor.genscript.client.iterative.GenSirScriptClient;
 import zuo.util.file.FileUtility;
 
 
@@ -19,9 +17,9 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 	private final List<Integer> failingTests;
 	private final List<Integer> passingTests;
 	private List<String> methods;
-	private Score methodsFile;
+	private String methodsFile;
 	
-	public GenRunAdaptiveFineGrainedInstrumentScript(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, Score methodsF) {
+	public GenRunAdaptiveFineGrainedInstrumentScript(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, String methodsF) {
 		super(sub, srcN, ver, subV, cc, sD, eD, oD + methodsF + "/", scD);
 		this.traceDir = tD + methodsF + "/";
 		this.failingTests = FileUtility.readInputsArray(failing);
@@ -95,16 +93,16 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			code.append("export TRACESDIR=" + traceDir + method + "/\n");
 			code.append(startTimeCommand + "\n");
 			
-			for (Iterator it = failingTests.iterator(); it.hasNext();) {
-				int index = (Integer) it.next();
+			for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+				int index = it.next();
 				code.append(runinfo + index + "\"\n");// running info
 				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
 				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + methodsFile + "__" + method + ".exe "));
 				code.append("\n");
 			}
 			
-			for (Iterator it = passingTests.iterator(); it.hasNext();) {
-				int index = (Integer) it.next();
+			for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
+				int index = it.next();
 				code.append(runinfo + index + "\"\n");// running info
 				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
 				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + methodsFile + "__" + method + ".exe "));
@@ -114,10 +112,10 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			code.append(endTimeCommand + " >& " + outputDir + method + "/time\n");
 			code.append("tTime=$((tTime+time))\n");
 			code.append("rm ../outputs/*\n");
-			if(i != num - 1){
-				code.append("rm $TRACESDIR/o*profile\n");
-				code.append("\n\n");
-			}
+//			if(i != num - 1){
+//			}
+			code.append("rm $TRACESDIR/o*profile\n");
+			code.append("\n\n");
 		}
 		
 		code.append("echo \"Average time in seconds: $((tTime/1000000000/" + num + ")) \nTime in milliseconds: $((tTime/1000000/" + num + "))\"" +

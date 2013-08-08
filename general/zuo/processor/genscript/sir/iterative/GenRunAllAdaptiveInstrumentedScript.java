@@ -1,15 +1,13 @@
 package zuo.processor.genscript.sir.iterative;
 
-import java.util.HashSet;
 import java.util.Set;
 
-import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
 
 public class GenRunAllAdaptiveInstrumentedScript extends AbstractGenRunAllScript {
 	final Set<Integer> subs;
-	Score score;
+	String score;
 	
-	public GenRunAllAdaptiveInstrumentedScript(String version, String subject, String scriptDir, Set<Integer> subs, Score score) {
+	public GenRunAllAdaptiveInstrumentedScript(String version, String subject, String scriptDir, Set<Integer> subs, String score) {
 		super(version, subject, scriptDir);
 		this.subs = subs;
 		this.score = score;
