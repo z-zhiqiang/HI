@@ -83,17 +83,17 @@ public class IterativeFunctionClient {
 		
 		//print out the general runs information
 		assert(processor.getTotalNegative() + processor.getTotalPositive() == profiles.length);
-		writer.println("\n");
 		writer.println("The general runs information are as follows:\n==============================================================");
 		writer.println(String.format("%-50s", "Total number of runs:") + profiles.length);
 		writer.println(String.format("%-50s", "Total number of negative runs:") + processor.getTotalNegative());
 		writer.println(String.format("%-50s", "Total number of positive runs:") + processor.getTotalPositive());
+		writer.println("\n");
 		
 		//print out the static instrumentation sites information 
 		assert(processor.getFrequencyMap().size() == sites.getNumFunctionEntrySites());
-		writer.println("\n");
 		writer.println("The general methods information are as follows:\n==============================================================");
 		writer.println(String.format("%-50s", "Total number of methods instrumented:") + sites.getNumFunctionEntrySites());
+		writer.println("\n");
 		this.cResult[0] = sites.getNumFunctionEntrySites();
 		this.cResult[1] = sInfo.getNumPredicateSites();
 		this.cResult[2] = sInfo.getNumPredicateItems();
@@ -104,14 +104,13 @@ public class IterativeFunctionClient {
 		//print out entry and percentage information
 		System.out.println();
 		for(Score score: Score.values()){
-			writer.println("\n");
-			
 			BoundCalculator bc = new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive());
 			for(Order order: Order.values()){
 				printEntryAndPercentage(processor.getFrequencyMap(), score, order, bc, writer, clientWriter);
 			}
 			printPruningCase(processor.getFrequencyMap(), score, bc, writer, clientWriter);
 //			printWorstCase(processor.getFrequencyMap(), score, bc);
+			writer.println("\n");
 		}
 	}
 	
@@ -223,7 +222,6 @@ public class IterativeFunctionClient {
 		String mode = "<" + score + "," + order + ">";
 		writer.println("The methods ordered by " + mode + " are as follows:\n--------------------------------------------------------------");
 		printEntry(list, writer);
-		writer.println();
 		System.out.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		writer.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		clientWriter.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
@@ -453,6 +451,7 @@ public class IterativeFunctionClient {
 //				writer.println(String.format("%-45s", method) + entry.getValue().toString());
 			}
 		}
+		writer.println();
 	}
 
 	/**print out the percentage instrumented before reaching the top predictor

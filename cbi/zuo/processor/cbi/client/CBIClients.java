@@ -19,7 +19,7 @@ import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.site.SitesInfo;
 
 public class CBIClients {
-	public static final double percent = 1.0;
+	public static final double percent = 0.8;
 	private final PredicateProfile[] profiles;
 	private List<Integer> failings;
 	private List<Integer> passings;
@@ -77,6 +77,7 @@ public class CBIClients {
 		//full CBIClient
 		int fk = 30;
 		Set<Integer> fullSamples = buildFullSamples();
+//		Set<Integer> fullSamples = buildPartialSamples();
 		CBIClient fc = new CBIClient(fk, profiles, writer, functions, fullSamples);
 		targetFunction = fc.getSortedPredictorsList().get(0).getPredicateItem().getPredicateSite().getSite().getFunctionName();
 		
@@ -138,15 +139,16 @@ public class CBIClients {
 	 * @param writer
 	 */
 	public static void printSitesInfo(SitesInfo sitesInfo, PrintWriter writer) {
-		writer.println("The general sites information are as follows:\n==============================================================");
+		writer.println("The general sites information are as follows:\n========================================================================");
 		writer.println(String.format("%-60s", "Total number of sites instrumented:") + sitesInfo.getNumPredicateSites());
 		writer.println(String.format("%-60s", "Total number of predicates instrumented:") + sitesInfo.getNumPredicateItems());
 		writer.println(String.format("%-60s", "Total number of methods having sites instrumented:") + sitesInfo.getMap().size());
 		writer.println();
-		writer.println("The information of sites and predicates in each method:\n--------------------------------------------------------------");
+		writer.println("The information of sites and predicates in each method:\n------------------------------------------------------------------------");
 		for(String method: sitesInfo.getMap().keySet()){
 			writer.println(String.format("%-45s", method) + String.format("%-20s", ":" + sitesInfo.getMap().get(method).getNumSites()) + String.format("%-20s", ":" + sitesInfo.getMap().get(method).getNumPredicates()));
 		}
+		writer.println("\n\n");
 	}
 	
 	

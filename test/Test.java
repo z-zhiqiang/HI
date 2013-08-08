@@ -2,6 +2,11 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
+
+import zuo.processor.cbi.client.CBIClient;
 
 
 public class Test {
@@ -26,5 +31,16 @@ public class Test {
 		File file = new File("/home/sunzzq/adaptive/");
 		System.out.println(file.getAbsolutePath() + "/a");
 		System.out.println(String.valueOf(Score.F_1));
+		
+		
+		Set<Integer> set = new TreeSet<Integer>();
+		Random ran = new Random();
+		for(; set.size() < 100;){
+			int s = ran.nextInt(100);
+			set.add(s);
+		}
+		System.out.println(set.toString());
+		System.out.println();
+		System.out.println(CBIClient.compressNumbers(set));	
 	}
 }

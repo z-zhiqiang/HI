@@ -4,8 +4,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import zuo.processor.cbi.processor.PredicateItemWithImportance;
 import zuo.processor.cbi.processor.Processor;
@@ -30,7 +32,7 @@ public class CBIClient {
 		assert(samples.size() == (int) (profiles.length * CBIClients.percent) || samples.size() == profiles.length);
 		this.selectedPredicateProfiles = constructSelectedPredicateProfiles(profiles);
 		
-		run(writer);
+		run(writer, profiles);
 	}
 	
 	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] profiles) {
@@ -81,24 +83,78 @@ public class CBIClient {
 //				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/m3.out");
 	}
 	
-	private void run(PrintWriter writer){
+	private void run(PrintWriter writer, PredicateProfile[] profiles){
 		Processor p = new Processor(selectedPredicateProfiles);
 		p.process();
-		
-		
 		assert(p.getTotalNegative() + p.getTotalPositive() == selectedPredicateProfiles.length);
-		writer.println("\n");
-		writer.println("The general runs information are as follows:\n==============================================================");
-		writer.println(String.format("%-50s", "Total number of runs:") + selectedPredicateProfiles.length);
-		writer.println(String.format("%-50s", "Total number of negative runs:") + p.getTotalNegative());
-		writer.println(String.format("%-50s", "Total number of positive runs:") + p.getTotalPositive());
-	
+		//print out the selected profiles' information
+		printProfilesInformation(writer, profiles);
+		
 		//sort the list of predictors according to the importance value
 		sortingPreditorsList(p.getPredictorsList());
 		
 		//print out top-k predictors information
-		writer.println("\n");
 		printTopKPredictors(writer);
+	}
+
+	private void printProfilesInformation(PrintWriter writer, PredicateProfile[] profiles) {
+		// TODO Auto-generated method stub
+		Set<Integer> neg = new TreeSet<Integer>();
+		Set<Integer> pos = new TreeSet<Integer>();
+		for(int s: samples){
+			PredicateProfile profile = profiles[s];
+			if(profile.isCorrect()){
+				pos.add(s);
+			}
+			else{
+				neg.add(s);
+			}
+		}
+		assert(pos.size() + neg.size() == selectedPredicateProfiles.length);
+		writer.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + (functions.size() == 1 ? functions.toString() : "FULLY INSTRUMENTED"));
+		writer.println();
+		writer.println("The general runs information are as follows:\n==============================================================");
+		writer.println(String.format("%-40s", "Total number of runs:") + selectedPredicateProfiles.length);
+		writer.println(String.format("%-40s", "Total number of negative runs:") + neg.size());
+		writer.println(compressNumbers(neg));
+		writer.println(String.format("%-40s", "Total number of positive runs:") + pos.size());
+		writer.println(compressNumbers(pos));
+		writer.println();
+	}
+
+	public static String compressNumbers(Set<Integer> set) {
+		// TODO Auto-generated method stub
+		StringBuilder builder = new StringBuilder();
+		builder.append("[");
+		for(Iterator<Integer> it = set.iterator(); it.hasNext();){
+			int start = it.next();
+			int current = start;
+			while(it.hasNext()){
+				int next = it.next();
+				if(next - current == 1){
+					current = next;
+				}
+				else{
+					if(current == start){
+						builder.append(start).append(", ");
+					}
+					else{
+						builder.append(start).append("-").append(current).append(", ");
+					}
+					start = next;
+					current = next;
+				}
+			}
+			if(current == start){
+				builder.append(start);
+			}
+			else{
+				builder.append(start).append("-").append(current);
+			}
+			
+		}
+		builder.append("]");
+		return builder.toString();
 	}
 
 	private void sortingPreditorsList(List<PredicateItemWithImportance> predictorsList) {
@@ -125,7 +181,7 @@ public class CBIClient {
 				writer.println();
 			}
 		}
-		
+		writer.println("\n");
 	}
 
 	
