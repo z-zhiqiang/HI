@@ -88,7 +88,7 @@ public class CBIClient {
 		p.process();
 		assert(p.getTotalNegative() + p.getTotalPositive() == selectedPredicateProfiles.length);
 		//print out the selected profiles' information
-		printProfilesInformation(writer, profiles);
+		printSelectedPredicateProfilesInformation(writer, profiles);
 		
 		//sort the list of predictors according to the importance value
 		sortingPreditorsList(p.getPredictorsList());
@@ -97,7 +97,7 @@ public class CBIClient {
 		printTopKPredictors(writer);
 	}
 
-	private void printProfilesInformation(PrintWriter writer, PredicateProfile[] profiles) {
+	private void printSelectedPredicateProfilesInformation(PrintWriter writer, PredicateProfile[] profiles) {
 		// TODO Auto-generated method stub
 		Set<Integer> neg = new TreeSet<Integer>();
 		Set<Integer> pos = new TreeSet<Integer>();
@@ -188,6 +188,10 @@ public class CBIClient {
 	
 	public List<PredicateItemWithImportance> getSortedPredictorsList() {
 		return sortedPredictorsList;
+	}
+
+	public Set<Integer> getSamples() {
+		return samples;
 	}
 
 

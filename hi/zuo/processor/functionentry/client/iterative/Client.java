@@ -114,7 +114,10 @@ public class Client {
 					new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), 
 					new File(consoleFolder, subject + "_" + vi + "_function.out"), 
 					sInfo, 
-					cs.getTargetFunction(), cs.getClientsMap(), cWriter, new File(version, "adaptive"));
+					cs.getFullInstrumentedCBIClient(), 
+					cs.getClientsMap(), 
+					cWriter, 
+					new File(version, "adaptive"));
 			results.put(vi, client.getResult());
 			pResults.put(vi, client.getpResult());
 			cResults.put(vi, client.getcResult());
@@ -178,12 +181,14 @@ public class Client {
 				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion, vi + "_f.sites")));
 				
 				CBIClients cs = new CBIClients(sInfo, new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
-				
 				IterativeFunctionClient client = new IterativeFunctionClient(new File(subversion, vi + "_c.sites"), 
 						new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), 
 						new File(consoleFolder, subject + "_" + vi + "_function.out"), 
 						sInfo, 
-						cs.getTargetFunction(), cs.getClientsMap(), cWriter, new File(subversion, "adaptive"));
+						cs.getFullInstrumentedCBIClient(), 
+						cs.getClientsMap(), 
+						cWriter, 
+						new File(subversion, "adaptive"));
 				results.put(vi, client.getResult());
 				pResults.put(vi, client.getpResult());
 				cResults.put(vi, client.getcResult());
@@ -396,7 +401,7 @@ public class Client {
 //		}
 
 		Client cc;
-		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip__" + CBIClients.percent + "/"));
+		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip___" + CBIClients.percent + "/"));
 		cc.computeSirResults();
 //		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed/"));
 //		cc.computeSirResults();

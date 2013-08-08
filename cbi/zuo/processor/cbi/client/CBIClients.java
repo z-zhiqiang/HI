@@ -25,7 +25,7 @@ public class CBIClients {
 	private List<Integer> passings;
 	private Set<String> functions;
 	
-	private String targetFunction;
+	private CBIClient fullInstrumentedCBIClient;
 	private final Map<String, CBIClient> clientsMap;
 	
 
@@ -76,10 +76,9 @@ public class CBIClients {
 		
 		//full CBIClient
 		int fk = 30;
-		Set<Integer> fullSamples = buildFullSamples();
-//		Set<Integer> fullSamples = buildPartialSamples();
-		CBIClient fc = new CBIClient(fk, profiles, writer, functions, fullSamples);
-		targetFunction = fc.getSortedPredictorsList().get(0).getPredicateItem().getPredicateSite().getSite().getFunctionName();
+//		Set<Integer> fullSamples = buildFullSamples();
+		Set<Integer> fullSamples = buildPartialSamples();
+		fullInstrumentedCBIClient = new CBIClient(fk, profiles, writer, functions, fullSamples);
 		
 		//iterative CBIClient each for each function
 		int pk = 3;
@@ -152,12 +151,13 @@ public class CBIClients {
 	}
 	
 	
-	public String getTargetFunction() {
-		return targetFunction;
-	}
-
 	public Map<String, CBIClient> getClientsMap() {
 		return clientsMap;
+	}
+
+
+	public CBIClient getFullInstrumentedCBIClient() {
+		return fullInstrumentedCBIClient;
 	}
 	
 	

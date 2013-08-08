@@ -12,7 +12,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import zuo.processor.cbi.client.CBIClient;
 import zuo.processor.cbi.site.SitesInfo;
@@ -25,8 +27,6 @@ import zuo.processor.functionentry.site.FunctionEntrySite;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class IterativeFunctionClient {
-	public static final int TOP_K = 10;
-
 	public static enum Score{
 		RANDOM, NEGATIVE, H_1, F_1, H_2, PRECISION, POSITIVE
 	}
@@ -35,12 +35,12 @@ public class IterativeFunctionClient {
 		RANDOM, LESS_FIRST, MORE_FIRST, BEST, WORST, //CLOSER_FIRST 
 	}
 	
-	
 	final FunctionEntrySites sites;
-	final FunctionEntryProfile[] profiles;
+	final FunctionEntryProfile[] selectedFunctionEntryProfiles;
 	
 	final SitesInfo sInfo;
 	final String targetFunction;
+	final Set<Integer> samples;
 	final Map<String, CBIClient> clientsMap;
 	
 	final double[][][][] result;
@@ -49,11 +49,12 @@ public class IterativeFunctionClient {
 	
 	final File methodsFileDir;
 	
-	public IterativeFunctionClient(File sitesFile, File profilesFolder, File consoleFile, SitesInfo sInfo, String function, Map<String, CBIClient> map, PrintWriter clientWriter, File methodsF) {
+	public IterativeFunctionClient(File sitesFile, File profilesFolder, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map, PrintWriter clientWriter, File methodsF) {
 		this.sites = new FunctionEntrySites(sitesFile);
-		this.profiles = new FunctionEntryProfileReader(profilesFolder, sites).readFunctionEntryProfiles();
+		FunctionEntryProfile[] profiles = new FunctionEntryProfileReader(profilesFolder, sites).readFunctionEntryProfiles();
 		this.sInfo = sInfo;
-		this.targetFunction = function;
+		this.targetFunction = fullICBIClient.getSortedPredictorsList().get(0).getPredicateItem().getPredicateSite().getSite().getFunctionName();
+		this.samples = fullICBIClient.getSamples();
 		this.clientsMap = map;
 		this.result = new double[Score.values().length][Order.values().length][2][5];
 		this.pResult = new double[Score.values().length][5];
@@ -61,10 +62,12 @@ public class IterativeFunctionClient {
 		
 		this.methodsFileDir = methodsF;
 		
+		this.selectedFunctionEntryProfiles = constructSelectedFunctionEntryProfiles(profiles);
+		
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
-			run(writer, clientWriter);
+			run(writer, clientWriter, profiles);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -77,23 +80,30 @@ public class IterativeFunctionClient {
 	}
 	
 	
-	private void run(PrintWriter writer, PrintWriter clientWriter){
-		SelectingProcessor processor = new SelectingProcessor(profiles);
+	private FunctionEntryProfile[] constructSelectedFunctionEntryProfiles(FunctionEntryProfile[] profiles) {
+		// TODO Auto-generated method stub
+		FunctionEntryProfile[] fProfiles = new FunctionEntryProfile[samples.size()];
+		int j = 0;
+		for(int k: samples){
+			fProfiles[j++] = profiles[k];
+		}
+		assert(j == samples.size());
+		return fProfiles;
+	}
+
+
+	private void run(PrintWriter writer, PrintWriter clientWriter, FunctionEntryProfile[] profiles){
+		SelectingProcessor processor = new SelectingProcessor(selectedFunctionEntryProfiles);
 		processor.process();
 		
 		//print out the general runs information
-		assert(processor.getTotalNegative() + processor.getTotalPositive() == profiles.length);
-		writer.println("The general runs information are as follows:\n==============================================================");
-		writer.println(String.format("%-50s", "Total number of runs:") + profiles.length);
-		writer.println(String.format("%-50s", "Total number of negative runs:") + processor.getTotalNegative());
-		writer.println(String.format("%-50s", "Total number of positive runs:") + processor.getTotalPositive());
-		writer.println("\n");
+		assert(processor.getTotalNegative() + processor.getTotalPositive() == selectedFunctionEntryProfiles.length);
+		printSelectedFunctionEntryProfilesInformation(writer, profiles);
 		
 		//print out the static instrumentation sites information 
 		assert(processor.getFrequencyMap().size() == sites.getNumFunctionEntrySites());
-		writer.println("The general methods information are as follows:\n==============================================================");
-		writer.println(String.format("%-50s", "Total number of methods instrumented:") + sites.getNumFunctionEntrySites());
-		writer.println("\n");
+		printSitesInformation(writer);
+		
 		this.cResult[0] = sites.getNumFunctionEntrySites();
 		this.cResult[1] = sInfo.getNumPredicateSites();
 		this.cResult[2] = sInfo.getNumPredicateItems();
@@ -112,6 +122,36 @@ public class IterativeFunctionClient {
 //			printWorstCase(processor.getFrequencyMap(), score, bc);
 			writer.println("\n");
 		}
+	}
+
+
+	private void printSitesInformation(PrintWriter writer) {
+		writer.println("The general methods information are as follows:\n==============================================================");
+		writer.println(String.format("%-50s", "Total number of methods instrumented:") + sites.getNumFunctionEntrySites());
+		writer.println("\n");
+	}
+
+
+	private void printSelectedFunctionEntryProfilesInformation(PrintWriter writer, FunctionEntryProfile[] profiles) {
+		Set<Integer> neg = new TreeSet<Integer>();
+		Set<Integer> pos = new TreeSet<Integer>();
+		for(int s: samples){
+			FunctionEntryProfile profile = profiles[s];
+			if(profile.isCorrect()){
+				pos.add(s);
+			}
+			else{
+				neg.add(s);
+			}
+		}
+		assert(pos.size() + neg.size() == selectedFunctionEntryProfiles.length);
+		writer.println("The general runs information are as follows:\n==============================================================");
+		writer.println(String.format("%-40s", "Total number of runs:") + selectedFunctionEntryProfiles.length);
+		writer.println(String.format("%-40s", "Total number of negative runs:") + neg.size());
+		writer.println(CBIClient.compressNumbers(neg));
+		writer.println(String.format("%-40s", "Total number of positive runs:") + pos.size());
+		writer.println(CBIClient.compressNumbers(pos));
+		writer.println("\n");
 	}
 	
 	/**pruning without developers' intervention
