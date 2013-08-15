@@ -13,12 +13,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import zuo.processor.cbi.client.CBIClient;
+import zuo.processor.cbi.client.CBIClients;
 import zuo.processor.cbi.processor.PredicateItem;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.processor.BoundCalculator;
@@ -31,7 +33,7 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class IterativeFunctionClient {
 	public static enum Score{
-		RANDOM, NEGATIVE, H_1, F_1, H_2, PRECISION, POSITIVE
+		RANDOM, NEGATIVE, H_1, F_1, H_2, //PRECISION, POSITIVE
 	}
 	
 	public static enum Order{
@@ -40,8 +42,7 @@ public class IterativeFunctionClient {
 	
 	final FunctionEntrySites sites;
 	final FunctionEntryProfile[] selectedFunctionEntryProfiles;
-//	private List<PredicateItemWithImportance> sortedPrunedPredictorsList; 
-    final TreeMap<Double, Set<PredicateItem>> sortedPrunedPredictors;
+    final TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors;
 	
 	final SitesInfo sInfo;
 	final String targetFunction;
@@ -58,7 +59,6 @@ public class IterativeFunctionClient {
 		this.sites = new FunctionEntrySites(sitesFile);
 		FunctionEntryProfile[] profiles = new FunctionEntryProfileReader(profilesFolder, sites).readFunctionEntryProfiles();
 		this.sInfo = sInfo;
-//		this.targetFunction = fullICBIClient.getSortedPredictorsList().get(0).getPredicateItem().getPredicateSite().getSite().getFunctionName();
 		this.targetFunction = getTargetFunction(fullICBIClient);
 		this.samples = fullICBIClient.getSamples();
 		this.clientsMap = map;
@@ -70,7 +70,7 @@ public class IterativeFunctionClient {
 		
 		this.selectedFunctionEntryProfiles = constructSelectedFunctionEntryProfiles(profiles);
 		
-		this.sortedPrunedPredictors = new TreeMap<Double, Set<PredicateItem>>();
+		this.sortedPrunedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
 		
 		PrintWriter writer = null;
 		try {
@@ -98,7 +98,25 @@ public class IterativeFunctionClient {
 			System.out.println(functionSet);
 		}
 		
-		return functionSet.iterator().next();
+		return getOneFunction(functionSet);
+	}
+
+
+	private String getOneFunction(Set<String> functionSet) {
+		// TODO Auto-generated method stub
+		Iterator<String> it = functionSet.iterator();
+		String function = it.next();
+		while(it.hasNext()){
+			String fun = it.next();
+			if(this.sInfo.getMap().get(fun).getNumSites() < this.sInfo.getMap().get(function).getNumSites()){
+				function = fun;
+			}
+			else if(this.sInfo.getMap().get(fun).getNumSites() == this.sInfo.getMap().get(function).getNumSites() 
+					&& this.sInfo.getMap().get(fun).getNumPredicates() < this.sInfo.getMap().get(function).getNumPredicates()){
+				function = fun;
+			}
+		}
+		return function;
 	}
 
 
@@ -141,7 +159,7 @@ public class IterativeFunctionClient {
 				printEntryAndPercentage(processor.getFrequencyMap(), score, order, bc, writer, clientWriter);
 			}
 			printPruningCase(processor.getFrequencyMap(), score, bc, writer, clientWriter);
-			writer.println("\n");
+//			writer.println();
 		}
 	}
 
@@ -200,8 +218,6 @@ public class IterativeFunctionClient {
 		double sp = 0, pp = 0;
 		double as = 0, ap = 0;
 		
-//		List<PredicateItemWithImportance> sortedPrunedPredictorsList = new ArrayList<PredicateItemWithImportance>();
-		
 		for(int j = 0; j < list.size(); j++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(j);
 			String function = entry.getKey().getFunctionName();
@@ -212,18 +228,14 @@ public class IterativeFunctionClient {
 				i++;
 				nSites += sInfo.getMap().get(function).getNumSites();
 				nPredicates += sInfo.getMap().get(function).getNumPredicates();
-//				double im = clientsMap.get(function).getSortedPredictorsList().get(0).getImportance();
-				double im = clientsMap.get(function).getSortedPredictors().lastKey();
+				
+				CBIClients.appendPredictors(this.sortedPrunedPredictors, clientsMap.get(function).getSortedPredictors());
+				double im = getKthImportance(this.sortedPrunedPredictors, Client.k);
 				if(im > threshold){
 					threshold = im;
 				}
-				
-//				sortedPrunedPredictorsList.addAll(clientsMap.get(function).getSortedPredictorsList());
-				appendPredictors(clientsMap.get(function).getSortedPredictors());
 			}
 		}
-		
-//		CBIClient.sortingPreditorsList(sortedPrunedPredictorsList);
 		
 		
 		sp = (double)100 * nSites / sInfo.getNumPredicateSites();
@@ -231,6 +243,7 @@ public class IterativeFunctionClient {
 		as = (double) nSites / i;
 		ap = (double) nPredicates / i;
 		
+		System.out.println();
 		System.out.println("==============================================================");
 		System.out.println(String.format("%-50s", "Pruning by <" + score + ">:")
 						+ String.format("%-15s", "s:" + nSites) 
@@ -240,7 +253,7 @@ public class IterativeFunctionClient {
 						+ String.format("%-15s", "i:" + i) 
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-		System.out.println("");
+		System.out.println();
 		printPruningInfo(score, writer, i, nSites, nPredicates, sp, pp, as, ap);
 		printPruningInfo(score, clientWriter, i, nSites, nPredicates, sp, pp, as, ap);
 		
@@ -251,22 +264,25 @@ public class IterativeFunctionClient {
 		pResult[score.ordinal()][4] = ap;
 	}
 
-
-	private void appendPredictors(TreeMap<Double, Set<PredicateItem>> sortedPredictors) {
+	private double getKthImportance(TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors, int k) {
 		// TODO Auto-generated method stub
-		for(double im: sortedPredictors.keySet()){
-			if(this.sortedPrunedPredictors.containsKey(im)){
-				this.sortedPrunedPredictors.get(im).addAll(sortedPredictors.get(im));
+		int j = 0;
+		for(Iterator<Double> it = sortedPrunedPredictors.descendingKeySet().iterator(); it.hasNext();){
+			double im = it.next();
+			if(j < k){
+				j += sortedPrunedPredictors.get(im).size();
 			}
 			else{
-				this.sortedPrunedPredictors.put(im, sortedPredictors.get(im));
+				return im;
 			}
 		}
+		return 0;
 	}
 
 
 	private void printPruningInfo(final Score score, PrintWriter writer,
 			int i, int nSites, int nPredicates, double sp, double pp, double as, double ap) {
+		writer.println();
 		writer.println("==============================================================");
 		writer.println(String.format("%-50s", "Pruning by <" + score + ">:") 
 						+ String.format("%-15s", "s:" + nSites) 
@@ -276,8 +292,8 @@ public class IterativeFunctionClient {
 						+ String.format("%-15s", "i:" + i) 
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-		writer.println("");
-		CBIClient.printTopKPredictors(sortedPrunedPredictors, Client.pKF, writer);
+		writer.println();
+		CBIClient.printTopKPredictors(sortedPrunedPredictors, Client.k, writer);
 	}
 
 
@@ -406,30 +422,30 @@ public class IterativeFunctionClient {
 				r = order(arg0, arg1, order);
 			}
 			break;
-		case PRECISION:
-			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getPrecision())
-					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getPrecision()));
-			if (r == 0) {
-//				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
-//						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
-//				if(r == 0){
-//					r = order(arg0, arg1, order);
-//				}
-				r = order(arg0, arg1, order);
-			}
-			break;
-		case POSITIVE:
-			r = new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getPositive())
-					.compareTo(new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getPositive()));
-			if(r == 0){
-//				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
-//						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
-//				if(r == 0){
-//					r = order(arg0, arg1, order);
-//				}
-				r = order(arg0, arg1, order);
-			}
-			break;
+//		case PRECISION:
+//			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getPrecision())
+//					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getPrecision()));
+//			if (r == 0) {
+////				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
+////						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
+////				if(r == 0){
+////					r = order(arg0, arg1, order);
+////				}
+//				r = order(arg0, arg1, order);
+//			}
+//			break;
+//		case POSITIVE:
+//			r = new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getPositive())
+//					.compareTo(new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getPositive()));
+//			if(r == 0){
+////				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
+////						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
+////				if(r == 0){
+////					r = order(arg0, arg1, order);
+////				}
+//				r = order(arg0, arg1, order);
+//			}
+//			break;
 		default:{
 			System.err.println("score error");
 			System.exit(0);
@@ -652,7 +668,6 @@ public class IterativeFunctionClient {
 					i++;
 					nSites += sInfo.getMap().get(method).getNumSites();
 					nPredicates += sInfo.getMap().get(method).getNumPredicates();
-//					double im = clientsMap.get(method).getSortedPredictorsList().get(0).getImportance();
 					double im = clientsMap.get(method).getSortedPredictors().lastKey();
 					if(im > threshold){
 						threshold = im;
@@ -711,14 +726,14 @@ public class IterativeFunctionClient {
 				}
 			}
 			break;
-		case PRECISION:
-			double pr = SelectingProcessor.Precision(lb, bc.getP());
-			if(value.getPrecision() >= pr){
-				return false;
-			}
-			break;
+//		case PRECISION:
+//			double pr = SelectingProcessor.Precision(lb, bc.getP());
+//			if(value.getPrecision() >= pr){
+//				return false;
+//			}
+//			break;
+//		case POSITIVE:
 		case RANDOM:
-		case POSITIVE:
 //			if(value.getNegative() < 2){
 //				return true;
 //			}

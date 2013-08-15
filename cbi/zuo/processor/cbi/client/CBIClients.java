@@ -13,7 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeMap;
 
+import zuo.processor.cbi.processor.PredicateItem;
 import zuo.processor.cbi.processor.PredicateItemWithImportance;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.PredicateProfileReader;
@@ -84,7 +87,8 @@ public class CBIClients {
 		//iterative CBIClient each for each function
 		Set<String> pFunctions;
 		Set<Integer> pSamples;
-//		List<PredicateItemWithImportance> fullSortedPredictorsList = new ArrayList<PredicateItemWithImportance>();
+		TreeMap<Double, SortedSet<PredicateItem>> fullSortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
+		
 		for(String function: functions){
 			pFunctions = new HashSet<String>();
 			pFunctions.add(function);
@@ -93,14 +97,27 @@ public class CBIClients {
 			
 			CBIClient pc = new CBIClient(Client.iK, profiles, writer, pFunctions, pSamples);
 			clientsMap.put(function, pc);
-//			fullSortedPredictorsList.addAll(pc.getSortedPredictorsList());
+			
+			appendPredictors(fullSortedPredictors, pc.getSortedPredictors());
 		}
-//		writer.println("\n\n");
-//		CBIClient.sortingPreditorsList(fullSortedPredictorsList);
-//		CBIClient.printTopKPredictors(fullSortedPredictorsList, Client.fKF, writer);
+		writer.println("\n");
+		writer.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FULLY INSTRUMENTED FROM MULTIPLE ITERATIONS");
+		writer.println();
+		CBIClient.printTopKPredictors(fullSortedPredictors, Client.fKF, writer);
 		
 	}
 
+	public static void appendPredictors(TreeMap<Double, SortedSet<PredicateItem>> fullSortedPredictors, TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors) {
+		// TODO Auto-generated method stub
+		for(double im: sortedPredictors.keySet()){
+			if(fullSortedPredictors.containsKey(im)){
+				fullSortedPredictors.get(im).addAll(sortedPredictors.get(im));
+			}
+			else{
+				fullSortedPredictors.put(im, sortedPredictors.get(im));
+			}
+		}
+	}
 
 	/**get the full set of profiles
 	 * @return

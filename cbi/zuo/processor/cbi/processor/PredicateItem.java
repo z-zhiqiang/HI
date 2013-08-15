@@ -75,7 +75,6 @@ public class PredicateItem {
 			break;
 		}
 		case SCALAR_PAIR: {
-//			System.out.println(type);
 			tp = ReturnScalarPairPredicateType.values()[type].toString();
 			break;
 		}
@@ -90,17 +89,17 @@ public class PredicateItem {
 		return string.toString();
 	}
 	
-	public int hashCode(){
-		int result = 1;
-		result = 31 * result + predicateSite.getId();
-		result = 31 * result + type;
-		return result;
-	}
-	
-	public boolean equals(Object o){
-		PredicateItem obj = (PredicateItem) o;
-		return (o instanceof PredicateItem) && (predicateSite.getId() == obj.predicateSite.getId()) && (type == obj.type);
-	}
+//	public int hashCode(){
+//		int result = 1;
+//		result = 31 * result + predicateSite.getId();
+//		result = 31 * result + type;
+//		return result;
+//	}
+//	
+//	public boolean equals(Object o){
+//		PredicateItem obj = (PredicateItem) o;
+//		return (o instanceof PredicateItem) && (predicateSite.getId() == obj.predicateSite.getId()) && (type == obj.type);
+//	}
 
 	public int getType() {
 		return type;
