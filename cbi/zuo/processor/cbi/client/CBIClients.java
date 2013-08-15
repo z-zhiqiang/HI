@@ -14,12 +14,14 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import zuo.processor.cbi.processor.PredicateItemWithImportance;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.site.SitesInfo;
+import zuo.processor.functionentry.client.iterative.Client;
 
 public class CBIClients {
-	public static final double percent = 0.8;
+	public static final double percent = 1.0;
 	private final PredicateProfile[] profiles;
 	private List<Integer> failings;
 	private List<Integer> passings;
@@ -75,24 +77,27 @@ public class CBIClients {
 		printSitesInfo(sitesInfo, writer);
 		
 		//full CBIClient
-		int fk = 30;
 //		Set<Integer> fullSamples = buildFullSamples();
 		Set<Integer> fullSamples = buildPartialSamples();
-		fullInstrumentedCBIClient = new CBIClient(fk, profiles, writer, functions, fullSamples);
+		fullInstrumentedCBIClient = new CBIClient(Client.fK, profiles, writer, functions, fullSamples);
 		
 		//iterative CBIClient each for each function
-		int pk = 3;
 		Set<String> pFunctions;
 		Set<Integer> pSamples;
+//		List<PredicateItemWithImportance> fullSortedPredictorsList = new ArrayList<PredicateItemWithImportance>();
 		for(String function: functions){
 			pFunctions = new HashSet<String>();
 			pFunctions.add(function);
 			
 			pSamples = buildPartialSamples();
 			
-			CBIClient pc = new CBIClient(pk, profiles, writer, pFunctions, pSamples);
+			CBIClient pc = new CBIClient(Client.iK, profiles, writer, pFunctions, pSamples);
 			clientsMap.put(function, pc);
+//			fullSortedPredictorsList.addAll(pc.getSortedPredictorsList());
 		}
+//		writer.println("\n\n");
+//		CBIClient.sortingPreditorsList(fullSortedPredictorsList);
+//		CBIClient.printTopKPredictors(fullSortedPredictorsList, Client.fKF, writer);
 		
 	}
 

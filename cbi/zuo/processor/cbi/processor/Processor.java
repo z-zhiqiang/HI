@@ -1,7 +1,11 @@
 package zuo.processor.cbi.processor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.predicatesite.AbstractPredicateSite;
@@ -12,6 +16,7 @@ import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
 public class Processor {
 	private final PredicateProfile[] profiles; // profiles
 	private List<PredicateItemWithImportance> predictorsList; // the results
+//	private Map<Double, Set<PredicateItem>> predictors;
 	
 	private int totalPositive; // number of passing runs
 	private int totalNegative; // number of failing runs
@@ -19,6 +24,7 @@ public class Processor {
 	public Processor(PredicateProfile[] predicateProfiles){
 		profiles = predicateProfiles;
 		predictorsList = new ArrayList<PredicateItemWithImportance>();
+//		predictors = new HashMap<Double, Set<PredicateItem>>();
 		totalPositive = totalNegative = 0;
 	}
 	
@@ -336,6 +342,15 @@ public class Processor {
 			
 			PredicateItemWithImportance pItemWI = new PredicateItemWithImportance(predicate, importance);
 			predictorsList.add(pItemWI);
+			
+//			if(predictors.containsKey(importance)){
+//				predictors.get(importance).add(predicate);
+//			}
+//			else{
+//				Set<PredicateItem> set = new HashSet<PredicateItem>();
+//				set.add(predicate);
+//				predictors.put(importance, set);
+//			}
 		}
 	}
 
@@ -388,6 +403,10 @@ public class Processor {
 	public List<PredicateItemWithImportance> getPredictorsList() {
 		return predictorsList;
 	}
+
+//	public Map<Double, Set<PredicateItem>> getPredictors() {
+//		return predictors;
+//	}
 
 
 }

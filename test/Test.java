@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import zuo.processor.cbi.client.CBIClient;
@@ -42,5 +43,14 @@ public class Test {
 		System.out.println(set.toString());
 		System.out.println();
 		System.out.println(CBIClient.compressNumbers(set));	
+		
+		
+		TreeMap<Integer, String> tMap = new TreeMap<Integer, String>();
+		tMap.put(1, "1");
+		tMap.put(2, "2");
+		tMap.put(3, "3");
+		System.out.println(tMap);
+		System.out.println(tMap.lastKey());
+		
 	}
 }

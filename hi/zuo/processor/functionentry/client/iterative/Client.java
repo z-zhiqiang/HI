@@ -26,6 +26,11 @@ import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Orde
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
 
 public class Client {
+	public final static int fK = 30;
+	public final static int iK = 3;
+	public final static int pKF = 30;
+	public final static int fKF = 30;
+	
 	final File rootDir;
 	final String subject;
 	final File consoleFolder;
@@ -401,7 +406,7 @@ public class Client {
 //		}
 
 		Client cc;
-		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip___" + CBIClients.percent + "/"));
+		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip__" + CBIClients.percent + "/"));
 		cc.computeSirResults();
 //		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed/"));
 //		cc.computeSirResults();

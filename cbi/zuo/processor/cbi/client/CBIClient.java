@@ -3,12 +3,15 @@ package zuo.processor.cbi.client;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
+import zuo.processor.cbi.processor.PredicateItem;
 import zuo.processor.cbi.processor.PredicateItemWithImportance;
 import zuo.processor.cbi.processor.Processor;
 import zuo.processor.cbi.profile.PredicateProfile;
@@ -19,7 +22,8 @@ import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
 public class CBIClient {
 	final int k;
 	final PredicateProfile[] selectedPredicateProfiles;
-	private List<PredicateItemWithImportance> sortedPredictorsList;
+//	private List<PredicateItemWithImportance> sortedPredictorsList;
+	private TreeMap<Double, Set<PredicateItem>> sortedPredictors;
 	
 	private final Set<String> functions;
 	private final Set<Integer> samples; 
@@ -32,6 +36,7 @@ public class CBIClient {
 		assert(samples.size() == (int) (profiles.length * CBIClients.percent) || samples.size() == profiles.length);
 		this.selectedPredicateProfiles = constructSelectedPredicateProfiles(profiles);
 		
+		this.sortedPredictors = new TreeMap<Double, Set<PredicateItem>>();
 		run(writer, profiles);
 	}
 	
@@ -91,10 +96,11 @@ public class CBIClient {
 		printSelectedPredicateProfilesInformation(writer, profiles);
 		
 		//sort the list of predictors according to the importance value
-		sortingPreditorsList(p.getPredictorsList());
+//		sortedPredictorsList = new ArrayList<PredicateItemWithImportance>(p.getPredictorsList());
+		sortingPreditorsList(this.sortedPredictors, p.getPredictorsList());
 		
 		//print out top-k predictors information
-		printTopKPredictors(writer);
+		printTopKPredictors(this.sortedPredictors, this.k, writer);
 	}
 
 	private void printSelectedPredicateProfilesInformation(PrintWriter writer, PredicateProfile[] profiles) {
@@ -157,37 +163,68 @@ public class CBIClient {
 		return builder.toString();
 	}
 
-	private void sortingPreditorsList(List<PredicateItemWithImportance> predictorsList) {
-		sortedPredictorsList = new ArrayList<PredicateItemWithImportance>(predictorsList);
+	public static void sortingPreditorsList(TreeMap<Double, Set<PredicateItem>> sortedPredictors, List<PredicateItemWithImportance> predictorsList) {
 		// TODO Auto-generated method stub
-		Collections.sort(sortedPredictorsList, new Comparator(){
-
-			@Override
-			public int compare(Object arg0, Object arg1) {
-				// TODO Auto-generated method stub
-				return new Double(((PredicateItemWithImportance) arg1).getImportance())
-				.compareTo(new Double(((PredicateItemWithImportance) arg0).getImportance()));
+//		Collections.sort(sortedPredictorsList, new Comparator(){
+//
+//			@Override
+//			public int compare(Object arg0, Object arg1) {
+//				// TODO Auto-generated method stub
+//				return new Double(((PredicateItemWithImportance) arg1).getImportance())
+//				.compareTo(new Double(((PredicateItemWithImportance) arg0).getImportance()));
+//			}
+//			
+//		});
+		for(PredicateItemWithImportance pWI: predictorsList){
+			double importance = pWI.getImportance();
+			if(sortedPredictors.containsKey(importance)){
+				sortedPredictors.get(importance).add(pWI.getPredicateItem());
 			}
-			
-		});
-	}
-
-	public void printTopKPredictors(PrintWriter writer){
-		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
-		for (int i = 0; i < sortedPredictorsList.size(); i++) {
-			PredicateItemWithImportance pItemWI = sortedPredictorsList.get(i);
-			if (i < k) {
-				writer.println("(" + (i + 1) + "): " + pItemWI.toString());
-				writer.println();
+			else{
+				Set<PredicateItem> set = new HashSet<PredicateItem>();
+				set.add(pWI.getPredicateItem());
+				sortedPredictors.put(importance, set);
 			}
 		}
+	}
+
+	public static void printTopKPredictors(TreeMap<Double, Set<PredicateItem>> sortedPredictors, int k, PrintWriter writer){
+//		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
+//		for (int i = 0; i < sortedPredictors.size(); i++) {
+//			PredicateItemWithImportance pItemWI = sortedPredictors2.get(i);
+//			if (i < k) {
+//				writer.println("(" + (i + 1) + "): " + pItemWI.toString());
+//				writer.println();
+//			}
+//		}
+//		writer.println("\n");
+		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
+		int i = 1, j = 0;
+		for(Iterator<Double> it = sortedPredictors.descendingKeySet().iterator(); it.hasNext();){
+			double im = it.next();
+			if(im == 0){
+				break;
+			}
+			Set<PredicateItem> set = sortedPredictors.get(im);
+			if(j < k){
+				writer.println("(" + (i++) + "): " + im);
+				for(PredicateItem item: set){
+					writer.println(item.toString());
+					writer.println();
+				}
+				j += set.size();
+			}
+			
+		}
 		writer.println("\n");
+		
 	}
 
 	
 	
-	public List<PredicateItemWithImportance> getSortedPredictorsList() {
-		return sortedPredictorsList;
+
+	public TreeMap<Double, Set<PredicateItem>> getSortedPredictors() {
+		return sortedPredictors;
 	}
 
 	public Set<Integer> getSamples() {
