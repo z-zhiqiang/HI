@@ -32,11 +32,11 @@ public class Client {
 					// TODO Auto-generated method stub
 					return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length >= 10);
 				}});
-			Arrays.sort(versions, new Comparator(){
+			Arrays.sort(versions, new Comparator<File>(){
 				@Override
-				public int compare(Object arg0, Object arg1) {
+				public int compare(File arg0, File arg1) {
 					// TODO Auto-generated method stub
-					return new Integer(Integer.parseInt(((File) arg0).getName().substring(1))).compareTo(new Integer(Integer.parseInt(((File) arg1).getName().substring(1))));
+					return new Integer(Integer.parseInt(arg0.getName().substring(1))).compareTo(new Integer(Integer.parseInt(arg1.getName().substring(1))));
 				}});
 			
 			for(File version: versions){
@@ -65,11 +65,11 @@ public class Client {
 					// TODO Auto-generated method stub
 					return Pattern.matches("v[0-9]*", name);
 				}});
-			Arrays.sort(versions, new Comparator(){
+			Arrays.sort(versions, new Comparator<File>(){
 				@Override
-				public int compare(Object arg0, Object arg1) {
+				public int compare(File arg0, File arg1) {
 					// TODO Auto-generated method stub
-					return new Integer(Integer.parseInt(((File) arg0).getName().substring(1))).compareTo(new Integer(Integer.parseInt(((File) arg1).getName().substring(1))));
+					return new Integer(Integer.parseInt(arg0.getName().substring(1))).compareTo(new Integer(Integer.parseInt(arg1.getName().substring(1))));
 				}});
 			
 			for(File version: versions){
@@ -79,11 +79,11 @@ public class Client {
 						// TODO Auto-generated method stub
 						return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 11);
 					}});
-				Arrays.sort(subversions, new Comparator(){
+				Arrays.sort(subversions, new Comparator<File>(){
 					@Override
-					public int compare(Object arg0, Object arg1) {
+					public int compare(File arg0, File arg1) {
 						// TODO Auto-generated method stub
-						return new Integer(Integer.parseInt(((File) arg0).getName().substring(4))).compareTo(new Integer(Integer.parseInt(((File) arg1).getName().substring(4))));
+						return new Integer(Integer.parseInt(arg0.getName().substring(4))).compareTo(new Integer(Integer.parseInt(arg1.getName().substring(4))));
 					}});
 				
 				for(File subversion: subversions){

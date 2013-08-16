@@ -204,11 +204,12 @@ public class IterativeFunctionClient {
 	 */
 	private void printPruningCase(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, BoundCalculator bc, PrintWriter writer, PrintWriter clientWriter) {
 		// TODO Auto-generated method stub
-		List list = new ArrayList(frequencyMap.entrySet());
-		Collections.sort(list, new Comparator(){
+		List<Map.Entry<FunctionEntrySite, FrequencyValue>> list = new ArrayList<Map.Entry<FunctionEntrySite, FrequencyValue>>(frequencyMap.entrySet());
+		Collections.sort(list, new Comparator<Entry<FunctionEntrySite, FrequencyValue>>(){
 
 			@Override
-			public int compare(Object arg0, Object arg1) {
+			public int compare(Entry<FunctionEntrySite, FrequencyValue> arg0,
+					Entry<FunctionEntrySite, FrequencyValue> arg1) {
 				// TODO Auto-generated method stub
 				return rank(arg0, arg1, score, Order.RANDOM);
 			}});
@@ -340,13 +341,14 @@ public class IterativeFunctionClient {
 	 */
 	private void printEntryAndPercentage(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, final Order order, BoundCalculator bc, PrintWriter writer, PrintWriter clientWriter) {
 		// TODO Auto-generated method stub
-		List list = new ArrayList(frequencyMap.entrySet());
-		Collections.sort(list, new Comparator(){
+		List<Entry<FunctionEntrySite, FrequencyValue>> list = new ArrayList<Entry<FunctionEntrySite, FrequencyValue>>(frequencyMap.entrySet());
+		Collections.sort(list, new Comparator<Entry<FunctionEntrySite, FrequencyValue>>(){
 
 			@Override
-			public int compare(Object arg0, Object arg1) {
+			public int compare(Entry<FunctionEntrySite, FrequencyValue> o1,
+					Entry<FunctionEntrySite, FrequencyValue> o2) {
 				// TODO Auto-generated method stub
-				return rank(arg0, arg1, score, order);
+				return rank(o1, o2, score, order);
 			}});
 		String mode = "<" + score + "," + order + ">";
 		writer.println("The methods ordered by " + mode + " are as follows:\n--------------------------------------------------------------");
@@ -363,13 +365,13 @@ public class IterativeFunctionClient {
 	 * @param score
 	 * @param order
 	 */
-	private void getMethodsList(List list, Score score, Order order){	
+	private void getMethodsList(List<Entry<FunctionEntrySite, FrequencyValue>> list, Score score, Order order){	
 		//get the methods list to be instrumented
 		List<String> methods = new ArrayList<String>();
 		
 		if(order == Order.LESS_FIRST){
 			for(int i = 0; i < list.size(); i++){
-				Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
+				Entry<FunctionEntrySite, FrequencyValue> entry = list.get(i);
 				String method = entry.getKey().getFunctionName();
 				methods.add(method);
 				if(this.targetFunction.equals(method)){
@@ -406,25 +408,22 @@ public class IterativeFunctionClient {
 	 * @param order
 	 * @return
 	 */
-	private int rank(Object arg0, Object arg1, Score score, Order order) {
+	private int rank(Entry<FunctionEntrySite, FrequencyValue> arg0, Entry<FunctionEntrySite, FrequencyValue> arg1, Score score, Order order) {
 		// TODO Auto-generated method stub
 		int r = 0;
 		switch (score){
 		case RANDOM:
 			break;
 		case NEGATIVE:
-			r = new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getNegative())
-					.compareTo(new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getNegative()));
+			r = new Integer(arg1.getValue().getNegative()).compareTo(new Integer(arg0.getValue().getNegative()));
 			if(r == 0){
 				r = order(arg0, arg1, order);
 			}
 			break;
 		case H_1:
-			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_1())
-					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_1()));
+			r = new Double(arg1.getValue().getH_1()).compareTo(new Double(arg0.getValue().getH_1()));
 			if(r == 0){
-//				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_2())
-//						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_2()));
+//				r = new Double(arg1.getValue().getH_2()).compareTo(new Double(arg0.getValue().getH_2()));
 //				if(r == 0){
 //					r = order(arg0, arg1, order);
 //				}
@@ -432,11 +431,9 @@ public class IterativeFunctionClient {
 			}
 			break;
 		case F_1:
-			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
-					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
+			r = new Double(arg1.getValue().getF_score()).compareTo(new Double(arg0.getValue().getF_score()));
 			if (r == 0) {
-//				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_1())
-//						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_1()));
+//				r = new Double(arg1.getValue().getH_1()).compareTo(new Double(arg0.getValue().getH_1()));
 //				if (r == 0) {
 //					r = order(arg0, arg1, order);
 //				}
@@ -444,11 +441,9 @@ public class IterativeFunctionClient {
 			}
 			break;
 		case H_2:
-			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_2())
-					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_2()));
+			r = new Double(arg1.getValue().getH_2()).compareTo(new Double(arg0.getValue().getH_2()));
 			if(r == 0){
-//				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getH_1())
-//						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getH_1()));
+//				r = new Double(arg1.getValue().getH_1()).compareTo(new Double(arg0.getValue().getH_1()));
 //				if(r == 0){
 //					r = order(arg0, arg1, order);
 //				}
@@ -456,11 +451,9 @@ public class IterativeFunctionClient {
 			}
 			break;
 //		case PRECISION:
-//			r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getPrecision())
-//					.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getPrecision()));
+//			r = new Double(arg1.getValue().getPrecision()).compareTo(new Double(arg0.getValue().getPrecision()));
 //			if (r == 0) {
-////				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
-////						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
+////				r = new Double(arg1.getValue().getF_score()).compareTo(new Double(arg0.getValue().getF_score()));
 ////				if(r == 0){
 ////					r = order(arg0, arg1, order);
 ////				}
@@ -468,11 +461,9 @@ public class IterativeFunctionClient {
 //			}
 //			break;
 //		case POSITIVE:
-//			r = new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getPositive())
-//					.compareTo(new Integer(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getPositive()));
+//			r = new Integer(arg0.getValue().getPositive()).compareTo(new Integer(arg1.getValue().getPositive()));
 //			if(r == 0){
-////				r = new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getValue().getF_score())
-////						.compareTo(new Double(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getValue().getF_score()));
+////				r = new Double(arg1.getValue().getF_score()).compareTo(new Double(arg0.getValue().getF_score()));
 ////				if(r == 0){
 ////					r = order(arg0, arg1, order);
 ////				}
@@ -493,7 +484,7 @@ public class IterativeFunctionClient {
 	 * @param order
 	 * @return
 	 */
-	private int order(Object arg0, Object arg1, Order order) {
+	private int order(Entry<FunctionEntrySite, FrequencyValue> arg0, Entry<FunctionEntrySite, FrequencyValue> arg1, Order order) {
 		int rr = 0;
 		String method0 = null, method1 = null;
 		switch (order) {
@@ -502,24 +493,20 @@ public class IterativeFunctionClient {
 			break;
 		case LESS_FIRST:
 			//less first
-			method0 = ((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getKey().getFunctionName();
-			method1 = ((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName();
-			rr = new Integer(sInfo.getMap().get(method0).getNumSites())
-				.compareTo(new Integer(sInfo.getMap().get(method1).getNumSites()));
+			method0 = arg0.getKey().getFunctionName();
+			method1 = arg1.getKey().getFunctionName();
+			rr = new Integer(sInfo.getMap().get(method0).getNumSites()).compareTo(new Integer(sInfo.getMap().get(method1).getNumSites()));
 			if(rr == 0){
-				rr = new Integer(sInfo.getMap().get(method0).getNumPredicates())
-					.compareTo(new Integer(sInfo.getMap().get(method1).getNumPredicates()));
+				rr = new Integer(sInfo.getMap().get(method0).getNumPredicates()).compareTo(new Integer(sInfo.getMap().get(method1).getNumPredicates()));
 			}
 			break;
 		case MORE_FIRST:
 			//more first
-			method0 = ((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getKey().getFunctionName();
-			method1 = ((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName();
-			rr = new Integer(sInfo.getMap().get(method1).getNumSites())
-				.compareTo(new Integer(sInfo.getMap().get(method0).getNumSites()));
+			method0 = arg0.getKey().getFunctionName();
+			method1 = arg1.getKey().getFunctionName();
+			rr = new Integer(sInfo.getMap().get(method1).getNumSites()).compareTo(new Integer(sInfo.getMap().get(method0).getNumSites()));
 			if(rr == 0){
-				rr = new Integer(sInfo.getMap().get(method1).getNumPredicates())
-					.compareTo(new Integer(sInfo.getMap().get(method0).getNumPredicates()));
+				rr = new Integer(sInfo.getMap().get(method1).getNumPredicates()).compareTo(new Integer(sInfo.getMap().get(method0).getNumPredicates()));
 			}
 			break;
 //		case CLOSER_FIRST:
@@ -527,19 +514,19 @@ public class IterativeFunctionClient {
 //			break;
 		case BEST:
 			//best order
-			if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName().equals(targetFunction)){
+			if(arg1.getKey().getFunctionName().equals(targetFunction)){
 				rr = 1;
 			}
-			if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getKey().getFunctionName().equals(targetFunction)){
+			if(arg0.getKey().getFunctionName().equals(targetFunction)){
 				rr = -1;
 			}
 			break;
 		case WORST:
 			//worst order
-			if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName().equals(targetFunction)){
+			if(arg1.getKey().getFunctionName().equals(targetFunction)){
 				rr = -1;
 			}
-			if(((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getKey().getFunctionName().equals(targetFunction)){
+			if(arg0.getKey().getFunctionName().equals(targetFunction)){
 				rr = 1;
 			}
 			break;
@@ -568,9 +555,9 @@ public class IterativeFunctionClient {
 	 * @param list
 	 * @param writer 
 	 */
-	private void printEntry(List list, PrintWriter writer) {
+	private void printEntry(List<Entry<FunctionEntrySite, FrequencyValue>> list, PrintWriter writer) {
 		for(int i = 0; i < list.size(); i++){
-			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
+			Entry<FunctionEntrySite, FrequencyValue> entry = list.get(i);
 			String method = entry.getKey().getFunctionName();
 			if(sInfo.getMap().containsKey(method)){
 				writer.println(String.format("%-45s", method) + entry.getValue().toString() + "\t" + sInfo.getMap().get(method).toStringWithoutSites());
@@ -591,7 +578,7 @@ public class IterativeFunctionClient {
 	 * @param clientWriter 
 	 * @param writer 
 	 */
-	private void printPercentage(List list, Score score, Order order, BoundCalculator bc, PrintWriter writer, PrintWriter clientWriter) {
+	private void printPercentage(List<Entry<FunctionEntrySite, FrequencyValue>> list, Score score, Order order, BoundCalculator bc, PrintWriter writer, PrintWriter clientWriter) {
 		double threshold = 0;
 		int i = 0;
 		
@@ -599,7 +586,7 @@ public class IterativeFunctionClient {
 		double sp = 0, pp = 0;
 		double as = 0, ap = 0;
 		for(int j = 0; j < list.size(); j++){
-			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(j);
+			Entry<FunctionEntrySite, FrequencyValue> entry = list.get(j);
 			String method = entry.getKey().getFunctionName();
 			FrequencyValue value = entry.getValue();
 			

@@ -99,11 +99,12 @@ public class Client {
 				// TODO Auto-generated method stub
 				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == 10);
 			}});
-		Arrays.sort(versions, new Comparator(){
+		Arrays.sort(versions, new Comparator<File>(){
+
 			@Override
-			public int compare(Object arg0, Object arg1) {
+			public int compare(File arg0, File arg1) {
 				// TODO Auto-generated method stub
-				return new Integer(Integer.parseInt(((File) arg0).getName().substring(1))).compareTo(new Integer(Integer.parseInt(((File) arg1).getName().substring(1))));
+				return new Integer(Integer.parseInt(arg0.getName().substring(1))).compareTo(new Integer(Integer.parseInt(arg1.getName().substring(1))));
 			}});
 		List<String> versionsList = new ArrayList<String>();
 		for(File version: versions){
@@ -157,11 +158,12 @@ public class Client {
 				// TODO Auto-generated method stub
 				return Pattern.matches("v[0-9]*", name);
 			}});
-		Arrays.sort(versions, new Comparator(){
+		Arrays.sort(versions, new Comparator<File>(){
+
 			@Override
-			public int compare(Object arg0, Object arg1) {
+			public int compare(File o1, File o2) {
 				// TODO Auto-generated method stub
-				return new Integer(Integer.parseInt(((File) arg0).getName().substring(1))).compareTo(new Integer(Integer.parseInt(((File) arg1).getName().substring(1))));
+				return new Integer(Integer.parseInt(o1.getName().substring(1))).compareTo(new Integer(Integer.parseInt(o2.getName().substring(1))));
 			}});
 		
 		for(File version: versions){
@@ -171,11 +173,12 @@ public class Client {
 					// TODO Auto-generated method stub
 					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 11);
 				}});
-			Arrays.sort(subversions, new Comparator(){
+			Arrays.sort(subversions, new Comparator<File>(){
+
 				@Override
-				public int compare(Object arg0, Object arg1) {
+				public int compare(File o1, File o2) {
 					// TODO Auto-generated method stub
-					return new Integer(Integer.parseInt(((File) arg0).getName().substring(4))).compareTo(new Integer(Integer.parseInt(((File) arg1).getName().substring(4))));
+					return new Integer(Integer.parseInt(o1.getName().substring(4))).compareTo(new Integer(Integer.parseInt(o2.getName().substring(4))));
 				}});
 			
 			for(File subversion: subversions){
@@ -223,23 +226,22 @@ public class Client {
 	
 	private void printFinalResults(PrintWriter cWriter) {
 		// TODO Auto-generated method stub
-		List rList = new ArrayList(results.entrySet());
-		Collections.sort(rList, new Comparator(){
-
-			@Override
-			public int compare(Object arg0, Object arg1) {
-				// TODO Auto-generated method stub
-				Entry<String, double[][][][]> entry0 = (Entry<String, double[][][][]>) arg0,
-						entry1 = (Entry<String, double[][][][]>) arg1;
-				double d0 = getSortValue(entry0),
-						d1 = getSortValue(entry1);
-				return new Double(d0).compareTo(new Double(d1));
-			}
+		List<Map.Entry<String, double[][][][]>> rList = new ArrayList<Map.Entry<String, double[][][][]>>(results.entrySet());
+		Collections.sort(rList, new Comparator<Map.Entry<String, double[][][][]>>(){
 
 			private double getSortValue(Entry<String, double[][][][]> entry) {
 				// TODO Auto-generated method stub
 				double[][][][] array = entry.getValue();
 				return array[4][1][1][0];
+			}
+
+			@Override
+			public int compare(Entry<String, double[][][][]> o1,
+					Entry<String, double[][][][]> o2) {
+				// TODO Auto-generated method stub
+				double d0 = getSortValue(o1),
+						d1 = getSortValue(o2);
+				return new Double(d0).compareTo(new Double(d1));
 			}});
 		
 		Set<String> versions = new LinkedHashSet<String>();

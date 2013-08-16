@@ -301,8 +301,8 @@ public class InstrumentationSites {
 		printEachKindSites(this.scalarSites);
 	}
 	private void printEachKindSites(Map sites){
-		for (Iterator iterator = sites.entrySet().iterator(); iterator.hasNext();) {
-			Map.Entry<String, List> entry = (Entry<String, List>) iterator.next();
+		for (Iterator<Map.Entry<String, List<AbstractSite>>> iterator = sites.entrySet().iterator(); iterator.hasNext();) {
+			Map.Entry<String, List<AbstractSite>> entry = iterator.next();
 			System.out.println(entry.getKey() + "\n-------------------------------------------------");
 			List<AbstractSite> list = entry.getValue();
 			for (AbstractSite site : list) {
@@ -369,11 +369,11 @@ public class InstrumentationSites {
 		branchSites.put(unit, sites);
 	}
 
-	private void skip(BufferedReader reader) throws IOException {
-		for (String line = reader.readLine(); line != null
-				&& !line.contains("</sites>"); line = reader.readLine()) {
-		}
-	}
+//	private void skip(BufferedReader reader) throws IOException {
+//		for (String line = reader.readLine(); line != null
+//				&& !line.contains("</sites>"); line = reader.readLine()) {
+//		}
+//	}
 
 	private void readReturns(BufferedReader reader, Map<String, List<ReturnSite>> returnSites, String unit)
 			throws NumberFormatException, IOException {

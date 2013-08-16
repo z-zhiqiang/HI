@@ -1,7 +1,6 @@
 package zuo.processor.functionentry.dataset;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -16,7 +15,7 @@ public class FunctionEntryDataSet {
 	private final Set<Integer>[] dataset;
 	
 	public FunctionEntryDataSet(FunctionEntryProfile[] profiles){
-		Set[] setArrays = new LinkedHashSet[profiles.length];
+		Set<Integer>[] setArrays = new LinkedHashSet[profiles.length];
 		Map<Integer, FunctionEntrySite> map = new LinkedHashMap<Integer, FunctionEntrySite>();
 		
 		for (int i = 0; i < profiles.length; i++) {

@@ -14,7 +14,6 @@ import java.util.Set;
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.processor.PruningProcessor;
-import zuo.processor.functionentry.processor.SelectingProcessor.FrequencyValue;
 import zuo.processor.functionentry.profile.FunctionEntryProfile;
 import zuo.processor.functionentry.profile.FunctionEntryProfileReader;
 import zuo.processor.functionentry.site.FunctionEntrySite;
@@ -24,7 +23,7 @@ public class TwopassFunctionClient {
 	private FunctionEntryProfile[] profiles;
 	final PruningProcessor processor;
 	final SitesInfo sInfo;
-	private List list;
+	private List<Map.Entry<FunctionEntrySite, Integer>> list;
 	
 	public TwopassFunctionClient(File csitesFile, File profilesFolder, File fsitesFile){
 		FunctionEntrySites sites = new FunctionEntrySites(csitesFile);
@@ -43,23 +42,23 @@ public class TwopassFunctionClient {
 
 
 	private void constructEntryList() {
-		List list = new ArrayList(processor.getNegativeFrequencyMap().entrySet());
-		Collections.sort(list, new Comparator(){
+		List<Map.Entry<FunctionEntrySite, Integer>> list = new ArrayList<Map.Entry<FunctionEntrySite, Integer>>(processor.getNegativeFrequencyMap().entrySet());
+		Collections.sort(list, new Comparator<Map.Entry<FunctionEntrySite, Integer>>(){
 
 			@Override
-			public int compare(Object arg0, Object arg1) {
+			public int compare(Map.Entry<FunctionEntrySite, Integer> arg0, Map.Entry<FunctionEntrySite, Integer> arg1) {
 				// TODO Auto-generated method stub
 				return rank(arg0, arg1);
 			}
 
-			private int rank(Object arg0, Object arg1) {
+			private int rank(Map.Entry<FunctionEntrySite, Integer> arg0, Map.Entry<FunctionEntrySite, Integer> arg1) {
 				// TODO Auto-generated method stub
 				int r = 0;
-				r = new Integer(((Map.Entry<FunctionEntrySite, Integer>)arg1).getValue())
-					.compareTo(new Integer(((Map.Entry<FunctionEntrySite, Integer>)arg0).getValue()));
+				r = new Integer(arg1.getValue())
+					.compareTo(new Integer(arg0.getValue()));
 				if(r == 0){
-					String method0 = ((Map.Entry<FunctionEntrySite, FrequencyValue>) arg0).getKey().getFunctionName();
-					String method1 = ((Map.Entry<FunctionEntrySite, FrequencyValue>) arg1).getKey().getFunctionName();
+					String method0 = arg0.getKey().getFunctionName();
+					String method1 = arg1.getKey().getFunctionName();
 					r = new Integer(sInfo.getMap().get(method0).getNumSites())
 						.compareTo(new Integer(sInfo.getMap().get(method1).getNumSites()));
 					if(r == 0){
@@ -111,7 +110,7 @@ public class TwopassFunctionClient {
 		switch(mode){
 		case 0: //only functions f(m)==F and the number of functions selected is less than "percent"
 			for(int i = 0, j = 0; i < list.size(); i++){
-				Entry<FunctionEntrySite, Integer> entry = (Entry<FunctionEntrySite, Integer>) list.get(i);
+				Entry<FunctionEntrySite, Integer> entry = list.get(i);
 				if(entry.getValue() >= processor.getTotalNegative() && j < list.size() * percent){
 					functionSet.add(entry.getKey().getFunctionName());
 					j++;
