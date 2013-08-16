@@ -82,9 +82,7 @@ public class CBIClient {
 	}
 
 	public static void main(String[] args) {
-//		CBIClient client = new CBIClient(363, 10, new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/sed/versions/v2/subv1/v2_subv1_f.sites"), 
-//				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/sed/traces/v2/subv1/fine-grained/", 
-//				"/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/m3.out");
+		
 	}
 	
 	private void run(PrintWriter writer, PredicateProfile[] profiles){
@@ -98,7 +96,7 @@ public class CBIClient {
 		sortingPreditorsList(this.sortedPredictors, p.getPredictorsList());
 		
 		//print out top-k predictors information
-		printTopKPredictors(this.sortedPredictors, this.k, writer);
+		printTopK(this.sortedPredictors, this.k, writer);
 	}
 
 	private void printSelectedPredicateProfilesInformation(PrintWriter writer, PredicateProfile[] profiles) {
@@ -187,7 +185,17 @@ public class CBIClient {
 		}
 	}
 
-	public static void printTopKPredictors(TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k, PrintWriter writer){
+	public static void printTopK(TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k, PrintWriter writer){
+//		printTopKPredictors(sortedPredictors, k, writer);
+		printTopKImportances(sortedPredictors, k, writer);
+	}
+
+	/**print out the top k predictors
+	 * @param sortedPredictors
+	 * @param k
+	 * @param writer
+	 */
+	private static void printTopKPredictors(TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k, PrintWriter writer){
 		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
 		int i = 1, j = 0;
 		for(Iterator<Double> it = sortedPredictors.descendingKeySet().iterator(); it.hasNext();){
@@ -204,11 +212,38 @@ public class CBIClient {
 				}
 				j += set.size();
 			}
+			else{
+				break;
+			}
 			
 		}
 		writer.println("\n");
 	}
-
+	
+	/**print out the predictors with the top k importance values
+	 * @param sortedPredictors
+	 * @param k
+	 * @param writer
+	 */
+	private static void printTopKImportances(TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k, PrintWriter writer){
+		writer.println("The predictors with top " + k + " Importance values are as follows:\n==============================================================");
+		int i = 1;
+		for(Iterator<Double> it = sortedPredictors.descendingKeySet().iterator(); it.hasNext();){
+			double im = it.next();
+			if(i <= k){
+				writer.println("(" + (i++) + "): " + im);
+				for(PredicateItem item: sortedPredictors.get(im)){
+					writer.println(item.toString());
+					writer.println();
+				}
+			}
+			else{
+				break;
+			}
+			
+		}
+		writer.println("\n");
+	}
 	
 
 	public TreeMap<Double, SortedSet<PredicateItem>> getSortedPredictors() {

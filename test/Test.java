@@ -1,6 +1,7 @@
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -51,6 +52,15 @@ public class Test {
 		tMap.put(3, "3");
 		System.out.println(tMap);
 		System.out.println(tMap.lastKey());
+		
+		Set<String> lSet = new LinkedHashSet<String>();
+		lSet.add("1");
+		lSet.add("2");
+		lSet.add("3");
+		lSet.add("1");
+		lSet.add("3");
+		System.out.println(lSet);
+			
 		
 	}
 }

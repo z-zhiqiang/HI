@@ -9,8 +9,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -88,9 +88,13 @@ public class IterativeFunctionClient {
 	}
 	
 	
-	private String getTargetFunction(CBIClient fullICBIClient) {
+	/**get the target function within which the top predictor is.
+	 * @param fullICBIClient
+	 * @return
+	 */
+	public static String getTargetFunction(CBIClient fullICBIClient) {
 		// TODO Auto-generated method stub
-		Set<String> functionSet = new HashSet<String>();
+		Set<String> functionSet = new LinkedHashSet<String>();
 		for(PredicateItem item: fullICBIClient.getSortedPredictors().lastEntry().getValue()){
 			functionSet.add(item.getPredicateSite().getSite().getFunctionName());
 		}
@@ -101,21 +105,20 @@ public class IterativeFunctionClient {
 		return getOneFunction(functionSet);
 	}
 
-
-	private String getOneFunction(Set<String> functionSet) {
+	private static String getOneFunction(Set<String> functionSet) {
 		// TODO Auto-generated method stub
 		Iterator<String> it = functionSet.iterator();
 		String function = it.next();
-		while(it.hasNext()){
-			String fun = it.next();
-			if(this.sInfo.getMap().get(fun).getNumSites() < this.sInfo.getMap().get(function).getNumSites()){
-				function = fun;
-			}
-			else if(this.sInfo.getMap().get(fun).getNumSites() == this.sInfo.getMap().get(function).getNumSites() 
-					&& this.sInfo.getMap().get(fun).getNumPredicates() < this.sInfo.getMap().get(function).getNumPredicates()){
-				function = fun;
-			}
-		}
+//		while(it.hasNext()){
+//			String fun = it.next();
+//			if(this.sInfo.getMap().get(fun).getNumSites() < this.sInfo.getMap().get(function).getNumSites()){
+//				function = fun;
+//			}
+//			else if(this.sInfo.getMap().get(fun).getNumSites() == this.sInfo.getMap().get(function).getNumSites() 
+//					&& this.sInfo.getMap().get(fun).getNumPredicates() < this.sInfo.getMap().get(function).getNumPredicates()){
+//				function = fun;
+//			}
+//		}
 		return function;
 	}
 
@@ -159,7 +162,6 @@ public class IterativeFunctionClient {
 				printEntryAndPercentage(processor.getFrequencyMap(), score, order, bc, writer, clientWriter);
 			}
 			printPruningCase(processor.getFrequencyMap(), score, bc, writer, clientWriter);
-//			writer.println();
 		}
 	}
 
@@ -230,7 +232,7 @@ public class IterativeFunctionClient {
 				nPredicates += sInfo.getMap().get(function).getNumPredicates();
 				
 				CBIClients.appendPredictors(this.sortedPrunedPredictors, clientsMap.get(function).getSortedPredictors());
-				double im = getKthImportance(this.sortedPrunedPredictors, Client.k);
+				double im = getKth(this.sortedPrunedPredictors, Client.k);
 				if(im > threshold){
 					threshold = im;
 				}
@@ -263,22 +265,53 @@ public class IterativeFunctionClient {
 		pResult[score.ordinal()][3] = as;
 		pResult[score.ordinal()][4] = ap;
 	}
+	
+	private double getKth(TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors, int k){
+//		return getKthPredictor(sortedPrunedPredictors, k);
+		return getKthImportance(sortedPrunedPredictors, k);
+	}
 
-	private double getKthImportance(TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors, int k) {
+	/**get the kth predictor's importance value
+	 * @param sortedPrunedPredictors
+	 * @param k
+	 * @return
+	 */
+	private double getKthPredictor(TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors, int k) {
 		// TODO Auto-generated method stub
-		int j = 0;
+		int j = 1;
+		double pim, im = 0;
 		for(Iterator<Double> it = sortedPrunedPredictors.descendingKeySet().iterator(); it.hasNext();){
-			double im = it.next();
+			pim = im;
+			im = it.next();
 			if(j < k){
 				j += sortedPrunedPredictors.get(im).size();
 			}
-			else{
+			else if(j == k){
 				return im;
+			}
+			else{
+				return pim;
 			}
 		}
 		return 0;
 	}
 
+	/**get the kth importance value
+	 * @param sortedPrunedPredictors
+	 * @param k
+	 * @return
+	 */
+	private double getKthImportance(TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors, int k){
+		int j = 1;
+		for(Iterator<Double> it = sortedPrunedPredictors.descendingKeySet().iterator(); it.hasNext(); j++){
+			double im = it.next();
+			if(j == k){
+				return im;
+			}
+		}
+		return 0;
+	}
+	
 
 	private void printPruningInfo(final Score score, PrintWriter writer,
 			int i, int nSites, int nPredicates, double sp, double pp, double as, double ap) {
@@ -293,7 +326,7 @@ public class IterativeFunctionClient {
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 		writer.println();
-		CBIClient.printTopKPredictors(sortedPrunedPredictors, Client.k, writer);
+		CBIClient.printTopK(sortedPrunedPredictors, Client.k, writer);
 	}
 
 

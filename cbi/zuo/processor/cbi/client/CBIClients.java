@@ -17,11 +17,11 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 
 import zuo.processor.cbi.processor.PredicateItem;
-import zuo.processor.cbi.processor.PredicateItemWithImportance;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.client.iterative.Client;
+import zuo.processor.functionentry.client.iterative.IterativeFunctionClient;
 
 public class CBIClients {
 	public static final double percent = 1.0;
@@ -100,10 +100,18 @@ public class CBIClients {
 			
 			appendPredictors(fullSortedPredictors, pc.getSortedPredictors());
 		}
+		
+		//confirm that iterative instrumentation gets the same top predictors as the full instrumentation
+		assert(fullInstrumentedCBIClient.getSortedPredictors().lastEntry().getValue()
+				.equals(clientsMap.get(IterativeFunctionClient.getTargetFunction(fullInstrumentedCBIClient)).getSortedPredictors().lastEntry().getValue()));
+		
+		//print out the global predictors derived from multiple iterations
 		writer.println("\n");
 		writer.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FULLY INSTRUMENTED FROM MULTIPLE ITERATIONS");
 		writer.println();
-		CBIClient.printTopKPredictors(fullSortedPredictors, Client.fKF, writer);
+		CBIClient.printTopK(fullSortedPredictors, Client.fKF, writer);
+		
+		
 		
 	}
 

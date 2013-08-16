@@ -29,7 +29,7 @@ public class Client {
 	public final static int fK = 10;
 	public final static int iK = 3;
 	public final static int fKF = 10;
-	public final static int k = 3;
+	public final static int k = 1;
 	
 	final File rootDir;
 	final String subject;
@@ -406,12 +406,12 @@ public class Client {
 //		}
 
 		Client cc;
-		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip_____" + CBIClients.percent + "/"));
-		cc.computeSirResults();
-//		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed____" + CBIClients.percent + "/"));
+//		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip_________" + CBIClients.percent + "/"));
 //		cc.computeSirResults();
-//		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "grep", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/grep/"));
-//		cc.computeSirResults();	
+//		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed_______" + CBIClients.percent + "/"));
+//		cc.computeSirResults();
+		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "grep", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/grep________" + CBIClients.percent + "/"));
+		cc.computeSirResults();	
 //		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "space", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/space/"));
 //		cc.computeSiemensResults();	
 //		for(int i = 4; i < argvs.length; i++){
