@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import zuo.processor.genscript.client.iterative.GenSiemensScriptsClient;
 import zuo.processor.genscript.client.iterative.GenSirScriptClient;
 import zuo.util.file.FileUtility;
 

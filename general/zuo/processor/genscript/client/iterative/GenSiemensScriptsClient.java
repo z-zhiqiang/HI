@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import zuo.processor.functionentry.client.iterative.Client;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
 import zuo.processor.genscript.siemens.iterative.AbstractGenRunAllScript;
 import zuo.processor.genscript.siemens.iterative.AbstractGenRunScript;

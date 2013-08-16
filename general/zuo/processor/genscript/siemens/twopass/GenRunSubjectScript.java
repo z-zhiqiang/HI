@@ -1,7 +1,6 @@
 package zuo.processor.genscript.siemens.twopass;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Iterator;
 
 
@@ -21,8 +20,8 @@ public class GenRunSubjectScript extends AbstractGenRunScript {
 		code.append("export SUBJECTDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
 		
-		for (Iterator it = inputsMap.keySet().iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = inputsMap.keySet().iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("$SUBJECTDIR/" + subject + ".exe ");//executables
 			code.append(inputsMap.get(index));//parameters

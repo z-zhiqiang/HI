@@ -128,18 +128,6 @@ public class Client {
 			pResults.put(vi, client.getpResult());
 			cResults.put(vi, client.getcResult());
 			
-//			for (int i = 0; i < results.get(vi).length; i++) {
-//				for (int j = 0; j < results.get(vi)[i].length; j++) {
-//					for (int p = 0; p < results.get(vi)[i][j].length; p++) {
-//						for (int q = 0; q < results.get(vi)[i][j][p].length; q++) {
-//							System.out.print(String.format("%-25s", results.get(vi)[i][j][p][q]));
-//						}
-//					}
-//					System.out.println();
-//				}
-//				System.out.println();
-//			}
-			
 			System.out.println();
 			cWriter.println();	
 		}
@@ -200,18 +188,6 @@ public class Client {
 				results.put(vi, client.getResult());
 				pResults.put(vi, client.getpResult());
 				cResults.put(vi, client.getcResult());
-				
-//				for (int i = 0; i < results.get(vi).length; i++) {
-//					for (int j = 0; j < results.get(vi)[i].length; j++) {
-//						for (int p = 0; p < results.get(vi)[i][j].length; p++) {
-//							for (int q = 0; q < results.get(vi)[i][j][p].length; q++) {
-//								System.out.print(String.format("%-25s", results.get(vi)[i][j][p][q]));
-//							}
-//						}
-//						System.out.println();
-//					}
-//					System.out.println();
-//				}
 				
 				System.out.println();
 				cWriter.println();	
@@ -408,18 +384,18 @@ public class Client {
 //		}
 
 		Client cc;
-//		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip_________" + CBIClients.percent + "/"));
-//		cc.computeSirResults();
-//		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed_______" + CBIClients.percent + "/"));
-//		cc.computeSirResults();
-		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "grep", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/grep________" + CBIClients.percent + "/"));
+		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip____________" + CBIClients.percent + "/"));
+		cc.computeSirResults();
+		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed____________" + CBIClients.percent + "/"));
+		cc.computeSirResults();
+		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "grep", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/grep____________" + CBIClients.percent + "/"));
 		cc.computeSirResults();	
-//		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "space", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/space/"));
-//		cc.computeSiemensResults();	
-//		for(int i = 4; i < argvs.length; i++){
-//			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/Siemens/"), argvs[i][1], new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/Siemens/" + argvs[i][1] + "/"));
-//			cc.computeSiemensResults();
-//		}
+		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "space", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/space____________" + CBIClients.percent + "/"));
+		cc.computeSiemensResults();	
+		for(int i = 4; i < argvs.length; i++){
+			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/Siemens/"), argvs[i][1], new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/Siemens____________" + CBIClients.percent + "/" + argvs[i][1] + "/"));
+			cc.computeSiemensResults();
+		}
 	}
 	
 }

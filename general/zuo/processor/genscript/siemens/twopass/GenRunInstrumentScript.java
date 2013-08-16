@@ -1,7 +1,5 @@
 package zuo.processor.genscript.siemens.twopass;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public interface GenRunInstrumentScript {
 	final static String instrumentInfo = "echo \">>>>>>> instrumenting file ";

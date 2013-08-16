@@ -10,17 +10,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import sir.mts.MakeTestScript;
 import zuo.processor.genscript.sir.twopass.AbstractGenRunAllScript;
 import zuo.processor.genscript.sir.twopass.AbstractGenRunScript;
 import zuo.processor.genscript.sir.twopass.GenRunAllInstrumentedScript;
-import zuo.processor.genscript.sir.twopass.GenRunAllScript;
 import zuo.processor.genscript.sir.twopass.GenRunCoarseGrainedInstrumentScript;
 import zuo.processor.genscript.sir.twopass.GenRunFineGrainedInstrumentScript;
-import zuo.processor.genscript.sir.twopass.GenRunSubjectScript;
-import zuo.processor.genscript.sir.twopass.GenRunVersionsScript;
 import zuo.processor.splitinputs.SirSplitInputs;
-import zuo.util.file.FileUtility;
 
 public class GenSirScriptClient {
 	public final static String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/";

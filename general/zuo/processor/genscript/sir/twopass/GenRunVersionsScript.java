@@ -1,11 +1,9 @@
 package zuo.processor.genscript.sir.twopass;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Iterator;
 
 import zuo.processor.genscript.client.twopass.GenSirScriptClient;
-import zuo.util.file.FileUtility;
 
 
 public class GenRunVersionsScript extends AbstractGenRunScript {
@@ -26,8 +24,8 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append(startTimeCommand + "\n");
-		for (Iterator it = inputsMap.keySet().iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = inputsMap.keySet().iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + version + ".exe "));//executables
 			code.append("\n");
@@ -38,8 +36,8 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		
 		code.append("rm $VERSIONSDIR/" + GenSirScriptClient.outCompFile + "\n");
 		code.append("echo script: " + subVersion + "\n");
-		for (Iterator it = inputsCompMap.keySet().iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = inputsCompMap.keySet().iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append(inputsCompMap.get(index).replace(EXE, "$VERSIONSDIR/" + version + ".exe ").replace(SUBV, version + "/" + subVersion));//executables
 			code.append("\n");

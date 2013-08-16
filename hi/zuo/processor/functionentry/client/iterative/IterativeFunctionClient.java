@@ -564,7 +564,6 @@ public class IterativeFunctionClient {
 			}
 			else{
 				throw new RuntimeException("filtering error");
-//				writer.println(String.format("%-45s", method) + entry.getValue().toString());
 			}
 		}
 		writer.println();

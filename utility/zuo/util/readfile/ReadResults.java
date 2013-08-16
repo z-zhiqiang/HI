@@ -6,10 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class ReadResults {
@@ -31,11 +29,11 @@ public class ReadResults {
 				// TODO Auto-generated method stub
 				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == 2);
 			}});
-		Arrays.sort(versions, new Comparator(){
+		Arrays.sort(versions, new Comparator<File>(){
 			@Override
-			public int compare(Object arg0, Object arg1) {
+			public int compare(File arg0, File arg1) {
 				// TODO Auto-generated method stub
-				return new Integer(Integer.parseInt(((File) arg0).getName().substring(1))).compareTo(new Integer(Integer.parseInt(((File) arg1).getName().substring(1))));
+				return new Integer(Integer.parseInt(arg0.getName().substring(1))).compareTo(new Integer(Integer.parseInt(arg1.getName().substring(1))));
 			}});
 		
 		for(File version: versions){
@@ -45,11 +43,11 @@ public class ReadResults {
 					// TODO Auto-generated method stub
 					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 8);
 				}});
-			Arrays.sort(subversions, new Comparator(){
+			Arrays.sort(subversions, new Comparator<File>(){
 				@Override
-				public int compare(Object arg0, Object arg1) {
+				public int compare(File arg0, File arg1) {
 					// TODO Auto-generated method stub
-					return new Integer(Integer.parseInt(((File) arg0).getName().substring(4))).compareTo(new Integer(Integer.parseInt(((File) arg1).getName().substring(4))));
+					return new Integer(Integer.parseInt(arg0.getName().substring(4))).compareTo(new Integer(Integer.parseInt(arg1.getName().substring(4))));
 				}});
 			
 			for(File subversion: subversions){
@@ -70,13 +68,12 @@ public class ReadResults {
 				// TODO Auto-generated method stub
 				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == 8);
 			}});
-		Arrays.sort(versions, new Comparator(){
+		Arrays.sort(versions, new Comparator<File>(){
 			@Override
-			public int compare(Object arg0, Object arg1) {
+			public int compare(File arg0, File arg1) {
 				// TODO Auto-generated method stub
-				return new Integer(Integer.parseInt(((File) arg0).getName().substring(1))).compareTo(new Integer(Integer.parseInt(((File) arg1).getName().substring(1))));
+				return new Integer(Integer.parseInt(arg0.getName().substring(1))).compareTo(new Integer(Integer.parseInt(arg1.getName().substring(1))));
 			}});
-		List<String> versionsList = new ArrayList<String>();
 		for(File version: versions){
 			String vi = version.getName();
 			System.out.print(vi + "\t");

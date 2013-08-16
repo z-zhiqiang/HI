@@ -1,7 +1,6 @@
 package zuo.processor.genscript.siemens.twopass;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Iterator;
 
 
@@ -22,8 +21,8 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
 		code.append(startTimeCommand + "\n");
 		
-		for (Iterator it = inputsMap.keySet().iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = inputsMap.keySet().iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("$VERSIONSDIR/" + version + ".exe ");//executables
 			code.append(inputsMap.get(index));//parameters

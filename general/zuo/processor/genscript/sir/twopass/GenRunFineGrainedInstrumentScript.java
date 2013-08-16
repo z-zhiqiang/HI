@@ -31,16 +31,16 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		code.append(startTimeCommand + "\n");
 		
-		for (Iterator it = failingTests.iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
 			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst.exe "));
 			code.append("\n");
 		}
 		
-		for (Iterator it = passingTests.iterator(); it.hasNext();) {
-			int index = (Integer) it.next();
+		for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
+			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
 			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst.exe "));
