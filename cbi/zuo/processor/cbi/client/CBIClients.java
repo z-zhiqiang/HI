@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -102,8 +103,7 @@ public class CBIClients {
 		}
 		
 		//confirm that iterative instrumentation gets the same top predictors as the full instrumentation
-		assert(fullInstrumentedCBIClient.getSortedPredictors().lastEntry().getValue()
-				.equals(clientsMap.get(IterativeFunctionClient.getTargetFunction(fullInstrumentedCBIClient)).getSortedPredictors().lastEntry().getValue()));
+		checkConsistency();
 		
 		//print out the global predictors derived from multiple iterations
 		writer.println("\n");
@@ -114,6 +114,20 @@ public class CBIClients {
 		
 		
 	}
+
+	private void checkConsistency() {
+		// TODO Auto-generated method stub
+		Set<PredicateItem> set = new LinkedHashSet<PredicateItem>();
+		String targetFunction = IterativeFunctionClient.getTargetFunction(fullInstrumentedCBIClient);
+		for(PredicateItem item: fullInstrumentedCBIClient.getSortedPredictors().lastEntry().getValue()){
+			if(item.getPredicateSite().getSite().getFunctionName().equals(targetFunction)){
+				set.add(item);
+			}
+		}
+		
+		assert(set.equals(clientsMap.get(targetFunction).getSortedPredictors().lastEntry().getValue()));
+	}
+
 
 	public static void appendPredictors(TreeMap<Double, SortedSet<PredicateItem>> fullSortedPredictors, TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors) {
 		// TODO Auto-generated method stub

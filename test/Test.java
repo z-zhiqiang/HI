@@ -1,10 +1,12 @@
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -60,6 +62,20 @@ public class Test {
 		lSet.add("1");
 		lSet.add("3");
 		System.out.println(lSet);
+		
+		SortedSet<Integer> tSet = new TreeSet<Integer>();
+		tSet.add(1);
+		tSet.add(4);
+		tSet.add(2);
+		System.out.println(tSet);
+		
+		Set<Integer> hSet = new HashSet<Integer>();
+		hSet.add(2);
+		hSet.add(4);
+		hSet.add(1);
+		System.out.println(hSet);
+		
+		assert(tSet.equals(hSet));
 			
 		
 	}

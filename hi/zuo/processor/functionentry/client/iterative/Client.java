@@ -389,7 +389,7 @@ public class Client {
 		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed____________" + CBIClients.percent + "/"));
 		cc.computeSirResults();
 		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "grep", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/grep____________" + CBIClients.percent + "/"));
-		cc.computeSirResults();	
+		cc.computeSirResults();
 		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "space", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/space____________" + CBIClients.percent + "/"));
 		cc.computeSiemensResults();	
 		for(int i = 4; i < argvs.length; i++){
