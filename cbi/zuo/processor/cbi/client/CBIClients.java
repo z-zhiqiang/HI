@@ -110,11 +110,11 @@ public class CBIClients {
 		writer.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FULLY INSTRUMENTED FROM MULTIPLE ITERATIONS");
 		writer.println();
 		CBIClient.printTopK(fullSortedPredictors, Client.fKF, writer);
-		
-		
-		
 	}
 
+	/**check whether iterative instrumentation gets the same top predictors as the full instrumentation
+	 * 
+	 */
 	private void checkConsistency() {
 		// TODO Auto-generated method stub
 		Set<PredicateItem> set = new LinkedHashSet<PredicateItem>();
