@@ -401,22 +401,27 @@ public class Client {
 //		}
 
 		Client cc;
-		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", 
-				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip_" + Client.percent + "/"));
-		cc.computeSirResults();
-		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", 
-				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed_" + Client.percent + "/"));
-		cc.computeSirResults();
-		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "grep", 
-				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/grep_" + Client.percent + "/"));
-		cc.computeSirResults();
-		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "space", 
-				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/space_" + Client.percent + "/"));
-		cc.computeSiemensResults();	
-		for(int i = 4; i < argvs.length; i++){
-			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/Siemens/"), argvs[i][1], 
-					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/Siemens_" + Client.percent + "/" + argvs[i][1] + "/"));
-			cc.computeSiemensResults();
+		String s = "";
+		for(int j = 1; j < 5; j++){
+			s += "_";
+			
+			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", 
+					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip" + s + Client.percent + "/"));
+			cc.computeSirResults();
+			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", 
+					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed" + s + Client.percent + "/"));
+			cc.computeSirResults();
+			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "grep", 
+					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/grep" + s + Client.percent + "/"));
+			cc.computeSirResults();
+			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "space", 
+					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/space" + s + Client.percent + "/"));
+			cc.computeSiemensResults();	
+			for(int i = 4; i < argvs.length; i++){
+				cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/Siemens/"), argvs[i][1], 
+						new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/Siemens" + s + Client.percent + "/" + argvs[i][1] + "/"));
+				cc.computeSiemensResults();
+			}
 		}
 	}
 	
