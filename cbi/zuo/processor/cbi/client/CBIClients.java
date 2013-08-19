@@ -19,33 +19,33 @@ import java.util.TreeMap;
 
 import zuo.processor.cbi.processor.PredicateItem;
 import zuo.processor.cbi.profile.PredicateProfile;
-import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.client.iterative.Client;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient;
 
 public class CBIClients {
-	public static final double percent = 1.0;
+	private boolean cFlag, zFlag;
 	private final PredicateProfile[] profiles;
 	private List<Integer> failings;
 	private List<Integer> passings;
 	private Set<String> functions;
 	
 	private CBIClient fullInstrumentedCBIClient;
-	private final Map<String, CBIClient> clientsMap;
+	private Map<String, CBIClient> clientsMap;
 	
 
-	public CBIClients(SitesInfo sitesInfo, File profilesFolder, File consoleFile){
-		clientsMap = new HashMap<String, CBIClient>();
-		
-		profiles = new PredicateProfileReader(profilesFolder, sitesInfo.getSites()).readProfiles();
+	public CBIClients(SitesInfo sitesInfo, PredicateProfile[] profiles, File consoleFile){
+		this.profiles = profiles;
 		divideProfiles();
-		functions = Collections.unmodifiableSet(sitesInfo.getMap().keySet());
+		this.functions = Collections.unmodifiableSet(sitesInfo.getMap().keySet());
 
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
 			run(sitesInfo, writer);
+//			do{
+//			}
+//			while(!cFlag || !zFlag);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -85,11 +85,18 @@ public class CBIClients {
 		Set<Integer> fullSamples = buildPartialSamples();
 		fullInstrumentedCBIClient = new CBIClient(Client.fK, profiles, writer, functions, fullSamples);
 		
+		//confirm that there exists predictor with non-zero importance value 
+		checkNonZeroPredictor();
+		if(!zFlag){
+			return;
+		}
+		
 		//iterative CBIClient each for each function
 		Set<String> pFunctions;
 		Set<Integer> pSamples;
 		TreeMap<Double, SortedSet<PredicateItem>> fullSortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
 		
+		clientsMap = new HashMap<String, CBIClient>();
 		for(String function: functions){
 			pFunctions = new HashSet<String>();
 			pFunctions.add(function);
@@ -104,6 +111,9 @@ public class CBIClients {
 		
 		//confirm that iterative instrumentation gets the same top predictors as the full instrumentation
 		checkConsistency();
+		if(!cFlag){
+			return;
+		}
 		
 		//print out the global predictors derived from multiple iterations
 		writer.println("\n");
@@ -112,11 +122,22 @@ public class CBIClients {
 		CBIClient.printTopK(fullSortedPredictors, Client.fKF, writer);
 	}
 
+	private void checkNonZeroPredictor() {
+		// TODO Auto-generated method stub
+		zFlag = true;
+		if(fullInstrumentedCBIClient.getSortedPredictors().lastKey() == 0){
+			zFlag = false;
+			return;
+		}
+	}
+
+
 	/**check whether iterative instrumentation gets the same top predictors as the full instrumentation
 	 * 
 	 */
 	private void checkConsistency() {
 		// TODO Auto-generated method stub
+		cFlag = true;
 		Set<PredicateItem> set = new LinkedHashSet<PredicateItem>();
 		String targetFunction = IterativeFunctionClient.getTargetFunction(fullInstrumentedCBIClient);
 		for(PredicateItem item: fullInstrumentedCBIClient.getSortedPredictors().lastEntry().getValue()){
@@ -124,8 +145,14 @@ public class CBIClients {
 				set.add(item);
 			}
 		}
-		
-		assert(set.equals(clientsMap.get(targetFunction).getSortedPredictors().lastEntry().getValue()));
+		SortedSet<PredicateItem> sSet = clientsMap.get(targetFunction).getSortedPredictors().lastEntry().getValue();
+		if(!set.equals(sSet)){
+			System.out.println("Consistency Error");
+			System.out.println("Full: \t" + set.toString());
+			System.out.println("Iterative: \t" + sSet.toString());
+			cFlag = false;
+			return;
+		}
 	}
 
 
@@ -160,14 +187,14 @@ public class CBIClients {
 		Set<Integer> partialSamples = new HashSet<Integer>();
 		
 		Random randomFGenerator = new Random();
-		int fs = (int) (failings.size() * percent);
+		int fs = (int) (failings.size() * Client.percent);
 		for(; partialSamples.size() < (fs > 2 ? fs : 2);){
 			int fSample = randomFGenerator.nextInt(failings.size());
 			partialSamples.add(failings.get(fSample));
 		}
 		
 		Random randomPGenerator = new Random();
-		int ps = (int) (passings.size() * percent);
+		int ps = (int) (passings.size() * Client.percent);
 		for(; partialSamples.size() < ps + (fs > 2 ? fs : 2);){
 			int pSample = randomPGenerator.nextInt(passings.size());
 			partialSamples.add(passings.get(pSample));
@@ -203,6 +230,16 @@ public class CBIClients {
 	public CBIClient getFullInstrumentedCBIClient() {
 		return fullInstrumentedCBIClient;
 	}
-	
+
+
+	public boolean iscFlag() {
+		return cFlag;
+	}
+
+
+	public boolean iszFlag() {
+		return zFlag;
+	}
+
 	
 }

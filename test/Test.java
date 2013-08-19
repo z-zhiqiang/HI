@@ -76,6 +76,10 @@ public class Test {
 		System.out.println(hSet);
 		
 		assert(tSet.equals(hSet));
+		
+		double d1 = 0;
+		double d2 = 3.335557038025388E-4;
+		System.out.println(d2 <= d1);
 			
 		
 	}

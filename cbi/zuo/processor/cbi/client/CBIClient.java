@@ -32,7 +32,7 @@ public class CBIClient {
 		this.k = k;
 		this.functions = functions;
 		this.samples = samples;
-		assert(samples.size() == (int) (profiles.length * CBIClients.percent) || samples.size() == profiles.length);
+//		assert(samples.size() == (int) (profiles.length * CBIClients.percent) || samples.size() == profiles.length);
 		this.selectedPredicateProfiles = constructSelectedPredicateProfiles(profiles);
 		
 		this.sortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
@@ -230,6 +230,9 @@ public class CBIClient {
 		int i = 1;
 		for(Iterator<Double> it = sortedPredictors.descendingKeySet().iterator(); it.hasNext();){
 			double im = it.next();
+			if(im == 0){
+				break;
+			}
 			if(i <= k){
 				writer.println("(" + (i++) + "): " + im);
 				for(PredicateItem item: sortedPredictors.get(im)){

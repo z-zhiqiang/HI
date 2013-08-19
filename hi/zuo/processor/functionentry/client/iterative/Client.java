@@ -20,16 +20,19 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import zuo.processor.cbi.client.CBIClients;
+import zuo.processor.cbi.profile.PredicateProfile;
+import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Order;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
 
 public class Client {
-	public final static int fK = 10;
+	public final static int fK = 5;
 	public final static int iK = 3;
-	public final static int fKF = 10;
-	public final static int k = 1;
+	public final static int fKF = 5;
+	public final static int k = 3;
+	public static final double percent = 0.3;
 	
 	final File rootDir;
 	final String subject;
@@ -113,9 +116,10 @@ public class Client {
 			System.out.println(vi);
 			cWriter.println(vi);
 			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version, vi + "_f.sites")));
+			PredicateProfile[] profiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), sInfo.getSites()).readProfiles();
+
 			
-			CBIClients cs = new CBIClients(sInfo, new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
-			
+			CBIClients cs = new CBIClients(sInfo, profiles, new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
 			IterativeFunctionClient client = new IterativeFunctionClient(new File(version, vi + "_c.sites"), 
 					new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), 
 					new File(consoleFolder, subject + "_" + vi + "_function.out"), 
@@ -124,6 +128,7 @@ public class Client {
 					cs.getClientsMap(), 
 					cWriter, 
 					new File(version, "adaptive"));
+			
 			results.put(vi, client.getResult());
 			pResults.put(vi, client.getpResult());
 			cResults.put(vi, client.getcResult());
@@ -175,16 +180,27 @@ public class Client {
 				System.out.println(vi);
 				cWriter.println(vi);
 				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion, vi + "_f.sites")));
+				PredicateProfile[] profiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), sInfo.getSites()).readProfiles();
 				
-				CBIClients cs = new CBIClients(sInfo, new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
-				IterativeFunctionClient client = new IterativeFunctionClient(new File(subversion, vi + "_c.sites"), 
-						new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), 
-						new File(consoleFolder, subject + "_" + vi + "_function.out"), 
-						sInfo, 
-						cs.getFullInstrumentedCBIClient(), 
-						cs.getClientsMap(), 
-						cWriter, 
-						new File(subversion, "adaptive"));
+				CBIClients cs = null;
+				IterativeFunctionClient client = null;
+				do{
+					do {
+						cs = new CBIClients(sInfo, profiles, new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
+					} 
+					while (!cs.iscFlag() || !cs.iszFlag());
+					client = new IterativeFunctionClient(new File(subversion, vi + "_c.sites"), 
+							new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), 
+							new File(consoleFolder, subject + "_" + vi + "_function.out"), 
+							sInfo, 
+							cs.getFullInstrumentedCBIClient(), 
+							cs.getClientsMap(), 
+							cWriter, 
+							new File(subversion, "adaptive"));
+					
+				}
+				while(!client.ispFlag());
+				
 				results.put(vi, client.getResult());
 				pResults.put(vi, client.getpResult());
 				cResults.put(vi, client.getcResult());
@@ -208,7 +224,7 @@ public class Client {
 			private double getSortValue(Entry<String, double[][][][]> entry) {
 				// TODO Auto-generated method stub
 				double[][][][] array = entry.getValue();
-				return array[4][1][1][0];
+				return array[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][1][0];
 			}
 
 			@Override
@@ -225,7 +241,7 @@ public class Client {
 		double[][] pResult = new double[Score.values().length][5];
 		int[] cResult = new int[3];
 		for(int i = 0; i < rList.size(); i++){
-			Entry<String, double[][][][]> entry = (Entry<String, double[][][][]>) rList.get(i);
+			Entry<String, double[][][][]> entry = rList.get(i);
 			versions.add(entry.getKey());
 			assert(i + 1 == versions.size());
 			accumulateResult(result, entry.getValue());
@@ -306,6 +322,7 @@ public class Client {
 						);
 				cWriter.println();
 			}
+			
 			System.out.println("==============================================================");
 			System.out.println("The prune case by <" + Score.values()[m] + ">:\t\t"
 							+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(pResult[m][0] / versions.size()))
@@ -384,16 +401,21 @@ public class Client {
 //		}
 
 		Client cc;
-		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip____________" + CBIClients.percent + "/"));
+		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", 
+				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip_" + Client.percent + "/"));
 		cc.computeSirResults();
-		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed____________" + CBIClients.percent + "/"));
+		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", 
+				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed_" + Client.percent + "/"));
 		cc.computeSirResults();
-		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "grep", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/grep____________" + CBIClients.percent + "/"));
+		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "grep", 
+				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/grep_" + Client.percent + "/"));
 		cc.computeSirResults();
-		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "space", new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/space____________" + CBIClients.percent + "/"));
+		cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "space", 
+				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/space_" + Client.percent + "/"));
 		cc.computeSiemensResults();	
 		for(int i = 4; i < argvs.length; i++){
-			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/Siemens/"), argvs[i][1], new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/Siemens____________" + CBIClients.percent + "/" + argvs[i][1] + "/"));
+			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/Siemens/"), argvs[i][1], 
+					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/Siemens_" + Client.percent + "/" + argvs[i][1] + "/"));
 			cc.computeSiemensResults();
 		}
 	}

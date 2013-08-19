@@ -32,8 +32,11 @@ import zuo.processor.functionentry.site.FunctionEntrySite;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class IterativeFunctionClient {
+	private boolean pFlag;
 	public static enum Score{
-		RANDOM, NEGATIVE, H_1, F_1, H_2, //PRECISION, POSITIVE
+//		RANDOM, 
+		NEGATIVE, H_1, F_1, H_2, 
+//		PRECISION, POSITIVE
 	}
 	
 	public static enum Order{
@@ -50,12 +53,13 @@ public class IterativeFunctionClient {
 	final Map<String, CBIClient> clientsMap;
 	
 	final double[][][][] result;
-	final double [][] pResult;
-	final int [] cResult;//{methods, sites, predicates}
+	final double[][] pResult;
+	final int[] cResult;//{methods, sites, predicates}
 	
 	final File methodsFileDir;
 	
 	public IterativeFunctionClient(File sitesFile, File profilesFolder, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map, PrintWriter clientWriter, File methodsF) {
+		this.pFlag = true;
 		this.sites = new FunctionEntrySites(sitesFile);
 		FunctionEntryProfile[] profiles = new FunctionEntryProfileReader(profilesFolder, sites).readFunctionEntryProfiles();
 		this.sInfo = sInfo;
@@ -160,6 +164,9 @@ public class IterativeFunctionClient {
 			BoundCalculator bc = new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive());
 			for(Order order: Order.values()){
 				printEntryAndPercentage(processor.getFrequencyMap(), score, order, bc, writer, clientWriter);
+				if(!pFlag){
+					return;
+				}
 			}
 			printPruningCase(processor.getFrequencyMap(), score, bc, writer, clientWriter);
 		}
@@ -222,7 +229,7 @@ public class IterativeFunctionClient {
 		double as = 0, ap = 0;
 		
 		for(int j = 0; j < list.size(); j++){
-			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(j);
+			Entry<FunctionEntrySite, FrequencyValue> entry = list.get(j);
 			String function = entry.getKey().getFunctionName();
 			FrequencyValue value = entry.getValue();
 			
@@ -234,6 +241,12 @@ public class IterativeFunctionClient {
 				
 				CBIClients.appendPredictors(this.sortedPrunedPredictors, clientsMap.get(function).getSortedPredictors());
 				double im = getKth(this.sortedPrunedPredictors, Client.k);
+//				if(im <= 0){
+//					System.out.println(this.sortedPrunedPredictors.toString());
+//					System.out.println(im);
+//					System.out.println();
+//					throw new RuntimeException("Incorrect Kth Importance Value");
+//				}
 				if(im > threshold){
 					threshold = im;
 				}
@@ -284,6 +297,9 @@ public class IterativeFunctionClient {
 		for(Iterator<Double> it = sortedPrunedPredictors.descendingKeySet().iterator(); it.hasNext();){
 			pim = im;
 			im = it.next();
+			if(im == 0){
+				return pim;
+			}
 			if(j < k){
 				j += sortedPrunedPredictors.get(im).size();
 			}
@@ -304,8 +320,13 @@ public class IterativeFunctionClient {
 	 */
 	private double getKthImportance(TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors, int k){
 		int j = 1;
+		double pim, im = 0;
 		for(Iterator<Double> it = sortedPrunedPredictors.descendingKeySet().iterator(); it.hasNext(); j++){
-			double im = it.next();
+			pim = im;
+			im = it.next();
+			if(im == 0){
+				return pim;
+			}
 			if(j == k){
 				return im;
 			}
@@ -360,46 +381,46 @@ public class IterativeFunctionClient {
 //		getMethodsList(list, score, order);
 	}
 		
-	/**get the list of methods to be instrumented
-	 * @param list
-	 * @param score
-	 * @param order
-	 */
-	private void getMethodsList(List<Entry<FunctionEntrySite, FrequencyValue>> list, Score score, Order order){	
-		//get the methods list to be instrumented
-		List<String> methods = new ArrayList<String>();
-		
-		if(order == Order.LESS_FIRST){
-			for(int i = 0; i < list.size(); i++){
-				Entry<FunctionEntrySite, FrequencyValue> entry = list.get(i);
-				String method = entry.getKey().getFunctionName();
-				methods.add(method);
-				if(this.targetFunction.equals(method)){
-					break;
-				}
-			}
-			
-			PrintWriter out = null;
-			try{
-				if (!methodsFileDir.exists()) {
-					methodsFileDir.mkdirs();
-				}
-				//write the passing inputs
-				out = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.methodsFileDir, String.valueOf(score)))));
-				for(String method: methods){
-					out.println(method);
-				}
-				out.close();
-				
-			}
-			catch(IOException e){
-				e.printStackTrace();
-			}
-			finally{
-				out.close();
-			}
-		}
-	}
+//	/**get the list of methods to be instrumented
+//	 * @param list
+//	 * @param score
+//	 * @param order
+//	 */
+//	private void getMethodsList(List<Entry<FunctionEntrySite, FrequencyValue>> list, Score score, Order order){	
+//		//get the methods list to be instrumented
+//		List<String> methods = new ArrayList<String>();
+//		
+//		if(order == Order.LESS_FIRST){
+//			for(int i = 0; i < list.size(); i++){
+//				Entry<FunctionEntrySite, FrequencyValue> entry = list.get(i);
+//				String method = entry.getKey().getFunctionName();
+//				methods.add(method);
+//				if(this.targetFunction.equals(method)){
+//					break;
+//				}
+//			}
+//			
+//			PrintWriter out = null;
+//			try{
+//				if (!methodsFileDir.exists()) {
+//					methodsFileDir.mkdirs();
+//				}
+//				//write the passing inputs
+//				out = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.methodsFileDir, String.valueOf(score)))));
+//				for(String method: methods){
+//					out.println(method);
+//				}
+//				out.close();
+//				
+//			}
+//			catch(IOException e){
+//				e.printStackTrace();
+//			}
+//			finally{
+//				out.close();
+//			}
+//		}
+//	}
 
 	/**rank the methods in the mode <score,order>
 	 * @param arg0
@@ -412,8 +433,8 @@ public class IterativeFunctionClient {
 		// TODO Auto-generated method stub
 		int r = 0;
 		switch (score){
-		case RANDOM:
-			break;
+//		case RANDOM:
+//			break;
 		case NEGATIVE:
 			r = new Integer(arg1.getValue().getNegative()).compareTo(new Integer(arg0.getValue().getNegative()));
 			if(r == 0){
@@ -635,7 +656,13 @@ public class IterativeFunctionClient {
 				
 				
 				//---------------------------------------------------------------------------------------------------------------------//
-				assert(skip(score, bc, threshold, value) == false);
+//				assert(skip(score, bc, threshold, value) == false);
+				if(skip(score, bc, threshold, value)){
+					System.out.println("Incorrect Pruning");
+					pFlag = false;
+					return;
+				}
+				
 				i++;
 				nSites += sInfo.getMap().get(method).getNumSites();
 				nPredicates += sInfo.getMap().get(method).getNumPredicates();
@@ -752,11 +779,11 @@ public class IterativeFunctionClient {
 //			}
 //			break;
 //		case POSITIVE:
-		case RANDOM:
-//			if(value.getNegative() < 2){
-//				return true;
-//			}
-			return false;
+//		case RANDOM:
+////			if(value.getNegative() < 2){
+////				return true;
+////			}
+//			return false;
 		default:
 			System.err.println("score error");
 			System.exit(0);
@@ -780,6 +807,10 @@ public class IterativeFunctionClient {
 
 	public int[] getcResult() {
 		return cResult;
+	}
+
+	public boolean ispFlag() {
+		return pFlag;
 	}
 	
 
