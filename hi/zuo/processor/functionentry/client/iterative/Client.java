@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +31,8 @@ import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Scor
 public class Client {
 	public final static int fK = 5;
 	public final static int iK = 3;
-	public final static int fKF = 5;
-	public final static int k = 3;
+	public final static int fKM = 5;
+	public final static int k = 1;
 	public static final double percent = 0.3;
 	
 	final File rootDir;
@@ -42,6 +43,11 @@ public class Client {
 	final Map<String, double[][]> pResults;
 	final Map<String, int[]> cResults;
 	
+	final Set<String> zeroError;
+	final Set<String> inconsistency;
+	final Set<String> pruneError;
+	final Set<String> pruneInconsistency;
+	
 	public Client(File rootDir, String subject, File consoleFolder) {
 		this.rootDir = rootDir;
 		this.subject = subject;
@@ -49,6 +55,11 @@ public class Client {
 		this.results = new HashMap<String, double[][][][]>();
 		this.pResults = new HashMap<String, double[][]>();
 		this.cResults = new HashMap<String, int[]>();
+		
+		this.zeroError = new LinkedHashSet<String>();
+		this.inconsistency = new LinkedHashSet<String>();
+		this.pruneError = new LinkedHashSet<String>();
+		this.pruneInconsistency = new LinkedHashSet<String>();
 	}
 
 	/**
@@ -118,16 +129,39 @@ public class Client {
 			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version, vi + "_f.sites")));
 			PredicateProfile[] profiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), sInfo.getSites()).readProfiles();
 
-			
-			CBIClients cs = new CBIClients(sInfo, profiles, new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
-			IterativeFunctionClient client = new IterativeFunctionClient(new File(version, vi + "_c.sites"), 
-					new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), 
-					new File(consoleFolder, subject + "_" + vi + "_function.out"), 
-					sInfo, 
-					cs.getFullInstrumentedCBIClient(), 
-					cs.getClientsMap(), 
-					cWriter, 
-					new File(version, "adaptive"));
+			CBIClients cs = null;
+			IterativeFunctionClient client = null;
+			while(true){
+				while(true){
+					cs = new CBIClients(sInfo, profiles, new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
+					if(cs.iszFlag() && cs.iscFlag()){
+						break;
+					}
+					else if(!cs.iszFlag()){
+						zeroError.add(vi);
+					}
+					else if(!cs.iscFlag()){
+						inconsistency.add(vi);
+					}
+				}
+				client = new IterativeFunctionClient(new File(version, vi + "_c.sites"), 
+						new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), 
+						new File(consoleFolder, subject + "_" + vi + "_function.out"), 
+						sInfo, 
+						cs.getFullInstrumentedCBIClient(), 
+						cs.getClientsMap(), 
+						cWriter, 
+						new File(version, "adaptive"));
+				if(client.ispFlag() && client.iscPFlag()){
+					break;
+				}
+				else if(!client.ispFlag()){
+					pruneError.add(vi);
+				}
+				else if(!client.iscPFlag()){
+					pruneInconsistency.add(vi);
+				}
+			}
 			
 			results.put(vi, client.getResult());
 			pResults.put(vi, client.getpResult());
@@ -140,6 +174,38 @@ public class Client {
 		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		printFinalResults(cWriter);
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		printErrorInfo(cWriter);
+	}
+
+	private void printErrorInfo(PrintWriter cWriter) {
+		// TODO Auto-generated method stub
+		Set<String> set = new HashSet<String>();
+		set.addAll(zeroError);
+		set.addAll(inconsistency);
+		set.addAll(pruneError);
+		set.addAll(pruneInconsistency);
+		
+		cWriter.println("The total number of erroneous versions: \t" + set.size() + "\t\t" +  new DecimalFormat("##.##").format((double)100 * set.size() / results.size()));
+		cWriter.println();
+		cWriter.println("The following " + zeroError.size() + " versions of " + results.size() + " encountered zero-predictor error: ");
+		cWriter.println("---------------------------------------------------------------------------------------");
+		cWriter.println(zeroError.toString());
+		cWriter.println();
+		cWriter.println("The following " + inconsistency.size() + " versions of " + results.size() + " encountered inconsistency error: ");
+		cWriter.println("---------------------------------------------------------------------------------------");
+		cWriter.println(inconsistency.toString());
+		cWriter.println();
+		cWriter.println("The following " + pruneError.size() + " versions of " + results.size() + " encountered abnormal prune error: ");
+		cWriter.println("---------------------------------------------------------------------------------------");
+		cWriter.println(pruneError.toString());
+		cWriter.println();
+		cWriter.println("The following " + pruneInconsistency.size() + " versions of " + results.size() + " encountered prune inconsistency error: ");
+		cWriter.println("---------------------------------------------------------------------------------------");
+		cWriter.println(pruneInconsistency.toString());
+		cWriter.println();
+		
 	}
 
 	private void printSirResults(PrintWriter cWriter){
@@ -184,11 +250,19 @@ public class Client {
 				
 				CBIClients cs = null;
 				IterativeFunctionClient client = null;
-				do{
-					do {
+				while(true){
+					while(true){
 						cs = new CBIClients(sInfo, profiles, new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
+						if(cs.iszFlag() && cs.iscFlag()){
+							break;
+						}
+						else if(!cs.iszFlag()){
+							zeroError.add(vi);
+						}
+						else if(!cs.iscFlag()){
+							inconsistency.add(vi);
+						}
 					} 
-					while (!cs.iscFlag() || !cs.iszFlag());
 					client = new IterativeFunctionClient(new File(subversion, vi + "_c.sites"), 
 							new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), 
 							new File(consoleFolder, subject + "_" + vi + "_function.out"), 
@@ -197,9 +271,16 @@ public class Client {
 							cs.getClientsMap(), 
 							cWriter, 
 							new File(subversion, "adaptive"));
-					
+					if(client.ispFlag() && client.iscPFlag()){
+						break;
+					}
+					else if(!client.ispFlag()){
+						pruneError.add(vi);
+					}
+					else if(!client.iscPFlag()){
+						pruneInconsistency.add(vi);
+					}
 				}
-				while(!client.ispFlag());
 				
 				results.put(vi, client.getResult());
 				pResults.put(vi, client.getpResult());
@@ -214,6 +295,9 @@ public class Client {
 		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		printFinalResults(cWriter);
+		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		printErrorInfo(cWriter);
 	}
 	
 	private void printFinalResults(PrintWriter cWriter) {
@@ -266,6 +350,20 @@ public class Client {
 		for(int i = 0; i < pResult.length; i++){
 			for (int j = 0; j < pResult[i].length; j++) {
 				pResult[i][j] += ds[i][j];
+			}
+		}
+	}
+	
+	private void accumulateResult(double[][][][] result, double[][][][] ds) {
+		// TODO Auto-generated method stub
+		assert(result.length == ds.length && result.length == Score.values().length);
+		for(int i = 0; i < result.length; i++){
+			for (int j = 0; j < result[i].length; j++) {
+				for(int p = 0; p < result[i][j].length; p++){
+					for (int q = 0; q < result[i][j][p].length; q++) {
+						result[i][j][p][q] += ds[i][j][p][q];
+					}
+				}
 			}
 		}
 	}
@@ -344,19 +442,7 @@ public class Client {
 		cWriter.println("\n");
 	}
 
-	private void accumulateResult(double[][][][] result, double[][][][] ds) {
-		// TODO Auto-generated method stub
-		assert(result.length == ds.length && result.length == Score.values().length);
-		for(int i = 0; i < result.length; i++){
-			for (int j = 0; j < result[i].length; j++) {
-				for(int p = 0; p < result[i][j].length; p++){
-					for (int q = 0; q < result[i][j][p].length; q++) {
-						result[i][j][p][q] += ds[i][j][p][q];
-					}
-				}
-			}
-		}
-	}
+	
 
 	public static void main(String[] args) {
 		String[][] argvs = {
@@ -416,7 +502,7 @@ public class Client {
 			cc.computeSirResults();
 			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "space", 
 					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/space" + s + Client.percent + "/"));
-			cc.computeSiemensResults();	
+			cc.computeSiemensResults();
 			for(int i = 4; i < argvs.length; i++){
 				cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/Siemens/"), argvs[i][1], 
 						new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/Siemens" + s + Client.percent + "/" + argvs[i][1] + "/"));

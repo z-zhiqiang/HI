@@ -43,9 +43,6 @@ public class CBIClients {
 		try {
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
 			run(sitesInfo, writer);
-//			do{
-//			}
-//			while(!cFlag || !zFlag);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -119,7 +116,7 @@ public class CBIClients {
 		writer.println("\n");
 		writer.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FULLY INSTRUMENTED FROM MULTIPLE ITERATIONS");
 		writer.println();
-		CBIClient.printTopK(fullSortedPredictors, Client.fKF, writer);
+		CBIClient.printTopK(fullSortedPredictors, Client.fKM, writer);
 	}
 
 	private void checkNonZeroPredictor() {

@@ -32,7 +32,6 @@ public class CBIClient {
 		this.k = k;
 		this.functions = functions;
 		this.samples = samples;
-//		assert(samples.size() == (int) (profiles.length * CBIClients.percent) || samples.size() == profiles.length);
 		this.selectedPredicateProfiles = constructSelectedPredicateProfiles(profiles);
 		
 		this.sortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
@@ -215,7 +214,6 @@ public class CBIClient {
 			else{
 				break;
 			}
-			
 		}
 		writer.println("\n");
 	}
@@ -243,7 +241,6 @@ public class CBIClient {
 			else{
 				break;
 			}
-			
 		}
 		writer.println("\n");
 	}
