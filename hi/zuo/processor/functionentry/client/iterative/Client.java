@@ -27,13 +27,16 @@ import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Order;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
+import zuo.processor.functionentry.profile.FunctionEntryProfile;
+import zuo.processor.functionentry.profile.FunctionEntryProfileReader;
+import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class Client {
 	public final static int fK = 5;
 	public final static int iK = 3;
 	public final static int fKM = 5;
 	public final static int k = 1;
-	public static final double percent = 0.3;
+	public static final double percent = 1;
 	
 	final File rootDir;
 	final String subject;
@@ -126,14 +129,19 @@ public class Client {
 			versionsList.add(vi);
 			System.out.println(vi);
 			cWriter.println(vi);
+			
 			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version, vi + "_f.sites")));
-			PredicateProfile[] profiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), sInfo.getSites()).readProfiles();
-
+			PredicateProfile[] fProfiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), sInfo.getSites()).readProfiles();
+//			getFullMethodsList(sInfo, new File(version, "adaptive/full"));
+			
+			FunctionEntrySites cSites = new FunctionEntrySites(new File(version, vi + "_c.sites"));
+			FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), cSites).readFunctionEntryProfiles();
+			
 			CBIClients cs = null;
 			IterativeFunctionClient client = null;
 			while(true){
 				while(true){
-					cs = new CBIClients(sInfo, profiles, new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
+					cs = new CBIClients(sInfo, fProfiles, new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
 					if(cs.iszFlag() && cs.iscFlag()){
 						break;
 					}
@@ -144,8 +152,8 @@ public class Client {
 						inconsistency.add(vi);
 					}
 				}
-				client = new IterativeFunctionClient(new File(version, vi + "_c.sites"), 
-						new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), 
+				client = new IterativeFunctionClient(cSites, 
+						cProfiles, 
 						new File(consoleFolder, subject + "_" + vi + "_function.out"), 
 						sInfo, 
 						cs.getFullInstrumentedCBIClient(), 
@@ -177,6 +185,29 @@ public class Client {
 		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		printErrorInfo(cWriter);
+	}
+
+	private void getFullMethodsList(SitesInfo sInfo, File folder) {
+		// TODO Auto-generated method stub
+		PrintWriter out = null;
+		try{
+			if (!folder.exists()) {
+				folder.mkdirs();
+			}
+			//write the passing inputs
+			out = new PrintWriter(new BufferedWriter(new FileWriter(new File(folder, "full"))));
+			for(String method: sInfo.getMap().keySet()){
+				out.println(method);
+			}
+			out.close();
+			
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		finally{
+			out.close();
+		}
 	}
 
 	private void printErrorInfo(PrintWriter cWriter) {
@@ -245,14 +276,19 @@ public class Client {
 				versionsList.add(vi);
 				System.out.println(vi);
 				cWriter.println(vi);
+				
 				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion, vi + "_f.sites")));
-				PredicateProfile[] profiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), sInfo.getSites()).readProfiles();
+				PredicateProfile[] fProfiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), sInfo.getSites()).readProfiles();
+//				getFullMethodsList(sInfo, new File(subversion, "adaptive/full"));
+				
+				FunctionEntrySites cSites = new FunctionEntrySites(new File(subversion, vi + "_c.sites"));
+				FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), cSites).readFunctionEntryProfiles();
 				
 				CBIClients cs = null;
 				IterativeFunctionClient client = null;
 				while(true){
 					while(true){
-						cs = new CBIClients(sInfo, profiles, new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
+						cs = new CBIClients(sInfo, fProfiles, new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
 						if(cs.iszFlag() && cs.iscFlag()){
 							break;
 						}
@@ -263,8 +299,8 @@ public class Client {
 							inconsistency.add(vi);
 						}
 					} 
-					client = new IterativeFunctionClient(new File(subversion, vi + "_c.sites"), 
-							new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), 
+					client = new IterativeFunctionClient(cSites, 
+							cProfiles, 
 							new File(consoleFolder, subject + "_" + vi + "_function.out"), 
 							sInfo, 
 							cs.getFullInstrumentedCBIClient(), 
@@ -488,7 +524,7 @@ public class Client {
 
 		Client cc;
 		String s = "";
-		for(int j = 1; j < 5; j++){
+		for(int j = 1; j < 2; j++){
 			s += "_";
 			
 			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", 

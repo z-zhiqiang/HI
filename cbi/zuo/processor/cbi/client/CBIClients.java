@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -16,6 +17,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import zuo.processor.cbi.processor.PredicateItem;
 import zuo.processor.cbi.profile.PredicateProfile;
@@ -144,9 +146,10 @@ public class CBIClients {
 		}
 		SortedSet<PredicateItem> sSet = clientsMap.get(targetFunction).getSortedPredictors().lastEntry().getValue();
 		if(!set.equals(sSet)){
+			System.out.println(targetFunction);
 			System.out.println("Consistency Error");
-			System.out.println("Full: \t" + set.toString());
-			System.out.println("Iterative: \t" + sSet.toString());
+			System.out.println("Full:\n" + set.toString());
+			System.out.println("Iterative:\n" + sSet.toString());
 			cFlag = false;
 			return;
 		}
@@ -160,7 +163,20 @@ public class CBIClients {
 				fullSortedPredictors.get(im).addAll(sortedPredictors.get(im));
 			}
 			else{
-				fullSortedPredictors.put(im, sortedPredictors.get(im));
+				SortedSet<PredicateItem> set = new TreeSet<PredicateItem>(new Comparator<PredicateItem>(){
+
+					@Override
+					public int compare(PredicateItem arg0, PredicateItem arg1) {
+						// TODO Auto-generated method stub
+						int r = new Integer(arg0.getPredicateSite().getId()).compareTo(new Integer(arg1.getPredicateSite().getId()));
+						if(r == 0){
+							r = new Integer(arg0.getType()).compareTo(new Integer(arg1.getType()));
+						}
+						return r;
+					}
+				});
+				set.addAll(sortedPredictors.get(im));
+				fullSortedPredictors.put(im, set);
 			}
 		}
 	}

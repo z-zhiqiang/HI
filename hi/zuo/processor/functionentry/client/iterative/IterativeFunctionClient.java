@@ -60,9 +60,8 @@ public class IterativeFunctionClient {
 	
 	final File methodsFileDir;
 	
-	public IterativeFunctionClient(File sitesFile, File profilesFolder, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map, PrintWriter clientWriter, File methodsF) {
-		this.sites = new FunctionEntrySites(sitesFile);
-		FunctionEntryProfile[] profiles = new FunctionEntryProfileReader(profilesFolder, sites).readFunctionEntryProfiles();
+	public IterativeFunctionClient(FunctionEntrySites sites, FunctionEntryProfile[] profiles, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map, PrintWriter clientWriter, File methodsF) {
+		this.sites = sites;
 		this.sInfo = sInfo;
 		this.targetFunction = getTargetFunction(fullICBIClient);
 		this.samples = fullICBIClient.getSamples();
@@ -159,6 +158,7 @@ public class IterativeFunctionClient {
 		
 		//filter out methods within which no predicates are instrumented
 		filterFrequencyMap(processor.getFrequencyMap());
+		assert(processor.getFrequencyMap().size() == this.sInfo.getMap().size());
 		
 		//print out entry and percentage information
 		System.out.println();
@@ -341,7 +341,6 @@ public class IterativeFunctionClient {
 		}
 	}
 
-
 	private double getKth(TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors, int k){
 //		return getKthPredictor(sortedPrunedPredictors, k);
 		return getKthImportance(sortedPrunedPredictors, k);
@@ -445,47 +444,6 @@ public class IterativeFunctionClient {
 //		}
 	}
 		
-//	/**get the list of methods to be instrumented
-//	 * @param list
-//	 * @param score
-//	 * @param order
-//	 */
-//	private void getMethodsList(List<Entry<FunctionEntrySite, FrequencyValue>> list, Score score, Order order){	
-//		//get the methods list to be instrumented
-//		List<String> methods = new ArrayList<String>();
-//		
-//		if(order == Order.LESS_FIRST){
-//			for(int i = 0; i < list.size(); i++){
-//				Entry<FunctionEntrySite, FrequencyValue> entry = list.get(i);
-//				String method = entry.getKey().getFunctionName();
-//				methods.add(method);
-//				if(this.targetFunction.equals(method)){
-//					break;
-//				}
-//			}
-//			
-//			PrintWriter out = null;
-//			try{
-//				if (!methodsFileDir.exists()) {
-//					methodsFileDir.mkdirs();
-//				}
-//				//write the passing inputs
-//				out = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.methodsFileDir, String.valueOf(score)))));
-//				for(String method: methods){
-//					out.println(method);
-//				}
-//				out.close();
-//				
-//			}
-//			catch(IOException e){
-//				e.printStackTrace();
-//			}
-//			finally{
-//				out.close();
-//			}
-//		}
-//	}
-
 	/**rank the methods in the mode <score,order>
 	 * @param arg0
 	 * @param arg1
