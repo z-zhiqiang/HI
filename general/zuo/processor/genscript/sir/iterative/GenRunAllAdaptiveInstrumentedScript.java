@@ -5,12 +5,10 @@ import java.util.Set;
 
 public class GenRunAllAdaptiveInstrumentedScript extends AbstractGenRunAllScript {
 	final Set<Integer> subs;
-	String score;
 	
-	public GenRunAllAdaptiveInstrumentedScript(String version, String subject, String scriptDir, Set<Integer> subs, String score) {
+	public GenRunAllAdaptiveInstrumentedScript(String version, String subject, String scriptDir, Set<Integer> subs) {
 		super(version, subject, scriptDir);
 		this.subs = subs;
-		this.score = score;
 	}
 	
 	public void genRunAllScript(){
@@ -23,11 +21,11 @@ public class GenRunAllAdaptiveInstrumentedScript extends AbstractGenRunAllScript
         
 		code.append("for i in " + builder.toString() + "\ndo\n");
 		code.append("\techo subv$i\n");
-		code.append("\tsh " + version + "\\_subv$i\\_fg_a" + score + ".sh > ../outputs.alt/" + version + "/versions/subv$i/fine-grained-adaptive-" + score + "/execution\n");
+		code.append("\tsh " + version + "\\_subv$i\\_fg_a.sh > ../outputs.alt/" + version + "/versions/subv$i/fine-grained-adaptive/execution\n");
 		code.append("done");
 		
 		System.out.println(code.toString());
-		AbstractGenRunScript.printToFile(code.toString(), scriptDir, "runAll_" + version + "_inst_a" + score + ".sh");
+		AbstractGenRunScript.printToFile(code.toString(), scriptDir, "runAll_" + version + "_inst_a.sh");
 	}
 
 }

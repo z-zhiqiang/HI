@@ -14,7 +14,7 @@ public class BoundCalculator {
 	 * @return
 	 */
 	public int computeIGBound(double threshold){
-		if(threshold < 0 || threshold > IG(F)){
+		if(threshold < IG(0) || threshold > IG(F)){
 			throw new RuntimeException("The threshold should be in the following range: [" + IG(0) + ", " + IG(F) + "]");
 		}
 			

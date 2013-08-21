@@ -21,8 +21,8 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 	
 	
 	public GenRunAdaptiveFineGrainedInstrumentScript(String sub, String ver, String sD, String eD, String oD, String scD, String tD, String failing, String passing, String methodsF) {
-		super(sub, ver, null, sD, eD, oD + methodsF + "/", scD);
-		this.traceDir = tD + methodsF + "/";
+		super(sub, ver, null, sD, eD, oD, scD);
+		this.traceDir = tD;
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
@@ -37,7 +37,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		BufferedReader reader = null;
 		try {
 			String line;
-			reader = new BufferedReader(new FileReader(new File(executeDir + methodsFile)));
+			reader = new BufferedReader(new FileReader(new File(executeDir, methodsFile)));
 			while((line = reader.readLine()) != null){
 				methods.add(line.trim());
 			}
@@ -71,7 +71,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			instrumentCommand = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
 					+ "-finclude-function=" + method + " -fexclude-function=* "
 					+ sourceDir + subject + ".c" 
-					+ " -o " + executeDir + version + "_finst__" + methodsFile + "__" + method + ".exe"
+					+ " -o " + executeDir + version + "_finst__" + method + ".exe"
 					+ " -I" + sourceDir
 					+ " -lm"
 					;
@@ -81,41 +81,41 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			code.append("export VERSIONSDIR=" + executeDir + "\n");
 			code.append("export OUTPUTSDIR=" + outputDir + method + "/\n");
 			code.append("export TRACESDIR=" + traceDir + method + "/\n");
+			
 			code.append(startTimeCommand + "\n");
-			
-			for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
-				int index = it.next();
-				code.append(runinfo + index + "\"\n");// running info
-				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-				code.append("$VERSIONSDIR/" + version + "_finst__" + methodsFile + "__" + method + ".exe ");//executables
-				code.append(inputsMap.get(index));//parameters
-				code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
+			for(int j = 0; j < 3; j++){
+				for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+					int index = it.next();
+					code.append(runinfo + index + "\"\n");// running info
+					code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
+					code.append("$VERSIONSDIR/" + version + "_finst__" + method + ".exe ");//executables
+					code.append(inputsMap.get(index));//parameters
+					code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
+				}
+				
+				for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
+					int index = it.next();
+					code.append(runinfo + index + "\"\n");// running info
+					code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
+					code.append("$VERSIONSDIR/" + version + "_finst__" + method + ".exe ");//executables
+					code.append(inputsMap.get(index));//parameters
+					code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
+				}
 			}
-			
-			for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
-				int index = it.next();
-				code.append(runinfo + index + "\"\n");// running info
-				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-				code.append("$VERSIONSDIR/" + version + "_finst__" + methodsFile + "__" + method + ".exe ");//executables
-				code.append(inputsMap.get(index));//parameters
-				code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
-			}
-			
 			code.append(endTimeCommand + " >& $OUTPUTSDIR/time\n");
+			
 			code.append("tTime=$((tTime+time))\n");
 			code.append("rm $OUTPUTSDIR/o*out\n");
-			if (i != num - 1) {
-				code.append("rm $TRACESDIR/o*profile\n");
-				code.append("\n\n");
-			}
+			code.append("rm -rf $TRACESDIR/\n");
+			code.append("\n\n");
 			
-			printToFile(code.toString(), scriptDir, version + "_fg_a" + methodsFile + ".sh");
+			printToFile(code.toString(), scriptDir, version + "_fg_a.sh");
 			code = new StringBuilder();
 			
 		}
 		code.append("echo \"Average time in seconds: $((tTime/1000000000/" + num + ")) \nTime in milliseconds: $((tTime/1000000/" + num + "))\"" +
 				" >& " + outputDir + "time\n");
-		printToFile(code.toString(), scriptDir, version + "_fg_a" + methodsFile + ".sh");
+		printToFile(code.toString(), scriptDir, version + "_fg_a.sh");
 	}
 
 

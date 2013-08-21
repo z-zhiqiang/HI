@@ -49,27 +49,29 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
+		
 		code.append(startTimeCommand + "\n");
-		
-		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
-			int index = it.next();
-			code.append(runinfo + index + "\"\n");// running info
-			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
-			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + sample + ".exe "));
-			code.append("\n");
+		for(int j = 0; j < 3; j++){
+			for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+				int index = it.next();
+				code.append(runinfo + index + "\"\n");// running info
+				code.append("export SAMPLER_SPARSITY=" + sample + "\n");
+				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
+				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + sample + ".exe "));
+				code.append("\n");
+			}
+			
+			for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
+				int index = it.next();
+				code.append(runinfo + index + "\"\n");// running info
+				code.append("export SAMPLER_SPARSITY=" + sample + "\n");
+				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
+				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + sample + ".exe "));
+				code.append("\n");
+			}
 		}
-		
-		for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
-			int index = it.next();
-			code.append(runinfo + index + "\"\n");// running info
-			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
-			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + sample + ".exe "));
-			code.append("\n");
-		}
-		
 		code.append(endTimeCommand + " >& " + outputDir + "time\n");
+		
 		code.append("rm ../outputs/*\n");
 		code.append("rm $TRACESDIR/o*profile\n");
 		

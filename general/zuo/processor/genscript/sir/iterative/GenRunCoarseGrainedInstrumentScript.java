@@ -30,30 +30,28 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
+		
 		code.append(startTimeCommand + "\n");
-		
-		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
-			int index = it.next();
-			code.append(runinfo + index + "\"\n");// running info
-			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
-			code.append("\n");
+		for(int j = 0; j < 3; j++){
+			for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+				int index = it.next();
+				code.append(runinfo + index + "\"\n");// running info
+				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
+				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
+				code.append("\n");
+			}
+			
+			for (int i = 0; i < passingTests.size(); i++) {
+				int index = passingTests.get(i);
+				code.append(runinfo + index + "\"\n");// running info
+				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
+				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
+				code.append("\n");
+			}
 		}
-		
-		for (int i = 0; i < passingTests.size(); i++) {
-			int index = passingTests.get(i);
-			code.append(runinfo + index + "\"\n");// running info
-			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
-			code.append("\n");
-		}
-		
 		code.append(endTimeCommand + " >& " + outputDir + "time\n");
-//		code.append("mv ../outputs/* " + outputDir + "\n");
+		
 		code.append("rm ../outputs/*\n");
-//		code.append("rm " + outputDir + "t[0-9]*\n");
-//		code.append("rm " + outputDir + "s*\n");
-//		code.append("rm " + outputDir + "test*\n");
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_cg.sh");
 	}
 

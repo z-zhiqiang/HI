@@ -114,7 +114,7 @@ public class Client {
 			@Override
 			public boolean accept(File dir, String name) {
 				// TODO Auto-generated method stub
-				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == 10);
+				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length >= 10);
 			}});
 		Arrays.sort(versions, new Comparator<File>(){
 
@@ -132,7 +132,7 @@ public class Client {
 			
 			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version, vi + "_f.sites")));
 			PredicateProfile[] fProfiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), sInfo.getSites()).readProfiles();
-//			getFullMethodsList(sInfo, new File(version, "adaptive/full"));
+//			getFullMethodsList(sInfo, new File(version, "adaptive"));
 			
 			FunctionEntrySites cSites = new FunctionEntrySites(new File(version, vi + "_c.sites"));
 			FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), cSites).readFunctionEntryProfiles();
@@ -261,7 +261,7 @@ public class Client {
 				@Override
 				public boolean accept(File dir, String name) {
 					// TODO Auto-generated method stub
-					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 11);
+					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 11);
 				}});
 			Arrays.sort(subversions, new Comparator<File>(){
 
@@ -279,7 +279,7 @@ public class Client {
 				
 				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion, vi + "_f.sites")));
 				PredicateProfile[] fProfiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), sInfo.getSites()).readProfiles();
-//				getFullMethodsList(sInfo, new File(subversion, "adaptive/full"));
+//				getFullMethodsList(sInfo, new File(subversion, "adaptive"));
 				
 				FunctionEntrySites cSites = new FunctionEntrySites(new File(subversion, vi + "_c.sites"));
 				FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), cSites).readFunctionEntryProfiles();

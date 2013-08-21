@@ -30,27 +30,29 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
+		
 		code.append(startTimeCommand + "\n");
-		
-		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
-			int index = it.next();
-			code.append(runinfo + index + "\"\n");// running info
-			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_finst.exe ");//executables
-			code.append(inputsMap.get(index));//parameters
-			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
+		for(int j = 0; j < 3; j++){
+			for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+				int index = it.next();
+				code.append(runinfo + index + "\"\n");// running info
+				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
+				code.append("$VERSIONSDIR/" + version + "_finst.exe ");//executables
+				code.append(inputsMap.get(index));//parameters
+				code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
+			}
+			
+			for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
+				int index = it.next();
+				code.append(runinfo + index + "\"\n");// running info
+				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
+				code.append("$VERSIONSDIR/" + version + "_finst.exe ");//executables
+				code.append(inputsMap.get(index));//parameters
+				code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
+			}
 		}
-		
-		for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
-			int index = it.next();
-			code.append(runinfo + index + "\"\n");// running info
-			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_finst.exe ");//executables
-			code.append(inputsMap.get(index));//parameters
-			code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
-		}
-		
 		code.append(endTimeCommand + " >& $OUTPUTSDIR/time\n");
+		
 		code.append("rm $OUTPUTSDIR/o*out\n");
 		printToFile(code.toString(), scriptDir, version + "_fg.sh");
 	}

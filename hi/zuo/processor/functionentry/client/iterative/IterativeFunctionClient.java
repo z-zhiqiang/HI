@@ -28,7 +28,6 @@ import zuo.processor.functionentry.processor.BoundCalculator;
 import zuo.processor.functionentry.processor.SelectingProcessor;
 import zuo.processor.functionentry.processor.SelectingProcessor.FrequencyValue;
 import zuo.processor.functionentry.profile.FunctionEntryProfile;
-import zuo.processor.functionentry.profile.FunctionEntryProfileReader;
 import zuo.processor.functionentry.site.FunctionEntrySite;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 
@@ -36,12 +35,12 @@ public class IterativeFunctionClient {
 	private boolean pFlag, cPFlag;
 	public static enum Score{
 //		RANDOM, 
-		NEGATIVE, H_1, F_1, H_2, 
+		NEGATIVE, H_1, H_2, F_1, 
 //		PRECISION, POSITIVE
 	}
 	
 	public static enum Order{
-		RANDOM, LESS_FIRST, MORE_FIRST, BEST, WORST, //CLOSER_FIRST 
+		RANDOM, LESS_FIRST, MORE_FIRST, WORST, BEST, //CLOSER_FIRST 
 	}
 	
 	final FunctionEntrySites sites;
@@ -473,21 +472,21 @@ public class IterativeFunctionClient {
 				r = order(arg0, arg1, order);
 			}
 			break;
-		case F_1:
-			r = new Double(arg1.getValue().getF_score()).compareTo(new Double(arg0.getValue().getF_score()));
-			if (r == 0) {
-//				r = new Double(arg1.getValue().getH_1()).compareTo(new Double(arg0.getValue().getH_1()));
-//				if (r == 0) {
-//					r = order(arg0, arg1, order);
-//				}
-				r = order(arg0, arg1, order);
-			}
-			break;
 		case H_2:
 			r = new Double(arg1.getValue().getH_2()).compareTo(new Double(arg0.getValue().getH_2()));
 			if(r == 0){
 //				r = new Double(arg1.getValue().getH_1()).compareTo(new Double(arg0.getValue().getH_1()));
 //				if(r == 0){
+//					r = order(arg0, arg1, order);
+//				}
+				r = order(arg0, arg1, order);
+			}
+			break;
+		case F_1:
+			r = new Double(arg1.getValue().getF_score()).compareTo(new Double(arg0.getValue().getF_score()));
+			if (r == 0) {
+//				r = new Double(arg1.getValue().getH_1()).compareTo(new Double(arg0.getValue().getH_1()));
+//				if (r == 0) {
 //					r = order(arg0, arg1, order);
 //				}
 				r = order(arg0, arg1, order);
@@ -552,15 +551,6 @@ public class IterativeFunctionClient {
 				rr = new Integer(sInfo.getMap().get(method1).getNumPredicates()).compareTo(new Integer(sInfo.getMap().get(method0).getNumPredicates()));
 			}
 			break;
-		case BEST:
-			//best order
-			if(arg1.getKey().getFunctionName().equals(targetFunction)){
-				rr = 1;
-			}
-			if(arg0.getKey().getFunctionName().equals(targetFunction)){
-				rr = -1;
-			}
-			break;
 		case WORST:
 			//worst order
 			if(arg1.getKey().getFunctionName().equals(targetFunction)){
@@ -568,6 +558,15 @@ public class IterativeFunctionClient {
 			}
 			if(arg0.getKey().getFunctionName().equals(targetFunction)){
 				rr = 1;
+			}
+			break;
+		case BEST:
+			//best order
+			if(arg1.getKey().getFunctionName().equals(targetFunction)){
+				rr = 1;
+			}
+			if(arg0.getKey().getFunctionName().equals(targetFunction)){
+				rr = -1;
 			}
 			break;
 		default:
