@@ -149,13 +149,13 @@ public class GenSiemensScriptsClient {
 		for(int i = 1; i <= vers; i++){	
 			GenSiemensScriptsClient gc = new GenSiemensScriptsClient(subject, vers, "v" + i);
 			
-			System.out.println("sliptting inputs for v" + i);
-			SplitInputs split = new SplitInputs(gc.inputsMapFile, gc.soutputDir, gc.voutputDir, gc.vexecuteDir);
-			split.split();
-			if(split.getFailingTests().size() > 1){
-				subs.add(i);
-				assert(new File(gc.vexecuteDir).listFiles().length == 11);
-			}
+//			System.out.println("sliptting inputs for v" + i);
+//			SplitInputs split = new SplitInputs(gc.inputsMapFile, gc.soutputDir, gc.voutputDir, gc.vexecuteDir);
+//			split.split();
+//			if(split.getFailingTests().size() > 1){
+//				subs.add(i);
+//				assert(new File(gc.vexecuteDir).listFiles().length == 12);
+//			}
 			
 			System.out.println("generating run instrument script for v" + i);
 			gs = new GenRunFineGrainedInstrumentScript(gc.subject, gc.version, gc.compileFGInstrument, gc.vsourceDir, gc.vexecuteDir, 
@@ -182,6 +182,7 @@ public class GenSiemensScriptsClient {
 				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.version, gc.vsourceDir, gc.vaexecuteDir, 
 						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
 				gs.genRunScript();
+				subs.add(i);
 			}
 		}
 		
