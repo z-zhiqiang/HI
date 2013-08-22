@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import zuo.processor.cbi.client.CBIClient;
 import zuo.processor.cbi.client.CBIClients;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.PredicateProfileReader;
@@ -36,33 +37,42 @@ public class Client {
 	public final static int iK = 3;
 	public final static int fKM = 5;
 	public final static int k = 1;
-	public static final double percent = 1;
 	
 	final File rootDir;
 	final String subject;
 	final File consoleFolder;
 	
+	final int round;
+	final double percent;
+	
 	final Map<String, double[][][][]> results;
 	final Map<String, double[][]> pResults;
 	final Map<String, int[]> cResults;
+	final Map<String, Set<Integer>> statistics;
 	
-	final Set<String> zeroError;
-	final Set<String> inconsistency;
-	final Set<String> pruneError;
-	final Set<String> pruneInconsistency;
+	final Map<String, double[][][][]> resultsX;
+	final Map<String, double[][]> pResultsX;
+	final Map<String, int[]> cResultsX;
+	final Map<String, Set<Integer>> statisticsX;
 	
-	public Client(File rootDir, String subject, File consoleFolder) {
+	public Client(File rootDir, String subject, File consoleFolder, int round, double percent) {
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
+		
+		this.round = round;
+		this.percent = percent;
+		
 		this.results = new HashMap<String, double[][][][]>();
 		this.pResults = new HashMap<String, double[][]>();
 		this.cResults = new HashMap<String, int[]>();
+		this.statistics = new LinkedHashMap<String, Set<Integer>>();
 		
-		this.zeroError = new LinkedHashSet<String>();
-		this.inconsistency = new LinkedHashSet<String>();
-		this.pruneError = new LinkedHashSet<String>();
-		this.pruneInconsistency = new LinkedHashSet<String>();
+		this.resultsX = new HashMap<String, double[][][][]>();
+		this.pResultsX = new HashMap<String, double[][]>();
+		this.cResultsX = new HashMap<String, int[]>();
+		this.statisticsX = new LinkedHashMap<String, Set<Integer>>();
+		
 	}
 
 	/**
@@ -139,52 +149,57 @@ public class Client {
 			
 			CBIClients cs = null;
 			IterativeFunctionClient client = null;
-			while(true){
+			Set<Integer> versionsSet = new LinkedHashSet<Integer>(); 
+			Set<Integer> versionsSetX = new LinkedHashSet<Integer>(); 
+			for(int i = 0; i < round; i++){
+				System.out.println(i);
 				while(true){
-					cs = new CBIClients(sInfo, fProfiles, new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
-					if(cs.iszFlag() && cs.iscFlag()){
+					cs = new CBIClients(sInfo, fProfiles, new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_cbi.out"), percent);
+					if(cs.iszFlag()){
 						break;
-					}
-					else if(!cs.iszFlag()){
-						zeroError.add(vi);
-					}
-					else if(!cs.iscFlag()){
-						inconsistency.add(vi);
 					}
 				}
 				client = new IterativeFunctionClient(cSites, 
 						cProfiles, 
-						new File(consoleFolder, subject + "_" + vi + "_function.out"), 
+						new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_function.out"), 
 						sInfo, 
 						cs.getFullInstrumentedCBIClient(), 
 						cs.getClientsMap(), 
 						cWriter, 
 						new File(version, "adaptive"));
-				if(client.ispFlag() && client.iscPFlag()){
-					break;
+				
+				if(cs.iscFlag() && client.ispFlag()){
+					versionsSet.add(i);
+					if(!pResults.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResults.get(vi)[Score.H_2.ordinal()][0]){
+						results.put(vi, client.getResult());
+						pResults.put(vi, client.getpResult());
+						cResults.put(vi, client.getcResult());
+					}
 				}
-				else if(!client.ispFlag()){
-					pruneError.add(vi);
-				}
-				else if(!client.iscPFlag()){
-					pruneInconsistency.add(vi);
+				if(client.iscPFlag()){
+					assert(cs.iscFlag() && client.ispFlag());
+					versionsSetX.add(i);
+					if(!pResultsX.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResultsX.get(vi)[Score.H_2.ordinal()][0]){
+						resultsX.put(vi, client.getResult());
+						pResultsX.put(vi, client.getpResult());
+						cResultsX.put(vi, client.getcResult());
+					}
 				}
 			}
-			
-			results.put(vi, client.getResult());
-			pResults.put(vi, client.getpResult());
-			cResults.put(vi, client.getcResult());
+			assert(versionsSet.containsAll(versionsSetX));
+			statistics.put(vi, versionsSet);
+			statisticsX.put(vi, versionsSetX);
 			
 			System.out.println();
 			cWriter.println();	
 		}
 		
-		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		printFinalResults(cWriter);
-		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		printErrorInfo(cWriter);
+		printFinalResults(cWriter, results, pResults, cResults, statistics);
+		printRoundsInfo(cWriter, statistics);
+		System.out.println("\n");
+		cWriter.println("\n");
+		printFinalResults(cWriter, resultsX, pResultsX, cResultsX, statisticsX);
+		printRoundsInfo(cWriter, statisticsX);
 	}
 
 	private void getFullMethodsList(SitesInfo sInfo, File folder) {
@@ -210,34 +225,6 @@ public class Client {
 		}
 	}
 
-	private void printErrorInfo(PrintWriter cWriter) {
-		// TODO Auto-generated method stub
-		Set<String> set = new HashSet<String>();
-		set.addAll(zeroError);
-		set.addAll(inconsistency);
-		set.addAll(pruneError);
-		set.addAll(pruneInconsistency);
-		
-		cWriter.println("The total number of erroneous versions: \t" + set.size() + "\t\t" +  new DecimalFormat("##.##").format((double)100 * set.size() / results.size()));
-		cWriter.println();
-		cWriter.println("The following " + zeroError.size() + " versions of " + results.size() + " encountered zero-predictor error: ");
-		cWriter.println("---------------------------------------------------------------------------------------");
-		cWriter.println(zeroError.toString());
-		cWriter.println();
-		cWriter.println("The following " + inconsistency.size() + " versions of " + results.size() + " encountered inconsistency error: ");
-		cWriter.println("---------------------------------------------------------------------------------------");
-		cWriter.println(inconsistency.toString());
-		cWriter.println();
-		cWriter.println("The following " + pruneError.size() + " versions of " + results.size() + " encountered abnormal prune error: ");
-		cWriter.println("---------------------------------------------------------------------------------------");
-		cWriter.println(pruneError.toString());
-		cWriter.println();
-		cWriter.println("The following " + pruneInconsistency.size() + " versions of " + results.size() + " encountered prune inconsistency error: ");
-		cWriter.println("---------------------------------------------------------------------------------------");
-		cWriter.println(pruneInconsistency.toString());
-		cWriter.println();
-		
-	}
 
 	private void printSirResults(PrintWriter cWriter){
 		List<String> versionsList = new ArrayList<String>();
@@ -286,60 +273,88 @@ public class Client {
 				
 				CBIClients cs = null;
 				IterativeFunctionClient client = null;
-				while(true){
+				Set<Integer> versionsSet = new LinkedHashSet<Integer>(); 
+				Set<Integer> versionsSetX = new LinkedHashSet<Integer>(); 
+				for(int i = 0; i < round; i++){
 					while(true){
-						cs = new CBIClients(sInfo, fProfiles, new File(consoleFolder, subject + "_" + vi + "_cbi.out"));
-						if(cs.iszFlag() && cs.iscFlag()){
+						cs = new CBIClients(sInfo, fProfiles, new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_cbi.out"), percent);
+						if(cs.iszFlag()){
 							break;
 						}
-						else if(!cs.iszFlag()){
-							zeroError.add(vi);
-						}
-						else if(!cs.iscFlag()){
-							inconsistency.add(vi);
-						}
 					} 
+					
 					client = new IterativeFunctionClient(cSites, 
 							cProfiles, 
-							new File(consoleFolder, subject + "_" + vi + "_function.out"), 
+							new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_function.out"), 
 							sInfo, 
 							cs.getFullInstrumentedCBIClient(), 
 							cs.getClientsMap(), 
 							cWriter, 
 							new File(subversion, "adaptive"));
-					if(client.ispFlag() && client.iscPFlag()){
-						break;
+					
+					if(cs.iscFlag() && client.ispFlag()){
+						versionsSet.add(i);
+						if(!pResults.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResults.get(vi)[Score.H_2.ordinal()][0]){
+							results.put(vi, client.getResult());
+							pResults.put(vi, client.getpResult());
+							cResults.put(vi, client.getcResult());
+						}
 					}
-					else if(!client.ispFlag()){
-						pruneError.add(vi);
+					if(client.iscPFlag()){
+						assert(cs.iscFlag() && client.ispFlag());
+						versionsSetX.add(i);
+						if(!pResultsX.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResultsX.get(vi)[Score.H_2.ordinal()][0]){
+							resultsX.put(vi, client.getResult());
+							pResultsX.put(vi, client.getpResult());
+							cResultsX.put(vi, client.getcResult());
+						}
 					}
-					else if(!client.iscPFlag()){
-						pruneInconsistency.add(vi);
-					}
+					
 				}
+				assert(versionsSet.containsAll(versionsSetX));
+				statistics.put(vi, versionsSet);
+				statisticsX.put(vi, versionsSetX);
 				
-				results.put(vi, client.getResult());
-				pResults.put(vi, client.getpResult());
-				cResults.put(vi, client.getcResult());
-				
-				System.out.println();
 				cWriter.println();	
 			}
 			
 		}
 		
-		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		
+		printFinalResults(cWriter, results, pResults, cResults, statistics);
+		printRoundsInfo(cWriter, statistics);
+		cWriter.println("\n");
+		printFinalResults(cWriter, resultsX, pResultsX, cResultsX, statisticsX);
+		printRoundsInfo(cWriter, statisticsX);
+	}
+	
+
+	private void printRoundsInfo(PrintWriter cWriter, Map<String, Set<Integer>> statistics) {
 		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		printFinalResults(cWriter);
-		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		printErrorInfo(cWriter);
+		// TODO Auto-generated method stub
+		int sumSize = 0;
+		cWriter.println("The stabilization information is as follows:\n--------------------------------------------------------------");
+		for(String version: statistics.keySet()){
+			int size = statistics.get(version).size();
+			sumSize += size;
+			cWriter.println(String.format("%-15s", version) 
+					+ String.format("%-10s", size)
+					+ String.format("%-10s", new DecimalFormat(".##").format((double)size / round))
+					+ CBIClient.compressNumbers(statistics.get(version))
+					);
+		}
+		cWriter.println();
+		double mean = (double)sumSize / statistics.size();
+		cWriter.println("The average information is as follows:\n--------------------------------------------------------------");
+		cWriter.println(String.format("%-10s", new DecimalFormat(".##").format(mean))
+				+ String.format("%-10s", new DecimalFormat(".##").format(mean / round))
+				);
 	}
 	
 //	/**print the results ordered by results[H_2][Less_First][1][0]
 //	 * @param cWriter
 //	 */
-//	private void printFinalResults(PrintWriter cWriter) {
+//	private void printFinalResults(PrintWriter cWriter, Map<String, double[][][][]> results, Map<String, double[][]> pResults, Map<String, int[]> cResults) {
 //		// TODO Auto-generated method stub
 //		List<Map.Entry<String, double[][][][]>> rList = new ArrayList<Map.Entry<String, double[][][][]>>(results.entrySet());
 //		Collections.sort(rList, new Comparator<Map.Entry<String, double[][][][]>>(){
@@ -373,15 +388,20 @@ public class Client {
 //			print(versions, result, pResult, cResult, cWriter);
 //		}
 //	}
-	
+
 	/**print the results ordered by pResutls[H_2][0]
 	 * @param cWriter
 	 */
 	/**
 	 * @param cWriter
+	 * @param statistics 
+	 * @param cResults 
+	 * @param pResults
+	 * @param results 
 	 */
-	private void printFinalResults(PrintWriter cWriter) {
+	private void printFinalResults(PrintWriter cWriter, Map<String, double[][][][]> results, Map<String, double[][]> pResults, Map<String, int[]> cResults, Map<String, Set<Integer>> statistics) {
 		// TODO Auto-generated method stub
+		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		List<Map.Entry<String, double[][]>> pRList = new ArrayList<Map.Entry<String, double[][]>>(pResults.entrySet());
 		Collections.sort(pRList, new Comparator<Map.Entry<String, double[][]>>(){
 
@@ -404,14 +424,16 @@ public class Client {
 		double[][][][] result = new double[Score.values().length][Order.values().length][2][5];
 		double[][] pResult = new double[Score.values().length][5];
 		int[] cResult = new int[3];
+		int sumRounds = 0;
 		for(int i = 0; i < pRList.size(); i++){
-			Entry<String, double[][]> entry = pRList.get(i);
-			versions.add(entry.getKey());
+			String version = pRList.get(i).getKey();
+			versions.add(version);
 			assert(i + 1 == versions.size());
-			accumulateResult(result, results.get(entry.getKey()));
-			accumulatePResult(pResult, pResults.get(entry.getKey()));
-			accumulateCResult(cResult, cResults.get(entry.getKey()));
-			print(versions, result, pResult, cResult, cWriter);
+			accumulateResult(result, results.get(version));
+			accumulatePResult(pResult, pResults.get(version));
+			accumulateCResult(cResult, cResults.get(version));
+			sumRounds += statistics.get(version).size();
+			print(versions, result, pResult, cResult, sumRounds, cWriter);
 		}
 	}
 
@@ -447,41 +469,20 @@ public class Client {
 		}
 	}
 
-	private void print(Set<String> versions, double[][][][] result, double[][] pResult, int[] cResult, PrintWriter cWriter) {
+	private void print(Set<String> versions, double[][][][] result, double[][] pResult, int[] cResult, int sumRounds, PrintWriter cWriter) {
 		// TODO Auto-generated method stub
-		System.out.println(versions.size() + "\n" + subject + ": " + versions + "\n==============================================================");
 		cWriter.println(versions.size() + "\n" + subject + ": " + versions + "\n==============================================================");
-		System.out.println("On average:\t" 
-				+ String.format("%-20s", "methods:" + cResult[0] / versions.size())
-				+ String.format("%-20s", "sites:" + cResult[1] / versions.size())
-				+ String.format("%-20s", "predicates:" + cResult[2] / versions.size())
-				);
-		System.out.println("\n==============================================================");
 		cWriter.println("On average:\t" 
 				+ String.format("%-20s", "methods:" + cResult[0] / versions.size())
 				+ String.format("%-20s", "sites:" + cResult[1] / versions.size())
 				+ String.format("%-20s", "predicates:" + cResult[2] / versions.size())
+				+ String.format("%-20s", "rounds:" + new DecimalFormat(".##").format((double)sumRounds / versions.size()))
+				+ String.format("%-20s", "rounds%:" + new DecimalFormat(".##").format((double)sumRounds / versions.size() / round))
 				);
 		cWriter.println("\n==============================================================");
 		for (int m = 0; m < result.length; m++) {
 			for (int n = 0; n < result[m].length; n++) {
 				String mode = "<" + Score.values()[m] + "," + Order.values()[n] + ">";
-				System.out.println("The information of average sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
-				System.out.println("Excluding\t" 
-						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(result[m][n][0][0] / versions.size()))
-						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(result[m][n][0][1] / versions.size()))
-						+ String.format("%-15s", "i:" + new DecimalFormat("#.#").format(result[m][n][0][2] / versions.size())) 
-						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(result[m][n][0][3] / versions.size())) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(result[m][n][0][4] / versions.size())) 
-						);
-				System.out.println("Including\t" 
-						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(result[m][n][1][0] / versions.size()))
-						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(result[m][n][1][1] / versions.size()))
-						+ String.format("%-15s", "i:" + new DecimalFormat("#.#").format(result[m][n][1][2] / versions.size())) 
-						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(result[m][n][1][3] / versions.size())) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(result[m][n][1][4] / versions.size())) 
-						);
-				System.out.println();
 				cWriter.println("The information of average sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 				cWriter.println("Excluding\t" 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(result[m][n][0][0] / versions.size()))
@@ -500,14 +501,6 @@ public class Client {
 				cWriter.println();
 			}
 			
-			System.out.println("==============================================================");
-			System.out.println("The prune case by <" + Score.values()[m] + ">:\t\t"
-							+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(pResult[m][0] / versions.size()))
-							+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pResult[m][1] / versions.size()))
-							+ String.format("%-15s", "i:" + new DecimalFormat("#.#").format(pResult[m][2] / versions.size()))
-							+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(pResult[m][3] / versions.size())) 
-							+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(pResult[m][4] / versions.size())));
-			System.out.println("\n");
 			cWriter.println("==============================================================");
 			cWriter.println("The prune case by <" + Score.values()[m] + ">:\t\t"
 							+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(pResult[m][0] / versions.size()))
@@ -517,7 +510,6 @@ public class Client {
 							+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(pResult[m][4] / versions.size())));
 			cWriter.println("\n");
 		}
-		System.out.println("\n");
 		cWriter.println("\n");
 	}
 
@@ -537,57 +529,57 @@ public class Client {
 				{"2650", "schedule"},
 				{"2710", "schedule2"}
 		};
-//		
-//		if(args.length != 5 && args.length != 3){
-//			System.out.println("The characteristics of subjects are as follows:");
-//			for(int i = 0; i < argvs.length; i++){
-//				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
-//			}
-//			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') subject consoleDir(excluding '/') " +
-//					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir(including '/') consoleDir(excluding '/')");
-//			return;
-//		}
-//		
-//		if(args.length == 4){
-//			Client c = new Client(new File(args[2]), args[3], new File(args[4] + "/"));
-//			if(Integer.parseInt(args[0]) == 0){
-//				c.computeSiemensResults();
-//			}
-//			else if(Integer.parseInt(args[0]) == 1){
-//				c.computeSirResults();
-//			}
-//		}
-//		else if(args.length == 3){
-//			assert(Integer.parseInt(args[0]) == 0);
-//			for(int i = 4; i < argvs.length; i++){
-//				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "/" + argvs[i][1] + "/"));
-//				c.computeSiemensResults();
-//			}
-//		}
-
-		Client cc;
-		String s = "";
-		for(int j = 1; j < 2; j++){
-			s += "_";
-			
-			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", 
-					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip" + s + Client.percent + "/"));
-			cc.computeSirResults();
-			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", 
-					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed" + s + Client.percent + "/"));
-			cc.computeSirResults();
-			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "grep", 
-					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/grep" + s + Client.percent + "/"));
-			cc.computeSirResults();
-			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "space", 
-					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/space" + s + Client.percent + "/"));
-			cc.computeSiemensResults();
-			for(int i = 4; i < argvs.length; i++){
-				cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/Siemens/"), argvs[i][1], 
-						new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/Siemens" + s + Client.percent + "/" + argvs[i][1] + "/"));
-				cc.computeSiemensResults();
+		
+		if(args.length != 6 && args.length != 5){
+			System.out.println("The characteristics of subjects are as follows:");
+			for(int i = 0; i < argvs.length; i++){
+				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
+			}
+			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir(excluding /) round percent" +
+					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) round percent");
+			return;
+		}
+		
+		if(args.length == 6){
+			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4] + "_" + args[5]), Integer.parseInt(args[4]), Double.parseDouble(args[5]));
+			if(Integer.parseInt(args[0]) == 0){
+				c.computeSiemensResults();
+			}
+			else if(Integer.parseInt(args[0]) == 1){
+				c.computeSirResults();
 			}
 		}
+		else if(args.length == 5){
+			assert(Integer.parseInt(args[0]) == 0);
+			for(int i = 4; i < argvs.length; i++){
+				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "_" + args[3] + "_" + args[4], argvs[i][1]), Integer.parseInt(args[3]), Double.parseDouble(args[4]));
+				c.computeSiemensResults();
+			}
+		}
+
+//		Client cc;
+//		String s = "";
+//		for(int j = 1; j < 2; j++){
+//			s += "_";
+//			
+//			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", 
+//					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip" + s + Client.percent + "/"));
+//			cc.computeSirResults();
+//			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", 
+//					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed" + s + Client.percent + "/"));
+//			cc.computeSirResults();
+//			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "grep", 
+//					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/grep" + s + Client.percent + "/"));
+//			cc.computeSirResults();
+//			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "space", 
+//					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/space" + s + Client.percent + "/"));
+//			cc.computeSiemensResults();
+//			for(int i = 4; i < argvs.length; i++){
+//				cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/Siemens/"), argvs[i][1], 
+//						new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/Siemens" + s + Client.percent + "/" + argvs[i][1] + "/"));
+//				cc.computeSiemensResults();
+//			}
+//		}
 	}
 	
 }

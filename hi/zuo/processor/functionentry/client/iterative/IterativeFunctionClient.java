@@ -60,6 +60,9 @@ public class IterativeFunctionClient {
 	final File methodsFileDir;
 	
 	public IterativeFunctionClient(FunctionEntrySites sites, FunctionEntryProfile[] profiles, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map, PrintWriter clientWriter, File methodsF) {
+		this.pFlag = true;
+		this.cPFlag = true;
+		
 		this.sites = sites;
 		this.sInfo = sInfo;
 		this.targetFunction = getTargetFunction(fullICBIClient);
@@ -78,6 +81,9 @@ public class IterativeFunctionClient {
 		
 		PrintWriter writer = null;
 		try {
+			if(!consoleFile.getParentFile().exists()){
+				consoleFile.getParentFile().mkdirs();
+			}
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
 			run(writer, clientWriter, profiles);
 		} catch (IOException e) {
@@ -160,19 +166,12 @@ public class IterativeFunctionClient {
 		assert(processor.getFrequencyMap().size() == this.sInfo.getMap().size());
 		
 		//print out entry and percentage information
-		System.out.println();
 		for(Score score: Score.values()){
 			BoundCalculator bc = new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive());
 			for(Order order: Order.values()){
 				printEntryAndPercentage(processor.getFrequencyMap(), score, order, bc, writer, clientWriter);
-				if(!pFlag){
-					return;
-				}
 			}
 			printPruningCase(processor.getFrequencyMap(), score, bc, writer, clientWriter);
-			if(!cPFlag){
-				return;
-			}
 		}
 	}
 
@@ -253,26 +252,12 @@ public class IterativeFunctionClient {
 		
 		//check whether the pruned top k predictors are the same as the original predictors
 		checkPruneConsistency(Client.k);
-		if(!cPFlag){
-			return;
-		}
 		
 		sp = (double)100 * nSites / sInfo.getNumPredicateSites();
 		pp = (double)100 * nPredicates / sInfo.getNumPredicateItems();
 		as = (double) nSites / i;
 		ap = (double) nPredicates / i;
 		
-		System.out.println();
-		System.out.println("==============================================================");
-		System.out.println(String.format("%-50s", "Pruning by <" + score + ">:")
-						+ String.format("%-15s", "s:" + nSites) 
-						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
-						+ String.format("%-15s", "p:" + nPredicates) 
-						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
-						+ String.format("%-15s", "i:" + i) 
-						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-		System.out.println();
 		printPruningInfo(score, writer, i, nSites, nPredicates, sp, pp, as, ap);
 		printPruningInfo(score, clientWriter, i, nSites, nPredicates, sp, pp, as, ap);
 		
@@ -285,8 +270,6 @@ public class IterativeFunctionClient {
 	
 	private void checkPruneConsistency(int k) {
 		// TODO Auto-generated method stub
-		cPFlag = true;
-		
 		Set<PredicateItem> pruneSet = new HashSet<PredicateItem>();
 //		getTopKPredictors(pruneSet, this.sortedPrunedPredictors, k);
 		getTopKImportances(pruneSet, this.sortedPrunedPredictors, k);
@@ -300,7 +283,6 @@ public class IterativeFunctionClient {
 			System.out.println("Original: \t" + originalSet.toString());
 			System.out.println("Pruned: \t" + pruneSet.toString());
 			cPFlag = false;
-			return;
 		}
 	}
 
@@ -434,13 +416,9 @@ public class IterativeFunctionClient {
 		String mode = "<" + score + "," + order + ">";
 		writer.println("The methods ordered by " + mode + " are as follows:\n--------------------------------------------------------------");
 		printEntry(list, writer);
-		System.out.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		writer.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		clientWriter.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
 		printPercentage(list, score, order, bc, writer, clientWriter);
-//		if(!pFlag){
-//			return;
-//		}
 	}
 		
 	/**rank the methods in the mode <score,order>
@@ -641,14 +619,6 @@ public class IterativeFunctionClient {
 					as = 0;
 					ap = 0;
 				}
-				System.out.println(String.format("%-50s", "Excluding " + method) 
-						+ String.format("%-15s", "s:" + nSites) 
-						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
-						+ String.format("%-15s", "p:" + nPredicates) 
-						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
-						+ String.format("%-15s", "i:" + i) 
-						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 				writer.println(String.format("%-50s", "Excluding " + method) 
 						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
@@ -674,11 +644,9 @@ public class IterativeFunctionClient {
 				
 				
 				//---------------------------------------------------------------------------------------------------------------------//
-				pFlag = true;
 				if(skip(score, bc, threshold, value)){
 					System.out.println("Incorrect Pruning");
 					pFlag = false;
-					return;
 				}
 				
 				i++;
@@ -690,15 +658,6 @@ public class IterativeFunctionClient {
 				as = (double)nSites / (i);
 				ap = (double)nPredicates / (i);
 				
-				System.out.println(String.format("%-50s", "Including " + method) 
-						+ String.format("%-15s", "s:" + nSites) 
-						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
-						+ String.format("%-15s", "p:" + nPredicates) 
-						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
-						+ String.format("%-15s", "i:" + (i)) 
-						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-				System.out.println();
 				writer.println(String.format("%-50s", "Including " + method) 
 						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
