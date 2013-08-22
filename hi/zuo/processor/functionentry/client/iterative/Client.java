@@ -336,41 +336,84 @@ public class Client {
 		printErrorInfo(cWriter);
 	}
 	
+//	/**print the results ordered by results[H_2][Less_First][1][0]
+//	 * @param cWriter
+//	 */
+//	private void printFinalResults(PrintWriter cWriter) {
+//		// TODO Auto-generated method stub
+//		List<Map.Entry<String, double[][][][]>> rList = new ArrayList<Map.Entry<String, double[][][][]>>(results.entrySet());
+//		Collections.sort(rList, new Comparator<Map.Entry<String, double[][][][]>>(){
+//
+//			private double getSortValue(Entry<String, double[][][][]> entry) {
+//				// TODO Auto-generated method stub
+//				double[][][][] array = entry.getValue();
+//				return array[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][1][0];
+//			}
+//
+//			@Override
+//			public int compare(Entry<String, double[][][][]> o1,
+//					Entry<String, double[][][][]> o2) {
+//				// TODO Auto-generated method stub
+//				double d1 = getSortValue(o1),
+//						d2 = getSortValue(o2);
+//				return new Double(d1).compareTo(new Double(d2));
+//			}});
+//		
+//		Set<String> versions = new LinkedHashSet<String>();
+//		double[][][][] result = new double[Score.values().length][Order.values().length][2][5];
+//		double[][] pResult = new double[Score.values().length][5];
+//		int[] cResult = new int[3];
+//		for(int i = 0; i < rList.size(); i++){
+//			Entry<String, double[][][][]> entry = rList.get(i);
+//			versions.add(entry.getKey());
+//			assert(i + 1 == versions.size());
+//			accumulateResult(result, results.get(entry.getKey()));
+//			accumulatePResult(pResult, pResults.get(entry.getKey()));
+//			accumulateCResult(cResult, cResults.get(entry.getKey()));
+//			print(versions, result, pResult, cResult, cWriter);
+//		}
+//	}
+	
+	/**print the results ordered by pResutls[H_2][0]
+	 * @param cWriter
+	 */
+	/**
+	 * @param cWriter
+	 */
 	private void printFinalResults(PrintWriter cWriter) {
 		// TODO Auto-generated method stub
-		List<Map.Entry<String, double[][][][]>> rList = new ArrayList<Map.Entry<String, double[][][][]>>(results.entrySet());
-		Collections.sort(rList, new Comparator<Map.Entry<String, double[][][][]>>(){
+		List<Map.Entry<String, double[][]>> pRList = new ArrayList<Map.Entry<String, double[][]>>(pResults.entrySet());
+		Collections.sort(pRList, new Comparator<Map.Entry<String, double[][]>>(){
 
-			private double getSortValue(Entry<String, double[][][][]> entry) {
+			private double getSortValue(Entry<String, double[][]> entry) {
 				// TODO Auto-generated method stub
-				double[][][][] array = entry.getValue();
-				return array[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][1][0];
+				double[][] array = entry.getValue();
+				return array[Score.H_2.ordinal()][0];
 			}
 
 			@Override
-			public int compare(Entry<String, double[][][][]> o1,
-					Entry<String, double[][][][]> o2) {
+			public int compare(Entry<String, double[][]> o1,
+					Entry<String, double[][]> o2) {
 				// TODO Auto-generated method stub
-				double d0 = getSortValue(o1),
-						d1 = getSortValue(o2);
-				return new Double(d0).compareTo(new Double(d1));
+				double d1 = getSortValue(o1),
+						d2 = getSortValue(o2);
+				return new Double(d1).compareTo(new Double(d2));
 			}});
 		
 		Set<String> versions = new LinkedHashSet<String>();
 		double[][][][] result = new double[Score.values().length][Order.values().length][2][5];
 		double[][] pResult = new double[Score.values().length][5];
 		int[] cResult = new int[3];
-		for(int i = 0; i < rList.size(); i++){
-			Entry<String, double[][][][]> entry = rList.get(i);
+		for(int i = 0; i < pRList.size(); i++){
+			Entry<String, double[][]> entry = pRList.get(i);
 			versions.add(entry.getKey());
 			assert(i + 1 == versions.size());
-			accumulateResult(result, entry.getValue());
+			accumulateResult(result, results.get(entry.getKey()));
 			accumulatePResult(pResult, pResults.get(entry.getKey()));
 			accumulateCResult(cResult, cResults.get(entry.getKey()));
 			print(versions, result, pResult, cResult, cWriter);
 		}
 	}
-	
 
 	private void accumulateCResult(int[] cResult, int[] is) {
 		// TODO Auto-generated method stub
