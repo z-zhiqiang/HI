@@ -138,7 +138,6 @@ public class Client {
 			String vi = version.getName();
 			versionsList.add(vi);
 			System.out.println(vi);
-			cWriter.println(vi);
 			
 			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version, vi + "_f.sites")));
 			PredicateProfile[] fProfiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), sInfo.getSites()).readProfiles();
@@ -165,7 +164,6 @@ public class Client {
 						sInfo, 
 						cs.getFullInstrumentedCBIClient(), 
 						cs.getClientsMap(), 
-						cWriter, 
 						new File(version, "adaptive"));
 				
 				if(cs.iscFlag() && client.ispFlag()){
@@ -191,12 +189,10 @@ public class Client {
 			statisticsX.put(vi, versionsSetX);
 			
 			System.out.println();
-			cWriter.println();	
 		}
 		
 		printFinalResults(cWriter, results, pResults, cResults, statistics);
 		printRoundsInfo(cWriter, statistics);
-		System.out.println("\n");
 		cWriter.println("\n");
 		printFinalResults(cWriter, resultsX, pResultsX, cResultsX, statisticsX);
 		printRoundsInfo(cWriter, statisticsX);
@@ -262,7 +258,6 @@ public class Client {
 				String vi = version.getName() + "_" + subversion.getName();
 				versionsList.add(vi);
 				System.out.println(vi);
-				cWriter.println(vi);
 				
 				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion, vi + "_f.sites")));
 				PredicateProfile[] fProfiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), sInfo.getSites()).readProfiles();
@@ -276,22 +271,25 @@ public class Client {
 				Set<Integer> versionsSet = new LinkedHashSet<Integer>(); 
 				Set<Integer> versionsSetX = new LinkedHashSet<Integer>(); 
 				for(int i = 0; i < round; i++){
+					System.out.println(i);
+					long time0 = System.currentTimeMillis();
 					while(true){
 						cs = new CBIClients(sInfo, fProfiles, new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_cbi.out"), percent);
 						if(cs.iszFlag()){
 							break;
 						}
 					} 
-					
+					long time1 = System.currentTimeMillis();
+					System.out.println("CBIClients:\t" + (time1 - time0));
 					client = new IterativeFunctionClient(cSites, 
 							cProfiles, 
 							new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_function.out"), 
 							sInfo, 
 							cs.getFullInstrumentedCBIClient(), 
 							cs.getClientsMap(), 
-							cWriter, 
 							new File(subversion, "adaptive"));
-					
+					long time2 = System.currentTimeMillis();
+					System.out.println("IterativeFunctionClient:\t" + (time2 - time1));
 					if(cs.iscFlag() && client.ispFlag()){
 						versionsSet.add(i);
 						if(!pResults.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResults.get(vi)[Score.H_2.ordinal()][0]){
@@ -309,13 +307,14 @@ public class Client {
 							cResultsX.put(vi, client.getcResult());
 						}
 					}
-					
+					long time3 = System.currentTimeMillis();
+					System.out.println("Check:\t" + (time3 - time2));
 				}
 				assert(versionsSet.containsAll(versionsSetX));
 				statistics.put(vi, versionsSet);
 				statisticsX.put(vi, versionsSetX);
 				
-				cWriter.println();	
+				System.out.println();
 			}
 			
 		}
@@ -330,31 +329,35 @@ public class Client {
 	
 
 	private void printRoundsInfo(PrintWriter cWriter, Map<String, Set<Integer>> statistics) {
-		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		// TODO Auto-generated method stub
 		int sumSize = 0;
 		cWriter.println("The stabilization information is as follows:\n--------------------------------------------------------------");
+		cWriter.println(String.format("%-15s", "") 
+				+ String.format("%-10s", "rounds#")
+				+ String.format("%-10s", "rounds%")
+				+ "rounds");
 		for(String version: statistics.keySet()){
 			int size = statistics.get(version).size();
 			sumSize += size;
 			cWriter.println(String.format("%-15s", version) 
 					+ String.format("%-10s", size)
-					+ String.format("%-10s", new DecimalFormat(".##").format((double)size / round))
+					+ String.format("%-10s", new DecimalFormat(".##").format((double)100 * size / round))
 					+ CBIClient.compressNumbers(statistics.get(version))
 					);
 		}
 		cWriter.println();
 		double mean = (double)sumSize / statistics.size();
 		cWriter.println("The average information is as follows:\n--------------------------------------------------------------");
-		cWriter.println(String.format("%-10s", new DecimalFormat(".##").format(mean))
-				+ String.format("%-10s", new DecimalFormat(".##").format(mean / round))
+		cWriter.println(String.format("%-20s", "rounds#:" + new DecimalFormat(".##").format(mean))
+				+ String.format("%-20s", "rounds%:" + new DecimalFormat(".##").format(100 * mean / round))
 				);
 	}
 	
 //	/**print the results ordered by results[H_2][Less_First][1][0]
 //	 * @param cWriter
 //	 */
-//	private void printFinalResults(PrintWriter cWriter, Map<String, double[][][][]> results, Map<String, double[][]> pResults, Map<String, int[]> cResults) {
+//	private void printFinalResults(PrintWriter cWriter, Map<String, double[][][][]> results, Map<String, double[][]> pResults, Map<String, int[]> cResults, Map<String, Set<Integer>> statistics) {
 //		// TODO Auto-generated method stub
 //		List<Map.Entry<String, double[][][][]>> rList = new ArrayList<Map.Entry<String, double[][][][]>>(results.entrySet());
 //		Collections.sort(rList, new Comparator<Map.Entry<String, double[][][][]>>(){
@@ -378,14 +381,16 @@ public class Client {
 //		double[][][][] result = new double[Score.values().length][Order.values().length][2][5];
 //		double[][] pResult = new double[Score.values().length][5];
 //		int[] cResult = new int[3];
+//		int sumRounds = 0;
 //		for(int i = 0; i < rList.size(); i++){
-//			Entry<String, double[][][][]> entry = rList.get(i);
-//			versions.add(entry.getKey());
+//			String version = rList.get(i).getKey();
+//			versions.add(version);
 //			assert(i + 1 == versions.size());
-//			accumulateResult(result, results.get(entry.getKey()));
-//			accumulatePResult(pResult, pResults.get(entry.getKey()));
-//			accumulateCResult(cResult, cResults.get(entry.getKey()));
-//			print(versions, result, pResult, cResult, cWriter);
+//			accumulateResult(result, results.get(version));
+//			accumulatePResult(pResult, pResults.get(version));
+//			accumulateCResult(cResult, cResults.get(version));
+//			sumRounds += statistics.get(version).size();
+//			print(versions, result, pResult, cResult, sumRounds, cWriter);
 //		}
 //	}
 
@@ -401,16 +406,9 @@ public class Client {
 	 */
 	private void printFinalResults(PrintWriter cWriter, Map<String, double[][][][]> results, Map<String, double[][]> pResults, Map<String, int[]> cResults, Map<String, Set<Integer>> statistics) {
 		// TODO Auto-generated method stub
-		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		List<Map.Entry<String, double[][]>> pRList = new ArrayList<Map.Entry<String, double[][]>>(pResults.entrySet());
 		Collections.sort(pRList, new Comparator<Map.Entry<String, double[][]>>(){
-
-			private double getSortValue(Entry<String, double[][]> entry) {
-				// TODO Auto-generated method stub
-				double[][] array = entry.getValue();
-				return array[Score.H_2.ordinal()][0];
-			}
-
 			@Override
 			public int compare(Entry<String, double[][]> o1,
 					Entry<String, double[][]> o2) {
@@ -418,7 +416,14 @@ public class Client {
 				double d1 = getSortValue(o1),
 						d2 = getSortValue(o2);
 				return new Double(d1).compareTo(new Double(d2));
-			}});
+			}
+			
+			private double getSortValue(Entry<String, double[][]> entry) {
+				// TODO Auto-generated method stub
+				double[][] array = entry.getValue();
+				return array[Score.H_2.ordinal()][0];
+			}
+		});
 		
 		Set<String> versions = new LinkedHashSet<String>();
 		double[][][][] result = new double[Score.values().length][Order.values().length][2][5];
@@ -476,8 +481,8 @@ public class Client {
 				+ String.format("%-20s", "methods:" + cResult[0] / versions.size())
 				+ String.format("%-20s", "sites:" + cResult[1] / versions.size())
 				+ String.format("%-20s", "predicates:" + cResult[2] / versions.size())
-				+ String.format("%-20s", "rounds:" + new DecimalFormat(".##").format((double)sumRounds / versions.size()))
-				+ String.format("%-20s", "rounds%:" + new DecimalFormat(".##").format((double)sumRounds / versions.size() / round))
+				+ String.format("%-20s", "rounds#:" + new DecimalFormat(".##").format((double)sumRounds / versions.size()))
+				+ String.format("%-20s", "rounds%:" + new DecimalFormat(".##").format((double)100 * sumRounds / versions.size() / round))
 				);
 		cWriter.println("\n==============================================================");
 		for (int m = 0; m < result.length; m++) {

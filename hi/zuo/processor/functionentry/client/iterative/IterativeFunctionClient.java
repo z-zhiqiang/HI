@@ -59,7 +59,7 @@ public class IterativeFunctionClient {
 	
 	final File methodsFileDir;
 	
-	public IterativeFunctionClient(FunctionEntrySites sites, FunctionEntryProfile[] profiles, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map, PrintWriter clientWriter, File methodsF) {
+	public IterativeFunctionClient(FunctionEntrySites sites, FunctionEntryProfile[] profiles, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map, File methodsF) {
 		this.pFlag = true;
 		this.cPFlag = true;
 		
@@ -85,7 +85,7 @@ public class IterativeFunctionClient {
 				consoleFile.getParentFile().mkdirs();
 			}
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
-			run(writer, clientWriter, profiles);
+			run(writer, profiles);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -145,7 +145,7 @@ public class IterativeFunctionClient {
 	}
 
 
-	private void run(PrintWriter writer, PrintWriter clientWriter, FunctionEntryProfile[] profiles){
+	private void run(PrintWriter writer, FunctionEntryProfile[] profiles){
 		SelectingProcessor processor = new SelectingProcessor(selectedFunctionEntryProfiles);
 		processor.process();
 		
@@ -169,9 +169,9 @@ public class IterativeFunctionClient {
 		for(Score score: Score.values()){
 			BoundCalculator bc = new BoundCalculator(processor.getTotalNegative(), processor.getTotalPositive());
 			for(Order order: Order.values()){
-				printEntryAndPercentage(processor.getFrequencyMap(), score, order, bc, writer, clientWriter);
+				printEntryAndPercentage(processor.getFrequencyMap(), score, order, bc, writer);
 			}
-			printPruningCase(processor.getFrequencyMap(), score, bc, writer, clientWriter);
+			printPruningCase(processor.getFrequencyMap(), score, bc, writer);
 		}
 	}
 
@@ -209,10 +209,9 @@ public class IterativeFunctionClient {
 	 * @param frequencyMap
 	 * @param score
 	 * @param bc
-	 * @param clientWriter 
 	 * @param writer 
 	 */
-	private void printPruningCase(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, BoundCalculator bc, PrintWriter writer, PrintWriter clientWriter) {
+	private void printPruningCase(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, BoundCalculator bc, PrintWriter writer) {
 		// TODO Auto-generated method stub
 		List<Map.Entry<FunctionEntrySite, FrequencyValue>> list = new ArrayList<Map.Entry<FunctionEntrySite, FrequencyValue>>(frequencyMap.entrySet());
 		Collections.sort(list, new Comparator<Entry<FunctionEntrySite, FrequencyValue>>(){
@@ -259,7 +258,6 @@ public class IterativeFunctionClient {
 		ap = (double) nPredicates / i;
 		
 		printPruningInfo(score, writer, i, nSites, nPredicates, sp, pp, as, ap);
-		printPruningInfo(score, clientWriter, i, nSites, nPredicates, sp, pp, as, ap);
 		
 		pResult[score.ordinal()][0] = sp;
 		pResult[score.ordinal()][1] = pp;
@@ -399,10 +397,9 @@ public class IterativeFunctionClient {
 	 * @param score
 	 * @param order
 	 * @param bc 
-	 * @param clientWriter 
 	 * @param writer 
 	 */
-	private void printEntryAndPercentage(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, final Order order, BoundCalculator bc, PrintWriter writer, PrintWriter clientWriter) {
+	private void printEntryAndPercentage(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, final Order order, BoundCalculator bc, PrintWriter writer) {
 		// TODO Auto-generated method stub
 		List<Entry<FunctionEntrySite, FrequencyValue>> list = new ArrayList<Entry<FunctionEntrySite, FrequencyValue>>(frequencyMap.entrySet());
 		Collections.sort(list, new Comparator<Entry<FunctionEntrySite, FrequencyValue>>(){
@@ -417,8 +414,7 @@ public class IterativeFunctionClient {
 		writer.println("The methods ordered by " + mode + " are as follows:\n--------------------------------------------------------------");
 		printEntry(list, writer);
 		writer.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
-		clientWriter.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
-		printPercentage(list, score, order, bc, writer, clientWriter);
+		printPercentage(list, score, order, bc, writer);
 	}
 		
 	/**rank the methods in the mode <score,order>
@@ -591,10 +587,9 @@ public class IterativeFunctionClient {
 	 * @param score
 	 * @param order
 	 * @param bc 
-	 * @param clientWriter 
 	 * @param writer 
 	 */
-	private void printPercentage(List<Entry<FunctionEntrySite, FrequencyValue>> list, Score score, Order order, BoundCalculator bc, PrintWriter writer, PrintWriter clientWriter) {
+	private void printPercentage(List<Entry<FunctionEntrySite, FrequencyValue>> list, Score score, Order order, BoundCalculator bc, PrintWriter writer) {
 		double threshold = 0;
 		int i = 0;
 		
@@ -620,14 +615,6 @@ public class IterativeFunctionClient {
 					ap = 0;
 				}
 				writer.println(String.format("%-50s", "Excluding " + method) 
-						+ String.format("%-15s", "s:" + nSites) 
-						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
-						+ String.format("%-15s", "p:" + nPredicates) 
-						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
-						+ String.format("%-15s", "i:" + i) 
-						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-				clientWriter.println(String.format("%-50s", "Excluding " + method) 
 						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
@@ -667,15 +654,6 @@ public class IterativeFunctionClient {
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 				writer.println();
-				clientWriter.println(String.format("%-50s", "Including " + method) 
-						+ String.format("%-15s", "s:" + nSites) 
-						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
-						+ String.format("%-15s", "p:" + nPredicates) 
-						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
-						+ String.format("%-15s", "i:" + (i)) 
-						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-				clientWriter.println();
 				
 				result[score.ordinal()][order.ordinal()][1][0] = sp;
 				result[score.ordinal()][order.ordinal()][1][1] = pp;
