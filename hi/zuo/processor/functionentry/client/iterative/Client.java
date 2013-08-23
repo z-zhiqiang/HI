@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -48,12 +49,12 @@ public class Client {
 	final Map<String, double[][][][]> results;
 	final Map<String, double[][]> pResults;
 	final Map<String, int[]> cResults;
-	final Map<String, Set<Integer>> statistics;
+	final Map<String, Statistic> statistics;
 	
 	final Map<String, double[][][][]> resultsX;
 	final Map<String, double[][]> pResultsX;
 	final Map<String, int[]> cResultsX;
-	final Map<String, Set<Integer>> statisticsX;
+	final Map<String, Statistic> statisticsX;
 	
 	public Client(File rootDir, String subject, File consoleFolder, int round, double percent) {
 		this.rootDir = rootDir;
@@ -66,60 +67,20 @@ public class Client {
 		this.results = new HashMap<String, double[][][][]>();
 		this.pResults = new HashMap<String, double[][]>();
 		this.cResults = new HashMap<String, int[]>();
-		this.statistics = new LinkedHashMap<String, Set<Integer>>();
+		this.statistics = new LinkedHashMap<String, Statistic>();
 		
 		this.resultsX = new HashMap<String, double[][][][]>();
 		this.pResultsX = new HashMap<String, double[][]>();
 		this.cResultsX = new HashMap<String, int[]>();
-		this.statisticsX = new LinkedHashMap<String, Set<Integer>>();
+		this.statisticsX = new LinkedHashMap<String, Statistic>();
 		
 	}
 
-	/**
-	 * compute and print out the results for Sir subject excluding Siemens and space
-	 */
-	private void computeSirResults() {
-		PrintWriter clientWriter = null;
-		try {
-			if(!consoleFolder.exists()){
-				consoleFolder.mkdirs();
-			}
-			clientWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + ".out"))));
-			printSirResults(clientWriter);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		finally{
-			if(clientWriter != null){
-				clientWriter.close();
-			}
-		}
-	}
 	
-	/**
-	 * compute and print out the results of Siemens' subject including space
+	/**compute and print out the results of Siemens' subject including space
+	 * 
 	 */
-	private void computeSiemensResults() {
-		PrintWriter clientWriter = null;
-		try {
-			if(!consoleFolder.exists()){
-				consoleFolder.mkdirs();
-			}
-			clientWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + ".out"))));
-			printSiemensResults(clientWriter);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		finally{
-			if(clientWriter != null){
-				clientWriter.close();
-			}
-		}
-	}
-	
-	private void printSiemensResults(PrintWriter cWriter){
+	public void runSiemens(){
 		File[] versions = new File(rootDir, subject + "/versions").listFiles(new FilenameFilter(){
 			@Override
 			public boolean accept(File dir, String name) {
@@ -141,15 +102,18 @@ public class Client {
 			
 			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version, vi + "_f.sites")));
 			PredicateProfile[] fProfiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), sInfo.getSites()).readProfiles();
-//			getFullMethodsList(sInfo, new File(version, "adaptive"));
+//			printMethodsList(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
 			
 			FunctionEntrySites cSites = new FunctionEntrySites(new File(version, vi + "_c.sites"));
 			FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), cSites).readFunctionEntryProfiles();
 			
 			CBIClients cs = null;
 			IterativeFunctionClient client = null;
+			
 			Set<Integer> versionsSet = new LinkedHashSet<Integer>(); 
+			int b = -1;
 			Set<Integer> versionsSetX = new LinkedHashSet<Integer>(); 
+			int bX = -1;
 			for(int i = 0; i < round; i++){
 				System.out.println(i);
 				while(true){
@@ -163,66 +127,52 @@ public class Client {
 						new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_function.out"), 
 						sInfo, 
 						cs.getFullInstrumentedCBIClient(), 
-						cs.getClientsMap(), 
-						new File(version, "adaptive"));
+						cs.getClientsMap());
 				
 				if(cs.iscFlag() && client.ispFlag()){
 					versionsSet.add(i);
 					if(!pResults.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResults.get(vi)[Score.H_2.ordinal()][0]){
+						b = i;
 						results.put(vi, client.getResult());
 						pResults.put(vi, client.getpResult());
 						cResults.put(vi, client.getcResult());
+						
+						for(Score score: client.getMethodsList().keySet()){
+							printMethodsList(client.getMethodsList().get(score), new File(new File(version, "adaptive"), String.valueOf(score)));
+						}
 					}
 				}
 				if(client.iscPFlag()){
 					assert(cs.iscFlag() && client.ispFlag());
 					versionsSetX.add(i);
 					if(!pResultsX.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResultsX.get(vi)[Score.H_2.ordinal()][0]){
+						bX = i;
 						resultsX.put(vi, client.getResult());
 						pResultsX.put(vi, client.getpResult());
 						cResultsX.put(vi, client.getcResult());
+						
+						for(Score score: client.getPruneMethodsList().keySet()){
+							printMethodsList(client.getPruneMethodsList().get(score), new File(new File(version, "adaptive"), String.valueOf(score) + "__X"));
+						}
 					}
 				}
 			}
 			assert(versionsSet.containsAll(versionsSetX));
-			statistics.put(vi, versionsSet);
-			statisticsX.put(vi, versionsSetX);
+			statistics.put(vi, new Statistic(b, versionsSet));
+			statisticsX.put(vi, new Statistic(bX, versionsSetX));
 			
 			System.out.println();
 		}
 		
-		printFinalResults(cWriter, results, pResults, cResults, statistics);
-		printRoundsInfo(cWriter, statistics);
-		cWriter.println("\n");
-		printFinalResults(cWriter, resultsX, pResultsX, cResultsX, statisticsX);
-		printRoundsInfo(cWriter, statisticsX);
-	}
-
-	private void getFullMethodsList(SitesInfo sInfo, File folder) {
-		// TODO Auto-generated method stub
-		PrintWriter out = null;
-		try{
-			if (!folder.exists()) {
-				folder.mkdirs();
-			}
-			//write the passing inputs
-			out = new PrintWriter(new BufferedWriter(new FileWriter(new File(folder, "full"))));
-			for(String method: sInfo.getMap().keySet()){
-				out.println(method);
-			}
-			out.close();
-			
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
-		finally{
-			out.close();
-		}
+		//print out the final results
+		printResults();
 	}
 
 
-	private void printSirResults(PrintWriter cWriter){
+	/**compute and print out the results for Sir subject excluding Siemens and space
+	 * 
+	 */
+	public void runSir(){
 		List<String> versionsList = new ArrayList<String>();
 		
 		File[] versions = new File(rootDir, subject + "/versions").listFiles(new FilenameFilter(){
@@ -261,7 +211,7 @@ public class Client {
 				
 				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion, vi + "_f.sites")));
 				PredicateProfile[] fProfiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), sInfo.getSites()).readProfiles();
-//				getFullMethodsList(sInfo, new File(subversion, "adaptive"));
+//				printMethodsList(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
 				FunctionEntrySites cSites = new FunctionEntrySites(new File(subversion, vi + "_c.sites"));
 				FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), cSites).readFunctionEntryProfiles();
@@ -269,66 +219,114 @@ public class Client {
 				CBIClients cs = null;
 				IterativeFunctionClient client = null;
 				Set<Integer> versionsSet = new LinkedHashSet<Integer>(); 
+				int b = -1;
 				Set<Integer> versionsSetX = new LinkedHashSet<Integer>(); 
+				int bX = -1;
 				for(int i = 0; i < round; i++){
 					System.out.println(i);
-					long time0 = System.currentTimeMillis();
+//					long time0 = System.currentTimeMillis();
 					while(true){
 						cs = new CBIClients(sInfo, fProfiles, new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_cbi.out"), percent);
 						if(cs.iszFlag()){
 							break;
 						}
 					} 
-					long time1 = System.currentTimeMillis();
-					System.out.println("CBIClients:\t" + (time1 - time0));
+//					long time1 = System.currentTimeMillis();
+//					System.out.println("CBIClients:\t" + (time1 - time0));
 					client = new IterativeFunctionClient(cSites, 
 							cProfiles, 
 							new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_function.out"), 
 							sInfo, 
 							cs.getFullInstrumentedCBIClient(), 
-							cs.getClientsMap(), 
-							new File(subversion, "adaptive"));
-					long time2 = System.currentTimeMillis();
-					System.out.println("IterativeFunctionClient:\t" + (time2 - time1));
+							cs.getClientsMap());
+//					long time2 = System.currentTimeMillis();
+//					System.out.println("IterativeFunctionClient:\t" + (time2 - time1));
 					if(cs.iscFlag() && client.ispFlag()){
 						versionsSet.add(i);
 						if(!pResults.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResults.get(vi)[Score.H_2.ordinal()][0]){
+							b = i;
 							results.put(vi, client.getResult());
 							pResults.put(vi, client.getpResult());
 							cResults.put(vi, client.getcResult());
+							
+							for(Score score: client.getMethodsList().keySet()){
+								printMethodsList(client.getMethodsList().get(score), new File(new File(subversion, "adaptive"), String.valueOf(score)));
+							}
 						}
 					}
 					if(client.iscPFlag()){
 						assert(cs.iscFlag() && client.ispFlag());
 						versionsSetX.add(i);
 						if(!pResultsX.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResultsX.get(vi)[Score.H_2.ordinal()][0]){
+							bX = i;
 							resultsX.put(vi, client.getResult());
 							pResultsX.put(vi, client.getpResult());
 							cResultsX.put(vi, client.getcResult());
+							
+							for(Score score: client.getPruneMethodsList().keySet()){
+								printMethodsList(client.getPruneMethodsList().get(score), new File(new File(subversion, "adaptive"), String.valueOf(score) + "__X"));
+							}
 						}
 					}
-					long time3 = System.currentTimeMillis();
-					System.out.println("Check:\t" + (time3 - time2));
+//					long time3 = System.currentTimeMillis();
+//					System.out.println("Check:\t" + (time3 - time2));
 				}
 				assert(versionsSet.containsAll(versionsSetX));
-				statistics.put(vi, versionsSet);
-				statisticsX.put(vi, versionsSetX);
+				statistics.put(vi, new Statistic(b, versionsSet));
+				statisticsX.put(vi, new Statistic(bX, versionsSetX));
 				
 				System.out.println();
 			}
-			
 		}
 		
-		
-		printFinalResults(cWriter, results, pResults, cResults, statistics);
-		printRoundsInfo(cWriter, statistics);
-		cWriter.println("\n");
-		printFinalResults(cWriter, resultsX, pResultsX, cResultsX, statisticsX);
-		printRoundsInfo(cWriter, statisticsX);
+		printResults();
 	}
 	
 
-	private void printRoundsInfo(PrintWriter cWriter, Map<String, Set<Integer>> statistics) {
+	private void printResults() {
+		PrintWriter cWriter = null;
+		try {
+			if(!consoleFolder.exists()){
+				consoleFolder.mkdirs();
+			}
+			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + ".out"))));
+			printFinalResults(cWriter, results, pResults, cResults, statistics);
+			printRoundsInfo(cWriter, statistics);
+			cWriter.println("\n");
+			printFinalResults(cWriter, resultsX, pResultsX, cResultsX, statisticsX);
+			printRoundsInfo(cWriter, statisticsX);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		finally{
+			if(cWriter != null){
+				cWriter.close();
+			}
+		}
+	}
+	
+	private void printMethodsList(Collection<String> list, File file){
+		PrintWriter out = null;
+		try{
+			if (!file.getParentFile().exists()) {
+				file.getParentFile().mkdirs();
+			}
+			//write the passing inputs
+			out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+			for(String method: list){
+				out.println(method);
+			}
+			out.close();
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		finally{
+			out.close();
+		}
+	}
+	
+	private void printRoundsInfo(PrintWriter cWriter, Map<String, Statistic> statistics) {
 		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		// TODO Auto-generated method stub
 		int sumSize = 0;
@@ -336,14 +334,16 @@ public class Client {
 		cWriter.println(String.format("%-15s", "") 
 				+ String.format("%-10s", "rounds#")
 				+ String.format("%-10s", "rounds%")
+				+ String.format("%-10s", "best")
 				+ "rounds");
 		for(String version: statistics.keySet()){
-			int size = statistics.get(version).size();
+			int size = statistics.get(version).getRounds().size();
 			sumSize += size;
 			cWriter.println(String.format("%-15s", version) 
 					+ String.format("%-10s", size)
 					+ String.format("%-10s", new DecimalFormat(".##").format((double)100 * size / round))
-					+ CBIClient.compressNumbers(statistics.get(version))
+					+ String.format("%-10s", statistics.get(version).getBest())
+					+ CBIClient.compressNumbers(statistics.get(version).getRounds())
 					);
 		}
 		cWriter.println();
@@ -399,12 +399,12 @@ public class Client {
 	 */
 	/**
 	 * @param cWriter
-	 * @param statistics 
+	 * @param statistics2 
 	 * @param cResults 
 	 * @param pResults
 	 * @param results 
 	 */
-	private void printFinalResults(PrintWriter cWriter, Map<String, double[][][][]> results, Map<String, double[][]> pResults, Map<String, int[]> cResults, Map<String, Set<Integer>> statistics) {
+	private void printFinalResults(PrintWriter cWriter, Map<String, double[][][][]> results, Map<String, double[][]> pResults, Map<String, int[]> cResults, Map<String, Statistic> statistics) {
 		// TODO Auto-generated method stub
 		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		List<Map.Entry<String, double[][]>> pRList = new ArrayList<Map.Entry<String, double[][]>>(pResults.entrySet());
@@ -437,7 +437,7 @@ public class Client {
 			accumulateResult(result, results.get(version));
 			accumulatePResult(pResult, pResults.get(version));
 			accumulateCResult(cResult, cResults.get(version));
-			sumRounds += statistics.get(version).size();
+			sumRounds += statistics.get(version).getRounds().size();
 			print(versions, result, pResult, cResult, sumRounds, cWriter);
 		}
 	}
@@ -535,33 +535,37 @@ public class Client {
 				{"2710", "schedule2"}
 		};
 		
-		if(args.length != 6 && args.length != 5){
-			System.out.println("The characteristics of subjects are as follows:");
-			for(int i = 0; i < argvs.length; i++){
-				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
-			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir(excluding /) round percent" +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) round percent");
-			return;
-		}
-		
-		if(args.length == 6){
-			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4] + "_" + args[5]), Integer.parseInt(args[4]), Double.parseDouble(args[5]));
-			if(Integer.parseInt(args[0]) == 0){
-				c.computeSiemensResults();
-			}
-			else if(Integer.parseInt(args[0]) == 1){
-				c.computeSirResults();
-			}
-		}
-		else if(args.length == 5){
-			assert(Integer.parseInt(args[0]) == 0);
-			for(int i = 4; i < argvs.length; i++){
-				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "_" + args[3] + "_" + args[4], argvs[i][1]), Integer.parseInt(args[3]), Double.parseDouble(args[4]));
-				c.computeSiemensResults();
-			}
-		}
+//		if(args.length != 6 && args.length != 5){
+//			System.out.println("The characteristics of subjects are as follows:");
+//			for(int i = 0; i < argvs.length; i++){
+//				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
+//			}
+//			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir(excluding /) round percent" +
+//					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) round percent");
+//			return;
+//		}
+//		
+//		if(args.length == 6){
+//			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4] + "_" + args[5]), Integer.parseInt(args[4]), Double.parseDouble(args[5]));
+//			if(Integer.parseInt(args[0]) == 0){
+//				c.computeSiemensResults();
+//			}
+//			else if(Integer.parseInt(args[0]) == 1){
+//				c.computeSirResults();
+//			}
+//		}
+//		else if(args.length == 5){
+//			assert(Integer.parseInt(args[0]) == 0);
+//			for(int i = 4; i < argvs.length; i++){
+//				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "_" + args[3] + "_" + args[4], argvs[i][1]), Integer.parseInt(args[3]), Double.parseDouble(args[4]));
+//				c.computeSiemensResults();
+//			}
+//		}
 
+		Client cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", 
+				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed_" + 3 + "_" + 1.0), 3, 1.0);
+		cc.runSir();
+				
 //		Client cc;
 //		String s = "";
 //		for(int j = 1; j < 2; j++){
@@ -587,4 +591,23 @@ public class Client {
 //		}
 	}
 	
+	
+	public static class Statistic{
+		private final int best;
+		private final Set<Integer> rounds;
+		
+		public Statistic(int b, Set<Integer> rs){
+			this.best = b;
+			this.rounds = rs;
+		}
+
+		public int getBest() {
+			return best;
+		}
+
+		public Set<Integer> getRounds() {
+			return rounds;
+		}
+		
+	}
 }

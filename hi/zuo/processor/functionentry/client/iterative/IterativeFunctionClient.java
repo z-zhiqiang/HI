@@ -58,11 +58,10 @@ public class IterativeFunctionClient {
 	final double[][] pResult;
 	final int[] cResult;//{methods, sites, predicates}
 	
-//	final File methodsFileDir;
 	final Map<Score, List<String>> methodsList;
 	final Map<Score, List<String>> pruneMethodsList;
 	
-	public IterativeFunctionClient(FunctionEntrySites sites, FunctionEntryProfile[] profiles, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map, File methodsF) {
+	public IterativeFunctionClient(FunctionEntrySites sites, FunctionEntryProfile[] profiles, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map) {
 		this.pFlag = true;
 		this.cPFlag = true;
 		
@@ -75,7 +74,6 @@ public class IterativeFunctionClient {
 		this.pResult = new double[Score.values().length][5];
 		this.cResult = new int[3];
 		
-//		this.methodsFileDir = methodsF;
 		this.methodsList = new HashMap<Score, List<String>>();
 		this.pruneMethodsList = new HashMap<Score, List<String>>();
 		

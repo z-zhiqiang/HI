@@ -102,9 +102,8 @@ public class CBIClients {
 		//iterative CBIClient each for each function
 		Set<String> pFunctions;
 		Set<Integer> pSamples;
-//		TreeMap<Double, SortedSet<PredicateItem>> fullSortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
 		
-		long time0 = System.currentTimeMillis();
+//		long time0 = System.currentTimeMillis();
 		clientsMap = new HashMap<String, CBIClient>();
 		for(String function: functions){
 			pFunctions = new HashSet<String>();
@@ -114,19 +113,12 @@ public class CBIClients {
 			
 			CBIClient pc = new CBIClient(Client.iK, profiles, writer, pFunctions, pSamples);
 			clientsMap.put(function, pc);
-			
-//			appendPredictors(fullSortedPredictors, pc.getSortedPredictors());
 		}
-		long time1 = System.currentTimeMillis();
-		System.out.println("Iterative CBIClient:\t" + (time1 - time0));
+//		long time1 = System.currentTimeMillis();
+//		System.out.println("Iterative CBIClient:\t" + (time1 - time0));
+		
 		//confirm that iterative instrumentation gets the same top predictors as the full instrumentation
 		checkConsistency();
-		
-//		//print out the global predictors derived from multiple iterations
-//		writer.println("\n");
-//		writer.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FULLY INSTRUMENTED FROM MULTIPLE ITERATIONS");
-//		writer.println();
-//		CBIClient.printTopK(fullSortedPredictors, Client.fKM, writer);
 	}
 
 	private void checkNonZeroPredictor() {
