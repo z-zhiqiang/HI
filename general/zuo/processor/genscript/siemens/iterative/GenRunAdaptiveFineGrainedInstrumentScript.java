@@ -82,25 +82,10 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			code.append("export OUTPUTSDIR=" + outputDir + method + "/\n");
 			code.append("export TRACESDIR=" + traceDir + method + "/\n");
 			
+			stmts(code, method);
 			code.append(startTimeCommand + "\n");
-			for(int j = 0; j < 3; j++){
-				for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
-					int index = it.next();
-					code.append(runinfo + index + "\"\n");// running info
-					code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-					code.append("$VERSIONSDIR/" + version + "_finst__" + method + ".exe ");//executables
-					code.append(inputsMap.get(index));//parameters
-					code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
-				}
-				
-				for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
-					int index = it.next();
-					code.append(runinfo + index + "\"\n");// running info
-					code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-					code.append("$VERSIONSDIR/" + version + "_finst__" + method + ".exe ");//executables
-					code.append(inputsMap.get(index));//parameters
-					code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
-				}
+			for(int j = 0; j < ROUNDS; j++){
+				stmts(code, method);
 			}
 			code.append(endTimeCommand + " >& $OUTPUTSDIR/time\n");
 			
@@ -116,6 +101,26 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		code.append("echo \"Average time in seconds: $((tTime/1000000000/" + num + ")) \nTime in milliseconds: $((tTime/1000000/" + num + "))\"" +
 				" >& " + outputDir + "time\n");
 		printToFile(code.toString(), scriptDir, version + "_fg_a.sh");
+	}
+
+	private void stmts(StringBuilder code, String method) {
+		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+			int index = it.next();
+			code.append(runinfo + index + "\"\n");// running info
+			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
+			code.append("$VERSIONSDIR/" + version + "_finst__" + method + ".exe ");//executables
+			code.append(inputsMap.get(index));//parameters
+			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
+		}
+		
+		for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
+			int index = it.next();
+			code.append(runinfo + index + "\"\n");// running info
+			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
+			code.append("$VERSIONSDIR/" + version + "_finst__" + method + ".exe ");//executables
+			code.append(inputsMap.get(index));//parameters
+			code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
+		}
 	}
 
 

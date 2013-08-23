@@ -30,28 +30,34 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		
+		stmts(code);
 		code.append(startTimeCommand + "\n");
-		for(int j = 0; j < 3; j++){
-			for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
-				int index = it.next();
-				code.append(runinfo + index + "\"\n");// running info
-				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst.exe "));
-				code.append("\n");
-			}
-			
-			for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
-				int index = it.next();
-				code.append(runinfo + index + "\"\n");// running info
-				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst.exe "));
-				code.append("\n");
-			}
+		for(int j = 0; j < ROUNDS; j++){
+			stmts(code);
 		}
 		code.append(endTimeCommand + " >& " + outputDir + "time\n");
 		
 		code.append("rm ../outputs/*\n");
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_fg.sh");
+	}
+
+
+	private void stmts(StringBuffer code) {
+		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+			int index = it.next();
+			code.append(runinfo + index + "\"\n");// running info
+			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
+			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst.exe "));
+			code.append("\n");
+		}
+		
+		for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
+			int index = it.next();
+			code.append(runinfo + index + "\"\n");// running info
+			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
+			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst.exe "));
+			code.append("\n");
+		}
 	}
 
 

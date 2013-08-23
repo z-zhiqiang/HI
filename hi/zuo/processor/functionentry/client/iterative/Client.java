@@ -535,36 +535,36 @@ public class Client {
 				{"2710", "schedule2"}
 		};
 		
-//		if(args.length != 6 && args.length != 5){
-//			System.out.println("The characteristics of subjects are as follows:");
-//			for(int i = 0; i < argvs.length; i++){
-//				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
-//			}
-//			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir(excluding /) round percent" +
-//					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) round percent");
-//			return;
-//		}
-//		
-//		if(args.length == 6){
-//			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4] + "_" + args[5]), Integer.parseInt(args[4]), Double.parseDouble(args[5]));
-//			if(Integer.parseInt(args[0]) == 0){
-//				c.computeSiemensResults();
-//			}
-//			else if(Integer.parseInt(args[0]) == 1){
-//				c.computeSirResults();
-//			}
-//		}
-//		else if(args.length == 5){
-//			assert(Integer.parseInt(args[0]) == 0);
-//			for(int i = 4; i < argvs.length; i++){
-//				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "_" + args[3] + "_" + args[4], argvs[i][1]), Integer.parseInt(args[3]), Double.parseDouble(args[4]));
-//				c.computeSiemensResults();
-//			}
-//		}
+		if(args.length != 6 && args.length != 5){
+			System.out.println("The characteristics of subjects are as follows:");
+			for(int i = 0; i < argvs.length; i++){
+				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
+			}
+			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir(excluding /) round percent" +
+					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) round percent");
+			return;
+		}
+		
+		if(args.length == 6){
+			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4] + "_" + args[5]), Integer.parseInt(args[4]), Double.parseDouble(args[5]));
+			if(Integer.parseInt(args[0]) == 0){
+				c.runSiemens();
+			}
+			else if(Integer.parseInt(args[0]) == 1){
+				c.runSir();
+			}
+		}
+		else if(args.length == 5){
+			assert(Integer.parseInt(args[0]) == 0);
+			for(int i = 4; i < argvs.length; i++){
+				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "_" + args[3] + "_" + args[4], argvs[i][1]), Integer.parseInt(args[3]), Double.parseDouble(args[4]));
+				c.runSiemens();
+			}
+		}
 
-		Client cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", 
-				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed_" + 3 + "_" + 1.0), 3, 1.0);
-		cc.runSir();
+//		Client cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", 
+//				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip_" + 3 + "_" + 1.0), 3, 1.0);
+//		cc.runSir();
 				
 //		Client cc;
 //		String s = "";

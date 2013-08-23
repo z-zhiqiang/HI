@@ -38,33 +38,39 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		
+		stmts(code);
 		code.append(startTimeCommand + "\n");
-		for(int j = 0; j < 3; j++){
-			for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
-				int index = it.next();
-				code.append(runinfo + index + "\"\n");// running info
-				code.append("export SAMPLER_SPARSITY=" + sample + "\n");
-				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-				code.append("$VERSIONSDIR/" + version + "_finst__" + sample + ".exe ");//executables
-				code.append(inputsMap.get(index));//parameters
-				code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
-			}
-			
-			for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
-				int index = it.next();
-				code.append(runinfo + index + "\"\n");// running info
-				code.append("export SAMPLER_SPARSITY=" + sample + "\n");
-				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-				code.append("$VERSIONSDIR/" + version + "_finst__" + sample + ".exe ");//executables
-				code.append(inputsMap.get(index));//parameters
-				code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
-			}
+		for(int j = 0; j < ROUNDS; j++){
+			stmts(code);
 		}
 		code.append(endTimeCommand + " >& $OUTPUTSDIR/time\n");
 		
 		code.append("rm $OUTPUTSDIR/o*out\n");
 		code.append("rm $TRACESDIR/o*profile\n");
 		printToFile(code.toString(), scriptDir, version + "_fg_s" + sample + ".sh");
+	}
+
+
+	private void stmts(StringBuffer code) {
+		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+			int index = it.next();
+			code.append(runinfo + index + "\"\n");// running info
+			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
+			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
+			code.append("$VERSIONSDIR/" + version + "_finst__" + sample + ".exe ");//executables
+			code.append(inputsMap.get(index));//parameters
+			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
+		}
+		
+		for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
+			int index = it.next();
+			code.append(runinfo + index + "\"\n");// running info
+			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
+			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
+			code.append("$VERSIONSDIR/" + version + "_finst__" + sample + ".exe ");//executables
+			code.append(inputsMap.get(index));//parameters
+			code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
+		}
 	}
 
 

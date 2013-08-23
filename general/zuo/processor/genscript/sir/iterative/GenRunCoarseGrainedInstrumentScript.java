@@ -31,28 +31,33 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		
+		stmts(code);
 		code.append(startTimeCommand + "\n");
-		for(int j = 0; j < 3; j++){
-			for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
-				int index = it.next();
-				code.append(runinfo + index + "\"\n");// running info
-				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
-				code.append("\n");
-			}
-			
-			for (int i = 0; i < passingTests.size(); i++) {
-				int index = passingTests.get(i);
-				code.append(runinfo + index + "\"\n");// running info
-				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
-				code.append("\n");
-			}
+		for(int j = 0; j < ROUNDS; j++){
+			stmts(code);
 		}
 		code.append(endTimeCommand + " >& " + outputDir + "time\n");
 		
 		code.append("rm ../outputs/*\n");
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_cg.sh");
+	}
+
+	private void stmts(StringBuffer code) {
+		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+			int index = it.next();
+			code.append(runinfo + index + "\"\n");// running info
+			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
+			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
+			code.append("\n");
+		}
+		
+		for (int i = 0; i < passingTests.size(); i++) {
+			int index = passingTests.get(i);
+			code.append(runinfo + index + "\"\n");// running info
+			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
+			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
+			code.append("\n");
+		}
 	}
 
 	@Override
