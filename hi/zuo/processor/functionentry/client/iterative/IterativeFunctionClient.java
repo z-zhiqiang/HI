@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -57,7 +58,9 @@ public class IterativeFunctionClient {
 	final double[][] pResult;
 	final int[] cResult;//{methods, sites, predicates}
 	
-	final File methodsFileDir;
+//	final File methodsFileDir;
+	final Map<Score, List<String>> methodsList;
+	final Map<Score, List<String>> pruneMethodsList;
 	
 	public IterativeFunctionClient(FunctionEntrySites sites, FunctionEntryProfile[] profiles, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map, File methodsF) {
 		this.pFlag = true;
@@ -72,7 +75,9 @@ public class IterativeFunctionClient {
 		this.pResult = new double[Score.values().length][5];
 		this.cResult = new int[3];
 		
-		this.methodsFileDir = methodsF;
+//		this.methodsFileDir = methodsF;
+		this.methodsList = new HashMap<Score, List<String>>();
+		this.pruneMethodsList = new HashMap<Score, List<String>>();
 		
 		this.selectedFunctionEntryProfiles = constructSelectedFunctionEntryProfiles(profiles);
 		
@@ -230,6 +235,7 @@ public class IterativeFunctionClient {
 		double sp = 0, pp = 0;
 		double as = 0, ap = 0;
 		
+		List<String> functions = new ArrayList<String>();
 		for(int j = 0; j < list.size(); j++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = list.get(j);
 			String function = entry.getKey().getFunctionName();
@@ -237,6 +243,8 @@ public class IterativeFunctionClient {
 			
 			boolean skip = skip(score, bc, threshold, value);
 			if(!skip){
+				functions.add(function);
+				
 				i++;
 				nSites += sInfo.getMap().get(function).getNumSites();
 				nPredicates += sInfo.getMap().get(function).getNumPredicates();
@@ -248,6 +256,7 @@ public class IterativeFunctionClient {
 				}
 			}
 		}
+		methodsList.put(score, functions);
 		
 		//check whether the pruned top k predictors are the same as the original predictors
 		checkPruneConsistency(Client.k);
@@ -596,13 +605,17 @@ public class IterativeFunctionClient {
 		int nSites = 0, nPredicates = 0;
 		double sp = 0, pp = 0;
 		double as = 0, ap = 0;
+		
+		List<String> functions = new ArrayList<String>();
 		for(int j = 0; j < list.size(); j++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = list.get(j);
-			String method = entry.getKey().getFunctionName();
+			String function = entry.getKey().getFunctionName();
 			FrequencyValue value = entry.getValue();
 			
 			//percentage information of instrumented sites and predicates
-			if(this.targetFunction.equals(method)){
+			if(this.targetFunction.equals(function)){
+				functions.add(function);
+				
 				sp = (double)100 * nSites / sInfo.getNumPredicateSites();
 				pp = (double)100 * nPredicates / sInfo.getNumPredicateItems();
 				
@@ -614,7 +627,7 @@ public class IterativeFunctionClient {
 					as = 0;
 					ap = 0;
 				}
-				writer.println(String.format("%-50s", "Excluding " + method) 
+				writer.println(String.format("%-50s", "Excluding " + function) 
 						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
@@ -637,15 +650,15 @@ public class IterativeFunctionClient {
 				}
 				
 				i++;
-				nSites += sInfo.getMap().get(method).getNumSites();
-				nPredicates += sInfo.getMap().get(method).getNumPredicates();
+				nSites += sInfo.getMap().get(function).getNumSites();
+				nPredicates += sInfo.getMap().get(function).getNumPredicates();
 
 				sp = (double)100 * nSites / sInfo.getNumPredicateSites();
 				pp = (double)100 * nPredicates / sInfo.getNumPredicateItems();
 				as = (double)nSites / (i);
 				ap = (double)nPredicates / (i);
 				
-				writer.println(String.format("%-50s", "Including " + method) 
+				writer.println(String.format("%-50s", "Including " + function) 
 						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
@@ -666,15 +679,21 @@ public class IterativeFunctionClient {
 			else{
 				boolean skip = skip(score, bc, threshold, value);
 				if(!skip){
+					functions.add(function);
+					
 					i++;
-					nSites += sInfo.getMap().get(method).getNumSites();
-					nPredicates += sInfo.getMap().get(method).getNumPredicates();
-					double im = clientsMap.get(method).getSortedPredictors().lastKey();
+					nSites += sInfo.getMap().get(function).getNumSites();
+					nPredicates += sInfo.getMap().get(function).getNumPredicates();
+					double im = clientsMap.get(function).getSortedPredictors().lastKey();
 					if(im > threshold){
 						threshold = im;
 					}
 				}
 			}
+		}
+		
+		if(order == Order.LESS_FIRST){
+			pruneMethodsList.put(score, functions);
 		}
 	}
 
@@ -770,6 +789,14 @@ public class IterativeFunctionClient {
 
 	public boolean iscPFlag() {
 		return cPFlag;
+	}
+
+	public Map<Score, List<String>> getMethodsList() {
+		return methodsList;
+	}
+
+	public Map<Score, List<String>> getPruneMethodsList() {
+		return pruneMethodsList;
 	}
 	
 

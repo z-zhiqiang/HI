@@ -85,28 +85,28 @@ public class CBIClient {
 	}
 	
 	private void run(PrintWriter writer, PredicateProfile[] profiles){
-		long time = System.currentTimeMillis();
+//		long time = System.currentTimeMillis();
 		Processor p = new Processor(selectedPredicateProfiles);
 		p.process();
 		assert(p.getTotalNegative() + p.getTotalPositive() == selectedPredicateProfiles.length);
 		
-		long time0 = System.currentTimeMillis();
-		System.out.println("Process:\t" + (time0 - time));
+//		long time0 = System.currentTimeMillis();
+//		System.out.println("Process:\t" + (time0 - time));
 		//print out the selected profiles' information
 		printSelectedPredicateProfilesInformation(writer, profiles);
 		
-		long time1 = System.currentTimeMillis();
-		System.out.println("ProfileInfo:\t" + (time1 - time0));
+//		long time1 = System.currentTimeMillis();
+//		System.out.println("ProfileInfo:\t" + (time1 - time0));
 		//sort the list of predictors according to the importance value
 		sortingPreditorsList(this.sortedPredictors, p.getPredictorsList());
 		
-		long time2 = System.currentTimeMillis();
-		System.out.println("SortingPredictors:\t" + (time2 - time1));
+//		long time2 = System.currentTimeMillis();
+//		System.out.println("SortingPredictors:\t" + (time2 - time1));
 		//print out top-k predictors information
 		printTopK(this.sortedPredictors, this.k, writer);
 		
-		long time3 = System.currentTimeMillis();
-		System.out.println("TopK:\t" + (time3 - time2));
+//		long time3 = System.currentTimeMillis();
+//		System.out.println("TopK:\t" + (time3 - time2));
 	}
 
 	private void printSelectedPredicateProfilesInformation(PrintWriter writer, PredicateProfile[] profiles) {
