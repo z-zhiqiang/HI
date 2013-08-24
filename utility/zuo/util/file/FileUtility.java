@@ -362,5 +362,18 @@ public class FileUtility {
 		return directory.delete();
 	}
 
+	/**only delete files in the directory
+	 * @param directory
+	 */
+	public static void clearFiles(File directory){
+		if(!directory.exists()){
+			return;
+		}
+		for(File file: directory.listFiles()){
+			if(file.isFile()){
+				file.delete();
+			}
+		}
+	}
 
 }

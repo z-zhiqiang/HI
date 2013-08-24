@@ -32,6 +32,7 @@ import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Scor
 import zuo.processor.functionentry.profile.FunctionEntryProfile;
 import zuo.processor.functionentry.profile.FunctionEntryProfileReader;
 import zuo.processor.functionentry.site.FunctionEntrySites;
+import zuo.util.file.FileUtility;
 
 public class Client {
 	public final static int fK = 5;
@@ -96,6 +97,8 @@ public class Client {
 			}});
 		List<String> versionsList = new ArrayList<String>();
 		for(File version: versions){
+			FileUtility.clearFiles(new File(version, "adaptive"));
+			
 			String vi = version.getName();
 			versionsList.add(vi);
 			System.out.println(vi);
@@ -138,7 +141,8 @@ public class Client {
 						cResults.put(vi, client.getcResult());
 						
 						for(Score score: client.getMethodsList().keySet()){
-							printMethodsList(client.getMethodsList().get(score), new File(new File(version, "adaptive"), String.valueOf(score)));
+							printMethodsList(client.getMethodsList().get(score), 
+									new File(new File(new File(version, "adaptive"), String.valueOf(round + "_" + percent)), String.valueOf(score)));
 						}
 					}
 				}
@@ -152,7 +156,8 @@ public class Client {
 						cResultsX.put(vi, client.getcResult());
 						
 						for(Score score: client.getPruneMethodsList().keySet()){
-							printMethodsList(client.getPruneMethodsList().get(score), new File(new File(version, "adaptive"), String.valueOf(score) + "__X"));
+							printMethodsList(client.getPruneMethodsList().get(score), 
+									new File(new File(new File(version, "adaptive"), String.valueOf(round + "_" + percent)), String.valueOf(score) + "__X"));
 						}
 					}
 				}
@@ -161,6 +166,7 @@ public class Client {
 			statistics.put(vi, new Statistic(b, versionsSet));
 			statisticsX.put(vi, new Statistic(bX, versionsSetX));
 			
+			System.gc();
 			System.out.println();
 		}
 		
@@ -205,6 +211,8 @@ public class Client {
 				}});
 			
 			for(File subversion: subversions){
+				FileUtility.clearFiles(new File(subversion, "adaptive"));
+				
 				String vi = version.getName() + "_" + subversion.getName();
 				versionsList.add(vi);
 				System.out.println(vi);
@@ -250,7 +258,8 @@ public class Client {
 							cResults.put(vi, client.getcResult());
 							
 							for(Score score: client.getMethodsList().keySet()){
-								printMethodsList(client.getMethodsList().get(score), new File(new File(subversion, "adaptive"), String.valueOf(score)));
+								printMethodsList(client.getMethodsList().get(score), 
+										new File(new File(new File(subversion, "adaptive"), String.valueOf(round + "_" + percent)), String.valueOf(score)));
 							}
 						}
 					}
@@ -264,7 +273,8 @@ public class Client {
 							cResultsX.put(vi, client.getcResult());
 							
 							for(Score score: client.getPruneMethodsList().keySet()){
-								printMethodsList(client.getPruneMethodsList().get(score), new File(new File(subversion, "adaptive"), String.valueOf(score) + "__X"));
+								printMethodsList(client.getPruneMethodsList().get(score), 
+										new File(new File(new File(subversion, "adaptive"), String.valueOf(round + "_" + percent)), String.valueOf(score) + "__X"));
 							}
 						}
 					}
@@ -275,6 +285,7 @@ public class Client {
 				statistics.put(vi, new Statistic(b, versionsSet));
 				statisticsX.put(vi, new Statistic(bX, versionsSetX));
 				
+				System.gc();
 				System.out.println();
 			}
 		}
@@ -545,6 +556,7 @@ public class Client {
 			return;
 		}
 		
+		long time0 = System.currentTimeMillis();
 		if(args.length == 6){
 			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4] + "_" + args[5]), Integer.parseInt(args[4]), Double.parseDouble(args[5]));
 			if(Integer.parseInt(args[0]) == 0){
@@ -561,6 +573,9 @@ public class Client {
 				c.runSiemens();
 			}
 		}
+		long time1 = System.currentTimeMillis();
+		long s = (time1 - time0) / 1000;
+		System.out.println("time: \t" + s + "s\t" + (s / 60) + "m\t" + (s / 3600) + "h");
 
 //		Client cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", 
 //				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip_" + 3 + "_" + 1.0), 3, 1.0);
