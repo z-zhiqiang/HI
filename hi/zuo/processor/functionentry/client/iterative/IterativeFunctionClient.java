@@ -247,7 +247,8 @@ public class IterativeFunctionClient {
 				nSites += sInfo.getMap().get(function).getNumSites();
 				nPredicates += sInfo.getMap().get(function).getNumPredicates();
 				
-				CBIClients.appendPredictors(this.sortedPrunedPredictors, clientsMap.get(function).getSortedPredictors());
+				CBIClient c = clientsMap.get(function);
+				CBIClients.appendPredictors(this.sortedPrunedPredictors, c.getSortedPredictors());
 				double im = getKth(this.sortedPrunedPredictors, Client.k);
 				if(im > threshold){
 					threshold = im;
@@ -682,7 +683,9 @@ public class IterativeFunctionClient {
 					i++;
 					nSites += sInfo.getMap().get(function).getNumSites();
 					nPredicates += sInfo.getMap().get(function).getNumPredicates();
-					double im = clientsMap.get(function).getSortedPredictors().lastKey();
+					
+					CBIClient c = clientsMap.get(function);
+					double im = c.getSortedPredictors().lastKey();
 					if(im > threshold){
 						threshold = im;
 					}

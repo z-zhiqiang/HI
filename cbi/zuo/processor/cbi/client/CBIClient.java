@@ -20,25 +20,23 @@ import zuo.processor.cbi.profile.predicatesite.ReturnPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
 
 public class CBIClient {
-	final int k;
-	final PredicateProfile[] selectedPredicateProfiles;
+	private final PredicateProfile[] profiles;
 	private TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors;
 	
 	private final Set<String> functions;
 	private final Set<Integer> samples; 
 	
 	
-	public CBIClient(int k, PredicateProfile[] profiles, PrintWriter writer, Set<String> functions, Set<Integer> samples) {
-		this.k = k;
+	public CBIClient(PredicateProfile[] profiles, Set<String> functions, Set<Integer> samples) {
+		this.profiles = profiles;
+		
 		this.functions = functions;
 		this.samples = samples;
-		this.selectedPredicateProfiles = constructSelectedPredicateProfiles(profiles);
-		
-		this.sortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
-		run(writer, profiles);
 	}
 	
-	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] profiles) {
+	
+	
+	private PredicateProfile[] constructSelectedPredicateProfiles() {
 		// TODO Auto-generated method stub
 		PredicateProfile[] pProfiles = new PredicateProfile[samples.size()];
 		
@@ -80,36 +78,19 @@ public class CBIClient {
 		return pProfiles;
 	}
 
-	public static void main(String[] args) {
+	public void run(){
+		PredicateProfile[] selectedPredicateProfiles = constructSelectedPredicateProfiles();
 		
-	}
-	
-	private void run(PrintWriter writer, PredicateProfile[] profiles){
-//		long time = System.currentTimeMillis();
 		Processor p = new Processor(selectedPredicateProfiles);
 		p.process();
 		assert(p.getTotalNegative() + p.getTotalPositive() == selectedPredicateProfiles.length);
 		
-//		long time0 = System.currentTimeMillis();
-//		System.out.println("Process:\t" + (time0 - time));
-		//print out the selected profiles' information
-		printSelectedPredicateProfilesInformation(writer, profiles);
-		
-//		long time1 = System.currentTimeMillis();
-//		System.out.println("ProfileInfo:\t" + (time1 - time0));
 		//sort the list of predictors according to the importance value
+		this.sortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
 		sortingPreditorsList(this.sortedPredictors, p.getPredictorsList());
-		
-//		long time2 = System.currentTimeMillis();
-//		System.out.println("SortingPredictors:\t" + (time2 - time1));
-		//print out top-k predictors information
-		printTopK(this.sortedPredictors, this.k, writer);
-		
-//		long time3 = System.currentTimeMillis();
-//		System.out.println("TopK:\t" + (time3 - time2));
 	}
 
-	private void printSelectedPredicateProfilesInformation(PrintWriter writer, PredicateProfile[] profiles) {
+	public void printSelectedPredicateProfilesInformation(PrintWriter writer) {
 		// TODO Auto-generated method stub
 		Set<Integer> neg = new TreeSet<Integer>();
 		Set<Integer> pos = new TreeSet<Integer>();
@@ -122,11 +103,11 @@ public class CBIClient {
 				neg.add(s);
 			}
 		}
-		assert(pos.size() + neg.size() == selectedPredicateProfiles.length);
+		assert(pos.size() + neg.size() == samples.size());
 		writer.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + (functions.size() == 1 ? functions.toString() : "FULLY INSTRUMENTED"));
 		writer.println();
 		writer.println("The general runs information are as follows:\n==============================================================");
-		writer.println(String.format("%-40s", "Total number of runs:") + selectedPredicateProfiles.length);
+		writer.println(String.format("%-40s", "Total number of runs:") + samples.size());
 		writer.println(String.format("%-40s", "Total number of negative runs:") + neg.size());
 		writer.println(compressNumbers(neg));
 		writer.println(String.format("%-40s", "Total number of positive runs:") + pos.size());
@@ -258,6 +239,9 @@ public class CBIClient {
 	
 
 	public TreeMap<Double, SortedSet<PredicateItem>> getSortedPredictors() {
+		if(sortedPredictors == null){
+			run();
+		}
 		return sortedPredictors;
 	}
 

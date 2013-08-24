@@ -91,7 +91,9 @@ public class CBIClients {
 		//full CBIClient
 //		Set<Integer> fullSamples = buildFullSamples();
 		Set<Integer> fullSamples = buildPartialSamples();
-		fullInstrumentedCBIClient = new CBIClient(Client.fK, profiles, writer, functions, fullSamples);
+		fullInstrumentedCBIClient = new CBIClient(profiles, functions, fullSamples);
+		fullInstrumentedCBIClient.printSelectedPredicateProfilesInformation(writer);
+		CBIClient.printTopK(fullInstrumentedCBIClient.getSortedPredictors(), Client.fK, writer);
 		
 		//confirm that there exists predictor with non-zero importance value 
 		checkNonZeroPredictor();
@@ -111,14 +113,15 @@ public class CBIClients {
 			
 			pSamples = buildPartialSamples();
 			
-			CBIClient pc = new CBIClient(Client.iK, profiles, writer, pFunctions, pSamples);
+			CBIClient pc = new CBIClient(profiles, pFunctions, pSamples);
+			pc.printSelectedPredicateProfilesInformation(writer);
 			clientsMap.put(function, pc);
 		}
 //		long time1 = System.currentTimeMillis();
 //		System.out.println("Iterative CBIClient:\t" + (time1 - time0));
 		
 		//confirm that iterative instrumentation gets the same top predictors as the full instrumentation
-		checkConsistency();
+		checkConsistency(writer);
 	}
 
 	private void checkNonZeroPredictor() {
@@ -130,9 +133,10 @@ public class CBIClients {
 
 
 	/**check whether iterative instrumentation gets the same top predictors as the full instrumentation
+	 * @param writer 
 	 * 
 	 */
-	private void checkConsistency() {
+	private void checkConsistency(PrintWriter writer) {
 		// TODO Auto-generated method stub
 		Set<PredicateItem> set = new LinkedHashSet<PredicateItem>();
 		String targetFunction = IterativeFunctionClient.getTargetFunction(fullInstrumentedCBIClient);
@@ -141,7 +145,9 @@ public class CBIClients {
 				set.add(item);
 			}
 		}
-		SortedSet<PredicateItem> sSet = clientsMap.get(targetFunction).getSortedPredictors().lastEntry().getValue();
+		CBIClient tc = clientsMap.get(targetFunction);
+		CBIClient.printTopK(tc.getSortedPredictors(), Client.iK, writer);
+		SortedSet<PredicateItem> sSet = tc.getSortedPredictors().lastEntry().getValue();
 		if(!set.equals(sSet)){
 			System.out.println(targetFunction);
 			System.out.println("Consistency Error");
