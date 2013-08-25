@@ -149,10 +149,10 @@ public class CBIClients {
 		CBIClient.printTopK(tc.getSortedPredictors(), Client.iK, writer);
 		SortedSet<PredicateItem> sSet = tc.getSortedPredictors().lastEntry().getValue();
 		if(!set.equals(sSet)){
-			System.out.println(targetFunction);
-			System.out.println("Consistency Error");
-			System.out.println("Full:\n" + set.toString());
-			System.out.println("Iterative:\n" + sSet.toString());
+//			System.out.println(targetFunction);
+			System.out.println("cFlag==false");
+//			System.out.println("Full:\n" + set.toString());
+//			System.out.println("Iterative:\n" + sSet.toString());
 			cFlag = false;
 		}
 	}

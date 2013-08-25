@@ -258,7 +258,7 @@ public class IterativeFunctionClient {
 		methodsList.put(score, functions);
 		
 		//check whether the pruned top k predictors are the same as the original predictors
-		checkPruneConsistency(Client.k);
+		checkPruneConsistency(Client.k, score);
 		
 		sp = (double)100 * nSites / sInfo.getNumPredicateSites();
 		pp = (double)100 * nPredicates / sInfo.getNumPredicateItems();
@@ -274,7 +274,7 @@ public class IterativeFunctionClient {
 		pResult[score.ordinal()][4] = ap;
 	}
 	
-	private void checkPruneConsistency(int k) {
+	private void checkPruneConsistency(int k, Score score) {
 		// TODO Auto-generated method stub
 		Set<PredicateItem> pruneSet = new HashSet<PredicateItem>();
 //		getTopKPredictors(pruneSet, this.sortedPrunedPredictors, k);
@@ -285,9 +285,9 @@ public class IterativeFunctionClient {
 		getTopKImportances(originalSet, this.sortedPredictors, k);
 		
 		if(!originalSet.equals(pruneSet)){
-			System.out.println("Prune Consistency Error");
-			System.out.println("Original: \t" + originalSet.toString());
-			System.out.println("Pruned: \t" + pruneSet.toString());
+			System.out.println("cPFlag==false: " + score);
+//			System.out.println("Original: \t" + originalSet.toString());
+//			System.out.println("Pruned: \t" + pruneSet.toString());
 			cPFlag = false;
 		}
 	}
@@ -644,7 +644,7 @@ public class IterativeFunctionClient {
 				
 				//---------------------------------------------------------------------------------------------------------------------//
 				if(skip(score, bc, threshold, value)){
-					System.out.println("Incorrect Pruning");
+					System.out.println("pFlag==false: " + score + "_" + order);
 					pFlag = false;
 				}
 				
