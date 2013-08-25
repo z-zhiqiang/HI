@@ -216,6 +216,8 @@ public class IterativeFunctionClient {
 	 */
 	private void printPruningCase(Map<FunctionEntrySite, FrequencyValue> frequencyMap, final Score score, BoundCalculator bc, PrintWriter writer) {
 		// TODO Auto-generated method stub
+		this.sortedPrunedPredictors.clear();
+		
 		List<Map.Entry<FunctionEntrySite, FrequencyValue>> list = new ArrayList<Map.Entry<FunctionEntrySite, FrequencyValue>>(frequencyMap.entrySet());
 		Collections.sort(list, new Comparator<Entry<FunctionEntrySite, FrequencyValue>>(){
 
@@ -227,6 +229,7 @@ public class IterativeFunctionClient {
 			}});
 		
 		double threshold = 0;
+		boolean skip = false;
 		int i = 0;
 		
 		int nSites = 0, nPredicates = 0;
@@ -239,7 +242,9 @@ public class IterativeFunctionClient {
 			String function = entry.getKey().getFunctionName();
 			FrequencyValue value = entry.getValue();
 			
-			boolean skip = skip(score, bc, threshold, value);
+			if(isDifferentScoreValue(list, j, score)){
+				skip = skip(score, bc, threshold, value);
+			}
 			if(!skip){
 				functions.add(function);
 				
@@ -599,6 +604,7 @@ public class IterativeFunctionClient {
 	 */
 	private void printPercentage(List<Entry<FunctionEntrySite, FrequencyValue>> list, Score score, Order order, BoundCalculator bc, PrintWriter writer) {
 		double threshold = 0;
+		boolean skip = false;
 		int i = 0;
 		
 		int nSites = 0, nPredicates = 0;
@@ -610,6 +616,10 @@ public class IterativeFunctionClient {
 			Entry<FunctionEntrySite, FrequencyValue> entry = list.get(j);
 			String function = entry.getKey().getFunctionName();
 			FrequencyValue value = entry.getValue();
+			
+			if (isDifferentScoreValue(list, j, score)) {
+				skip = skip(score, bc, threshold, value);
+			}
 			
 			//percentage information of instrumented sites and predicates
 			if(this.targetFunction.equals(function)){
@@ -643,7 +653,7 @@ public class IterativeFunctionClient {
 				
 				
 				//---------------------------------------------------------------------------------------------------------------------//
-				if(skip(score, bc, threshold, value)){
+				if(skip){
 					System.out.println("pFlag==false: " + score + "_" + order);
 					pFlag = false;
 				}
@@ -676,7 +686,6 @@ public class IterativeFunctionClient {
 				break;
 			}
 			else{
-				boolean skip = skip(score, bc, threshold, value);
 				if(!skip){
 					functions.add(function);
 					
@@ -697,6 +706,33 @@ public class IterativeFunctionClient {
 			pruneMethodsList.put(score, functions);
 		}
 	}
+
+	private boolean isDifferentScoreValue(List<Entry<FunctionEntrySite, FrequencyValue>> list, int j, Score score) {
+		// TODO Auto-generated method stub
+		if(j == 0){
+			return true;
+		}
+		
+		FrequencyValue value = list.get(j).getValue();
+		FrequencyValue preValue = list.get(j - 1).getValue();
+		
+		switch (score){
+		case NEGATIVE:
+			return value.getNegative() != preValue.getNegative();
+		case H_1:
+			return value.getH_1() != preValue.getH_1();
+		case H_2:
+			return value.getH_2() != preValue.getH_2();
+		case F_1:
+			return value.getF_score() != preValue.getF_score();
+		default:
+			System.err.println("No such score");
+			System.exit(0);
+		}
+		
+		return false;
+	}
+
 
 	private boolean skip(Score score, BoundCalculator bc, double threshold, FrequencyValue value) {
 		int lb = bc.computeCBIBound(threshold);
@@ -719,12 +755,6 @@ public class IterativeFunctionClient {
 				}
 			}
 			break;
-		case F_1:
-			double fs = SelectingProcessor.F_score(lb, bc.getP(), bc.getF());
-			if(value.getF_score() >= fs){
-				return false;
-			}
-			break;
 		case H_2:
 			if(value.getPositive() == 0){
 				return true;
@@ -745,6 +775,12 @@ public class IterativeFunctionClient {
 				if(value.getH_2() >= threshold){
 					return false;
 				}
+			}
+			break;
+		case F_1:
+			double fs = SelectingProcessor.F_score(lb, bc.getP(), bc.getF());
+			if(value.getF_score() >= fs){
+				return false;
 			}
 			break;
 //		case PRECISION:
