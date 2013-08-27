@@ -577,33 +577,6 @@ public class Client {
 		long s = (time1 - time0) / 1000;
 		System.out.println("time: \t" + s + "s\t" + (s / 60) + "m\t" + (s / 3600) + "h");
 
-//		Client cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", 
-//				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip_" + 3 + "_" + 1.0), 3, 1.0);
-//		cc.runSir();
-				
-//		Client cc;
-//		String s = "";
-//		for(int j = 1; j < 2; j++){
-//			s += "_";
-//			
-//			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "gzip", 
-//					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/gzip" + s + Client.percent + "/"));
-//			cc.computeSirResults();
-//			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "sed", 
-//					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/sed" + s + Client.percent + "/"));
-//			cc.computeSirResults();
-//			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "grep", 
-//					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/grep" + s + Client.percent + "/"));
-//			cc.computeSirResults();
-//			cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/"), "space", 
-//					new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/space" + s + Client.percent + "/"));
-//			cc.computeSiemensResults();
-//			for(int i = 4; i < argvs.length; i++){
-//				cc = new Client(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/Siemens/"), argvs[i][1], 
-//						new File("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Console/Siemens" + s + Client.percent + "/" + argvs[i][1] + "/"));
-//				cc.computeSiemensResults();
-//			}
-//		}
 	}
 	
 	
