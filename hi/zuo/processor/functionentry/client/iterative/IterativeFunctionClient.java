@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -41,7 +42,11 @@ public class IterativeFunctionClient {
 		RANDOM, LESS_FIRST, MORE_FIRST, WORST, BEST, //CLOSER_FIRST 
 	}
 	
-	private boolean pTFlag, lCFlag, gCFlag, gPFlag;
+//	private boolean pTFlag, lCFlag, gCFlag, gPFlag;
+//	private boolean[][][] pFlags;
+	private boolean[][][] cFlags;
+	private TreeMap<Integer, boolean[][]> pFlags;
+	
 	final FunctionEntrySites sites;
 	final FunctionEntryProfile[] selectedFunctionEntryProfiles;
     final TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors;//for comparison
@@ -59,10 +64,12 @@ public class IterativeFunctionClient {
 	final Map<Score, List<String>> methodsList;
 	
 	public IterativeFunctionClient(FunctionEntrySites sites, FunctionEntryProfile[] profiles, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map) {
-		this.pTFlag = true;
-		this.lCFlag = true;
-		this.gCFlag = true;
-		this.gPFlag = true;
+//		this.pTFlag = true;
+//		this.lCFlag = true;
+//		this.gCFlag = true;
+//		this.gPFlag = true;
+		this.cFlags = new boolean[Score.values().length][Order.values().length][2];
+		this.pFlags = new TreeMap<Integer, boolean[][]>();
 		
 		this.sites = sites;
 		this.sInfo = sInfo;
