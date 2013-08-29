@@ -18,6 +18,7 @@ import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.predicatesite.BranchPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ReturnPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
+import zuo.processor.functionentry.client.iterative.Client;
 
 public class CBIClient {
 	private final PredicateProfile[] profiles;
@@ -241,6 +242,13 @@ public class CBIClient {
 	public TreeMap<Double, SortedSet<PredicateItem>> getSortedPredictors() {
 		if(sortedPredictors == null){
 			run();
+//			printSelectedPredicateProfilesInformation(writer);
+//			if(functions.size() == 1){
+//				printTopK(sortedPredictors, Client.iK, writer);
+//			}
+//			else{
+//				printTopK(sortedPredictors, Client.fK, writer);
+//			}
 		}
 		return sortedPredictors;
 	}

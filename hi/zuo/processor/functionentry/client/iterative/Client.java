@@ -48,14 +48,19 @@ public class Client {
 	final double percent;
 	
 	final Map<String, double[][][][]> results;
-	final Map<String, double[][]> pResults;
+	final Map<String, double[][][]> pResults;
 	final Map<String, int[]> cResults;
 	final Map<String, Statistic> statistics;
 	
 	final Map<String, double[][][][]> resultsX;
-	final Map<String, double[][]> pResultsX;
+	final Map<String, double[][][]> pResultsX;
 	final Map<String, int[]> cResultsX;
 	final Map<String, Statistic> statisticsX;
+	
+	final Map<String, double[][][][]> resultsXX;
+	final Map<String, double[][][]> pResultsXX;
+	final Map<String, int[]> cResultsXX;
+	final Map<String, Statistic> statisticsXX;
 	
 	public Client(File rootDir, String subject, File consoleFolder, int round, double percent) {
 		this.rootDir = rootDir;
@@ -66,14 +71,19 @@ public class Client {
 		this.percent = percent;
 		
 		this.results = new HashMap<String, double[][][][]>();
-		this.pResults = new HashMap<String, double[][]>();
+		this.pResults = new HashMap<String, double[][][]>();
 		this.cResults = new HashMap<String, int[]>();
 		this.statistics = new LinkedHashMap<String, Statistic>();
 		
 		this.resultsX = new HashMap<String, double[][][][]>();
-		this.pResultsX = new HashMap<String, double[][]>();
+		this.pResultsX = new HashMap<String, double[][][]>();
 		this.cResultsX = new HashMap<String, int[]>();
 		this.statisticsX = new LinkedHashMap<String, Statistic>();
+		
+		this.resultsXX = new HashMap<String, double[][][][]>();
+		this.pResultsXX = new HashMap<String, double[][][]>();
+		this.cResultsXX = new HashMap<String, int[]>();
+		this.statisticsXX = new LinkedHashMap<String, Statistic>();
 		
 	}
 
@@ -117,6 +127,8 @@ public class Client {
 			int b = -1;
 			Set<Integer> versionsSetX = new LinkedHashSet<Integer>(); 
 			int bX = -1;
+			Set<Integer> versionsSetXX = new LinkedHashSet<Integer>(); 
+			int bXX = -1;
 			for(int i = 0; i < round; i++){
 				System.out.println(i);
 				while(true){
@@ -132,9 +144,10 @@ public class Client {
 						cs.getFullInstrumentedCBIClient(), 
 						cs.getClientsMap());
 				
-				if(cs.iscFlag() && client.ispFlag()){
+				if(client.islCFlag() && client.ispTFlag()){
 					versionsSet.add(i);
-					if(!pResults.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResults.get(vi)[Score.H_2.ordinal()][0]){
+					if(!pResults.containsKey(vi) 
+							|| client.getpResult()[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0] > pResults.get(vi)[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0]){
 						b = i;
 						results.put(vi, client.getResult());
 						pResults.put(vi, client.getpResult());
@@ -146,25 +159,38 @@ public class Client {
 						}
 					}
 				}
-				if(client.iscPFlag()){
-					assert(cs.iscFlag() && client.ispFlag());
+				if(client.isgCFlag()){
+					assert(client.islCFlag() && client.ispTFlag());
 					versionsSetX.add(i);
-					if(!pResultsX.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResultsX.get(vi)[Score.H_2.ordinal()][0]){
+					if(!pResultsX.containsKey(vi) 
+							|| client.getpResult()[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0] > pResultsX.get(vi)[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0]){
 						bX = i;
 						resultsX.put(vi, client.getResult());
 						pResultsX.put(vi, client.getpResult());
 						cResultsX.put(vi, client.getcResult());
+					}
+				}
+				if(client.isgPFlag()){
+					assert(client.islCFlag() && client.ispTFlag() && client.isgCFlag());
+					versionsSetXX.add(i);
+					if(!pResultsXX.containsKey(vi) 
+							|| client.getpResult()[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0] > pResultsXX.get(vi)[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0]){
+						bXX = i;
+						resultsXX.put(vi, client.getResult());
+						pResultsXX.put(vi, client.getpResult());
+						cResultsXX.put(vi, client.getcResult());
 						
-						for(Score score: client.getPruneMethodsList().keySet()){
-							printMethodsList(client.getPruneMethodsList().get(score), 
+						for(Score score: client.getPrunedMethodsList().keySet()){
+							printMethodsList(client.getPrunedMethodsList().get(score), 
 									new File(new File(new File(version, "adaptive"), String.valueOf(round + "_" + percent)), String.valueOf(score) + "__X"));
 						}
 					}
 				}
 			}
-			assert(versionsSet.containsAll(versionsSetX));
+//			assert(versionsSet.containsAll(versionsSetX));
 			statistics.put(vi, new Statistic(b, versionsSet));
 			statisticsX.put(vi, new Statistic(bX, versionsSetX));
+			statisticsXX.put(vi, new Statistic(bXX, versionsSetXX));
 			
 			System.gc();
 			System.out.println();
@@ -230,6 +256,8 @@ public class Client {
 				int b = -1;
 				Set<Integer> versionsSetX = new LinkedHashSet<Integer>(); 
 				int bX = -1;
+				Set<Integer> versionsSetXX = new LinkedHashSet<Integer>(); 
+				int bXX = -1;
 				for(int i = 0; i < round; i++){
 					System.out.println(i);
 //					long time0 = System.currentTimeMillis();
@@ -249,9 +277,10 @@ public class Client {
 							cs.getClientsMap());
 //					long time2 = System.currentTimeMillis();
 //					System.out.println("IterativeFunctionClient:\t" + (time2 - time1));
-					if(cs.iscFlag() && client.ispFlag()){
+					if(client.islCFlag() && client.ispTFlag()){
 						versionsSet.add(i);
-						if(!pResults.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResults.get(vi)[Score.H_2.ordinal()][0]){
+						if(!pResults.containsKey(vi) 
+								|| client.getpResult()[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0] > pResults.get(vi)[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0]){
 							b = i;
 							results.put(vi, client.getResult());
 							pResults.put(vi, client.getpResult());
@@ -263,17 +292,27 @@ public class Client {
 							}
 						}
 					}
-					if(client.iscPFlag()){
-						assert(cs.iscFlag() && client.ispFlag());
+					if(client.isgCFlag()){
+						assert(client.islCFlag() && client.ispTFlag());
 						versionsSetX.add(i);
-						if(!pResultsX.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][0] > pResultsX.get(vi)[Score.H_2.ordinal()][0]){
+						if(!pResultsX.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0] > pResultsX.get(vi)[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0]){
 							bX = i;
 							resultsX.put(vi, client.getResult());
 							pResultsX.put(vi, client.getpResult());
 							cResultsX.put(vi, client.getcResult());
+						}
+					}
+					if(client.isgPFlag()){
+						assert(client.islCFlag() && client.ispTFlag() && client.isgCFlag());
+						versionsSetXX.add(i);
+						if(!pResultsXX.containsKey(vi) || client.getpResult()[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0] > pResultsXX.get(vi)[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0]){
+							bXX = i;
+							resultsXX.put(vi, client.getResult());
+							pResultsXX.put(vi, client.getpResult());
+							cResultsXX.put(vi, client.getcResult());
 							
-							for(Score score: client.getPruneMethodsList().keySet()){
-								printMethodsList(client.getPruneMethodsList().get(score), 
+							for(Score score: client.getPrunedMethodsList().keySet()){
+								printMethodsList(client.getPrunedMethodsList().get(score), 
 										new File(new File(new File(subversion, "adaptive"), String.valueOf(round + "_" + percent)), String.valueOf(score) + "__X"));
 							}
 						}
@@ -281,9 +320,10 @@ public class Client {
 //					long time3 = System.currentTimeMillis();
 //					System.out.println("Check:\t" + (time3 - time2));
 				}
-				assert(versionsSet.containsAll(versionsSetX));
+//				assert(versionsSet.containsAll(versionsSetX));
 				statistics.put(vi, new Statistic(b, versionsSet));
 				statisticsX.put(vi, new Statistic(bX, versionsSetX));
+				statisticsXX.put(vi, new Statistic(bXX, versionsSetXX));
 				
 				System.gc();
 				System.out.println();
@@ -306,6 +346,9 @@ public class Client {
 			cWriter.println("\n");
 			printFinalResults(cWriter, resultsX, pResultsX, cResultsX, statisticsX);
 			printRoundsInfo(cWriter, statisticsX);
+			cWriter.println("\n");
+			printFinalResults(cWriter, resultsXX, pResultsXX, cResultsXX, statisticsXX);
+			printRoundsInfo(cWriter, statisticsXX);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -361,8 +404,7 @@ public class Client {
 		double mean = (double)sumSize / statistics.size();
 		cWriter.println("The average information is as follows:\n--------------------------------------------------------------");
 		cWriter.println(String.format("%-20s", "rounds#:" + new DecimalFormat(".##").format(mean))
-				+ String.format("%-20s", "rounds%:" + new DecimalFormat(".##").format(100 * mean / round))
-				);
+				+ String.format("%-20s", "rounds%:" + new DecimalFormat(".##").format(100 * mean / round)));
 	}
 	
 //	/**print the results ordered by results[H_2][Less_First][1][0]
@@ -415,30 +457,30 @@ public class Client {
 	 * @param pResults
 	 * @param results 
 	 */
-	private void printFinalResults(PrintWriter cWriter, Map<String, double[][][][]> results, Map<String, double[][]> pResults, Map<String, int[]> cResults, Map<String, Statistic> statistics) {
+	private void printFinalResults(PrintWriter cWriter, Map<String, double[][][][]> results, Map<String, double[][][]> pResults, Map<String, int[]> cResults, Map<String, Statistic> statistics) {
 		// TODO Auto-generated method stub
 		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-		List<Map.Entry<String, double[][]>> pRList = new ArrayList<Map.Entry<String, double[][]>>(pResults.entrySet());
-		Collections.sort(pRList, new Comparator<Map.Entry<String, double[][]>>(){
+		List<Map.Entry<String, double[][][]>> pRList = new ArrayList<Map.Entry<String, double[][][]>>(pResults.entrySet());
+		Collections.sort(pRList, new Comparator<Map.Entry<String, double[][][]>>(){
 			@Override
-			public int compare(Entry<String, double[][]> o1,
-					Entry<String, double[][]> o2) {
+			public int compare(Entry<String, double[][][]> o1,
+					Entry<String, double[][][]> o2) {
 				// TODO Auto-generated method stub
 				double d1 = getSortValue(o1),
 						d2 = getSortValue(o2);
 				return new Double(d1).compareTo(new Double(d2));
 			}
 			
-			private double getSortValue(Entry<String, double[][]> entry) {
+			private double getSortValue(Entry<String, double[][][]> entry) {
 				// TODO Auto-generated method stub
-				double[][] array = entry.getValue();
-				return array[Score.H_2.ordinal()][0];
+				double[][][] array = entry.getValue();
+				return array[Score.H_2.ordinal()][Order.LESS_FIRST.ordinal()][0];
 			}
 		});
 		
 		Set<String> versions = new LinkedHashSet<String>();
 		double[][][][] result = new double[Score.values().length][Order.values().length][2][5];
-		double[][] pResult = new double[Score.values().length][5];
+		double[][][] pResult = new double[Score.values().length][Order.values().length][5];
 		int[] cResult = new int[3];
 		int sumRounds = 0;
 		for(int i = 0; i < pRList.size(); i++){
@@ -461,12 +503,14 @@ public class Client {
 		}
 	}
 
-	private void accumulatePResult(double[][] pResult, double[][] ds) {
+	private void accumulatePResult(double[][][] pResult, double[][][] ds) {
 		// TODO Auto-generated method stub
 		assert(pResult.length == ds.length && pResult.length == Score.values().length);
 		for(int i = 0; i < pResult.length; i++){
 			for (int j = 0; j < pResult[i].length; j++) {
-				pResult[i][j] += ds[i][j];
+				for(int k = 0; k < pResult[i][j].length; k++){
+					pResult[i][j][k] += ds[i][j][k];
+				}
 			}
 		}
 	}
@@ -485,7 +529,7 @@ public class Client {
 		}
 	}
 
-	private void print(Set<String> versions, double[][][][] result, double[][] pResult, int[] cResult, int sumRounds, PrintWriter cWriter) {
+	private void print(Set<String> versions, double[][][][] result, double[][][] pResult, int[] cResult, int sumRounds, PrintWriter cWriter) {
 		// TODO Auto-generated method stub
 		cWriter.println(versions.size() + "\n" + subject + ": " + versions + "\n==============================================================");
 		cWriter.println("On average:\t" 
@@ -515,16 +559,16 @@ public class Client {
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(result[m][n][1][4] / versions.size())) 
 						);
 				cWriter.println();
+				
+				cWriter.println("==============================================================");
+				cWriter.println("The prune case by <" + mode + ">:\t\t"
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(pResult[m][n][0] / versions.size()))
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pResult[m][n][1] / versions.size()))
+						+ String.format("%-15s", "i:" + new DecimalFormat("#.#").format(pResult[m][n][2] / versions.size()))
+						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(pResult[m][n][3] / versions.size())) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(pResult[m][n][4] / versions.size())));
+				cWriter.println("\n");
 			}
-			
-			cWriter.println("==============================================================");
-			cWriter.println("The prune case by <" + Score.values()[m] + ">:\t\t"
-							+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(pResult[m][0] / versions.size()))
-							+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pResult[m][1] / versions.size()))
-							+ String.format("%-15s", "i:" + new DecimalFormat("#.#").format(pResult[m][2] / versions.size()))
-							+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(pResult[m][3] / versions.size())) 
-							+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(pResult[m][4] / versions.size())));
-			cWriter.println("\n");
 		}
 		cWriter.println("\n");
 	}

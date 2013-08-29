@@ -7,26 +7,19 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
-import zuo.processor.cbi.processor.PredicateItem;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.client.iterative.Client;
-import zuo.processor.functionentry.client.iterative.IterativeFunctionClient;
 
 public class CBIClients {
-	private boolean cFlag, zFlag;
+	private boolean zFlag;
 	private final PredicateProfile[] profiles;
 	private List<Integer> failings;
 	private List<Integer> passings;
@@ -38,7 +31,6 @@ public class CBIClients {
 	private final double percent;
 
 	public CBIClients(SitesInfo sitesInfo, PredicateProfile[] profiles, File consoleFile, double percent){
-		this.cFlag = true;
 		this.zFlag = true;
 		
 		this.profiles = profiles;
@@ -64,7 +56,6 @@ public class CBIClients {
 			}
 		}
 	}
-
 
 	private void divideProfiles() {
 		// TODO Auto-generated method stub
@@ -119,9 +110,6 @@ public class CBIClients {
 		}
 //		long time1 = System.currentTimeMillis();
 //		System.out.println("Iterative CBIClient:\t" + (time1 - time0));
-		
-		//confirm that iterative instrumentation gets the same top predictors as the full instrumentation
-		checkConsistency(writer);
 	}
 
 	private void checkNonZeroPredictor() {
@@ -132,66 +120,40 @@ public class CBIClients {
 	}
 
 
-	/**check whether iterative instrumentation gets the same top predictors as the full instrumentation
-	 * @param writer 
-	 * 
-	 */
-	private void checkConsistency(PrintWriter writer) {
-		// TODO Auto-generated method stub
-		Set<PredicateItem> set = new LinkedHashSet<PredicateItem>();
-		String targetFunction = IterativeFunctionClient.getTargetFunction(fullInstrumentedCBIClient);
-		for(PredicateItem item: fullInstrumentedCBIClient.getSortedPredictors().lastEntry().getValue()){
-			if(item.getPredicateSite().getSite().getFunctionName().equals(targetFunction)){
-				set.add(item);
-			}
-		}
-		CBIClient tc = clientsMap.get(targetFunction);
-		CBIClient.printTopK(tc.getSortedPredictors(), Client.iK, writer);
-		SortedSet<PredicateItem> sSet = tc.getSortedPredictors().lastEntry().getValue();
-		if(!set.equals(sSet)){
-//			System.out.println(targetFunction);
-			System.out.println("cFlag==false");
-//			System.out.println("Full:\n" + set.toString());
-//			System.out.println("Iterative:\n" + sSet.toString());
-			cFlag = false;
-		}
-	}
+//	/**check whether iterative instrumentation gets the same top predictors as the full instrumentation
+//	 * @param writer 
+//	 * 
+//	 */
+//	private void checkConsistency(PrintWriter writer) {
+//		// TODO Auto-generated method stub
+//		Set<PredicateItem> set = new LinkedHashSet<PredicateItem>();
+//		String targetFunction = IterativeFunctionClient.getTargetFunction(fullInstrumentedCBIClient);
+//		for(PredicateItem item: fullInstrumentedCBIClient.getSortedPredictors().lastEntry().getValue()){
+//			if(item.getPredicateSite().getSite().getFunctionName().equals(targetFunction)){
+//				set.add(item);
+//			}
+//		}
+//		CBIClient tc = clientsMap.get(targetFunction);
+//		CBIClient.printTopK(tc.getSortedPredictors(), Client.iK, writer);
+//		SortedSet<PredicateItem> sSet = tc.getSortedPredictors().lastEntry().getValue();
+//		if(!set.equals(sSet)){
+////			System.out.println(targetFunction);
+////			System.out.println("Full:\n" + set.toString());
+////			System.out.println("Iterative:\n" + sSet.toString());
+//			System.out.println("cFlag==false");
+//			cFlag = false;
+//		}
+//	}
 
-
-	public static void appendPredictors(TreeMap<Double, SortedSet<PredicateItem>> fullSortedPredictors, TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors) {
-		// TODO Auto-generated method stub
-		for(double im: sortedPredictors.keySet()){
-			if(fullSortedPredictors.containsKey(im)){
-				fullSortedPredictors.get(im).addAll(sortedPredictors.get(im));
-			}
-			else{
-				SortedSet<PredicateItem> set = new TreeSet<PredicateItem>(new Comparator<PredicateItem>(){
-
-					@Override
-					public int compare(PredicateItem arg0, PredicateItem arg1) {
-						// TODO Auto-generated method stub
-						int r = new Integer(arg0.getPredicateSite().getId()).compareTo(new Integer(arg1.getPredicateSite().getId()));
-						if(r == 0){
-							r = new Integer(arg0.getType()).compareTo(new Integer(arg1.getType()));
-						}
-						return r;
-					}
-				});
-				set.addAll(sortedPredictors.get(im));
-				fullSortedPredictors.put(im, set);
-			}
-		}
-	}
-
-	/**get the full set of profiles
-	 * @return
-	 */
-	private Set<Integer> buildFullSamples() {
-		Set<Integer> fullSamples = new HashSet<Integer>();
-		fullSamples.addAll(failings);
-		fullSamples.addAll(passings);
-		return fullSamples;
-	}
+//	/**get the full set of profiles
+//	 * @return
+//	 */
+//	private Set<Integer> buildFullSamples() {
+//		Set<Integer> fullSamples = new HashSet<Integer>();
+//		fullSamples.addAll(failings);
+//		fullSamples.addAll(passings);
+//		return fullSamples;
+//	}
 
 
 	/**get the set of sampled profiles
@@ -245,12 +207,6 @@ public class CBIClients {
 	public CBIClient getFullInstrumentedCBIClient() {
 		return fullInstrumentedCBIClient;
 	}
-
-
-	public boolean iscFlag() {
-		return cFlag;
-	}
-
 
 	public boolean iszFlag() {
 		return zFlag;
