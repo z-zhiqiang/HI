@@ -384,7 +384,7 @@ public class Client {
 		cWriter.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		// TODO Auto-generated method stub
 		int sumSize = 0;
-		cWriter.println("The stabilization information is as follows:\n--------------------------------------------------------------");
+		cWriter.println("The stabilization information is as follows:\n==============================================================");
 		cWriter.println(String.format("%-15s", "") 
 				+ String.format("%-10s", "rounds#")
 				+ String.format("%-10s", "rounds%")
@@ -402,7 +402,7 @@ public class Client {
 		}
 		cWriter.println();
 		double mean = (double)sumSize / statistics.size();
-		cWriter.println("The average information is as follows:\n--------------------------------------------------------------");
+		cWriter.println("The average information is as follows:\n==============================================================");
 		cWriter.println(String.format("%-20s", "rounds#:" + new DecimalFormat(".##").format(mean))
 				+ String.format("%-20s", "rounds%:" + new DecimalFormat(".##").format(100 * mean / round)));
 	}
@@ -558,10 +558,10 @@ public class Client {
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(result[m][n][1][3] / versions.size())) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(result[m][n][1][4] / versions.size())) 
 						);
-				cWriter.println();
+//				cWriter.println();
 				
-				cWriter.println("==============================================================");
-				cWriter.println("The prune case by <" + mode + ">:\t\t"
+				cWriter.println("--------------------------------------------------------------");
+				cWriter.println(String.format("%-50s", "The prune case by " + mode + ":")
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(pResult[m][n][0] / versions.size()))
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pResult[m][n][1] / versions.size()))
 						+ String.format("%-15s", "i:" + new DecimalFormat("#.#").format(pResult[m][n][2] / versions.size()))
@@ -569,6 +569,7 @@ public class Client {
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(pResult[m][n][4] / versions.size())));
 				cWriter.println("\n");
 			}
+			cWriter.println("\n");
 		}
 		cWriter.println("\n");
 	}

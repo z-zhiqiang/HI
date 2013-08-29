@@ -577,16 +577,18 @@ public class IterativeFunctionClient {
 					nPredicates += sInfo.getMap().get(function).getNumPredicates();
 					
 					CBIClient c = clientsMap.get(function);
-					double im = c.getSortedPredictors().lastKey();
-					if(im >= threshold){
-						threshold = im;
-						pruneTopPredicates = c.getSortedPredictors().lastEntry().getValue();
+					if(!c.getSortedPredictors().isEmpty()){
+						double im = c.getSortedPredictors().lastKey();
+						if(im >= threshold){
+							threshold = im;
+							pruneTopPredicates = c.getSortedPredictors().lastEntry().getValue();
+						}
 					}
 					
 					//check whether iterative instrumentation gets the same locally top predictors as the full instrumentation
 					checkLocalConsistency(score, order);
-					checkGlobalConsistency(score, order, pruneTopPredicates);
 				}
+				checkGlobalConsistency(score, order, pruneTopPredicates);
 				
 				//---------------------------------------------------------------------------------
 				sp = (double)100 * nSites / sInfo.getNumPredicateSites();
@@ -627,10 +629,12 @@ public class IterativeFunctionClient {
 					nPredicates += sInfo.getMap().get(function).getNumPredicates();
 					
 					CBIClient c = clientsMap.get(function);
-					double im = c.getSortedPredictors().lastKey();
-					if(im >= threshold){
-						threshold = im;
-						pruneTopPredicates = c.getSortedPredictors().lastEntry().getValue();
+					if(!c.getSortedPredictors().isEmpty()){
+						double im = c.getSortedPredictors().lastKey();
+						if(im >= threshold){
+							threshold = im;
+							pruneTopPredicates = c.getSortedPredictors().lastEntry().getValue();
+						}
 					}
 				}
 			}
@@ -655,8 +659,7 @@ public class IterativeFunctionClient {
 			}
 		}
 		CBIClient tc = clientsMap.get(targetFunction);
-		SortedSet<PredicateItem> sSet = tc.getSortedPredictors().lastEntry().getValue();
-		if(!set.equals(sSet)){
+		if(tc.getSortedPredictors().isEmpty() || !tc.getSortedPredictors().lastEntry().getValue().equals(set)){
 //			System.out.println(targetFunction);
 			System.out.println("lCFlag==false: " + score + "_" + order);
 			lCFlag = false;
@@ -678,7 +681,6 @@ public class IterativeFunctionClient {
 	}
 	
 	private void checkGlobalConsistency(int k, Score score, Order order, TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors) {
-		// TODO Auto-generated method stub
 		Set<PredicateItem> pruneSet = new LinkedHashSet<PredicateItem>();
 //		getTopKPredictors(pruneSet, this.sortedPrunedPredictors, k);
 		getTopKImportances(pruneSet, sortedPrunedPredictors, k);

@@ -178,7 +178,7 @@ public class CBIClient {
 			}
 		}
 		
-		assert(!sortedPredictors.containsKey(0));
+		assert(!sortedPredictors.containsKey(new Double(0)));
 	}
 
 	public static void printTopK(TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k, PrintWriter writer){
