@@ -18,7 +18,6 @@ import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.predicatesite.BranchPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ReturnPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
-import zuo.processor.functionentry.client.iterative.Client;
 
 public class CBIClient {
 	private final PredicateProfile[] profiles;
@@ -155,6 +154,9 @@ public class CBIClient {
 		// TODO Auto-generated method stub
 		for(PredicateItemWithImportance pWI: predictorsList){
 			double importance = pWI.getImportance();
+			if(importance == 0){
+				continue;
+			}
 			if(sortedPredictors.containsKey(importance)){
 				sortedPredictors.get(importance).add(pWI.getPredicateItem());
 			}
@@ -175,6 +177,8 @@ public class CBIClient {
 				sortedPredictors.put(importance, set);
 			}
 		}
+		
+		assert(!sortedPredictors.containsKey(0));
 	}
 
 	public static void printTopK(TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k, PrintWriter writer){

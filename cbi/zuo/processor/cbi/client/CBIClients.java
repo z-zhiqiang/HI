@@ -114,7 +114,7 @@ public class CBIClients {
 
 	private void checkNonZeroPredictor() {
 		// TODO Auto-generated method stub
-		if(fullInstrumentedCBIClient.getSortedPredictors().lastKey() == 0){
+		if(fullInstrumentedCBIClient.getSortedPredictors().isEmpty()){
 			zFlag = false;
 		}
 	}

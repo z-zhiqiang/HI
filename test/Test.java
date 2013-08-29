@@ -81,6 +81,12 @@ public class Test {
 		double d2 = 3.335557038025388E-4;
 		System.out.println(d2 <= d1);
 			
-		
+		Map<Integer, String> map2 = new HashMap<Integer, String>();
+		for(int i: map2.keySet()){
+			System.out.println("yes");
+		}
+		System.out.println("over");
+		System.out.println(map2.equals(null));
+		System.out.println(map2.containsKey(0));
 	}
 }
