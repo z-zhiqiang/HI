@@ -9,14 +9,12 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -24,6 +22,8 @@ import java.util.TreeSet;
 import zuo.processor.cbi.client.CBIClient;
 import zuo.processor.cbi.processor.PredicateItem;
 import zuo.processor.cbi.site.SitesInfo;
+import zuo.processor.functionentry.datastructure.PruneResult;
+import zuo.processor.functionentry.datastructure.Result;
 import zuo.processor.functionentry.processor.BoundCalculator;
 import zuo.processor.functionentry.processor.SelectingProcessor;
 import zuo.processor.functionentry.processor.SelectingProcessor.FrequencyValue;
@@ -42,11 +42,6 @@ public class IterativeFunctionClient {
 		RANDOM, LESS_FIRST, MORE_FIRST, WORST, BEST, //CLOSER_FIRST 
 	}
 	
-//	private boolean pTFlag, lCFlag, gCFlag, gPFlag;
-//	private boolean[][][] pFlags;
-	private boolean[][][] cFlags;
-	private TreeMap<Integer, boolean[][]> pFlags;
-	
 	final FunctionEntrySites sites;
 	final FunctionEntryProfile[] selectedFunctionEntryProfiles;
     final TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors;//for comparison
@@ -56,36 +51,24 @@ public class IterativeFunctionClient {
 	final Set<Integer> samples;
 	final Map<String, CBIClient> clientsMap;
 	
-	final double[][][][] result;
-	final double[][][] pResult;
-	final int[] cResult;//{methods, sites, predicates}
+	final Result[][] results;
 	
-	final Map<Score, List<String>> prunedMethodsList;
-	final Map<Score, List<String>> methodsList;
-	
-	public IterativeFunctionClient(FunctionEntrySites sites, FunctionEntryProfile[] profiles, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map) {
-//		this.pTFlag = true;
-//		this.lCFlag = true;
-//		this.gCFlag = true;
-//		this.gPFlag = true;
-		this.cFlags = new boolean[Score.values().length][Order.values().length][2];
-		this.pFlags = new TreeMap<Integer, boolean[][]>();
-		
+	public IterativeFunctionClient(FunctionEntrySites sites, FunctionEntryProfile[] profiles, File consoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map, int[] ks) {
 		this.sites = sites;
 		this.sInfo = sInfo;
 		this.targetFunction = getTargetFunction(fullICBIClient);
 		this.samples = fullICBIClient.getSamples();
 		this.clientsMap = map;
-		this.result = new double[Score.values().length][Order.values().length][2][5];
-		this.pResult = new double[Score.values().length][Order.values().length][5];
-		this.cResult = new int[3];
-		
-		this.prunedMethodsList = new HashMap<Score, List<String>>();
-		this.methodsList = new HashMap<Score, List<String>>();
 		
 		this.selectedFunctionEntryProfiles = constructSelectedFunctionEntryProfiles(profiles);
-		
 		this.sortedPredictors = fullICBIClient.getSortedPredictors();
+		
+		this.results = new Result[Score.values().length][Order.values().length];
+		for(int i = 0; i < this.results.length; i++){
+			for(int j = 0; j < this.results[i].length; j++){
+				this.results[i][j] = new Result(ks);
+			}
+		}
 		
 		PrintWriter writer = null;
 		try {
@@ -93,7 +76,7 @@ public class IterativeFunctionClient {
 				consoleFile.getParentFile().mkdirs();
 			}
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
-			run(writer, profiles);
+			run(writer, profiles, ks);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -153,7 +136,7 @@ public class IterativeFunctionClient {
 	}
 
 
-	private void run(PrintWriter writer, FunctionEntryProfile[] profiles){
+	private void run(PrintWriter writer, FunctionEntryProfile[] profiles, int[] ks){
 		SelectingProcessor processor = new SelectingProcessor(selectedFunctionEntryProfiles);
 		processor.process();
 		
@@ -165,10 +148,6 @@ public class IterativeFunctionClient {
 		assert(processor.getFrequencyMap().size() == sites.getNumFunctionEntrySites());
 		printSitesInformation(writer);
 		
-		this.cResult[0] = sites.getNumFunctionEntrySites();
-		this.cResult[1] = sInfo.getNumPredicateSites();
-		this.cResult[2] = sInfo.getNumPredicateItems();
-		
 		//filter out methods within which no predicates are instrumented
 		filterFrequencyMap(processor.getFrequencyMap());
 		assert(processor.getFrequencyMap().size() == this.sInfo.getMap().size());
@@ -179,7 +158,9 @@ public class IterativeFunctionClient {
 			for(Order order: Order.values()){
 				List<Entry<FunctionEntrySite, FrequencyValue>> list = sortFunctionEntrySiteMap(processor.getFrequencyMap(), score, order);
 				printEntryAndPercentage(list, score, order, bc, writer);
-				printPruneCase(list, score, order, bc, writer, Client.k);
+				for(int k: ks){
+					printPruneCase(list, score, order, bc, writer, k);
+				}
 			}
 		}
 	}
@@ -436,6 +417,8 @@ public class IterativeFunctionClient {
 	}
 	
 	private void printPruneCase(List<Entry<FunctionEntrySite, FrequencyValue>> list, Score score, Order order, BoundCalculator bc, PrintWriter writer, int k){
+		PruneResult pruneResult = this.results[score.ordinal()][order.ordinal()].getpFlagMap().get(k);
+		
 		double threshold = 0;
 		boolean skip = false;
 		int i = 0;
@@ -445,8 +428,6 @@ public class IterativeFunctionClient {
 		double as = 0, ap = 0;
 		
 		TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
-		
-		List<String> pfunctions = new ArrayList<String>();
 		
 		for(int j = 0; j < list.size(); j++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = list.get(j);
@@ -458,7 +439,7 @@ public class IterativeFunctionClient {
 			}
 			
 			if(!skip){
-				pfunctions.add(function);
+				pruneResult.getPruneMethods().add(function);
 				
 				i++;
 				nSites += sInfo.getMap().get(function).getNumSites();
@@ -485,9 +466,9 @@ public class IterativeFunctionClient {
 			ap = 0;
 		}
 		
-		writer.println();
+//		writer.println();
 		writer.println("==============================================================");
-		writer.println(String.format("%-50s", "Pruning by <" + score + "," + order + ">") 
+		writer.println(String.format("%-50s", "Pruning top " + k + " by <" + score + "," + order + ">") 
 						+ String.format("%-15s", "s:" + nSites) 
 						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
@@ -495,22 +476,19 @@ public class IterativeFunctionClient {
 						+ String.format("%-15s", "i:" + i) 
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-		writer.println();
-		CBIClient.printTopK(sortedPrunedPredictors, k, writer);
+//		writer.println();
+//		CBIClient.printTopK(sortedPrunedPredictors, k, writer);
 		
-		pResult[score.ordinal()][order.ordinal()][0] = sp;
-		pResult[score.ordinal()][order.ordinal()][1] = pp;
-		pResult[score.ordinal()][order.ordinal()][2] = i;
-		pResult[score.ordinal()][order.ordinal()][3] = as;
-		pResult[score.ordinal()][order.ordinal()][4] = ap;
+		pruneResult.getpResult()[0] = sp;
+		pruneResult.getpResult()[1] = pp;
+		pruneResult.getpResult()[2] = i;
+		pruneResult.getpResult()[3] = as;
+		pruneResult.getpResult()[4] = ap;
 		
 		//---------------------------------------------------------------------------------
 		// check whether the pruned top k predictors are the same as the original predictors
-		checkGlobalConsistency(k, score, order, sortedPrunedPredictors);
+		checkPruneConsistency(k, score, order, sortedPrunedPredictors);
 		
-		if (order == Order.LESS_FIRST) {
-			prunedMethodsList.put(score, pfunctions);
-		}
 	}
 
 	/**print out the percentage instrumented before reaching the top predictor
@@ -521,6 +499,8 @@ public class IterativeFunctionClient {
 	 * @param writer 
 	 */
 	private void printPercentage(List<Entry<FunctionEntrySite, FrequencyValue>> list, Score score, Order order, BoundCalculator bc, PrintWriter writer) {
+		Result result = this.results[score.ordinal()][order.ordinal()];
+		
 		double threshold = 0;
 		boolean skip = false;
 		int i = 0;
@@ -531,7 +511,6 @@ public class IterativeFunctionClient {
 		
 		Set<PredicateItem> pruneTopPredicates = null;
 		
-		List<String> functions = new ArrayList<String>();
 		
 		for(int j = 0; j < list.size(); j++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = list.get(j);
@@ -564,20 +543,20 @@ public class IterativeFunctionClient {
 						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 				
-				result[score.ordinal()][order.ordinal()][0][0] = sp;
-				result[score.ordinal()][order.ordinal()][0][1] = pp;
-				result[score.ordinal()][order.ordinal()][0][2] = i;
-				result[score.ordinal()][order.ordinal()][0][3] = as;
-				result[score.ordinal()][order.ordinal()][0][4] = ap;
+//				result.xResult[0] = sp;
+//				result.xResult[1] = pp;
+//				result.xResult[2] = i;
+//				result.xResult[3] = as;
+//				result.xResult[4] = ap;
 				
 				
 				//---------------------------------------------------------------------------------
 				if(skip){
-					System.out.println("pTFlag==false: " + score + "_" + order);
-					pTFlag = false;
+					System.out.println("lCFlag==false(Skip): " + score + "_" + order);
+					result.setlCFlag(false);
 				}
 				else{
-					functions.add(function);
+					result.getMethods().add(function);
 					
 					i++;
 					nSites += sInfo.getMap().get(function).getNumSites();
@@ -619,17 +598,17 @@ public class IterativeFunctionClient {
 						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
 				writer.println();
 				
-				result[score.ordinal()][order.ordinal()][1][0] = sp;
-				result[score.ordinal()][order.ordinal()][1][1] = pp;
-				result[score.ordinal()][order.ordinal()][1][2] = i;
-				result[score.ordinal()][order.ordinal()][1][3] = as;
-				result[score.ordinal()][order.ordinal()][1][4] = ap;
+				result.getiResult()[0] = sp;
+				result.getiResult()[1] = pp;
+				result.getiResult()[2] = i;
+				result.getiResult()[3] = as;
+				result.getiResult()[4] = ap;
 				
 				break;
 			}
 			else{
 				if(!skip){
-					functions.add(function);
+					result.getMethods().add(function);
 					
 					i++;
 					nSites += sInfo.getMap().get(function).getNumSites();
@@ -645,11 +624,6 @@ public class IterativeFunctionClient {
 					}
 				}
 			}
-		}
-		
-		
-		if(order == Order.LESS_FIRST){
-			methodsList.put(score, functions);
 		}
 		
 	}
@@ -668,8 +642,8 @@ public class IterativeFunctionClient {
 		CBIClient tc = clientsMap.get(targetFunction);
 		if(tc.getSortedPredictors().isEmpty() || !tc.getSortedPredictors().lastEntry().getValue().equals(set)){
 //			System.out.println(targetFunction);
-			System.out.println("lCFlag==false: " + score + "_" + order);
-			lCFlag = false;
+			System.out.println("lCFlag==false(Consistency): " + score + "_" + order);
+			this.results[score.ordinal()][order.ordinal()].setlCFlag(false);
 		}
 	}
 	
@@ -683,11 +657,11 @@ public class IterativeFunctionClient {
 		if(!set.equals(pruneTopPredicates)){
 //			System.out.println(targetFunction);
 			System.out.println("gCFlag==false: " + score + "_" + order);
-			gCFlag = false;
+			this.results[score.ordinal()][order.ordinal()].setgCFlag(false);
 		}
 	}
 	
-	private void checkGlobalConsistency(int k, Score score, Order order, TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors) {
+	private void checkPruneConsistency(int k, Score score, Order order, TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors) {
 		Set<PredicateItem> pruneSet = new LinkedHashSet<PredicateItem>();
 //		getTopKPredictors(pruneSet, this.sortedPrunedPredictors, k);
 		getTopKImportances(pruneSet, sortedPrunedPredictors, k);
@@ -699,8 +673,8 @@ public class IterativeFunctionClient {
 		if(!originalSet.equals(pruneSet)){
 //			System.out.println("Original: \t" + originalSet.toString());
 //			System.out.println("Pruned: \t" + pruneSet.toString());
-			System.out.println("gPFlag==false: " + score + "_" + order);
-			gPFlag = false;	
+			System.out.println("pFlag==false(" + k + "): " + score + "_" + order);
+			this.results[score.ordinal()][order.ordinal()].getpFlagMap().get(k).setpFlag(false);	
 		}
 	}
 	private void getTopKImportances(Set<PredicateItem> set, TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k) {
@@ -854,48 +828,13 @@ public class IterativeFunctionClient {
 	}
 	
 
+
 	public SitesInfo getsInfo() {
 		return sInfo;
 	}
 
-	public double[][][][] getResult() {
-		return result;
+	public Result[][] getResults() {
+		return results;
 	}
 
-	public double[][][] getpResult() {
-		return pResult;
-	}
-
-	public int[] getcResult() {
-		return cResult;
-	}
-
-	public Map<Score, List<String>> getPrunedMethodsList() {
-		return prunedMethodsList;
-	}
-
-	public Map<Score, List<String>> getMethodsList() {
-		return methodsList;
-	}
-
-
-	public boolean ispTFlag() {
-		return pTFlag;
-	}
-
-
-	public boolean islCFlag() {
-		return lCFlag;
-	}
-
-
-	public boolean isgCFlag() {
-		return gCFlag;
-	}
-
-
-	public boolean isgPFlag() {
-		return gPFlag;
-	}
-	
 }

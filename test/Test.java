@@ -88,5 +88,12 @@ public class Test {
 		System.out.println("over");
 		System.out.println(map2.equals(null));
 		System.out.println(map2.containsKey(0));
+		
+		Set[] setArray = new Set[2];
+		System.out.println(setArray[0]);
+		setArray[0] = new HashSet<Integer>();
+		setArray[0].add(2);
+		int[] intArray = new int[2];
+		System.out.println(intArray[0]);
 	}
 }
