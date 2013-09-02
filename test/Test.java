@@ -96,6 +96,14 @@ public class Test {
 		int[] intArray = new int[2];
 		System.out.println(intArray[0]);
 		
-		
+		for(int i = 1; i <= 10; i++){
+			System.out.println(new DecimalFormat("#.#").format(i * 0.1));
+			System.out.println(1.0 == 0.1 * 10);
+		}
+		double percent = 0;
+		while(percent <= 1.0){
+			System.out.println(percent);
+			percent += 0.1;
+		}
 	}
 }

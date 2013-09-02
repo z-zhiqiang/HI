@@ -66,7 +66,9 @@ public class BoundCalculator {
 				double max = (h_1_f0 > h_1_f1 ? h_1_f0 : h_1_f1);
 				double min = (h_1_f0 < h_1_f1 ? h_1_f0 : h_1_f1);
 				if(threshold > max){
-					throw new RuntimeException("OutOfRange Error case 2: " + threshold + ">" + max);
+//					throw new RuntimeException("OutOfRange Error case 2: " + threshold + ">" + max);
+					System.out.println("OutOfRange case 2: " + threshold + ">" + max);
+					return F + 1;
 				}
 				int lb = 2, ub = F;
 				if(threshold > h_1_f0){
@@ -87,7 +89,9 @@ public class BoundCalculator {
 			else{
 				int lb = 2;
 				if(threshold > h_1_F){
-					throw new RuntimeException("OutOfRange Error case 3");
+//					throw new RuntimeException("OutOfRange Error case 3");
+					System.out.println("OutOfRange case 3");
+					return F + 1;
 				}
 				if(threshold > h_1_2){
 					lb = calculateHBoundIn(2, F, threshold);

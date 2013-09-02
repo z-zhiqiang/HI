@@ -1,16 +1,21 @@
 package zuo.processor.cbi.client;
 
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import zuo.processor.cbi.datastructure.CircularList;
+import zuo.processor.cbi.datastructure.FixPointStructure;
 import zuo.processor.cbi.processor.PredicateItem;
 import zuo.processor.cbi.processor.PredicateItemWithImportance;
 import zuo.processor.cbi.processor.Processor;
@@ -21,27 +26,24 @@ import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
 
 public class CBIClient {
 	private final PredicateProfile[] profiles;
-	private TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors;
-	
 	private final Set<String> functions;
-	private final Set<Integer> samples; 
+	private List<Integer> failings;
+	private List<Integer> passings;
 	
+	private FixPointStructure fixElement = null;
 	
-	public CBIClient(PredicateProfile[] profiles, Set<String> functions, Set<Integer> samples) {
+	public CBIClient(PredicateProfile[] profiles, Set<String> functions, List<Integer> failings, List<Integer> passings) {
 		this.profiles = profiles;
-		
 		this.functions = functions;
-		this.samples = samples;
+		this.failings = failings;
+		this.passings = passings;
 	}
 	
-	
-	
-	private PredicateProfile[] constructSelectedPredicateProfiles() {
+	public PredicateProfile[] constructBasePredicateProfiles() {
 		// TODO Auto-generated method stub
-		PredicateProfile[] pProfiles = new PredicateProfile[samples.size()];
+		PredicateProfile[] baseProfiles = new PredicateProfile[profiles.length];
 		
-		int j = 0;
-		for(int k: samples){
+		for(int k = 0; k < baseProfiles.length; k++){
 			PredicateProfile fullProfile = profiles[k];
 			
 			List<ScalarPairPredicateSite> scalarPairs = new ArrayList<ScalarPairPredicateSite>();
@@ -67,30 +69,135 @@ public class CBIClient {
 				}
 			}
 			
-		    pProfiles[j++] = new PredicateProfile(fullProfile.getPath(), fullProfile.isCorrect(), 
+		    baseProfiles[k] = new PredicateProfile(fullProfile.getPath(), fullProfile.isCorrect(), 
 		    		Collections.unmodifiableList(scalarPairs), 
 		    		Collections.unmodifiableList(returns), 
-		    		Collections.unmodifiableList(branches), 
-		    		fullProfile.getSites());
+		    		Collections.unmodifiableList(branches));
 			
+		}
+		return baseProfiles;
+	}
+	
+	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] baseProfiles, Set<Integer> samples) {
+		// TODO Auto-generated method stub
+		PredicateProfile[] pProfiles = new PredicateProfile[samples.size()];
+		
+		int j = 0;
+		for(int k: samples){
+			pProfiles[j++] = baseProfiles[k];
 		}
 		assert(j == samples.size());
 		return pProfiles;
 	}
 
-	public void run(){
-		PredicateProfile[] selectedPredicateProfiles = constructSelectedPredicateProfiles();
+	
+	public void runIterative(PrintWriter writer){
+		CircularList cList = new CircularList(3);
 		
-		Processor p = new Processor(selectedPredicateProfiles);
-		p.process();
-		assert(p.getTotalNegative() + p.getTotalPositive() == selectedPredicateProfiles.length);
+		PredicateProfile[] baseProfiles = constructBasePredicateProfiles();
 		
-		//sort the list of predictors according to the importance value
-		this.sortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
-		sortingPreditorsList(this.sortedPredictors, p.getPredictorsList());
+		Set<Integer> failingSet = new HashSet<Integer>();
+		Set<Integer> passingSet = new HashSet<Integer>();
+		
+		for(int i = 3; i <= 10; i++){
+			double per = 0.1 * i;
+			Set<Integer> partialSamples = increasePartialSamples(failingSet, passingSet, per);
+			
+			PredicateProfile[] selectedPredicateProfiles = constructSelectedPredicateProfiles(baseProfiles, partialSamples);
+			
+			Processor p = new Processor(selectedPredicateProfiles);
+			p.process();
+			assert(p.getTotalNegative() + p.getTotalPositive() == selectedPredicateProfiles.length);
+			
+			//sort the list of predictors according to the importance value
+			TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
+			sortingPreditorsList(sortedPredictors, p.getPredictorsList());
+			
+			cList.insertElement(new FixPointStructure(sortedPredictors, partialSamples, per));
+			
+			if(isFixPoint(cList, writer)){
+				break;
+			}
+		}
+		this.fixElement = cList.getCurrentElement();
+		
+	}
+	
+	private boolean isFixPoint(CircularList cList, PrintWriter writer) {
+		// TODO Auto-generated method stub
+		if(cList.getNumberOfElements() < cList.getMaxSize()){
+			return false;
+		}
+		FixPointStructure currentElement = cList.getCurrentElement();
+		FixPointStructure previous1stElement = cList.getPreviousKthElement(1);
+		FixPointStructure previous2ndElement = cList.getPreviousKthElement(2);
+		
+		if(currentElement.getPercent() == 0.1 * 10){
+			writer.println(functions.toString());
+			writer.println("==============================================================");
+			printElement(currentElement, writer);
+			return true;
+		}
+		if(currentElement.getSortedPredictors().isEmpty() || previous1stElement.getSortedPredictors().isEmpty() || previous2ndElement.getSortedPredictors().isEmpty()){
+			return false;
+		}
+		if(currentElement.getSortedPredictors().lastEntry().getValue().equals(previous1stElement.getSortedPredictors().lastEntry().getValue()) 
+				&& currentElement.getSortedPredictors().lastEntry().getValue().equals(previous2ndElement.getSortedPredictors().lastEntry().getValue())){
+			writer.println(functions.toString());
+			writer.println("==============================================================");
+			printElement(currentElement, writer);
+			printElement(previous1stElement, writer);
+			printElement(previous2ndElement, writer);
+			return true;
+		}
+		return false;
 	}
 
-	public void printSelectedPredicateProfilesInformation(PrintWriter writer) {
+	public void runFull(){
+		Set<Integer> samples = new HashSet<Integer>();
+		samples.addAll(failings);
+		samples.addAll(passings);
+		
+		Processor p = new Processor(profiles);
+		p.process();
+		assert(p.getTotalNegative() + p.getTotalPositive() == profiles.length);
+		
+		//sort the list of predictors according to the importance value
+		TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
+		sortingPreditorsList(sortedPredictors, p.getPredictorsList());
+		
+		this.fixElement = new FixPointStructure(sortedPredictors, samples, 1.0);
+	}
+
+	
+	private Set<Integer> increasePartialSamples(Set<Integer> failingSet, Set<Integer> passingSet, double percent) {
+		Random randomFGenerator = new Random();
+		int fs = (int) (failings.size() * percent);
+		for(; failingSet.size() < (fs > 2 ? fs : 2);){
+			int fSampleIndex = randomFGenerator.nextInt(failings.size());
+			failingSet.add(failings.get(fSampleIndex));
+		}
+		
+		Random randomPGenerator = new Random();
+		int ps = (int) (passings.size() * percent);
+		for(; passingSet.size() < ps;){
+			int pSampleIndex = randomPGenerator.nextInt(passings.size());
+			passingSet.add(passings.get(pSampleIndex));
+		}
+		
+		Set<Integer> partialSamples = new HashSet<Integer>();
+		partialSamples.addAll(failingSet);
+		partialSamples.addAll(passingSet);
+		
+		return partialSamples;
+	}
+	
+	public void printElement(FixPointStructure element, PrintWriter writer){
+		printSelectedPredicateProfilesInformation(element.getPercent(), element.getSamples(), writer);
+		printTopK(element.getSortedPredictors(), CBIClients.fK, writer);
+	}
+
+	public void printSelectedPredicateProfilesInformation(double percent, Set<Integer> samples, PrintWriter writer) {
 		// TODO Auto-generated method stub
 		Set<Integer> neg = new TreeSet<Integer>();
 		Set<Integer> pos = new TreeSet<Integer>();
@@ -104,9 +211,11 @@ public class CBIClient {
 			}
 		}
 		assert(pos.size() + neg.size() == samples.size());
-		writer.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + (functions.size() == 1 ? functions.toString() : "FULLY INSTRUMENTED"));
+//		writer.println(functions.size() == 1 ? functions.toString() : "FULLY INSTRUMENTED");
+//		writer.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		writer.println("The general runs information are as follows:");
 		writer.println("--------------------------------------------------------------");
+		writer.println(String.format("%-40s", "Percentage:") + new DecimalFormat("#.#").format(percent));
 		writer.println(String.format("%-40s", "Total number of runs:") + samples.size());
 		writer.println(String.format("%-40s", "Total number of negative runs:") + neg.size());
 		writer.println(compressNumbers(neg));
@@ -177,8 +286,6 @@ public class CBIClient {
 				sortedPredictors.put(importance, set);
 			}
 		}
-		
-		assert(!sortedPredictors.containsKey(new Double(0)));
 	}
 
 	public static void printTopK(TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k, PrintWriter writer){
@@ -186,35 +293,34 @@ public class CBIClient {
 		printTopKImportances(sortedPredictors, k, writer);
 	}
 
-	/**print out the top k predictors
-	 * @param sortedPredictors
-	 * @param k
-	 * @param writer
-	 */
-	private static void printTopKPredictors(TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k, PrintWriter writer){
-		writer.println("The top " + k + " predicates are as follows:");
-		writer.println("--------------------------------------------------------------");
-		int i = 1, j = 0;
-		for(Iterator<Double> it = sortedPredictors.descendingKeySet().iterator(); it.hasNext();){
-			double im = it.next();
-			if(im == 0){
-				break;
-			}
-			SortedSet<PredicateItem> set = sortedPredictors.get(im);
-			if(j < k){
-				writer.println("(" + (i++) + "): " + im);
-				for(PredicateItem item: set){
-					writer.println(item.toString());
-					writer.println();
-				}
-				j += set.size();
-			}
-			else{
-				break;
-			}
-		}
-		writer.println("\n");
-	}
+//	/**print out the top k predictors
+//	 * @param sortedPredictors
+//	 * @param k
+//	 * @param writer
+//	 */
+//	private static void printTopKPredictors(TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k, PrintWriter writer){
+//		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
+//		int i = 1, j = 0;
+//		for(Iterator<Double> it = sortedPredictors.descendingKeySet().iterator(); it.hasNext();){
+//			double im = it.next();
+//			if(im == 0){
+//				break;
+//			}
+//			SortedSet<PredicateItem> set = sortedPredictors.get(im);
+//			if(j < k){
+//				writer.println("(" + (i++) + "): " + im);
+//				for(PredicateItem item: set){
+//					writer.println(item.toString());
+//					writer.println();
+//				}
+//				j += set.size();
+//			}
+//			else{
+//				break;
+//			}
+//		}
+//		writer.println("\n");
+//	}
 	
 	/**print out the predictors with the top k importance values
 	 * @param sortedPredictors
@@ -245,16 +351,18 @@ public class CBIClient {
 	}
 	
 
-	public TreeMap<Double, SortedSet<PredicateItem>> getSortedPredictors() {
-		if(sortedPredictors == null){
-			run();
+	public FixPointStructure getFixElement(PrintWriter writer) {
+		if(fixElement == null){
+			assert(functions.size() == 1);
+			runIterative(writer);
 		}
-		return sortedPredictors;
+		return fixElement;
 	}
 
-	public Set<Integer> getSamples() {
-		return samples;
+	public FixPointStructure getFullFixElement(){
+		if(fixElement == null){
+			runFull();
+		}
+		return fixElement;
 	}
-
-
 }

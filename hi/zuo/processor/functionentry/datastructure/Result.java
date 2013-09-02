@@ -5,20 +5,22 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public final class Result{
+public final class Result {
 	private final double[] iResult;
 	private boolean lCFlag;
 	private boolean gCFlag;
 	private final Set<String> methods;
+	private double percent;
 	private final Map<Integer, PruneResult> pFlagMap;
-	
-	public Result(int[] ks){
+
+	public Result(int[] ks) {
 		this.iResult = new double[5];
 		this.lCFlag = true;
 		this.gCFlag = true;
 		this.methods = new HashSet<String>();
+		this.percent = 0;
 		this.pFlagMap = new HashMap<Integer, PruneResult>();
-		for(int k: ks){
+		for (int k : ks) {
 			this.pFlagMap.put(k, new PruneResult());
 		}
 	}
@@ -50,6 +52,13 @@ public final class Result{
 	public Map<Integer, PruneResult> getpFlagMap() {
 		return pFlagMap;
 	}
-	
-	
+
+	public double getPercent() {
+		return percent;
+	}
+
+	public void setPercent(double percent) {
+		this.percent = percent;
+	}
+
 }

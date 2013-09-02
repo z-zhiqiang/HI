@@ -28,33 +28,29 @@ public class CBIClients {
 	private CBIClient fullInstrumentedCBIClient;
 	private Map<String, CBIClient> clientsMap;
 	
-	private final double percent;
-
-	public CBIClients(SitesInfo sitesInfo, PredicateProfile[] profiles, File consoleFile, double percent){
+	public CBIClients(SitesInfo sitesInfo, PredicateProfile[] profiles){
 		this.zFlag = true;
 		
 		this.profiles = profiles;
 		divideProfiles();
 		this.functions = Collections.unmodifiableSet(sitesInfo.getMap().keySet());
 		
-		this.percent = percent;
-
-		PrintWriter writer = null;
-		try {
-			if(!consoleFile.getParentFile().exists()){
-				consoleFile.getParentFile().mkdirs();
-			}
-			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
-			run(sitesInfo, writer);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		finally{
-			if(writer != null){
-				writer.close();
-			}
-		}
+		run(sitesInfo);
+//		PrintWriter writer = null;
+//		try {
+//			if(!consoleFile.getParentFile().exists()){
+//				consoleFile.getParentFile().mkdirs();
+//			}
+//			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		finally{
+//			if(writer != null){
+//				writer.close();
+//			}
+//		}
 	}
 
 	private void divideProfiles() {
@@ -75,16 +71,13 @@ public class CBIClients {
 	}
 
 
-	private void run(SitesInfo sitesInfo, PrintWriter writer) {
+	private void run(SitesInfo sitesInfo) {
 		//print the information of instrumentation sites
-		printSitesInfo(sitesInfo, writer);
+//		printSitesInfo(sitesInfo, writer);
 		
 		//full CBIClient
-//		Set<Integer> fullSamples = buildFullSamples();
-		Set<Integer> fullSamples = buildPartialSamples();
-		fullInstrumentedCBIClient = new CBIClient(profiles, functions, fullSamples);
-		fullInstrumentedCBIClient.printSelectedPredicateProfilesInformation(writer);
-		CBIClient.printTopK(fullInstrumentedCBIClient.getSortedPredictors(), fK, writer);
+		fullInstrumentedCBIClient = new CBIClient(profiles, functions, failings, passings);
+//		fullInstrumentedCBIClient.runFull();
 		
 		//confirm that there exists predictor with non-zero importance value 
 		checkNonZeroPredictor();
@@ -93,19 +86,13 @@ public class CBIClients {
 		}
 		
 		//iterative CBIClient each for each function
-		Set<String> pFunctions;
-		Set<Integer> pSamples;
-		
 //		long time0 = System.currentTimeMillis();
 		clientsMap = new HashMap<String, CBIClient>();
 		for(String function: functions){
-			pFunctions = new HashSet<String>();
+			Set<String> pFunctions = new HashSet<String>();
 			pFunctions.add(function);
 			
-			pSamples = buildPartialSamples();
-			
-			CBIClient pc = new CBIClient(profiles, pFunctions, pSamples);
-			pc.printSelectedPredicateProfilesInformation(writer);
+			CBIClient pc = new CBIClient(profiles, pFunctions, failings, passings);
 			clientsMap.put(function, pc);
 		}
 //		long time1 = System.currentTimeMillis();
@@ -114,34 +101,9 @@ public class CBIClients {
 
 	private void checkNonZeroPredictor() {
 		// TODO Auto-generated method stub
-		if(fullInstrumentedCBIClient.getSortedPredictors().isEmpty()){
+		if(fullInstrumentedCBIClient.getFullFixElement().getSortedPredictors().isEmpty()){
 			zFlag = false;
 		}
-	}
-
-
-	/**get the set of sampled profiles
-	 * @return
-	 */
-	private Set<Integer> buildPartialSamples() {
-		// TODO Auto-generated method stub
-		Set<Integer> partialSamples = new HashSet<Integer>();
-		
-		Random randomFGenerator = new Random();
-		int fs = (int) (failings.size() * percent);
-		for(; partialSamples.size() < (fs > 2 ? fs : 2);){
-			int fSample = randomFGenerator.nextInt(failings.size());
-			partialSamples.add(failings.get(fSample));
-		}
-		
-		Random randomPGenerator = new Random();
-		int ps = (int) (passings.size() * percent);
-		for(; partialSamples.size() < ps + (fs > 2 ? fs : 2);){
-			int pSample = randomPGenerator.nextInt(passings.size());
-			partialSamples.add(passings.get(pSample));
-		}
-		
-		return partialSamples;
 	}
 
 

@@ -41,20 +41,18 @@ public class Client {
 	final File consoleFolder;
 	
 	final int round;
-	final double percent;
 	final int[] ks;
 	
 	final Map<String, Statistic[][]> statisticsMap;
 	final Map<String, int[]> cResutlsMap;
 	
 	
-	public Client(File rootDir, String subject, File consoleFolder, int round, double percent, int[] ks) {
+	public Client(File rootDir, String subject, File consoleFolder, int round, int[] ks) {
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
 		
 		this.round = round;
-		this.percent = percent;
 		this.ks = ks;
 		
 		this.statisticsMap = new LinkedHashMap<String, Statistic[][]>();
@@ -110,13 +108,14 @@ public class Client {
 			for(int i = 0; i < round; i++){
 				System.out.println(i);
 				while(true){
-					cs = new CBIClients(sInfo, fProfiles, new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_cbi.out"), percent);
+					cs = new CBIClients(sInfo, fProfiles);
 					if(cs.iszFlag()){
 						break;
 					}
 				}
 				client = new IterativeFunctionClient(cSites, 
 						cProfiles, 
+						new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_cbi.out"),
 						new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_function.out"), 
 						sInfo, 
 						cs.getFullInstrumentedCBIClient(), 
@@ -201,7 +200,7 @@ public class Client {
 					System.out.println(i);
 //					long time0 = System.currentTimeMillis();
 					while(true){
-						cs = new CBIClients(sInfo, fProfiles, new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_cbi.out"), percent);
+						cs = new CBIClients(sInfo, fProfiles);
 						if(cs.iszFlag()){
 							break;
 						}
@@ -210,6 +209,7 @@ public class Client {
 //					System.out.println("CBIClients:\t" + (time1 - time0));
 					client = new IterativeFunctionClient(cSites, 
 							cProfiles, 
+							new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_cbi.out"),
 							new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_function.out"), 
 							sInfo, 
 							cs.getFullInstrumentedCBIClient(), 
@@ -690,19 +690,19 @@ public class Client {
 				{"2710", "schedule2"}
 		};
 		
-		if(args.length != 6 && args.length != 5){
+		if(args.length != 5 && args.length != 4){
 			System.out.println("The characteristics of subjects are as follows:");
 			for(int i = 0; i < argvs.length; i++){
 				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
 			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir(excluding /) round percent" +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) round percent");
+			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir(excluding /) round" +
+					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) round");
 			return;
 		}
 		int[] ks = {1, 3, 5};
 		long time0 = System.currentTimeMillis();
-		if(args.length == 6){
-			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4] + "_" + args[5]), Integer.parseInt(args[4]), Double.parseDouble(args[5]), ks);
+		if(args.length == 5){
+			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4]), Integer.parseInt(args[4]), ks);
 			if(Integer.parseInt(args[0]) == 0){
 				c.runSiemens();
 			}
@@ -710,13 +710,14 @@ public class Client {
 				c.runSir();
 			}
 		}
-		else if(args.length == 5){
+		else if(args.length == 4){
 			assert(Integer.parseInt(args[0]) == 0);
 			for(int i = 4; i < argvs.length; i++){
-				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "_" + args[3] + "_" + args[4], argvs[i][1]), Integer.parseInt(args[3]), Double.parseDouble(args[4]), ks);
+				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "_" + args[3], argvs[i][1]), Integer.parseInt(args[3]), ks);
 				c.runSiemens();
 			}
 		}
+		
 		long time1 = System.currentTimeMillis();
 		long s = (time1 - time0) / 1000;
 		System.out.println("time: \t" + s + "s\t" + (s / 60) + "m\t" + (s / 3600) + "h");

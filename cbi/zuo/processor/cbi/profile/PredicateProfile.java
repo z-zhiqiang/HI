@@ -39,13 +39,13 @@ public class PredicateProfile {
 		this.branches.clear();
 	}
 
-	public PredicateProfile(File path, boolean isCorrect, List<ScalarPairPredicateSite> scalarPairs, List<ReturnPredicateSite> returns, List<BranchPredicateSite> branches, InstrumentationSites sites){
+	public PredicateProfile(File path, boolean isCorrect, List<ScalarPairPredicateSite> scalarPairs, List<ReturnPredicateSite> returns, List<BranchPredicateSite> branches){
 		this.path = path;
 		this.isCorrect = isCorrect;
 		this.scalarPairs = scalarPairs;
 		this.returns = returns;
 		this.branches = branches;
-		this.sites = sites;
+		this.sites = null;
 	}
 	
 	public PredicateProfile(File profilePath, InstrumentationSites sites, boolean isCorrect) {
