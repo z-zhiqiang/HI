@@ -95,5 +95,7 @@ public class Test {
 		setArray[0].add(2);
 		int[] intArray = new int[2];
 		System.out.println(intArray[0]);
+		
+		
 	}
 }

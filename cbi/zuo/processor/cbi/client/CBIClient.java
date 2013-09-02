@@ -105,8 +105,8 @@ public class CBIClient {
 		}
 		assert(pos.size() + neg.size() == samples.size());
 		writer.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + (functions.size() == 1 ? functions.toString() : "FULLY INSTRUMENTED"));
-		writer.println();
-		writer.println("The general runs information are as follows:\n==============================================================");
+		writer.println("The general runs information are as follows:");
+		writer.println("--------------------------------------------------------------");
 		writer.println(String.format("%-40s", "Total number of runs:") + samples.size());
 		writer.println(String.format("%-40s", "Total number of negative runs:") + neg.size());
 		writer.println(compressNumbers(neg));
@@ -192,7 +192,8 @@ public class CBIClient {
 	 * @param writer
 	 */
 	private static void printTopKPredictors(TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k, PrintWriter writer){
-		writer.println("The top " + k + " predicates are as follows:\n==============================================================");
+		writer.println("The top " + k + " predicates are as follows:");
+		writer.println("--------------------------------------------------------------");
 		int i = 1, j = 0;
 		for(Iterator<Double> it = sortedPredictors.descendingKeySet().iterator(); it.hasNext();){
 			double im = it.next();
@@ -221,7 +222,8 @@ public class CBIClient {
 	 * @param writer
 	 */
 	private static void printTopKImportances(TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k, PrintWriter writer){
-		writer.println("The predictors with top " + k + " Importance values are as follows:\n==============================================================");
+		writer.println("The predictors with top " + k + " Importance values are as follows:");
+		writer.println("--------------------------------------------------------------");
 		int i = 1;
 		for(Iterator<Double> it = sortedPredictors.descendingKeySet().iterator(); it.hasNext();){
 			double im = it.next();
@@ -246,13 +248,6 @@ public class CBIClient {
 	public TreeMap<Double, SortedSet<PredicateItem>> getSortedPredictors() {
 		if(sortedPredictors == null){
 			run();
-//			printSelectedPredicateProfilesInformation(writer);
-//			if(functions.size() == 1){
-//				printTopK(sortedPredictors, Client.iK, writer);
-//			}
-//			else{
-//				printTopK(sortedPredictors, Client.fK, writer);
-//			}
 		}
 		return sortedPredictors;
 	}

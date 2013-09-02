@@ -3,10 +3,12 @@ package zuo.processor.functionentry.datastructure;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Row;
+
 public final class Statistic{
-	final FlagStatistic lCFlagStatistics;
-	final FlagStatistic gCFlagStatistics;
-	final Map<Integer, FlagStatistic> pFlagStatisticsMap;
+	private final FlagStatistic lCFlagStatistics;
+	private final FlagStatistic gCFlagStatistics;
+	private final Map<Integer, FlagStatistic> pFlagStatisticsMap;
 	
 	public Statistic(int[] ks){
 		this.lCFlagStatistics = new FlagStatistic();
@@ -37,11 +39,33 @@ public final class Statistic{
 	
 	public String toString(){
 		StringBuilder builder = new StringBuilder();
-		builder.append(String.format("%-10s", "LC: ")).append(this.lCFlagStatistics.toSting()).append("\n");
-		builder.append(String.format("%-10s", "GC: ")).append(this.gCFlagStatistics.toSting()).append("\n");
+		builder.append(String.format("%-25s", "LC: ")).append(this.lCFlagStatistics.toString()).append("\n");
+		builder.append(String.format("%-25s", "GC: ")).append(this.gCFlagStatistics.toString()).append("\n");
 		for(int k: this.pFlagStatisticsMap.keySet()){
-			builder.append(String.format("%-10s", "Top " + k + ": ")).append(this.pFlagStatisticsMap.get(k).toSting()).append("\n");
+			builder.append(String.format("%-25s", "Top " + k + ": ")).append(this.pFlagStatisticsMap.get(k).toString()).append("\n");
 		}
 		return builder.toString();
 	}
+
+	public void incertOneStatisticToExcel(Row row){
+		this.lCFlagStatistics.incertOneFlagStatisticToExcel(row);
+		this.gCFlagStatistics.incertOneFlagStatisticToExcel(row);
+		for(int k: this.pFlagStatisticsMap.keySet()){
+			this.pFlagStatisticsMap.get(k).incertOneFlagStatisticToExcel(row);
+		}
+	}
+	
+	public FlagStatistic getlCFlagStatistics() {
+		return lCFlagStatistics;
+	}
+
+	public FlagStatistic getgCFlagStatistics() {
+		return gCFlagStatistics;
+	}
+
+	public Map<Integer, FlagStatistic> getpFlagStatisticsMap() {
+		return pFlagStatisticsMap;
+	}
+	
+	
 }

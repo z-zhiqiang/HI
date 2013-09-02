@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 
 public final class Result{
-//	final double[] xResult;
 	private final double[] iResult;
 	private boolean lCFlag;
 	private boolean gCFlag;
@@ -14,7 +13,6 @@ public final class Result{
 	private final Map<Integer, PruneResult> pFlagMap;
 	
 	public Result(int[] ks){
-//		this.xResult = new double[5];
 		this.iResult = new double[5];
 		this.lCFlag = true;
 		this.gCFlag = true;

@@ -3,6 +3,12 @@ package zuo.processor.functionentry.datastructure;
 import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+
+import zuo.processor.cbi.client.CBIClient;
 
 public final class FlagStatistic{
 	private int numberOfRounds;
@@ -15,16 +21,16 @@ public final class FlagStatistic{
 	
 	public FlagStatistic(){
 		this.numberOfRounds = 0;
-		this.rounds = new HashSet<Integer>();
+		this.rounds = new TreeSet<Integer>();
 		this.best = -1;
-		this.bestResult = null;
-		this.bMethods = null;
+		this.bestResult = new double[5];
+		this.bMethods = new HashSet<String>();
 		this.averageResult = new double[5];
 		this.aMethods = new HashSet<String>();
 	}
 	
 	public void solveOneResult(double[] result, Set<String> methods, int round){
-		if(this.bestResult == null || result[0] < this.bestResult[0]){
+		if(this.numberOfRounds == 0 || result[0] < this.bestResult[0]){
 			this.best = round;
 			this.bestResult = result;
 			this.bMethods = methods;
@@ -41,23 +47,84 @@ public final class FlagStatistic{
 		this.rounds.add(round);
 	}
 	
-	public String toSting(){
+	public String toString(){
 		StringBuilder builder = new StringBuilder();
-		builder.append(String.format("%-15s", "r#:" + numberOfRounds) + String.format("%-15s", "best:" + best));
+		builder.append(String.format("%-10s", "r#:" + numberOfRounds) + String.format("%-15s", "best:" + best));
 		
-		builder.append(String.format("%-15s", "bs%:" + new DecimalFormat("##.###").format(bestResult[0]))
-						+ String.format("%-15s", "bp%:" + new DecimalFormat("##.###").format(bestResult[1]))
-						+ String.format("%-15s", "bi:" + bestResult[2]) 
-						+ String.format("%-15s", "bas:" + new DecimalFormat("#.#").format(bestResult[3])) 
-						+ String.format("%-15s", "bap:" + new DecimalFormat("#.#").format(bestResult[4])));
-		
-		builder.append(String.format("%-15s", "as%:" + new DecimalFormat("##.###").format(averageResult[0]))
-				+ String.format("%-15s", "ap%:" + new DecimalFormat("##.###").format(averageResult[1]))
-				+ String.format("%-15s", "ai:" + new DecimalFormat("#.#").format(averageResult[2])) 
-				+ String.format("%-15s", "aas:" + new DecimalFormat("#.#").format(averageResult[3])) 
-				+ String.format("%-15s", "aap:" + new DecimalFormat("#.#").format(averageResult[4])));
+		if(this.numberOfRounds != 0){
+			builder.append(String.format("%-15s", "bs%:" + new DecimalFormat("##.##").format(bestResult[0]))
+					+ String.format("%-15s", "bp%:" + new DecimalFormat("##.##").format(bestResult[1]))
+					+ String.format("%-15s", "bi:" + new DecimalFormat("##.##").format(bestResult[2])) 
+					+ String.format("%-15s", "bas:" + new DecimalFormat("##.##").format(bestResult[3])) 
+					+ String.format("%-25s", "bap:" + new DecimalFormat("##.##").format(bestResult[4])));
+			
+			builder.append(String.format("%-15s", "as%:" + new DecimalFormat("##.##").format(averageResult[0]))
+					+ String.format("%-15s", "ap%:" + new DecimalFormat("##.##").format(averageResult[1]))
+					+ String.format("%-15s", "ai:" + new DecimalFormat("##.##").format(averageResult[2])) 
+					+ String.format("%-15s", "aas:" + new DecimalFormat("##.##").format(averageResult[3])) 
+					+ String.format("%-15s", "aap:" + new DecimalFormat("##.##").format(averageResult[4])));
+			
+			builder.append("\n");
+			builder.append(String.format("%-25s", ""));
+			builder.append(CBIClient.compressNumbers(rounds));
+		}
 		
 		return builder.toString();
-		
 	}
+
+	public void incertOneFlagStatisticToExcel(Row row){
+		int cellnum = row.getPhysicalNumberOfCells();
+		Cell cell = row.createCell(cellnum++);
+		cell.setCellValue(numberOfRounds);
+		cell = row.createCell(cellnum++);
+		cell.setCellValue(best);
+		
+		if(this.numberOfRounds != 0){
+			for(int index = 0; index < bestResult.length; index++){
+				cell = row.createCell(cellnum++);
+				cell.setCellValue(new DecimalFormat("##.##").format(bestResult[index]));
+			}
+			for(int index = 0; index < averageResult.length; index++){
+				cell = row.createCell(cellnum++);
+				cell.setCellValue(new DecimalFormat("##.##").format(averageResult[index]));
+			}
+		}
+		else{
+			for(int index = 0; index < bestResult.length + averageResult.length; index++){
+				cell = row.createCell(cellnum++);
+				cell.setCellValue("");
+			}
+		}
+	}
+	
+	
+	public int getNumberOfRounds() {
+		return numberOfRounds;
+	}
+
+	public Set<Integer> getRounds() {
+		return rounds;
+	}
+
+	public int getBest() {
+		return best;
+	}
+
+	public double[] getBestResult() {
+		return bestResult;
+	}
+
+	public Set<String> getbMethods() {
+		return bMethods;
+	}
+
+	public double[] getAverageResult() {
+		return averageResult;
+	}
+
+	public Set<String> getaMethods() {
+		return aMethods;
+	}
+	
+	
 }

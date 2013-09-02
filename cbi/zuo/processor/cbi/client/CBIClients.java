@@ -16,9 +16,9 @@ import java.util.Set;
 
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.site.SitesInfo;
-import zuo.processor.functionentry.client.iterative.Client;
 
 public class CBIClients {
+	public final static int fK = 5;
 	private boolean zFlag;
 	private final PredicateProfile[] profiles;
 	private List<Integer> failings;
@@ -84,7 +84,7 @@ public class CBIClients {
 		Set<Integer> fullSamples = buildPartialSamples();
 		fullInstrumentedCBIClient = new CBIClient(profiles, functions, fullSamples);
 		fullInstrumentedCBIClient.printSelectedPredicateProfilesInformation(writer);
-		CBIClient.printTopK(fullInstrumentedCBIClient.getSortedPredictors(), Client.fK, writer);
+		CBIClient.printTopK(fullInstrumentedCBIClient.getSortedPredictors(), fK, writer);
 		
 		//confirm that there exists predictor with non-zero importance value 
 		checkNonZeroPredictor();
@@ -120,42 +120,6 @@ public class CBIClients {
 	}
 
 
-//	/**check whether iterative instrumentation gets the same top predictors as the full instrumentation
-//	 * @param writer 
-//	 * 
-//	 */
-//	private void checkConsistency(PrintWriter writer) {
-//		// TODO Auto-generated method stub
-//		Set<PredicateItem> set = new LinkedHashSet<PredicateItem>();
-//		String targetFunction = IterativeFunctionClient.getTargetFunction(fullInstrumentedCBIClient);
-//		for(PredicateItem item: fullInstrumentedCBIClient.getSortedPredictors().lastEntry().getValue()){
-//			if(item.getPredicateSite().getSite().getFunctionName().equals(targetFunction)){
-//				set.add(item);
-//			}
-//		}
-//		CBIClient tc = clientsMap.get(targetFunction);
-//		CBIClient.printTopK(tc.getSortedPredictors(), Client.iK, writer);
-//		SortedSet<PredicateItem> sSet = tc.getSortedPredictors().lastEntry().getValue();
-//		if(!set.equals(sSet)){
-////			System.out.println(targetFunction);
-////			System.out.println("Full:\n" + set.toString());
-////			System.out.println("Iterative:\n" + sSet.toString());
-//			System.out.println("cFlag==false");
-//			cFlag = false;
-//		}
-//	}
-
-//	/**get the full set of profiles
-//	 * @return
-//	 */
-//	private Set<Integer> buildFullSamples() {
-//		Set<Integer> fullSamples = new HashSet<Integer>();
-//		fullSamples.addAll(failings);
-//		fullSamples.addAll(passings);
-//		return fullSamples;
-//	}
-
-
 	/**get the set of sampled profiles
 	 * @return
 	 */
@@ -186,12 +150,14 @@ public class CBIClients {
 	 * @param writer
 	 */
 	public static void printSitesInfo(SitesInfo sitesInfo, PrintWriter writer) {
-		writer.println("The general sites information are as follows:\n========================================================================");
+		writer.println("The general sites information are as follows:");
+		writer.println("========================================================================");
 		writer.println(String.format("%-60s", "Total number of sites instrumented:") + sitesInfo.getNumPredicateSites());
 		writer.println(String.format("%-60s", "Total number of predicates instrumented:") + sitesInfo.getNumPredicateItems());
 		writer.println(String.format("%-60s", "Total number of methods having sites instrumented:") + sitesInfo.getMap().size());
 		writer.println();
-		writer.println("The information of sites and predicates in each method:\n------------------------------------------------------------------------");
+		writer.println("The information of sites and predicates in each method:");
+		writer.println("========================================================================");
 		for(String method: sitesInfo.getMap().keySet()){
 			writer.println(String.format("%-45s", method) + String.format("%-20s", ":" + sitesInfo.getMap().get(method).getNumSites()) + String.format("%-20s", ":" + sitesInfo.getMap().get(method).getNumPredicates()));
 		}

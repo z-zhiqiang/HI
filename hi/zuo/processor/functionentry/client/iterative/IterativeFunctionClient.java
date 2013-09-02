@@ -94,7 +94,6 @@ public class IterativeFunctionClient {
 	 * @return
 	 */
 	public static String getTargetFunction(CBIClient fullICBIClient) {
-		// TODO Auto-generated method stub
 		Set<String> functionSet = new LinkedHashSet<String>();
 		for(PredicateItem item: fullICBIClient.getSortedPredictors().lastEntry().getValue()){
 			functionSet.add(item.getPredicateSite().getSite().getFunctionName());
@@ -107,7 +106,6 @@ public class IterativeFunctionClient {
 	}
 
 	private static String getOneFunction(Set<String> functionSet) {
-		// TODO Auto-generated method stub
 		Iterator<String> it = functionSet.iterator();
 		String function = it.next();
 //		while(it.hasNext()){
@@ -125,7 +123,6 @@ public class IterativeFunctionClient {
 
 
 	private FunctionEntryProfile[] constructSelectedFunctionEntryProfiles(FunctionEntryProfile[] profiles) {
-		// TODO Auto-generated method stub
 		FunctionEntryProfile[] fProfiles = new FunctionEntryProfile[samples.size()];
 		int j = 0;
 		for(int k: samples){
@@ -167,7 +164,8 @@ public class IterativeFunctionClient {
 
 
 	private void printSitesInformation(PrintWriter writer) {
-		writer.println("The general methods information are as follows:\n==============================================================");
+		writer.println("The general methods information are as follows:");
+		writer.println("==============================================================");
 		writer.println(String.format("%-50s", "Total number of methods instrumented:") + sites.getNumFunctionEntrySites());
 		writer.println("\n");
 	}
@@ -186,13 +184,14 @@ public class IterativeFunctionClient {
 			}
 		}
 		assert(pos.size() + neg.size() == selectedFunctionEntryProfiles.length);
-		writer.println("The general runs information are as follows:\n==============================================================");
+		writer.println("The general runs information are as follows:");
+		writer.println("==============================================================");
 		writer.println(String.format("%-40s", "Total number of runs:") + selectedFunctionEntryProfiles.length);
 		writer.println(String.format("%-40s", "Total number of negative runs:") + neg.size());
 		writer.println(CBIClient.compressNumbers(neg));
 		writer.println(String.format("%-40s", "Total number of positive runs:") + pos.size());
 		writer.println(CBIClient.compressNumbers(pos));
-		writer.println("\n");
+		writer.println();
 	}
 	
 	public static void appendPredictors(TreeMap<Double, SortedSet<PredicateItem>> fullSortedPredictors, TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors) {
@@ -231,9 +230,12 @@ public class IterativeFunctionClient {
 	private void printEntryAndPercentage(List<Entry<FunctionEntrySite, FrequencyValue>> list, final Score score, final Order order, BoundCalculator bc, PrintWriter writer) {
 		// TODO Auto-generated method stub
 		String mode = "<" + score + "," + order + ">";
-		writer.println("The methods ordered by " + mode + " are as follows:\n--------------------------------------------------------------");
+		writer.println("\n\n");
+		writer.println("The methods ordered by " + mode + " are as follows:");
+		writer.println("--------------------------------------------------------------");
 		printEntry(list, writer);
-		writer.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:\n--------------------------------------------------------------");
+		writer.println("The information of sites and predicates need to be instrumented " + mode + " are as follows:");
+		writer.println("--------------------------------------------------------------");
 		printPercentage(list, score, order, bc, writer);
 	}
 
@@ -259,7 +261,6 @@ public class IterativeFunctionClient {
 	 * @return
 	 */
 	private int rank(Entry<FunctionEntrySite, FrequencyValue> arg0, Entry<FunctionEntrySite, FrequencyValue> arg1, Score score, Order order) {
-		// TODO Auto-generated method stub
 		int r = 0;
 		switch (score){
 //		case RANDOM:
@@ -389,7 +390,6 @@ public class IterativeFunctionClient {
 	 * @param frequencyMap
 	 */
 	private void filterFrequencyMap(Map<FunctionEntrySite, FrequencyValue> frequencyMap) {
-		// TODO Auto-generated method stub
 		for(Iterator<FunctionEntrySite> it = frequencyMap.keySet().iterator(); it.hasNext();){
 			String function = it.next().getFunctionName();
 			if(!sInfo.getMap().containsKey(function)){
@@ -434,9 +434,9 @@ public class IterativeFunctionClient {
 			String function = entry.getKey().getFunctionName();
 			FrequencyValue value = entry.getValue();
 			
-			if(isDifferentScoreValue(list, j, score)){
-				skip = skip(score, bc, threshold, value);
-			}
+			skip = skip(score, bc, threshold, value);
+//			if(isDifferentScoreValue(list, j, score)){
+//			}
 			
 			if(!skip){
 				pruneResult.getPruneMethods().add(function);
@@ -466,17 +466,15 @@ public class IterativeFunctionClient {
 			ap = 0;
 		}
 		
-//		writer.println();
-		writer.println("==============================================================");
+		writer.println("--------------------------------------------------------------");
 		writer.println(String.format("%-50s", "Pruning top " + k + " by <" + score + "," + order + ">") 
 						+ String.format("%-15s", "s:" + nSites) 
-						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.##").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
-						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.##").format(pp))
 						+ String.format("%-15s", "i:" + i) 
-						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-//		writer.println();
+						+ String.format("%-15s", "as:" + new DecimalFormat("##.##").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("##.##").format(ap)));
 //		CBIClient.printTopK(sortedPrunedPredictors, k, writer);
 		
 		pruneResult.getpResult()[0] = sp;
@@ -511,15 +509,14 @@ public class IterativeFunctionClient {
 		
 		Set<PredicateItem> pruneTopPredicates = null;
 		
-		
 		for(int j = 0; j < list.size(); j++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = list.get(j);
 			String function = entry.getKey().getFunctionName();
 			FrequencyValue value = entry.getValue();
 			
-			if(isDifferentScoreValue(list, j, score)){
-				skip = skip(score, bc, threshold, value);
-			}
+			skip = skip(score, bc, threshold, value);
+//			if(isDifferentScoreValue(list, j, score)){
+//			}
 			
 			//percentage information of instrumented sites and predicates
 			if(this.targetFunction.equals(function)){
@@ -536,19 +533,12 @@ public class IterativeFunctionClient {
 				
 				writer.println(String.format("%-50s", "Excluding " + function) 
 						+ String.format("%-15s", "s:" + nSites) 
-						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.##").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
-						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.##").format(pp))
 						+ String.format("%-15s", "i:" + i) 
-						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-				
-//				result.xResult[0] = sp;
-//				result.xResult[1] = pp;
-//				result.xResult[2] = i;
-//				result.xResult[3] = as;
-//				result.xResult[4] = ap;
-				
+						+ String.format("%-15s", "as:" + new DecimalFormat("##.##").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("##.##").format(ap)));
 				
 				//---------------------------------------------------------------------------------
 				if(skip){
@@ -590,14 +580,13 @@ public class IterativeFunctionClient {
 				
 				writer.println(String.format("%-50s", "Including " + function) 
 						+ String.format("%-15s", "s:" + nSites) 
-						+ String.format("%-15s", "s%:" + new DecimalFormat("##.###").format(sp))
+						+ String.format("%-15s", "s%:" + new DecimalFormat("##.##").format(sp))
 						+ String.format("%-15s", "p:" + nPredicates) 
-						+ String.format("%-15s", "p%:" + new DecimalFormat("##.###").format(pp))
+						+ String.format("%-15s", "p%:" + new DecimalFormat("##.##").format(pp))
 						+ String.format("%-15s", "i:" + i) 
-						+ String.format("%-15s", "as:" + new DecimalFormat("#.#").format(as)) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("#.#").format(ap)));
-				writer.println();
-				
+						+ String.format("%-15s", "as:" + new DecimalFormat("##.##").format(as)) 
+						+ String.format("%-15s", "ap:" + new DecimalFormat("##.##").format(ap)));
+			
 				result.getiResult()[0] = sp;
 				result.getiResult()[1] = pp;
 				result.getiResult()[2] = i;
