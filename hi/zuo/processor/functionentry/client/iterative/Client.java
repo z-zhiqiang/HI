@@ -33,7 +33,6 @@ import zuo.processor.functionentry.datastructure.Statistic;
 import zuo.processor.functionentry.profile.FunctionEntryProfile;
 import zuo.processor.functionentry.profile.FunctionEntryProfileReader;
 import zuo.processor.functionentry.site.FunctionEntrySites;
-import zuo.util.file.FileUtility;
 
 public class Client {
 	final File rootDir;
@@ -42,18 +41,20 @@ public class Client {
 	
 	final int round;
 	final int[] ks;
+	final int start;
 	
 	final Map<String, Statistic[][]> statisticsMap;
 	final Map<String, int[]> cResutlsMap;
 	
 	
-	public Client(File rootDir, String subject, File consoleFolder, int round, int[] ks) {
+	public Client(File rootDir, String subject, File consoleFolder, int round, int[] ks, final int start) {
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
 		
 		this.round = round;
 		this.ks = ks;
+		this.start = start;
 		
 		this.statisticsMap = new LinkedHashMap<String, Statistic[][]>();
 		this.cResutlsMap = new LinkedHashMap<String, int[]>();
@@ -108,7 +109,7 @@ public class Client {
 			for(int i = 0; i < round; i++){
 				System.out.println(i);
 				while(true){
-					cs = new CBIClients(sInfo, fProfiles);
+					cs = new CBIClients(sInfo, fProfiles, start);
 					if(cs.iszFlag()){
 						break;
 					}
@@ -200,7 +201,7 @@ public class Client {
 					System.out.println(i);
 //					long time0 = System.currentTimeMillis();
 					while(true){
-						cs = new CBIClients(sInfo, fProfiles);
+						cs = new CBIClients(sInfo, fProfiles, start);
 						if(cs.iszFlag()){
 							break;
 						}
@@ -390,6 +391,8 @@ public class Client {
 					cell3.setCellValue("bas");
 					cell3 = row3.createCell(cellnum3++);
 					cell3.setCellValue("bap");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bafp");
 					
 					cell3 = row3.createCell(cellnum3++);
 					cell3.setCellValue("as%");
@@ -401,8 +404,10 @@ public class Client {
 					cell3.setCellValue("aas");
 					cell3 = row3.createCell(cellnum3++);
 					cell3.setCellValue("aap");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("aafp");
 					
-					for(int p = 0; p < 12; p++){
+					for(int p = 0; p < 14; p++){
 						Cell cell0 = row0.createCell(cellnum0++);
 						cell0.setCellValue(flag);
 						Cell cell1 = row1.createCell(cellnum1++);
@@ -522,6 +527,8 @@ public class Client {
 					cell3.setCellValue("bas");
 					cell3 = row3.createCell(cellnum3++);
 					cell3.setCellValue("bap");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bafp");
 					
 					cell3 = row3.createCell(cellnum3++);
 					cell3.setCellValue("as%");
@@ -533,8 +540,10 @@ public class Client {
 					cell3.setCellValue("aas");
 					cell3 = row3.createCell(cellnum3++);
 					cell3.setCellValue("aap");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("aafp");
 					
-					for(int p = 0; p < 12; p++){
+					for(int p = 0; p < 14; p++){
 						Cell cell0 = row0.createCell(cellnum0++);
 						cell0.setCellValue(String.valueOf(score));
 						Cell cell1 = row1.createCell(cellnum1++);
@@ -690,19 +699,19 @@ public class Client {
 				{"2710", "schedule2"}
 		};
 		
-		if(args.length != 5 && args.length != 4){
+		if(args.length != 5 && args.length != 6){
 			System.out.println("The characteristics of subjects are as follows:");
 			for(int i = 0; i < argvs.length; i++){
 				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
 			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir(excluding /) round" +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) round");
+			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir(excluding /) round start([1, 10])" +
+					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) round start([1, 10])");
 			return;
 		}
 		int[] ks = {1, 3, 5};
 		long time0 = System.currentTimeMillis();
-		if(args.length == 5){
-			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4]), Integer.parseInt(args[4]), ks);
+		if(args.length == 6){
+			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4] + "_" + args[5]), Integer.parseInt(args[4]), ks, Integer.parseInt(args[5]));
 			if(Integer.parseInt(args[0]) == 0){
 				c.runSiemens();
 			}
@@ -710,10 +719,10 @@ public class Client {
 				c.runSir();
 			}
 		}
-		else if(args.length == 4){
+		else if(args.length == 5){
 			assert(Integer.parseInt(args[0]) == 0);
 			for(int i = 4; i < argvs.length; i++){
-				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "_" + args[3], argvs[i][1]), Integer.parseInt(args[3]), ks);
+				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "_" + args[3] + "_" + args[4], argvs[i][1]), Integer.parseInt(args[3]), ks, Integer.parseInt(args[4]));
 				c.runSiemens();
 			}
 		}

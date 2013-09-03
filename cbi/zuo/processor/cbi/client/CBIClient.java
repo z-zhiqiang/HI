@@ -30,13 +30,16 @@ public class CBIClient {
 	private List<Integer> failings;
 	private List<Integer> passings;
 	
+	private final int start;
 	private FixPointStructure fixElement = null;
 	
-	public CBIClient(PredicateProfile[] profiles, Set<String> functions, List<Integer> failings, List<Integer> passings) {
+	public CBIClient(PredicateProfile[] profiles, Set<String> functions, List<Integer> failings, List<Integer> passings, final int start) {
 		this.profiles = profiles;
 		this.functions = functions;
 		this.failings = failings;
 		this.passings = passings;
+		
+		this.start = start;
 	}
 	
 	public PredicateProfile[] constructBasePredicateProfiles() {
@@ -99,7 +102,7 @@ public class CBIClient {
 		Set<Integer> failingSet = new HashSet<Integer>();
 		Set<Integer> passingSet = new HashSet<Integer>();
 		
-		for(int i = 3; i <= 10; i++){
+		for(int i = start; i <= 10; i++){
 			double per = 0.1 * i;
 			Set<Integer> partialSamples = increasePartialSamples(failingSet, passingSet, per);
 			
@@ -193,12 +196,13 @@ public class CBIClient {
 	}
 	
 	public void printElement(FixPointStructure element, PrintWriter writer){
-		printSelectedPredicateProfilesInformation(element.getPercent(), element.getSamples(), writer);
-		printTopK(element.getSortedPredictors(), CBIClients.fK, writer);
+		printSelectedPredicateProfilesInformation(element, writer);
+		printTopK(element.getSortedPredictors(), CBIClients.iK, writer);
 	}
 
-	public void printSelectedPredicateProfilesInformation(double percent, Set<Integer> samples, PrintWriter writer) {
+	public void printSelectedPredicateProfilesInformation(FixPointStructure element, PrintWriter writer) {
 		// TODO Auto-generated method stub
+		Set<Integer> samples = element.getSamples();
 		Set<Integer> neg = new TreeSet<Integer>();
 		Set<Integer> pos = new TreeSet<Integer>();
 		for(int s: samples){
@@ -211,11 +215,9 @@ public class CBIClient {
 			}
 		}
 		assert(pos.size() + neg.size() == samples.size());
-//		writer.println(functions.size() == 1 ? functions.toString() : "FULLY INSTRUMENTED");
-//		writer.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		writer.println("The general runs information are as follows:");
 		writer.println("--------------------------------------------------------------");
-		writer.println(String.format("%-40s", "Percentage:") + new DecimalFormat("#.#").format(percent));
+		writer.println(String.format("%-40s", "Percentage:") + new DecimalFormat("#.#").format(element.getPercent()));
 		writer.println(String.format("%-40s", "Total number of runs:") + samples.size());
 		writer.println(String.format("%-40s", "Total number of negative runs:") + neg.size());
 		writer.println(compressNumbers(neg));

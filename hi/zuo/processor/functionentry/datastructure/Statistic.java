@@ -21,6 +21,7 @@ public final class Statistic{
 	
 	public void solveOneResult(Result result, int round){
 		if(result.islCFlag()){
+			assert(result.getiResult()[5] != 0);
 			this.lCFlagStatistics.solveOneResult(result.getiResult(), result.getMethods(), round);
 		}
 		if(result.isgCFlag()){

@@ -10,15 +10,13 @@ public final class Result {
 	private boolean lCFlag;
 	private boolean gCFlag;
 	private final Set<String> methods;
-	private double percent;
 	private final Map<Integer, PruneResult> pFlagMap;
 
 	public Result(int[] ks) {
-		this.iResult = new double[5];
+		this.iResult = new double[6];
 		this.lCFlag = true;
 		this.gCFlag = true;
 		this.methods = new HashSet<String>();
-		this.percent = 0;
 		this.pFlagMap = new HashMap<Integer, PruneResult>();
 		for (int k : ks) {
 			this.pFlagMap.put(k, new PruneResult());
@@ -53,12 +51,5 @@ public final class Result {
 		return pFlagMap;
 	}
 
-	public double getPercent() {
-		return percent;
-	}
-
-	public void setPercent(double percent) {
-		this.percent = percent;
-	}
 
 }

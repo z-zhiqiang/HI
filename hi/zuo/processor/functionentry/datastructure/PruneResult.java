@@ -7,13 +7,11 @@ public final class PruneResult{
 	private final double[] pResult;
 	private boolean pFlag;
 	private final Set<String> pruneMethods;
-	private double percent;
 	
 	public PruneResult(){
-		this.pResult = new double[5];
+		this.pResult = new double[6];
 		this.pFlag = true;
 		this.pruneMethods = new HashSet<String>();
-		this.percent = 0;
 	}
 
 	public boolean ispFlag() {
@@ -32,12 +30,5 @@ public final class PruneResult{
 		return pruneMethods;
 	}
 
-	public double getPercent() {
-		return percent;
-	}
-
-	public void setPercent(double percent) {
-		this.percent = percent;
-	}
 	
 }

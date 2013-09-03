@@ -20,6 +20,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import zuo.processor.cbi.client.CBIClient;
+import zuo.processor.cbi.client.CBIClients;
 import zuo.processor.cbi.datastructure.FixPointStructure;
 import zuo.processor.cbi.processor.PredicateItem;
 import zuo.processor.cbi.site.SitesInfo;
@@ -78,6 +79,7 @@ public class IterativeFunctionClient {
 			}
 			cbiWriter = new PrintWriter(new BufferedWriter(new FileWriter(cbiconsoleFile)));
 			functionWriter = new PrintWriter(new BufferedWriter(new FileWriter(functionconsoleFile)));
+			printOutFullFixElementInfo(fullICBIClient, cbiWriter);
 			run(cbiWriter, functionWriter, profiles, ks);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -94,6 +96,15 @@ public class IterativeFunctionClient {
 	}
 	
 	
+	private void printOutFullFixElementInfo(CBIClient fullICBIClient, PrintWriter cbiWriter) {
+		// TODO Auto-generated method stub
+		cbiWriter.println("FULLY INSTRUMENTED");
+		cbiWriter.println("==============================================================");
+		fullICBIClient.printSelectedPredicateProfilesInformation(fullICBIClient.getFullFixElement(), cbiWriter);
+		CBIClient.printTopK(fullICBIClient.getFullFixElement().getSortedPredictors(), CBIClients.fK, cbiWriter);
+	}
+
+
 	/**get the target function within which the top predictor is.
 	 * @param fullICBIClient
 	 * @return
@@ -172,7 +183,7 @@ public class IterativeFunctionClient {
 		writer.println("The general methods information are as follows:");
 		writer.println("==============================================================");
 		writer.println(String.format("%-50s", "Total number of methods instrumented:") + sites.getNumFunctionEntrySites());
-		writer.println("\n");
+		writer.println("");
 	}
 
 
@@ -432,10 +443,11 @@ public class IterativeFunctionClient {
 		int nSites = 0, nPredicates = 0;
 		double sp = 0, pp = 0;
 		double as = 0, ap = 0;
+		double sumFPercent = 0;
+		double afp = 0;
 		
 		TreeMap<Double, SortedSet<PredicateItem>> sortedPrunedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
 		
-		double fixPercent = 0;
 		
 		for(int j = 0; j < list.size(); j++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = list.get(j);
@@ -448,13 +460,13 @@ public class IterativeFunctionClient {
 			
 			if(!skip){
 				pruneResult.getPruneMethods().add(function);
+				FixPointStructure fixElement = clientsMap.get(function).getFixElement(cbiWriter);
 				
 				i++;
 				nSites += sInfo.getMap().get(function).getNumSites();
 				nPredicates += sInfo.getMap().get(function).getNumPredicates();
+				sumFPercent += fixElement.getPercent();
 				
-				FixPointStructure fixElement = clientsMap.get(function).getFixElement(cbiWriter);
-				fixPercent += fixElement.getPercent();
 				appendPredictors(sortedPrunedPredictors, fixElement.getSortedPredictors());
 				double im = getKth(sortedPrunedPredictors, k);
 				if(im > threshold){
@@ -469,11 +481,14 @@ public class IterativeFunctionClient {
 		if (i != 0) {
 			as = (double) nSites / i;
 			ap = (double) nPredicates / i;
+			afp = sumFPercent / i;
 		}
 		else{
 			as = 0;
 			ap = 0;
+			afp = 0;
 		}
+		
 		
 		writer.println("--------------------------------------------------------------");
 		writer.println(String.format("%-50s", "Pruning top " + k + " by <" + score + "," + order + ">") 
@@ -483,7 +498,9 @@ public class IterativeFunctionClient {
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.##").format(pp))
 						+ String.format("%-15s", "i:" + i) 
 						+ String.format("%-15s", "as:" + new DecimalFormat("##.##").format(as)) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("##.##").format(ap)));
+						+ String.format("%-15s", "ap:" + new DecimalFormat("##.##").format(ap))
+						+ String.format("%-15s", "afp:" + new DecimalFormat("##.##").format(afp))
+						);
 //		CBIClient.printTopK(sortedPrunedPredictors, k, writer);
 		
 		pruneResult.getpResult()[0] = sp;
@@ -491,12 +508,12 @@ public class IterativeFunctionClient {
 		pruneResult.getpResult()[2] = i;
 		pruneResult.getpResult()[3] = as;
 		pruneResult.getpResult()[4] = ap;
+		pruneResult.getpResult()[5] = afp;
 		
 		//---------------------------------------------------------------------------------
 		// check whether the pruned top k predictors are the same as the original predictors
 		checkPruneConsistency(k, score, order, sortedPrunedPredictors);
 		
-		pruneResult.setPercent((fixPercent == 0) ? 0 : fixPercent / i);
 	}
 
 	/**print out the percentage instrumented before reaching the top predictor
@@ -512,15 +529,15 @@ public class IterativeFunctionClient {
 		
 		double threshold = 0;
 		boolean skip = false;
-		int i = 0;
 		
+		int i = 0;
 		int nSites = 0, nPredicates = 0;
 		double sp = 0, pp = 0;
 		double as = 0, ap = 0;
+		double sumFPercent = 0;
+		double afp = 0;
 		
 		Set<PredicateItem> pruneTopPredicates = null;
-		
-		double fixPercent = 0;
 		
 		for(int j = 0; j < list.size(); j++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = list.get(j);
@@ -538,10 +555,12 @@ public class IterativeFunctionClient {
 				if (i != 0) {
 					as = (double) nSites / i;
 					ap = (double) nPredicates / i;
+					afp = sumFPercent / i;
 				}
 				else{
 					as = 0;
 					ap = 0;
+					afp = 0;
 				}
 				
 				functionWriter.println(String.format("%-50s", "Excluding " + function) 
@@ -551,7 +570,9 @@ public class IterativeFunctionClient {
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.##").format(pp))
 						+ String.format("%-15s", "i:" + i) 
 						+ String.format("%-15s", "as:" + new DecimalFormat("##.##").format(as)) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("##.##").format(ap)));
+						+ String.format("%-15s", "ap:" + new DecimalFormat("##.##").format(ap))
+						+ String.format("%-15s", "afp:" + new DecimalFormat("##.##").format(afp)) 
+						);
 				
 				//---------------------------------------------------------------------------------
 				if(skip){
@@ -560,13 +581,13 @@ public class IterativeFunctionClient {
 				}
 				else{
 					result.getMethods().add(function);
+					FixPointStructure fixElement = clientsMap.get(function).getFixElement(cbiWriter);
 					
 					i++;
 					nSites += sInfo.getMap().get(function).getNumSites();
 					nPredicates += sInfo.getMap().get(function).getNumPredicates();
+					sumFPercent += fixElement.getPercent();
 					
-					FixPointStructure fixElement = clientsMap.get(function).getFixElement(cbiWriter);
-					fixPercent += fixElement.getPercent();
 					TreeMap<Double, SortedSet<PredicateItem>> predictors = fixElement.getSortedPredictors();
 					if(!predictors.isEmpty()){
 						double im = predictors.lastKey();
@@ -587,10 +608,12 @@ public class IterativeFunctionClient {
 				if (i != 0) {
 					as = (double) nSites / i;
 					ap = (double) nPredicates / i;
+					afp = sumFPercent / i;
 				}
 				else{
 					as = 0;
 					ap = 0;
+					afp = 0;
 				}	
 				
 				functionWriter.println(String.format("%-50s", "Including " + function) 
@@ -600,26 +623,29 @@ public class IterativeFunctionClient {
 						+ String.format("%-15s", "p%:" + new DecimalFormat("##.##").format(pp))
 						+ String.format("%-15s", "i:" + i) 
 						+ String.format("%-15s", "as:" + new DecimalFormat("##.##").format(as)) 
-						+ String.format("%-15s", "ap:" + new DecimalFormat("##.##").format(ap)));
+						+ String.format("%-15s", "ap:" + new DecimalFormat("##.##").format(ap))
+						+ String.format("%-15s", "afp:" + new DecimalFormat("##.##").format(afp))
+						);
 			
 				result.getiResult()[0] = sp;
 				result.getiResult()[1] = pp;
 				result.getiResult()[2] = i;
 				result.getiResult()[3] = as;
 				result.getiResult()[4] = ap;
+				result.getiResult()[5] = afp;
 				
 				break;
 			}
 			else{
 				if(!skip){
 					result.getMethods().add(function);
+					FixPointStructure fixElement = clientsMap.get(function).getFixElement(cbiWriter);
 					
 					i++;
 					nSites += sInfo.getMap().get(function).getNumSites();
 					nPredicates += sInfo.getMap().get(function).getNumPredicates();
+					sumFPercent += fixElement.getPercent();
 					
-					FixPointStructure fixElement = clientsMap.get(function).getFixElement(cbiWriter);
-					fixPercent += fixElement.getPercent();
 					TreeMap<Double, SortedSet<PredicateItem>> predictors = fixElement.getSortedPredictors();
 					if(!predictors.isEmpty()){
 						double im = predictors.lastKey();
@@ -632,7 +658,6 @@ public class IterativeFunctionClient {
 			}
 		}
 		
-		result.setPercent((fixPercent == 0) ? 0 : fixPercent / i);
 	}
 
 	/**check whether iterative instrumentation gets the same top predictors as the full instrumentation

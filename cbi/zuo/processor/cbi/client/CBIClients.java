@@ -1,9 +1,5 @@
 package zuo.processor.cbi.client;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,14 +7,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.site.SitesInfo;
 
 public class CBIClients {
+	public final static int iK = 1;
 	public final static int fK = 5;
+	
 	private boolean zFlag;
 	private final PredicateProfile[] profiles;
 	private List<Integer> failings;
@@ -28,29 +25,14 @@ public class CBIClients {
 	private CBIClient fullInstrumentedCBIClient;
 	private Map<String, CBIClient> clientsMap;
 	
-	public CBIClients(SitesInfo sitesInfo, PredicateProfile[] profiles){
+	public CBIClients(SitesInfo sitesInfo, PredicateProfile[] profiles, final int start){
 		this.zFlag = true;
 		
 		this.profiles = profiles;
 		divideProfiles();
 		this.functions = Collections.unmodifiableSet(sitesInfo.getMap().keySet());
 		
-		run(sitesInfo);
-//		PrintWriter writer = null;
-//		try {
-//			if(!consoleFile.getParentFile().exists()){
-//				consoleFile.getParentFile().mkdirs();
-//			}
-//			writer = new PrintWriter(new BufferedWriter(new FileWriter(consoleFile)));
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		finally{
-//			if(writer != null){
-//				writer.close();
-//			}
-//		}
+		run(sitesInfo, start);
 	}
 
 	private void divideProfiles() {
@@ -71,13 +53,9 @@ public class CBIClients {
 	}
 
 
-	private void run(SitesInfo sitesInfo) {
-		//print the information of instrumentation sites
-//		printSitesInfo(sitesInfo, writer);
-		
+	private void run(SitesInfo sitesInfo, final int start) {
 		//full CBIClient
-		fullInstrumentedCBIClient = new CBIClient(profiles, functions, failings, passings);
-//		fullInstrumentedCBIClient.runFull();
+		fullInstrumentedCBIClient = new CBIClient(profiles, functions, failings, passings, start);
 		
 		//confirm that there exists predictor with non-zero importance value 
 		checkNonZeroPredictor();
@@ -92,7 +70,7 @@ public class CBIClients {
 			Set<String> pFunctions = new HashSet<String>();
 			pFunctions.add(function);
 			
-			CBIClient pc = new CBIClient(profiles, pFunctions, failings, passings);
+			CBIClient pc = new CBIClient(profiles, pFunctions, failings, passings, start);
 			clientsMap.put(function, pc);
 		}
 //		long time1 = System.currentTimeMillis();

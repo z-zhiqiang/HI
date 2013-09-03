@@ -13,19 +13,23 @@ import zuo.processor.cbi.client.CBIClient;
 public final class FlagStatistic{
 	private int numberOfRounds;
 	private final Set<Integer> rounds;
+	
 	private int best;
 	private double[] bestResult;
 	private Set<String> bMethods;
+	
 	private final double[] averageResult;
 	private final Set<String> aMethods;
 	
 	public FlagStatistic(){
 		this.numberOfRounds = 0;
 		this.rounds = new TreeSet<Integer>();
+		
 		this.best = -1;
-		this.bestResult = new double[5];
+		this.bestResult = new double[6];
 		this.bMethods = new HashSet<String>();
-		this.averageResult = new double[5];
+		
+		this.averageResult = new double[6];
 		this.aMethods = new HashSet<String>();
 	}
 	
@@ -56,13 +60,17 @@ public final class FlagStatistic{
 					+ String.format("%-15s", "bp%:" + new DecimalFormat("##.##").format(bestResult[1]))
 					+ String.format("%-15s", "bi:" + new DecimalFormat("##.##").format(bestResult[2])) 
 					+ String.format("%-15s", "bas:" + new DecimalFormat("##.##").format(bestResult[3])) 
-					+ String.format("%-25s", "bap:" + new DecimalFormat("##.##").format(bestResult[4])));
+					+ String.format("%-15s", "bap:" + new DecimalFormat("##.##").format(bestResult[4]))
+					+ String.format("%-25s", "bafp:" + new DecimalFormat("##.##").format(bestResult[5]))
+					);
 			
 			builder.append(String.format("%-15s", "as%:" + new DecimalFormat("##.##").format(averageResult[0]))
 					+ String.format("%-15s", "ap%:" + new DecimalFormat("##.##").format(averageResult[1]))
 					+ String.format("%-15s", "ai:" + new DecimalFormat("##.##").format(averageResult[2])) 
 					+ String.format("%-15s", "aas:" + new DecimalFormat("##.##").format(averageResult[3])) 
-					+ String.format("%-15s", "aap:" + new DecimalFormat("##.##").format(averageResult[4])));
+					+ String.format("%-15s", "aap:" + new DecimalFormat("##.##").format(averageResult[4]))
+					+ String.format("%-15s", "aafp:" + new DecimalFormat("##.##").format(averageResult[5]))
+					);
 			
 			builder.append("\n");
 			builder.append(String.format("%-25s", ""));
@@ -125,6 +133,6 @@ public final class FlagStatistic{
 	public Set<String> getaMethods() {
 		return aMethods;
 	}
-	
+
 	
 }
