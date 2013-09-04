@@ -10,11 +10,11 @@ import org.apache.poi.ss.usermodel.Row;
 
 import zuo.processor.cbi.client.CBIClient;
 
-public final class FlagStatistic{
+public class FlagStatistic{
 	private int numberOfRounds;
 	private final Set<Integer> rounds;
 	
-	private int best;
+	private String best;
 	private double[] bestResult;
 	private Set<String> bMethods;
 	
@@ -25,7 +25,7 @@ public final class FlagStatistic{
 		this.numberOfRounds = 0;
 		this.rounds = new TreeSet<Integer>();
 		
-		this.best = -1;
+		this.best = null;
 		this.bestResult = new double[6];
 		this.bMethods = new HashSet<String>();
 		
@@ -35,7 +35,7 @@ public final class FlagStatistic{
 	
 	public void solveOneResult(double[] result, Set<String> methods, int round){
 		if(this.numberOfRounds == 0 || result[0] < this.bestResult[0]){
-			this.best = round;
+			this.best = String.valueOf(round);
 			this.bestResult = result;
 			this.bMethods = methods;
 		}
@@ -90,21 +90,24 @@ public final class FlagStatistic{
 		if(this.numberOfRounds != 0){
 			for(int index = 0; index < bestResult.length; index++){
 				cell = row.createCell(cellnum++);
-				cell.setCellValue(new DecimalFormat("##.##").format(bestResult[index]));
+				cell.setCellValue(doubleFormat(bestResult[index]));
 			}
 			for(int index = 0; index < averageResult.length; index++){
 				cell = row.createCell(cellnum++);
-				cell.setCellValue(new DecimalFormat("##.##").format(averageResult[index]));
+				cell.setCellValue(doubleFormat(averageResult[index]));
 			}
 		}
 		else{
 			for(int index = 0; index < bestResult.length + averageResult.length; index++){
 				cell = row.createCell(cellnum++);
-				cell.setCellValue("");
+				cell.setCellValue(" ");
 			}
 		}
 	}
 	
+	public static double doubleFormat(double value){
+		return Double.parseDouble(new DecimalFormat("##.##").format(value));
+	}
 	
 	public int getNumberOfRounds() {
 		return numberOfRounds;
@@ -114,7 +117,7 @@ public final class FlagStatistic{
 		return rounds;
 	}
 
-	public int getBest() {
+	public String getBest() {
 		return best;
 	}
 

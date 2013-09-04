@@ -105,5 +105,7 @@ public class Test {
 			System.out.println(percent);
 			percent += 0.1;
 		}
+		
+		System.out.println(String.format("%-15s", "best:" + null));
 	}
 }

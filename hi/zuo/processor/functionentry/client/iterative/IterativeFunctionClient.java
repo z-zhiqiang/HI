@@ -699,16 +699,29 @@ public class IterativeFunctionClient {
 //		getTopKPredictors(pruneSet, this.sortedPrunedPredictors, k);
 		getTopKImportances(pruneSet, sortedPrunedPredictors, k);
 		
-		Set<PredicateItem> originalSet = new LinkedHashSet<PredicateItem>();
+		Set<PredicateItem> originalSetTopK = new LinkedHashSet<PredicateItem>();
 //		getTopKPredictors(originalSet, this.sortedPredictors, k);
-		getTopKImportances(originalSet, this.sortedPredictors, k);
+		getTopKImportances(originalSetTopK, this.sortedPredictors, k);
 		
-		if(!originalSet.equals(pruneSet)){
+		if(!originalSetTopK.equals(pruneSet)){
 //			System.out.println("Original: \t" + originalSet.toString());
 //			System.out.println("Pruned: \t" + pruneSet.toString());
 			System.out.println("pFlag==false(" + k + "): " + score + "_" + order);
 			this.results[score.ordinal()][order.ordinal()].getpFlagMap().get(k).setpFlag(false);	
 		}
+		
+		if(!originalSetTopK.containsAll(pruneSet)){
+			System.out.println("pFlagCI0==false(" + k + "): " + score + "_" + order);
+			this.results[score.ordinal()][order.ordinal()].getpFlagMap().get(k).setpFlagCI0(false);
+		}
+		
+		Set<PredicateItem> originalSetTopK2 = new LinkedHashSet<PredicateItem>();
+		getTopKImportances(originalSetTopK2, this.sortedPredictors, k + 2);
+		if(!originalSetTopK2.containsAll(pruneSet)){
+			System.out.println("pFlagCI2==false(" + k + "): " + score + "_" + order);
+			this.results[score.ordinal()][order.ordinal()].getpFlagMap().get(k).setpFlagCI2(false);
+		}
+		
 	}
 	private void getTopKImportances(Set<PredicateItem> set, TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors, int k) {
 		// TODO Auto-generated method stub

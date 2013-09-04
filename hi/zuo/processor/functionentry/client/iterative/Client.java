@@ -322,7 +322,7 @@ public class Client {
 				consoleFolder.mkdirs();
 			}
 			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_f.xlsx"));
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + "_f.xlsx"));
 			workbook.write(out);
 			out.close();
 		} catch (Exception e) {
@@ -345,7 +345,7 @@ public class Client {
 		int cellnum3 = 0;
 		
 		Cell cell3 = row3.createCell(cellnum3++);
-		cell3.setCellValue("");
+		cell3.setCellValue(" ");
 		cell3 = row3.createCell(cellnum3++);
 		cell3.setCellValue("methods");
 		cell3 = row3.createCell(cellnum3++);
@@ -354,22 +354,19 @@ public class Client {
 		cell3.setCellValue("predicates");
 		for(int i = 0; i < 4; i++){
 			Cell cell0 = row0.createCell(cellnum0++);
-			cell0.setCellValue("");
+			cell0.setCellValue(" ");
 			Cell cell1 = row1.createCell(cellnum1++);
-			cell1.setCellValue("");
+			cell1.setCellValue(" ");
 			Cell cell2 = row2.createCell(cellnum2++);
-			cell2.setCellValue("");
+			cell2.setCellValue(" ");
 		}
 		
 		
 		List<String> flags = new ArrayList<String>();
 		flags.add("Local");
 		flags.add("Global");
-		for(int k: ks){
-			flags.add("Top " + k);
-		}
 		
-		for(int q = 0; q < 2 + ks.length; q++){
+		for(int q = 0; q < 2; q++){
 			String flag = flags.get(q);
 			for(int i = 0; i < Score.values().length; i++){
 				Score score = Score.values()[i];
@@ -408,6 +405,60 @@ public class Client {
 					cell3.setCellValue("aafp");
 					
 					for(int p = 0; p < 14; p++){
+						Cell cell0 = row0.createCell(cellnum0++);
+						cell0.setCellValue(flag);
+						Cell cell1 = row1.createCell(cellnum1++);
+						cell1.setCellValue(String.valueOf(score));
+						Cell cell2 = row2.createCell(cellnum2++);
+						cell2.setCellValue(String.valueOf(order));
+					}
+				}
+			}
+		}
+		//for prune case
+		for(int q = 0; q < ks.length; q++){
+			String flag = "Top " + ks[q];
+			for(int i = 0; i < Score.values().length; i++){
+				Score score = Score.values()[i];
+				for(int j = 0; j < Order.values().length; j++){
+					Order order = Order.values()[j];
+					
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("roundsCI2#");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("roundsCI0#");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("rounds#");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("best");
+					
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bs%");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bp%");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bi");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bas");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bap");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bafp");
+					
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("as%");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("ap%");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("ai");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("aas");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("aap");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("aafp");
+					
+					for(int p = 0; p < 16; p++){
 						Cell cell0 = row0.createCell(cellnum0++);
 						cell0.setCellValue(flag);
 						Cell cell1 = row1.createCell(cellnum1++);
@@ -459,7 +510,7 @@ public class Client {
 				consoleFolder.mkdirs();
 			}
 			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_m.xlsx"));
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + "_m.xlsx"));
 			workbook.write(out);
 			out.close();
 		} catch (Exception e) {
@@ -481,7 +532,7 @@ public class Client {
 		int cellnum3 = 0;
 		
 		Cell cell3 = row3.createCell(cellnum3++);
-		cell3.setCellValue("");
+		cell3.setCellValue(" ");
 		cell3 = row3.createCell(cellnum3++);
 		cell3.setCellValue("methods");
 		cell3 = row3.createCell(cellnum3++);
@@ -490,26 +541,23 @@ public class Client {
 		cell3.setCellValue("predicates");
 		for(int i = 0; i < 4; i++){
 			Cell cell0 = row0.createCell(cellnum0++);
-			cell0.setCellValue("");
+			cell0.setCellValue(" ");
 			Cell cell1 = row1.createCell(cellnum1++);
-			cell1.setCellValue("");
+			cell1.setCellValue(" ");
 			Cell cell2 = row2.createCell(cellnum2++);
-			cell2.setCellValue("");
+			cell2.setCellValue(" ");
 		}
 		
 		
 		List<String> flags = new ArrayList<String>();
 		flags.add("Local");
 		flags.add("Global");
-		for(int k: ks){
-			flags.add("Top " + k);
-		}
 		
 		for(int i = 0; i < Score.values().length; i++){
 			Score score = Score.values()[i];
 			for(int j = 0; j < Order.values().length; j++){
 				Order order = Order.values()[j];
-				for(int q = 0; q < 2 + ks.length; q++){
+				for(int q = 0; q < 2; q++){
 					String flag = flags.get(q);
 					
 					cell3 = row3.createCell(cellnum3++);
@@ -552,6 +600,54 @@ public class Client {
 						cell2.setCellValue(flag);
 					}
 				}
+				//for prune case
+				for(int q = 0; q < ks.length; q++){
+					String flag = "Top " + ks[q];
+					
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("roundsCI2#");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("roundsCI0#");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("rounds#");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("best");
+					
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bs%");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bp%");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bi");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bas");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bap");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("bafp");
+					
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("as%");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("ap%");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("ai");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("aas");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("aap");
+					cell3 = row3.createCell(cellnum3++);
+					cell3.setCellValue("aafp");
+					
+					for(int p = 0; p < 16; p++){
+						Cell cell0 = row0.createCell(cellnum0++);
+						cell0.setCellValue(String.valueOf(score));
+						Cell cell1 = row1.createCell(cellnum1++);
+						cell1.setCellValue(String.valueOf(order));
+						Cell cell2 = row2.createCell(cellnum2++);
+						cell2.setCellValue(flag);
+					}
+				}
 			}
 		}
 	}
@@ -564,7 +660,7 @@ public class Client {
 			if(!consoleFolder.exists()){
 				consoleFolder.mkdirs();
 			}
-			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + ".ftxt"))));
+			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + ".ftxt"))));
 
 			for(String version: this.cResutlsMap.keySet()){
 				int[] cResult = this.cResutlsMap.get(version);
@@ -628,7 +724,7 @@ public class Client {
 			if(!consoleFolder.exists()){
 				consoleFolder.mkdirs();
 			}
-			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + ".mtxt"))));
+			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + ".mtxt"))));
 			
 			for(String version: this.cResutlsMap.keySet()){
 				int[] cResult = this.cResutlsMap.get(version);
@@ -708,7 +804,7 @@ public class Client {
 					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) round start([1, 10])");
 			return;
 		}
-		int[] ks = {1, 3, 5};
+		int[] ks = {1};
 		long time0 = System.currentTimeMillis();
 		if(args.length == 6){
 			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4] + "_" + args[5]), Integer.parseInt(args[4]), ks, Integer.parseInt(args[5]));
