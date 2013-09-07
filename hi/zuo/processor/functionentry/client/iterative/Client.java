@@ -39,7 +39,8 @@ public class Client {
 	final String subject;
 	final File consoleFolder;
 	
-	final int round;
+	final int startRound;
+	final int endRound;
 	final int[] ks;
 	final int start;
 	
@@ -47,12 +48,13 @@ public class Client {
 	final Map<String, int[]> cResutlsMap;
 	
 	
-	public Client(File rootDir, String subject, File consoleFolder, int round, int[] ks, final int start) {
+	public Client(File rootDir, String subject, File consoleFolder, int startRound, int round, int[] ks, final int start) {
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
 		
-		this.round = round;
+		this.startRound = startRound;
+		this.endRound = round;
 		this.ks = ks;
 		this.start = start;
 		
@@ -106,7 +108,7 @@ public class Client {
 			
 			CBIClients cs = null;
 			IterativeFunctionClient client = null;
-			for(int i = 0; i < round; i++){
+			for(int i = startRound; i <= endRound; i++){
 				System.out.println(i);
 				while(true){
 					cs = new CBIClients(sInfo, fProfiles, start);
@@ -197,7 +199,7 @@ public class Client {
 				
 				CBIClients cs = null;
 				IterativeFunctionClient client = null;
-				for(int i = 0; i < round; i++){
+				for(int i = startRound; i <= endRound; i++){
 					System.out.println(i);
 //					long time0 = System.currentTimeMillis();
 					while(true){
@@ -322,7 +324,7 @@ public class Client {
 				consoleFolder.mkdirs();
 			}
 			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + "_f.xlsx"));
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_" + this.startRound + "_" + this.endRound + "_" + this.start + "_f.xlsx"));
 			workbook.write(out);
 			out.close();
 		} catch (Exception e) {
@@ -510,7 +512,7 @@ public class Client {
 				consoleFolder.mkdirs();
 			}
 			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + "_m.xlsx"));
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_" + this.startRound + "_" + this.endRound + "_" + this.start + "_m.xlsx"));
 			workbook.write(out);
 			out.close();
 		} catch (Exception e) {
@@ -660,7 +662,7 @@ public class Client {
 			if(!consoleFolder.exists()){
 				consoleFolder.mkdirs();
 			}
-			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + ".ftxt"))));
+			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "_" + this.startRound + "_" + this.endRound + "_" + this.start + ".ftxt"))));
 
 			for(String version: this.cResutlsMap.keySet()){
 				int[] cResult = this.cResutlsMap.get(version);
@@ -724,7 +726,7 @@ public class Client {
 			if(!consoleFolder.exists()){
 				consoleFolder.mkdirs();
 			}
-			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + ".mtxt"))));
+			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "_" + this.startRound + "_" + this.endRound + "_" + this.start + ".mtxt"))));
 			
 			for(String version: this.cResutlsMap.keySet()){
 				int[] cResult = this.cResutlsMap.get(version);
@@ -786,28 +788,28 @@ public class Client {
 				{"213", "gzip"},
 				{"363", "sed"},
 				{"13585", "space"},
-				{"1608", "tcas"},
-				{"1052", "totinfo"},
-				{"5542", "replace"},
 				{"4130", "printtokens"},
 				{"4115", "printtokens2"},
+				{"5542", "replace"},
 				{"2650", "schedule"},
-				{"2710", "schedule2"}
+				{"2710", "schedule2"},
+				{"1608", "tcas"},
+				{"1052", "totinfo"}
 		};
 		
-		if(args.length != 5 && args.length != 6){
+		if(args.length != 7 && args.length != 6){
 			System.out.println("The characteristics of subjects are as follows:");
 			for(int i = 0; i < argvs.length; i++){
 				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
 			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir(excluding /) round start([1, 10])" +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) round start([1, 10])");
+			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir(excluding /) startRound endRound start([1, 10])" +
+					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) startRound endRound start([1, 10])");
 			return;
 		}
 		int[] ks = {1};
 		long time0 = System.currentTimeMillis();
-		if(args.length == 6){
-			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4] + "_" + args[5]), Integer.parseInt(args[4]), ks, Integer.parseInt(args[5]));
+		if(args.length == 7){
+			Client c = new Client(new File(args[1]), args[2], new File(args[3] + "_" + args[4] + "_" + args[5] + "_" + args[6]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), ks, Integer.parseInt(args[6]));
 			if(Integer.parseInt(args[0]) == 0){
 				c.runSiemens();
 			}
@@ -815,10 +817,10 @@ public class Client {
 				c.runSir();
 			}
 		}
-		else if(args.length == 5){
+		else if(args.length == 6){
 			assert(Integer.parseInt(args[0]) == 0);
 			for(int i = 4; i < argvs.length; i++){
-				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "_" + args[3] + "_" + args[4], argvs[i][1]), Integer.parseInt(args[3]), ks, Integer.parseInt(args[4]));
+				Client c = new Client(new File(args[1]), argvs[i][1], new File(args[2] + "_" + args[3] + "_" + args[4] + "_" + args[5], argvs[i][1]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), ks, Integer.parseInt(args[5]));
 				c.runSiemens();
 			}
 		}

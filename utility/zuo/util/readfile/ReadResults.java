@@ -8,13 +8,18 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
+
+import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Order;
+import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
 
 public class ReadResults {
 	final String rootDir;
 	final String subject;
 	final static String[] files = {"outputs", "fine-grained-sampled-1", "fine-grained-sampled-100", "fine-grained-sampled-10000", 
-		"coarse-grained", "fine-grained", "fine-grained-adaptive-H_1", "fine-grained-adaptive-H_2"};
+		"coarse-grained", "fine-grained", "fine-grained-adaptive"};
     
 	public ReadResults(String rootD, String sub) {
 		// TODO Auto-generated constructor stub
@@ -41,7 +46,7 @@ public class ReadResults {
 				@Override
 				public boolean accept(File dir, String name) {
 					// TODO Auto-generated method stub
-					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 8);
+					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == 7);
 				}});
 			Arrays.sort(subversions, new Comparator<File>(){
 				@Override
@@ -56,8 +61,65 @@ public class ReadResults {
 				for(int i = 0; i < files.length; i++){
 					System.out.print(readFile(new File(subversion, files[i] + "/time")) + "\t");
 				}
+				System.out.print("\t");
+				for(int i = 0; i < Score.values().length; i++){
+					for(int j = 0; j < Order.values().length; j++){
+						String mode = vi + "_" + Score.values()[i] + "_" + Order.values()[j];
+						System.out.print(readModeAverageTime(new File(subversion, "fine-grained-adaptive"), 
+								new File(new File(rootDir + subject + "/outputs.alt/", "FunctionList"), mode + "_local_average")) + "\t");
+					}
+				}
+				System.out.print("\t");
+				for(int i = 0; i < Score.values().length; i++){
+					for(int j = 0; j < Order.values().length; j++){
+						String mode = vi + "_" + Score.values()[i] + "_" + Order.values()[j];
+						System.out.print(readModeAverageTime(new File(subversion, "fine-grained-adaptive"), 
+								new File(new File(rootDir + subject + "/outputs.alt/", "FunctionList"), mode + "_1_average")) + "\t");
+					}
+				}
 				System.out.println();
 			}
+		}
+	}
+	
+	private int readModeAverageTime(File timeFolder, File functionListFile) {
+		// TODO Auto-generated method stub
+		int time = 0;
+		Set<String> functions = new HashSet<String>();
+		readFunctionsFromFile(functions, functionListFile);
+		if(functions.isEmpty()){
+			return 0;
+		}
+		for(String function: functions){
+			time += readFile(new File(new File(timeFolder, function), "time"));
+		}
+		return time / functions.size();
+	}
+
+	public static void readFunctionsFromFile(Set<String> functions, File functionListFile){
+		BufferedReader reader = null;
+		String line;
+		try {
+			reader = new BufferedReader(new FileReader(functionListFile));
+			while((line = reader.readLine()) != null){
+				functions.add(line);
+			}
+		} 
+		catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally{
+			if(reader != null)
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 	}
 	
@@ -66,7 +128,7 @@ public class ReadResults {
 			@Override
 			public boolean accept(File dir, String name) {
 				// TODO Auto-generated method stub
-				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == 8);
+				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == 7);
 			}});
 		Arrays.sort(versions, new Comparator<File>(){
 			@Override
@@ -79,6 +141,22 @@ public class ReadResults {
 			System.out.print(vi + "\t");
 			for(int i = 0; i < files.length; i++){
 				System.out.print(readFile(new File(version, files[i] + "/time")) + "\t");
+			}
+			System.out.print("\t");
+			for(int i = 0; i < Score.values().length; i++){
+				for(int j = 0; j < Order.values().length; j++){
+					String mode = vi + "_" + Score.values()[i] + "_" + Order.values()[j];
+					System.out.print(readModeAverageTime(new File(version, "fine-grained-adaptive"), 
+							new File(new File(rootDir + subject + "/outputs/versions", "FunctionList"), mode + "_local_average")) + "\t");
+				}
+			}
+			System.out.print("\t");
+			for(int i = 0; i < Score.values().length; i++){
+				for(int j = 0; j < Order.values().length; j++){
+					String mode = vi + "_" + Score.values()[i] + "_" + Order.values()[j];
+					System.out.print(readModeAverageTime(new File(version, "fine-grained-adaptive"), 
+							new File(new File(rootDir + subject + "/outputs/versions", "FunctionList"), mode + "_1_average")) + "\t");
+				}
 			}
 			System.out.println();
 		}
@@ -117,32 +195,32 @@ public class ReadResults {
 	public static void main(String[] args) {
 		ReadResults rr;
 		String[][] argvs = {
-				{"809", "grep"},
-				{"213", "gzip"},
-				{"363", "sed"},
-				{"13585", "space"},
-				{"1608", "tcas"},
-				{"1052", "totinfo"},
-				{"5542", "replace"},
 				{"4130", "printtokens"},
 				{"4115", "printtokens2"},
+				{"5542", "replace"},
 				{"2650", "schedule"},
-				{"2710", "schedule2"}
+				{"2710", "schedule2"},
+				{"1608", "tcas"},
+				{"1052", "totinfo"},
+//				{"13585", "space"},
+				{"363", "sed"},
+				{"809", "grep"},
+				{"213", "gzip"},
 		};
 		
 		for(int i = 0; i < argvs.length; i++){
 			String subject = argvs[i][1];
 			System.out.println(subject);
-			if(i > 3){
-				rr = new ReadResults("/home/sunzzq/Research/Automated_Debugging/Subjects/Siemens/", subject);
+			if(i < 7){
+				rr = new ReadResults("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/Siemens/", subject);
 				rr.readSiemens();
 			}
-			else if(i == 3){
-				rr = new ReadResults("/home/sunzzq/Research/Automated_Debugging/Subjects/", subject);
-				rr.readSiemens();
-			}
+//			else if(i == 7){
+//				rr = new ReadResults("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/", subject);
+//				rr.readSiemens();
+//			}
 			else{
-				rr = new ReadResults("/home/sunzzq/Research/Automated_Debugging/Subjects/", subject);
+				rr = new ReadResults("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/", subject);
 				rr.readSir();
 			}
 		}
