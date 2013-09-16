@@ -202,7 +202,7 @@ public class ReadResults {
 				{"2710", "schedule2"},
 				{"1608", "tcas"},
 				{"1052", "totinfo"},
-//				{"13585", "space"},
+				{"13585", "space"},
 				{"363", "sed"},
 				{"809", "grep"},
 				{"213", "gzip"},
@@ -215,10 +215,10 @@ public class ReadResults {
 				rr = new ReadResults("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/Siemens/", subject);
 				rr.readSiemens();
 			}
-//			else if(i == 7){
-//				rr = new ReadResults("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/", subject);
-//				rr.readSiemens();
-//			}
+			else if(i == 7){
+				rr = new ReadResults("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/", subject);
+				rr.readSiemens();
+			}
 			else{
 				rr = new ReadResults("/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/", subject);
 				rr.readSir();
