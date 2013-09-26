@@ -21,10 +21,6 @@ public class Processor {
 
 		private void process(IProfile[] profiles) {
 			IDataSet dataset = this.graphConstructor.createDataSet(profiles);
-//			if (!(dataset instanceof GraphDataSet)) {
-//				throw new RuntimeException("Your dataset constructor creates a non-graph dataset.");
-//			}
-//			GraphDataSet graphs = (GraphDataSet) dataset;
 			Runtime.getRuntime().gc();
 			Runtime.getRuntime().gc();
 			for (IDataSetProcessor processor : this.graphProcessors) {

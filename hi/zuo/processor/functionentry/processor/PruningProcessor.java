@@ -32,17 +32,16 @@ public class PruningProcessor extends AbstractProcessor{
 			FunctionEntryProfile profile = profiles[i];
 			if(!profile.isCorrect()) {
 				for (FunctionEntryItem item : profile.getFunctionEntryItems()) {
-					FunctionEntrySite function = item.getSite();
+					FunctionEntrySite functionSite = item.getSite();
 					if (item.getCounter() > 0) {
-						if (negativeFrequencyMap.containsKey(function)) {
-							negativeFrequencyMap.put(function,
-									negativeFrequencyMap.get(function) + 1);
+						if (negativeFrequencyMap.containsKey(functionSite)) {
+							negativeFrequencyMap.put(functionSite, negativeFrequencyMap.get(functionSite) + 1);
 						} else {
-							negativeFrequencyMap.put(function, 1);
+							negativeFrequencyMap.put(functionSite, 1);
 						}
 					} else {
-						if (!negativeFrequencyMap.containsKey(function)) {
-							negativeFrequencyMap.put(function, 0);
+						if (!negativeFrequencyMap.containsKey(functionSite)) {
+							negativeFrequencyMap.put(functionSite, 0);
 						}
 					}
 				}

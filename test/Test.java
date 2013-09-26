@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,7 +20,7 @@ public class Test {
 		RANDOM, NEGATIVE, H_1, F_1, H_2, PRECISION, POSITIVE
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 //		System.out.println("Hello world!");
 //		Map<String, int[]> map = new HashMap<String, int[]>();
 //		map.put("1", new int[2]);
@@ -107,5 +108,7 @@ public class Test {
 		}
 		
 		System.out.println(String.format("%-15s", "best:" + null));
+		
+//		Runtime.getRuntime().exec("sleep 100");
 	}
 }

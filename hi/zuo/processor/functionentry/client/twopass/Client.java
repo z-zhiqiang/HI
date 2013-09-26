@@ -12,20 +12,40 @@ import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
 
 public class Client {
 	private static final String DATASET_FOLDER_NAME = "predicate-dataset";
+	private static final String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/";
+	
+	private final String subject;
 
-	private static final String EXPERIMENT_ROOT = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/";
-
+	public Client(String subject){
+		this.subject = subject;
+	}
 
 	public static void main(String[] args) {
-		construct("gzip");
+		String[][] argvs = {
+//				{"809", "grep"},
+				{"213", "gzip"},
+//				{"363", "sed"},
+//				{"13585", "space"},
+//				{"4130", "printtokens"},
+//				{"4115", "printtokens2"},
+//				{"5542", "replace"},
+//				{"2650", "schedule"},
+//				{"2710", "schedule2"},
+//				{"1608", "tcas"},
+//				{"1052", "totinfo"}
+		};
+		for(int i = 0; i < argvs.length; i++){
+			Client client = new Client(argvs[i][1]);
+			client.runClient();
+		}
 	}
 	
-	public static void construct(String projectName){
-		File projectRoot = new File(EXPERIMENT_ROOT, projectName);
+	public void runClient(){
+		File projectRoot = new File(rootDir, this.subject);
 		if (!projectRoot.exists())
 			throw new RuntimeException("Project " + projectRoot + " does not exist!");
 
-		if (projectName.equals("space")) {
+		if (this.subject.equals("space")) {
 			File[] versions = new File(projectRoot, "versions").listFiles(new FilenameFilter(){
 				@Override
 				public boolean accept(File dir, String name) {
@@ -107,20 +127,16 @@ public class Client {
 					//dataset output folder
 					final File resultOutputFolder = new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
 					
-					
 					run(fProfilesFolder, cProfilesFolder, fSitesFile, cSitesFile, resultOutputFolder);
 				}
-				
 			}
 		}
-		
 	}
 
-	private static void run(File fProfilesFolder, File cProfilesFolder, final File fSitesFile, final File cSitesFile, final File resultOutputFolder) {
+	private void run(File fProfilesFolder, File cProfilesFolder, final File fSitesFile, final File cSitesFile, final File resultOutputFolder) {
 		TwopassFunctionClient funClient = new TwopassFunctionClient(cSitesFile, cProfilesFolder, fSitesFile);
 		funClient.printEntry();
-		BoundCalculator bc = new BoundCalculator(funClient.processor.getTotalNegative(), funClient.processor.getTotalPositive());
-		
+
 		Set<String> originalFunctionSet = funClient.getFunctionSet(0);
 		File originalDatasetFolder = new File(resultOutputFolder, "original_all");
 		if(!originalDatasetFolder.exists()){
@@ -129,11 +145,9 @@ public class Client {
 		DefaultPredicateProcessorWithLabel originalInstance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, originalDatasetFolder, fSitesFile, originalFunctionSet);
 		originalInstance.run();
 		
-		
 		/*=================================================================================================*/
 		
-		
-		Set<String> boostFunctionSet = funClient.getBoostFunctionSet((byte)1, 0.1f);
+		Set<String> boostFunctionSet = funClient.getBoostFunctionSet((byte)1, 0);
 		File boostDatasetFolder = new File(resultOutputFolder, "boost_all");
 		if(!boostDatasetFolder.exists()){
 			boostDatasetFolder.mkdirs();
@@ -141,8 +155,9 @@ public class Client {
 		DefaultPredicateProcessorWithLabel boostInstance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, boostDatasetFolder, fSitesFile, boostFunctionSet);
 		boostInstance.run();
 		
-//		//-------------------------------------------------------------------------------------------------//
-//		
+		//-------------------------------------------------------------------------------------------------//
+		
+//		BoundCalculator bc = new BoundCalculator(funClient.processor.getTotalNegative(), funClient.processor.getTotalPositive());
 //		Set<String> pruneFunctionSet = funClient.getFunctionSet(bc.computeIGBound(0.5));
 //		File datasetFolder = new File(resultOutputFolder, "prune");
 //		if(!datasetFolder.exists()){
