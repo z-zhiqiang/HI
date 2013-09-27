@@ -1,17 +1,22 @@
 package zuo.processor.functionentry.client.twopass;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import zuo.processor.functionentry.processor.BoundCalculator;
+import zuo.util.file.FileUtility;
 import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
 
 public class Client {
 	private static final String DATASET_FOLDER_NAME = "predicate-dataset";
+	private static final String mbsOutputFile = "mbs.out";
 	private static final String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/";
 	
 	private final String subject;
@@ -22,8 +27,8 @@ public class Client {
 
 	public static void main(String[] args) {
 		String[][] argvs = {
-//				{"809", "grep"},
-				{"213", "gzip"},
+				{"809", "grep"},
+//				{"213", "gzip"},
 //				{"363", "sed"},
 //				{"13585", "space"},
 //				{"4130", "printtokens"},
@@ -134,6 +139,12 @@ public class Client {
 	}
 
 	private void run(File fProfilesFolder, File cProfilesFolder, final File fSitesFile, final File cSitesFile, final File resultOutputFolder) {
+		double threshold = 0;
+		int k = 1;
+		String command = "mbs -k " + k + " -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 9999 --up-limit 2 ";
+		
+		/*=================================================================================================*/
+		
 		TwopassFunctionClient funClient = new TwopassFunctionClient(cSitesFile, cProfilesFolder, fSitesFile);
 		funClient.printEntry();
 
@@ -145,9 +156,11 @@ public class Client {
 		DefaultPredicateProcessorWithLabel originalInstance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, originalDatasetFolder, fSitesFile, originalFunctionSet);
 		originalInstance.run();
 		
+		runMBS(command, originalDatasetFolder, k);
+		
 		/*=================================================================================================*/
 		
-		Set<String> boostFunctionSet = funClient.getBoostFunctionSet((byte)1, 0);
+		Set<String> boostFunctionSet = funClient.getBoostFunctionSet((byte)1, 0.1f);
 		File boostDatasetFolder = new File(resultOutputFolder, "boost_all");
 		if(!boostDatasetFolder.exists()){
 			boostDatasetFolder.mkdirs();
@@ -155,17 +168,51 @@ public class Client {
 		DefaultPredicateProcessorWithLabel boostInstance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, boostDatasetFolder, fSitesFile, boostFunctionSet);
 		boostInstance.run();
 		
+		threshold = runMBS(command, boostDatasetFolder, k);
+		
 		//-------------------------------------------------------------------------------------------------//
 		
-//		BoundCalculator bc = new BoundCalculator(funClient.processor.getTotalNegative(), funClient.processor.getTotalPositive());
-//		Set<String> pruneFunctionSet = funClient.getFunctionSet(bc.computeIGBound(0.5));
-//		File datasetFolder = new File(resultOutputFolder, "prune");
-//		if(!datasetFolder.exists()){
-//			datasetFolder.mkdirs();
-//		}
-//		DefaultPredicateProcessorWithLabel pruneInstance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, datasetFolder, fSitesFile, pruneFunctionSet);
-//		pruneInstance.run();
+		BoundCalculator bc = new BoundCalculator(funClient.processor.getTotalNegative(), funClient.processor.getTotalPositive());
+		assert(threshold != 0);
+		Set<String> pruneFunctionSet = funClient.getFunctionSet(bc.computeIGBound(threshold));
+		File pruneDatasetFolder = new File(resultOutputFolder, "prune");
+		if(!pruneDatasetFolder.exists()){
+			pruneDatasetFolder.mkdirs();
+		}
+		DefaultPredicateProcessorWithLabel pruneInstance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, pruneDatasetFolder, fSitesFile, pruneFunctionSet);
+		pruneInstance.run();
 		
+		runMBS(command, pruneDatasetFolder, k);
+		
+		//-------------------------------------------------------------------------------------------------//
+		
+	}
+
+	private double runMBS(String command, File datasetFolder, int k) {
+		double threshold = 0;
+		try {
+			Process process = Runtime.getRuntime().exec(command + "-o " 
+					+ new File(datasetFolder, mbsOutputFile).getAbsolutePath() + " " 
+					+ new File(datasetFolder, DefaultPredicateProcessorWithLabel.MPS_PB).getAbsolutePath());
+//			process.waitFor();
+			
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line;
+			while((line = reader.readLine()) != null){
+				if(line.matches("TOP-.*(" + k + ").*SUP=.*Metric=.*")){
+					threshold = Double.parseDouble(line.substring(line.lastIndexOf("=") + 1));
+					System.out.println(line);
+				}
+				if(line.matches("time-cost.*=.*")){
+					System.out.println(line);
+				}
+			}
+			System.out.println("\n");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return threshold;
 	}
 
 }

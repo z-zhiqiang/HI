@@ -1,5 +1,6 @@
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -52,23 +53,31 @@ public class ExecuteShellCommand {
 //			e.printStackTrace();
 //		}
  
-		String dataset = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/gzip/versions/v1/subv2/predicate-dataset/boost_all/mps-ds.pb";
+		StringBuilder builder = new StringBuilder();
+		String dataset = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/gzip/versions/v2/subv3/predicate-dataset/boost_all/mps-ds.pb";
 		try {
-			Process p = Runtime.getRuntime().exec("mbs  -k 1 -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 9999 --up-limit 2 ");
-			p.waitFor();
+			Process p = Runtime.getRuntime().exec("mbs -k 1 -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 9999 --up-limit 2 -o mbs.out " + dataset);
+			System.out.println("start");
+			System.out.println("second");
 			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
+			int k = 1;
 			while((line = reader.readLine()) != null){
-				System.out.println(line);
+				if(line.matches("TOP-.*(" + k + ").*SUP=.*Metric=.*")){
+					System.out.println(line);
+					System.out.println(line.lastIndexOf("="));
+					System.out.println(line.substring(line.lastIndexOf("=") + 1));
+				}
+//				builder.append(line).append("\n");
 			}
+			System.out.println(builder.toString());
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
+		
+		System.out.println(new File(dataset).getName());
 	}
  
 	public static List<String> getIpAddress(String msg) {

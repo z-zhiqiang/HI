@@ -20,7 +20,7 @@ import edu.nus.sun.processor.predicate.PredicateProfileReaderWithLabel;
 public class DefaultPredicateProcessorWithLabel extends
 		AbstractProcessorWithLabels {
 
-	private static final String MPS_PB = "mps-ds.pb";
+	public static final String MPS_PB = "mps-ds.pb";
 
 	protected final File sitesInfoPath;
 	
