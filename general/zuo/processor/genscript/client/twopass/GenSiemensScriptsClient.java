@@ -76,7 +76,7 @@ public class GenSiemensScriptsClient {
 				+ " -o " + vexecuteDir + version + ".exe"
 				+ " -I" + vsourceDir
 				+ " -lm";
-		compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
+		compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsampler-scheme=float-kinds -fno-sample "
 				+ vsourceDir + subject + ".c" 
 				+ " -o " + vexecuteDir + version + "_finst.exe"
 				+ " -I" + vsourceDir
@@ -142,6 +142,9 @@ public class GenSiemensScriptsClient {
 			if(split.getFailingTests().size() >= 1){
 				subs.add(i);
 			}
+//			if(new File(gc.vexecuteDir).listFiles().length == 10){
+//				subs.add(i);
+//			}
 			
 			System.out.println("generating run instrument script for v" + i);
 			gs = new GenRunFineGrainedInstrumentScript(gc.subject, gc.version, gc.compileFGInstrument, gc.vsourceDir, gc.vexecuteDir, 

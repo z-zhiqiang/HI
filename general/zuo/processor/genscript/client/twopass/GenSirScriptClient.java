@@ -113,7 +113,7 @@ public class GenSirScriptClient {
 				+ " -o " + vexecuteDir + version + ".exe"
 				+ includeVC
 				;
-		compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
+		compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsampler-scheme=float-kinds -fno-sample "
 				+ vsourceDir + sourceName + ".c" 
 				+ " $COMPILE_PARAMETERS"
 				+ paraC
