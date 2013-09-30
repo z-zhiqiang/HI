@@ -3,7 +3,6 @@ package zuo.processor.functionentry.client.twopass;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -11,7 +10,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import zuo.processor.functionentry.processor.BoundCalculator;
-import zuo.util.file.FileUtility;
 import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
 
 public class Client {
@@ -30,7 +28,7 @@ public class Client {
 				{"809", "grep"},
 //				{"213", "gzip"},
 //				{"363", "sed"},
-//				{"13585", "space"},
+				{"13585", "space"},
 //				{"4130", "printtokens"},
 //				{"4115", "printtokens2"},
 //				{"5542", "replace"},
@@ -160,7 +158,7 @@ public class Client {
 		
 		/*=================================================================================================*/
 		
-		Set<String> boostFunctionSet = funClient.getBoostFunctionSet((byte)1, 0.1f);
+		Set<String> boostFunctionSet = funClient.getBoostFunctionSet((byte)0, 0.1f);
 		File boostDatasetFolder = new File(resultOutputFolder, "boost_all");
 		if(!boostDatasetFolder.exists()){
 			boostDatasetFolder.mkdirs();

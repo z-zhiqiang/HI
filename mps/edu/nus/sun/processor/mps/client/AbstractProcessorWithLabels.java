@@ -29,7 +29,6 @@ public abstract class AbstractProcessorWithLabels {
     new Processor(profileReader, backends, profileProcessors).process();
     final long end = System.currentTimeMillis();
     System.out.println("time = " + (end - start) / 1000);
-//    System.out.println("\n");
   }
 
   protected abstract IProfileReader createProfileReader(File profileFolder);
