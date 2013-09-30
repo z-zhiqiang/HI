@@ -269,8 +269,6 @@ public class InstrumentationSites {
             this.readBranches(reader, branchSites);
           } else if (line.contains("scheme=\"returns\"")) {
             this.readReturns(reader, returnSites);
-          } else if (line.contains("scheme=\"function-entries\"")) {
-            skip(reader);
           } else if (line.contains("scheme=\"scalar-pairs\"")) {
             this.readScalarPairs(reader, scalarSites);
           } else if (line.contains("scheme=\"float-kinds\"")) {

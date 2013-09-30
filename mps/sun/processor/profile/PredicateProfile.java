@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import sun.processor.profile.InstrumentationSites.BranchSite;
 import sun.processor.profile.InstrumentationSites.FloatKindSite;
@@ -32,8 +31,6 @@ public class PredicateProfile extends AbstractProfile implements
 
   private InstrumentationSites sites;
   
-  private Set<String> functionSet;
-
   @Override
   public void dispose() {
     this.scalarPairs = null;
@@ -41,16 +38,14 @@ public class PredicateProfile extends AbstractProfile implements
     this.floats = null;
     this.branchPredicates = null;
     this.sites = null;
-    this.functionSet = null;
   }
 
-  public PredicateProfile(File profilePath, InstrumentationSites sites, Set<String> functionSet,
+  public PredicateProfile(File profilePath, InstrumentationSites sites,
       boolean isCorrect, ScalarPairPredicate.Factory scalarFactory,
       BranchPredicate.Factory branchFactory,
       sun.processor.profile.predicate.ReturnPredicate.Factory returnFactory) {
     super(profilePath, isCorrect);
     this.sites = sites;
-    this.functionSet = functionSet;
 
     ImmutableList.Builder<ScalarPairPredicate> scalarPredicates = ImmutableList
         .builder();
@@ -100,8 +95,6 @@ public class PredicateProfile extends AbstractProfile implements
           readBranches(reader, branchPredicates, branchFactory);
         } else if (line.contains("scheme=\"scalar-pairs\"")) {
           readScalarPairs(reader, scalarPredicates, factory);
-        } else if (line.contains("scheme=\"function-entries\"")) {
-          skip(reader);
         } else if (line.contains("scheme=\"float-kinds\"")) {
           this.readFloats(reader, floatPredicates);
         } else {
@@ -134,9 +127,9 @@ public class PredicateProfile extends AbstractProfile implements
         final int id = ++sequence;
         
         ScalarSite site = this.sites.getScalarSite(id);
-        if(this.functionSet.contains(site.getFunctionName())){
+//        if(this.functionSet.contains(site.getFunctionName())){
         	predicates.add(factory.create(id, site, lessThanCounter, equalCounter, greaterThanCounter));
-        }
+//        }
       }
     } catch (IOException e) {
       throw new RuntimeException();
@@ -172,10 +165,10 @@ public class PredicateProfile extends AbstractProfile implements
         int id = ++sequence;
         
         FloatKindSite site = this.sites.getFloatKindSite(id);
-        if (this.functionSet.contains(site.getFunctionName())) {
+//        if (this.functionSet.contains(site.getFunctionName())) {
 			predicates.add(new FloatKindPredicate(id, site, negativeInfinite, negativeNormalized, negativeDenormalized, negativeZero,
 					nan, positiveZero, positiveDenormalized, positiveNormalized, positiveInfinite));
-		}
+//		}
       }
     } catch (IOException e) {
       throw new RuntimeException();
@@ -204,9 +197,9 @@ public class PredicateProfile extends AbstractProfile implements
         int id = ++sequence;
         
         BranchSite site = this.sites.getBranchSite(id);
-        if (this.functionSet.contains(site.getFunctionName())) {
+//        if (this.functionSet.contains(site.getFunctionName())) {
 			predicates.add(branchFactory.create(id, site, trueCounter, falseCounter));
-		}
+//		}
       }
     } catch (IOException e) {
       throw new RuntimeException();
@@ -257,9 +250,9 @@ public class PredicateProfile extends AbstractProfile implements
         final int id = ++sequence;
         
         ReturnSite site = this.sites.getReturnSite(id);
-        if (this.functionSet.contains(site.getFunctionName())) {
+//        if (this.functionSet.contains(site.getFunctionName())) {
 			predicates.add(factory.create(id, site, negativeCounter, zeroCounter, positiveCounter));
-		}
+//		}
       }
     } catch (IOException e) {
       throw new RuntimeException(e);

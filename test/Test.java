@@ -36,6 +36,7 @@ public class Test {
 		File file = new File("/home/sunzzq/adaptive/");
 		System.out.println(file.getAbsolutePath() + "/a");
 		System.out.println(String.valueOf(Score.F_1));
+		System.out.println(file.getParentFile());
 		
 		
 		Set<Integer> set = new TreeSet<Integer>();
@@ -109,6 +110,12 @@ public class Test {
 		
 		System.out.println(String.format("%-15s", "best:" + null));
 		
-//		Runtime.getRuntime().exec("sleep 100");
+		String sites = "<samples unit=\"35d4c4c11279d3c0bd91e9fd9534573d\" scheme=\"function-entries\">";
+		System.out.println(sites.matches("<sites\\sunit=\".*\"\\sscheme=\".*\">"));
+		
+		System.out.println(zuo.split.PredicateSplittingSiteProfile.extractUnitScheme(sites));
+		
+		String sitesFile = "v2_subv3_c.sites";
+		System.out.println(sitesFile.replace('c', 'p'));
 	}
 }

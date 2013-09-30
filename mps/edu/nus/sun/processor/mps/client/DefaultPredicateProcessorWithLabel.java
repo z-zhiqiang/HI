@@ -3,7 +3,6 @@ package edu.nus.sun.processor.mps.client;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import sun.processor.core.IDataSetConstructor;
 import sun.processor.core.IDataSetProcessor;
@@ -24,12 +23,9 @@ public class DefaultPredicateProcessorWithLabel extends
 
 	protected final File sitesInfoPath;
 	
-	private final Set<String> functionSet;
-
-	public DefaultPredicateProcessorWithLabel(File profileFolder, File resultOutputFolder, File sitesInfoPath, Set<String> functionSet) {
+	public DefaultPredicateProcessorWithLabel(File profileFolder, File resultOutputFolder, File sitesInfoPath) {
 		super(profileFolder, resultOutputFolder);
 		this.sitesInfoPath = sitesInfoPath;
-		this.functionSet = functionSet;
 	}
 
 	
@@ -72,7 +68,7 @@ public class DefaultPredicateProcessorWithLabel extends
 
 	@Override
 	protected IProfileReader createProfileReader(final File profileFolder) {
-		return new PredicateProfileReaderWithLabel(profileFolder, this.sitesInfoPath, this.functionSet);
+		return new PredicateProfileReaderWithLabel(profileFolder, this.sitesInfoPath);
 	}
 
 }

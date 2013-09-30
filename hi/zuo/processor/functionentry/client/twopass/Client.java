@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import zuo.processor.functionentry.processor.BoundCalculator;
+import zuo.split.PredicateSplittingSiteProfile;
 import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
 
 public class Client {
@@ -64,21 +65,21 @@ public class Client {
 			
 			for(File version: versions){
 				String vi = version.getName();
-				File fProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/fine-grained/");
-				if (!fProfilesFolder.exists()) {
-					throw new RuntimeException("Fine-grained faulty profiles folder " + fProfilesFolder + " does not exist.");
+				File fgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/fine-grained/");
+				if (!fgProfilesFolder.exists()) {
+					throw new RuntimeException("Fine-grained faulty profiles folder " + fgProfilesFolder + " does not exist.");
 				}
-				File cProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/coarse-grained/");
-				if (!cProfilesFolder.exists()) {
-					throw new RuntimeException("Fine-grained faulty profiles folder " + cProfilesFolder + " does not exist.");
+				File cgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/coarse-grained/");
+				if (!cgProfilesFolder.exists()) {
+					throw new RuntimeException("Coarse-grained faulty profiles folder " + cgProfilesFolder + " does not exist.");
 				}
 				
-				final File fSitesFile = new File(projectRoot, "versions/" + vi + "/" + vi + "_f.sites");
-				final File cSitesFile = new File(projectRoot, "versions/" + vi + "/" + vi + "_c.sites");
+				final File fgSitesFile = new File(projectRoot, "versions/" + vi + "/" + vi + "_f.sites");
+				final File cgSitesFile = new File(projectRoot, "versions/" + vi + "/" + vi + "_c.sites");
 				
 				final File resultOutputFolder = new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
 				
-				run(fProfilesFolder, cProfilesFolder, fSitesFile, cSitesFile, resultOutputFolder);
+				run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder);
 			}
 		} 
 		else {
@@ -114,56 +115,61 @@ public class Client {
 					System.out.println(vi);
 					
 					//profiles folders
-					File fProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/fine-grained/");
-					if (!fProfilesFolder.exists()) {
-						throw new RuntimeException("Fine-grained faulty profiles folder " + fProfilesFolder + " does not exist.");
+					File fgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/fine-grained/");
+					if (!fgProfilesFolder.exists()) {
+						throw new RuntimeException("Fine-grained faulty profiles folder " + fgProfilesFolder + " does not exist.");
 					}
-					File cProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/coarse-grained/");
-					if(!cProfilesFolder.exists()){
-						throw new RuntimeException("Coarse-grained faulty profiles folder " + cProfilesFolder + " does not exist.");
+					File cgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/coarse-grained/");
+					if (!cgProfilesFolder.exists()) {
+						throw new RuntimeException("Coarse-grained faulty profiles folder " + cgProfilesFolder + " does not exist.");
 					}
 					
 					//instrumentation sites files
-					final File fSitesFile = new File(projectRoot, "versions/" + vi + "/" + version.getName() + "_" + subversion.getName() + "_f.sites");
-					final File cSitesFile = new File(projectRoot, "versions/" + vi + "/" + version.getName() + "_" + subversion.getName() + "_c.sites");
+					final File fgSitesFile = new File(projectRoot, "versions/" + vi + "/" + version.getName() + "_" + subversion.getName() + "_f.sites");
+					final File cgSitesFile = new File(projectRoot, "versions/" + vi + "/" + version.getName() + "_" + subversion.getName() + "_c.sites");
 					
 					//dataset output folder
 					final File resultOutputFolder = new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
 					
-					run(fProfilesFolder, cProfilesFolder, fSitesFile, cSitesFile, resultOutputFolder);
+					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder);
 				}
 			}
 		}
 	}
 
-	private void run(File fProfilesFolder, File cProfilesFolder, final File fSitesFile, final File cSitesFile, final File resultOutputFolder) {
+	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder) {
 		double threshold = 0;
 		int k = 1;
 		String command = "mbs -k " + k + " -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 9999 --up-limit 2 ";
 		
 		/*=================================================================================================*/
+		/*=================================================================================================*/
 		
-		TwopassFunctionClient funClient = new TwopassFunctionClient(cSitesFile, cProfilesFolder, fSitesFile);
-		funClient.printEntry();
-
-		Set<String> originalFunctionSet = funClient.getFunctionSet(0);
-		File originalDatasetFolder = new File(resultOutputFolder, "original_all");
+		File originalDatasetFolder = new File(resultOutputFolder, "original");
 		if(!originalDatasetFolder.exists()){
 			originalDatasetFolder.mkdirs();
 		}
-		DefaultPredicateProcessorWithLabel originalInstance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, originalDatasetFolder, fSitesFile, originalFunctionSet);
+		DefaultPredicateProcessorWithLabel originalInstance = new DefaultPredicateProcessorWithLabel(fgProfilesFolder, originalDatasetFolder, fgSitesFile);
 		originalInstance.run();
 		
 		runMBS(command, originalDatasetFolder, k);
 		
 		/*=================================================================================================*/
+
+		TwopassFunctionClient funClient = new TwopassFunctionClient(cgSitesFile, cgProfilesFolder, fgSitesFile);
+		funClient.printEntry();
 		
 		Set<String> boostFunctionSet = funClient.getBoostFunctionSet((byte)0, 0.1f);
-		File boostDatasetFolder = new File(resultOutputFolder, "boost_all");
+		File boostProfilesFolder = new File(fgProfilesFolder.getParentFile(), "boost");
+		File boostSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'b'));
+		PredicateSplittingSiteProfile boostSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, boostSitesFile, boostProfilesFolder, boostFunctionSet);
+		boostSplit.split();
+		
+		File boostDatasetFolder = new File(resultOutputFolder, "boost");
 		if(!boostDatasetFolder.exists()){
 			boostDatasetFolder.mkdirs();
 		}
-		DefaultPredicateProcessorWithLabel boostInstance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, boostDatasetFolder, fSitesFile, boostFunctionSet);
+		DefaultPredicateProcessorWithLabel boostInstance = new DefaultPredicateProcessorWithLabel(boostProfilesFolder, boostDatasetFolder, boostSitesFile);
 		boostInstance.run();
 		
 		threshold = runMBS(command, boostDatasetFolder, k);
@@ -173,11 +179,16 @@ public class Client {
 		BoundCalculator bc = new BoundCalculator(funClient.processor.getTotalNegative(), funClient.processor.getTotalPositive());
 		assert(threshold != 0);
 		Set<String> pruneFunctionSet = funClient.getFunctionSet(bc.computeIGBound(threshold));
+		File pruneProfilesFolder = new File(fgProfilesFolder.getParentFile(), "prune");
+		File pruneSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'p'));
+		PredicateSplittingSiteProfile pruneSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, pruneSitesFile, pruneProfilesFolder, pruneFunctionSet);
+		pruneSplit.split();
+		
 		File pruneDatasetFolder = new File(resultOutputFolder, "prune");
 		if(!pruneDatasetFolder.exists()){
 			pruneDatasetFolder.mkdirs();
 		}
-		DefaultPredicateProcessorWithLabel pruneInstance = new DefaultPredicateProcessorWithLabel(fProfilesFolder, pruneDatasetFolder, fSitesFile, pruneFunctionSet);
+		DefaultPredicateProcessorWithLabel pruneInstance = new DefaultPredicateProcessorWithLabel(pruneProfilesFolder, pruneDatasetFolder, pruneSitesFile);
 		pruneInstance.run();
 		
 		runMBS(command, pruneDatasetFolder, k);

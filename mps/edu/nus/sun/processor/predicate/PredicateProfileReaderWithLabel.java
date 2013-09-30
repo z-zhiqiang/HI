@@ -1,7 +1,6 @@
 package edu.nus.sun.processor.predicate;
 
 import java.io.File;
-import java.util.Set;
 
 import sun.processor.core.IProfile;
 import sun.processor.profile.InstrumentationSites;
@@ -17,18 +16,15 @@ public class PredicateProfileReaderWithLabel extends
 
   private final InstrumentationSites sites;
   
-  private final Set<String> functionSet;
-
   private final ScalarPairPredicate.Factory scalarFactory;
 
   private final BranchPredicate.Factory branchFactory;
 
   private final ReturnPredicate.Factory returnFactory;
 
-  public PredicateProfileReaderWithLabel(final File profileFolder, final File sitesPath, final Set<String> functionSet) {
+  public PredicateProfileReaderWithLabel(final File profileFolder, final File sitesPath) {
     super(profileFolder);
     this.sites = new InstrumentationSites(sitesPath);
-    this.functionSet = functionSet;
     this.scalarFactory = new Factory();
     this.branchFactory = new BranchPredicate.Factory();
     this.returnFactory = new ReturnPredicate.Factory();
@@ -36,7 +32,7 @@ public class PredicateProfileReaderWithLabel extends
 
   @Override
   protected IProfile createProfile(final boolean executionLabel, final File profileFile) {
-    return new PredicateProfile(profileFile, this.sites, this.functionSet, executionLabel,
+    return new PredicateProfile(profileFile, this.sites, executionLabel,
         this.scalarFactory, this.branchFactory, this.returnFactory);
   }
 
