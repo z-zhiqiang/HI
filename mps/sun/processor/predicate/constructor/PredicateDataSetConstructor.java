@@ -159,7 +159,7 @@ public class PredicateDataSetConstructor implements IDataSetConstructor {
   }
 
   @Override
-  public IDataSet createDataSet(IProfile[] profiles) {
+  public IDataSet createDataSet(IProfile[] profiles, int[] statistics) {
     PredicateItemFactory factory = new PredicateItemFactory();
     if (profiles.length == 0) {
       throw new RuntimeException("empty profiles");
@@ -187,6 +187,11 @@ public class PredicateDataSetConstructor implements IDataSetConstructor {
         this.numberOfPredicateItemsFilteredByIncrease,
         this.numberOfPredicateItemsFilteredByLocal);
 
+    //added to get the predicates number info
+    statistics[0] = this.numberOfPredicateItemsGenerated;
+    statistics[1] = this.numberOfPredicateItemsFilteredByIncrease;
+    statistics[2] = this.numberOfPredicateItemsFilteredByLocal;
+    
     assignPredicateID(ds);
 
     return ds;

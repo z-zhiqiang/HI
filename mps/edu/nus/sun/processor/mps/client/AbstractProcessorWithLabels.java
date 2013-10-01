@@ -20,15 +20,24 @@ public abstract class AbstractProcessorWithLabels {
     this.resultOutputFolder = resultOutputFolder;
   }
 
-  public void run() {
+  public void run(List<Object> resultsList) {
+	int[] statistics = new int[4];
+	
     final long start = System.currentTimeMillis();
+    
     final IProfileReader profileReader = this.createProfileReader(profileFolder);
     final List<BackEnd> backends = this.createBackends(resultOutputFolder);
-    final List<IProfileProcessor> profileProcessors = this
-        .createProfileProcessors(resultOutputFolder);
-    new Processor(profileReader, backends, profileProcessors).process();
+    final List<IProfileProcessor> profileProcessors = this.createProfileProcessors(resultOutputFolder);
+    new Processor(profileReader, backends, profileProcessors).process(statistics);
+    
     final long end = System.currentTimeMillis();
-    System.out.println("time = " + (end - start) / 1000);
+    long time = (end - start) / 1000;
+    System.out.println("preprocessing time = " + time);
+    
+    for(int statistic: statistics){
+    	resultsList.add(statistic);
+    }
+    resultsList.add(time);
   }
 
   protected abstract IProfileReader createProfileReader(File profileFolder);

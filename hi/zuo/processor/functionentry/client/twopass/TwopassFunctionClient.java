@@ -21,8 +21,8 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class TwopassFunctionClient {
 	private FunctionEntryProfile[] profiles;
-	final PruningProcessor processor;
-	final SitesInfo sInfo;
+	private final PruningProcessor processor;
+	private final SitesInfo sInfo;
 	private List<Map.Entry<FunctionEntrySite, Integer>> list;
 	
 	public TwopassFunctionClient(File csitesFile, File profilesFolder, File fsitesFile){
@@ -36,6 +36,7 @@ public class TwopassFunctionClient {
 		
 		this.sInfo = new SitesInfo(new InstrumentationSites(fsitesFile));
 		filterNegativeFrequencyMap(processor.getNegativeFrequencyMap());
+		assert(processor.getNegativeFrequencyMap().size() == this.sInfo.getMap().size());
 		// construct a sorted list of negativeFrequencyMap
 		constructEntryList();
 	}
@@ -158,36 +159,51 @@ public class TwopassFunctionClient {
 		System.out.println();
 	}
 	
-	public static void main(String[] args) {
-		TwopassFunctionClient client = new TwopassFunctionClient(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/grep/versions/v1/subv3/v1_subv3_c.sites"), 
-				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/grep/traces/v1/subv3/coarse-grained"),
-				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/grep/versions/v1/subv3/v1_subv3_f.sites"));
-		System.out.println();
-		System.out.println(client.processor.getTotalNegative() + "\t" + client.processor.getTotalPositive());
-		System.out.println(client.getFunctionSet(client.processor.getTotalNegative()).size());
-		System.out.println(client.processor.getNegativeFrequencyMap().size());
-		System.out.println(client.list.size());
-		System.out.println("\n");
-		
-		client.printEntry();
-		System.out.println("\n");
-		for(String function: client.getFunctionSet(client.processor.getTotalNegative())){
-			System.out.println(function);
-		}
-		System.out.println("\n");
-		for(String function: client.getBoostFunctionSet((byte) 0, 0.1f)){
-			System.out.println(function);
-		}
-		System.out.println();
-		for(String function: client.getBoostFunctionSet((byte) 1, 0.1f)){
-			System.out.println(function);
-		}
-		System.out.println();
-		for(String function: client.getBoostFunctionSet((byte) 2, 0.5f)){
-			System.out.println(function);
-		}
-		
-	}
 	
+	
+	public SitesInfo getsInfo() {
+		return sInfo;
+	}
+
+
+	public List<Map.Entry<FunctionEntrySite, Integer>> getList() {
+		return list;
+	}
+
+
+	public PruningProcessor getProcessor() {
+		return processor;
+	}
+
+
+	public static void main(String[] args) {
+//		TwopassFunctionClient client = new TwopassFunctionClient(new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/grep/versions/v1/subv3/v1_subv3_c.sites"), 
+//				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/grep/traces/v1/subv3/coarse-grained"),
+//				new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/grep/versions/v1/subv3/v1_subv3_f.sites"));
+//		System.out.println();
+//		System.out.println(client.processor.getTotalNegative() + "\t" + client.processor.getTotalPositive());
+//		System.out.println(client.getFunctionSet(client.processor.getTotalNegative()).size());
+//		System.out.println(client.processor.getNegativeFrequencyMap().size());
+//		System.out.println(client.list.size());
+//		System.out.println("\n");
+//		
+//		client.printEntry();
+//		System.out.println("\n");
+//		for(String function: client.getFunctionSet(client.processor.getTotalNegative())){
+//			System.out.println(function);
+//		}
+//		System.out.println("\n");
+//		for(String function: client.getBoostFunctionSet((byte) 0, 0.1f)){
+//			System.out.println(function);
+//		}
+//		System.out.println();
+//		for(String function: client.getBoostFunctionSet((byte) 1, 0.1f)){
+//			System.out.println(function);
+//		}
+//		System.out.println();
+//		for(String function: client.getBoostFunctionSet((byte) 2, 0.5f)){
+//			System.out.println(function);
+//		}
+	}
 
 }

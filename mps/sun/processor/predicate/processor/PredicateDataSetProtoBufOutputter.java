@@ -69,7 +69,7 @@ public class PredicateDataSetProtoBufOutputter extends
 	}
 
 	@Override
-	protected void processPredicateDataSet(PredicateDataSet dataset) {
+	protected void processPredicateDataSet(PredicateDataSet dataset, int[] statistics) {
 		TransactionDBFMT.Builder dbBuilder = TransactionDBFMT.newBuilder();
 		EdgeMap edgeMap = new EdgeMap();
 		FakeVertexMap vertexMap = new FakeVertexMap();
@@ -110,6 +110,9 @@ public class PredicateDataSetProtoBufOutputter extends
 
 			System.out.println("edge count = " + db.getEdgesCount());
 			System.out.println("vertex count = " + db.getVerticesCount());
+			
+			//added to get the count info
+			statistics[3] = db.getVerticesCount();
 
 			db.writeTo(os);
 			os.close();

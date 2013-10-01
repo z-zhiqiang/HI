@@ -24,7 +24,7 @@ public class PredicateDataSetMappingOutputter extends
   }
 
   @Override
-  protected void processPredicateDataSet(PredicateDataSet dataset) {
+  protected void processPredicateDataSet(PredicateDataSet dataset, int[] statistics) {
     BufferedWriter profileMappingWriter = null;
     BufferedWriter predicateMappingWriter = null;
     try {

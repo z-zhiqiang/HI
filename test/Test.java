@@ -1,9 +1,11 @@
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -117,5 +119,13 @@ public class Test {
 		
 		String sitesFile = "v2_subv3_c.sites";
 		System.out.println(sitesFile.replace('c', 'p'));
+		
+		Map<String, List<Object>> mapO = new HashMap<String, List<Object>>();
+		List<Object> listO = new ArrayList<Object>();
+		listO.add(1);
+		listO.add(0.2);
+		listO.add(0.3f);
+		mapO.put("D", listO);
+		System.out.println(mapO.toString());
 	}
 }

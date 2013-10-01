@@ -19,12 +19,12 @@ public class Processor {
 					.toArray(new IDataSetProcessor[graphProcessors.size()]);
 		}
 
-		private void process(IProfile[] profiles) {
-			IDataSet dataset = this.graphConstructor.createDataSet(profiles);
+		private void process(IProfile[] profiles, int[] statistics) {
+			IDataSet dataset = this.graphConstructor.createDataSet(profiles, statistics);
 			Runtime.getRuntime().gc();
 			Runtime.getRuntime().gc();
 			for (IDataSetProcessor processor : this.graphProcessors) {
-				processor.process(dataset);
+				processor.process(dataset, statistics);
 			}
 		}
 	}
@@ -46,7 +46,7 @@ public class Processor {
 				.toArray(new IProfileProcessor[profileProcessors.size()]);
 	}
 
-	public void process() {
+	public void process(int[] statistics) {
 		System.out.println("###############################################");
 		System.out.println("################# STARTING... #################");
 		System.out.println("###############################################");
@@ -61,7 +61,7 @@ public class Processor {
 		}
 
 		for (BackEnd be : this.backends) {
-			be.process(profiles);
+			be.process(profiles, statistics);
 		}
 		System.out.println("###############################################");
 		System.out.println("################## ...END... ##################");
