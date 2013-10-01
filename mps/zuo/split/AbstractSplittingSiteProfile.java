@@ -30,6 +30,9 @@ public abstract class AbstractSplittingSiteProfile {
 		// TODO Auto-generated method stub
 		PrintWriter writer = null;
 		try {
+			if(!targetFile.getParentFile().exists()){
+				targetFile.getParentFile().mkdirs();
+			}
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(targetFile)));
 			writer.print(string);
 			writer.close();

@@ -26,10 +26,10 @@ public class Client {
 
 	public static void main(String[] args) {
 		String[][] argvs = {
-				{"809", "grep"},
-//				{"213", "gzip"},
+//				{"809", "grep"},
+				{"213", "gzip"},
 //				{"363", "sed"},
-				{"13585", "space"},
+//				{"13585", "space"},
 //				{"4130", "printtokens"},
 //				{"4115", "printtokens2"},
 //				{"5542", "replace"},

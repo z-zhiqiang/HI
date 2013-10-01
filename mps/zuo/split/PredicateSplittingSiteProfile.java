@@ -57,7 +57,7 @@ public class PredicateSplittingSiteProfile extends AbstractSplittingSiteProfile 
 		int index = 1;
 		for (String line = reader.readLine(); line != null; line = reader.readLine(), index++) {
 			if (line.contains("</sites>")) {
-				builder.append(line);
+				builder.append(line).append("\n");
 				return;
 			} 
 			else{
