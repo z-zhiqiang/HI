@@ -3,6 +3,8 @@ package sun.processor.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.nus.sun.processor.mps.client.AbstractProcessorWithLabels;
+
 public class Processor {
 
 	public static class BackEnd {
@@ -21,11 +23,16 @@ public class Processor {
 
 		private void process(IProfile[] profiles, int[] statistics) {
 			IDataSet dataset = this.graphConstructor.createDataSet(profiles, statistics);
-			Runtime.getRuntime().gc();
-			Runtime.getRuntime().gc();
+			
+//			AbstractProcessorWithLabels.printMemoryUsage(1);
+			
+//			Runtime.getRuntime().gc();
+//			Runtime.getRuntime().gc();
 			for (IDataSetProcessor processor : this.graphProcessors) {
 				processor.process(dataset, statistics);
 			}
+			
+//			AbstractProcessorWithLabels.printMemoryUsage(2);
 		}
 	}
 

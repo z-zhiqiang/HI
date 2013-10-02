@@ -13,6 +13,9 @@ public abstract class AbstractProcessorWithLabels {
   private final File profileFolder;
 
   private final File resultOutputFolder;
+  
+//  private final static com.sun.management.OperatingSystemMXBean mxbean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+  
 
   public AbstractProcessorWithLabels(File profileFolder, File resultOutputFolder) {
     super();
@@ -45,5 +48,16 @@ public abstract class AbstractProcessorWithLabels {
   protected abstract List<BackEnd> createBackends(File resultOutputFolder);
 
   protected abstract List<IProfileProcessor> createProfileProcessors(File resultOutputFolder);
+  
+  public static void printMemoryUsage(int location){
+	  Runtime runtime = Runtime.getRuntime();
+	  runtime.gc();
+	  runtime.gc();
+	  long memory = runtime.totalMemory() - runtime.freeMemory();
+	  System.out.println(location);
+	  System.out.println("Used memory is bytes: " + memory);
+	  System.out.println("Used memory is megabytes: " + memory / (1024L * 1024L));
+	  System.out.println();
+  }
 
 }

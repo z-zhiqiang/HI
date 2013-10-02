@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import edu.nus.sun.processor.mps.client.AbstractProcessorWithLabels;
 import sun.processor.predicate.PredicateDataSet;
 import sun.processor.predicate.PredicateDataSet.Run;
 import sun.processor.predicate.PredicateItem.PredicateKey;
@@ -78,6 +79,8 @@ public class PredicateDataSetMappingOutputter extends
           e.printStackTrace();
         }
     }
+    
+//    AbstractProcessorWithLabels.printMemoryUsage(3);
   }
 
 }

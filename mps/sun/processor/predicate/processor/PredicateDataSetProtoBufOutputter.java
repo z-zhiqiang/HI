@@ -12,6 +12,7 @@ import org.sun.dim.fileformat.v3.ItemsetFileFormat.TransactionFMT;
 import org.sun.dim.fileformat.v3.ItemsetFileFormat.TransactionListFMT;
 import org.sun.dim.fileformat.v3.ItemsetFileFormat.VertexFMT;
 
+import edu.nus.sun.processor.mps.client.AbstractProcessorWithLabels;
 import sun.processor.graph.processor.minus.EdgeMap;
 import sun.processor.predicate.PredicateDataSet;
 import sun.processor.predicate.PredicateDataSet.Run;
@@ -122,6 +123,8 @@ public class PredicateDataSetProtoBufOutputter extends
 			throw new RuntimeException(e);
 		}
 
+		
+		AbstractProcessorWithLabels.printMemoryUsage(4);
 	}
 
 }

@@ -2,43 +2,50 @@ package zuo.processor.functionentry.client.twopass;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import zuo.processor.functionentry.processor.BoundCalculator;
 import zuo.split.PredicateSplittingSiteProfile;
+import zuo.util.file.FileUtility;
 import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
 
 public class Client {
+	public static final int k = 1;
 	private static final String DATASET_FOLDER_NAME = "predicate-dataset";
 	private static final String mbsOutputFile = "mbs.out";
-	private static final String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/";
+	private static final File rootDir = new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/");
+	private static final File consoleFolder = new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Console/");
 	
 	private final String subject;
-	
 	private final Map<String, List<Object>> resultsMap;
 
 	public Client(String subject){
 		this.subject = subject;
-		this.resultsMap = new HashMap<String, List<Object>>();
+		this.resultsMap = new LinkedHashMap<String, List<Object>>();
 	}
 
 	public static void main(String[] args) {
 		String[][] argvs = {
-//				{"809", "grep"},
+				{"809", "grep"},
 				{"213", "gzip"},
-//				{"363", "sed"},
-//				{"13585", "space"},
+				{"363", "sed"},
+				{"13585", "space"},
 //				{"4130", "printtokens"},
 //				{"4115", "printtokens2"},
 //				{"5542", "replace"},
@@ -52,6 +59,7 @@ public class Client {
 			client.runClient();
 			System.out.println("=================================================");
 			System.out.println(client.resultsMap);
+			System.out.println("\n\n\n");
 		}
 	}
 	
@@ -154,11 +162,12 @@ public class Client {
 				}
 			}
 		}
+		
+		printResultToExcel();
 	}
 
 	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList) {
 		double threshold = 0;
-		int k = 1;
 		String command = "mbs -k " + k + " -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 9999 --up-limit 2 ";
 		
 		/*=================================================================================================*/
@@ -209,6 +218,10 @@ public class Client {
 		DefaultPredicateProcessorWithLabel boostInstance = new DefaultPredicateProcessorWithLabel(boostProfilesFolder, boostDatasetFolder, boostSitesFile);
 		boostInstance.run(resultsList);
 		
+		FileUtility.removeFileOrDirectory(boostProfilesFolder);
+		FileUtility.removeFileOrDirectory(boostSitesFile);
+		
+		
 		threshold = runMBS(command, boostDatasetFolder, k, resultsList);
 		
 		//-------------------------------------------------------------------------------------------------//
@@ -232,9 +245,20 @@ public class Client {
 		DefaultPredicateProcessorWithLabel pruneInstance = new DefaultPredicateProcessorWithLabel(pruneProfilesFolder, pruneDatasetFolder, pruneSitesFile);
 		pruneInstance.run(resultsList);
 		
+		FileUtility.removeFileOrDirectory(pruneProfilesFolder);
+		FileUtility.removeFileOrDirectory(pruneSitesFile);
+		
+		
 		runMBS(command, pruneDatasetFolder, k, resultsList);
 		
 		//-------------------------------------------------------------------------------------------------//
+		
+		File originalAll = new File(resultOutputFolder, "original_all");
+		FileUtility.removeFileOrDirectory(originalAll);
+		File boostAll = new File(resultOutputFolder, "boost_all");
+		FileUtility.removeFileOrDirectory(boostAll);
+		File pruneAll = new File(resultOutputFolder, "prune_all");
+		FileUtility.removeFileOrDirectory(pruneAll);
 		
 	}
 
@@ -270,7 +294,88 @@ public class Client {
 	}
 	
 	private void printResultToExcel(){
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		XSSFSheet sheet = workbook.createSheet("Data");
+		addTitle(sheet);
 		
+		int rownum = sheet.getPhysicalNumberOfRows();
+		for(String version: this.resultsMap.keySet()){
+			Row row = sheet.createRow(rownum++);
+			int cellnum = 0;
+			
+			Cell cell = row.createCell(cellnum++);
+			cell.setCellValue(version);
+			
+			for(Object object: this.resultsMap.get(version)){
+				cell = row.createCell(cellnum++);
+				if(object instanceof Integer){
+					cell.setCellValue((Integer) object);
+				}
+				else if(object instanceof Double){
+					cell.setCellValue((Double) object);
+				}
+				else if(object instanceof Long){
+					cell.setCellValue((Long) object);
+				}
+				else if(object instanceof String){
+					cell.setCellValue((String) object);
+				}
+			}
+		}
+		
+		try {
+			if(!consoleFolder.exists()){
+				consoleFolder.mkdirs();
+			}
+			// Write the workbook in file system
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + ".xlsx"));
+			workbook.write(out);
+			out.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
+
+	private void addTitle(XSSFSheet sheet) {
+		// TODO Auto-generated method stub
+		int rownum = sheet.getPhysicalNumberOfRows();
+		
+		Row row0 = sheet.createRow(rownum++);
+		int cellnum0 = 0;
+		
+		Row row1 = sheet.createRow(rownum++);
+		int cellnum1 = 0;
+		
+		String[] cgtitles = {"#Function", "cgSite_size", "cgTraces_size"};
+		String[] fgtitles = {"#Function", "fgSite_size", "fgTraces_size", "#P_total", "#P_FIncrease", "#P_FLocal", "#P", "Time_Pre", "Threshold", "Time_Mine"};
+		String[] fgs = {"original", "boost", "prune"};
+		
+		Cell cell1 = row1.createCell(cellnum1++);
+		cell1.setCellValue(" ");
+		Cell cell0 = row0.createCell(cellnum0++);
+		cell0.setCellValue(" ");
+		
+		for(int i = 0; i < cgtitles.length; i++){
+			cell0 = row0.createCell(cellnum0++);
+			cell0.setCellValue("cg");
+			cell1 = row1.createCell(cellnum1++);
+			cell1.setCellValue(cgtitles[i]);
+		}
+		for(int i = 0; i < fgs.length; i++){
+//			cell1 = row1.createCell(cellnum1++);
+//			cell1.setCellValue(" ");
+//			cell0 = row0.createCell(cellnum0++);
+//			cell0.setCellValue(" ");
+			
+			for(int j = 0; j < fgtitles.length; j++){
+				cell0 = row0.createCell(cellnum0++);
+				cell0.setCellValue(fgs[i]);
+				cell1 = row1.createCell(cellnum1++);
+				cell1.setCellValue(fgtitles[j]);
+			}
+		}
+	}
+	
+	
 
 }

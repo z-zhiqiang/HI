@@ -375,5 +375,27 @@ public class FileUtility {
 			}
 		}
 	}
+	
+	/**delete file or directory denoted by file
+	 * @param file
+	 * @return
+	 */
+	public static boolean removeFileOrDirectory(File file){
+		if(file == null){
+			return false;
+		}
+		if(!file.exists()){
+			return true;
+		}
+		if(file.isFile()){
+			return file.delete();
+		}
+		else if(file.isDirectory()){
+			return FileUtility.removeDirectory(file);
+		}
+		else{
+			throw new RuntimeException("Type error");
+		}
+	}
 
 }
