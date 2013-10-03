@@ -70,7 +70,7 @@ public class PredicateDataSetProtoBufOutputter extends
 	}
 
 	@Override
-	protected void processPredicateDataSet(PredicateDataSet dataset, int[] statistics) {
+	protected void processPredicateDataSet(PredicateDataSet dataset, Object[] statistics) {
 		TransactionDBFMT.Builder dbBuilder = TransactionDBFMT.newBuilder();
 		EdgeMap edgeMap = new EdgeMap();
 		FakeVertexMap vertexMap = new FakeVertexMap();
@@ -124,7 +124,7 @@ public class PredicateDataSetProtoBufOutputter extends
 		}
 
 		
-		AbstractProcessorWithLabels.printMemoryUsage(4);
+		statistics[4] = AbstractProcessorWithLabels.printMemoryUsage(4);
 	}
 
 }

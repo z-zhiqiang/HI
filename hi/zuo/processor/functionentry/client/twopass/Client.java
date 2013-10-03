@@ -42,10 +42,10 @@ public class Client {
 
 	public static void main(String[] args) {
 		String[][] argvs = {
-				{"809", "grep"},
+//				{"809", "grep"},
 				{"213", "gzip"},
-				{"363", "sed"},
-				{"13585", "space"},
+//				{"363", "sed"},
+//				{"13585", "space"},
 //				{"4130", "printtokens"},
 //				{"4115", "printtokens2"},
 //				{"5542", "replace"},
@@ -157,7 +157,7 @@ public class Client {
 					
 					List<Object> resultsList = new ArrayList<Object>();
 					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList);
-					assert(resultsList.size() == 33);
+					assert(resultsList.size() == 39);
 					this.resultsMap.put(vi, resultsList);
 				}
 			}
@@ -168,7 +168,7 @@ public class Client {
 
 	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList) {
 		double threshold = 0;
-		String command = "mbs -k " + k + " -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 9999 --up-limit 2 ";
+		String command = "mbs -k " + k + " -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 9999 --up-limit 2 --print-resource-usage ";
 		
 		/*=================================================================================================*/
 		
@@ -265,6 +265,7 @@ public class Client {
 	private double runMBS(String command, File datasetFolder, int k, List<Object> resultsList) {
 		double threshold = 0;
 		double time = 0;
+		long memory = 0;
 		try {
 			Process process = Runtime.getRuntime().exec(command + "-o " 
 					+ new File(datasetFolder, mbsOutputFile).getAbsolutePath() + " " 
@@ -278,11 +279,26 @@ public class Client {
 					System.out.println(line);
 					threshold = Double.parseDouble(line.substring(line.lastIndexOf("=") + 1));
 					resultsList.add(threshold);
+					System.out.println(threshold);
 				}
 				if(line.matches("time-cost.*=.*")){
 					System.out.println(line);
-					time = Double.parseDouble(line.substring(line.lastIndexOf("=") + 1).trim());
+				}
+				if(line.contains("user CUP time used,")){
+					System.out.println(line);
+					time += Double.parseDouble(line.substring(line.lastIndexOf(",") + 1, line.lastIndexOf("(")).trim());
+				}
+				if(line.contains("system CUP time used,")){
+					System.out.println(line);
+					time += Double.parseDouble(line.substring(line.lastIndexOf(",") + 1, line.lastIndexOf("(")).trim());
 					resultsList.add(time);
+					System.out.println(time);
+				}
+				if(line.contains("maximum resident set size,")){
+					System.out.println(line);
+					memory = Long.parseLong(line.substring(line.lastIndexOf(",") + 1, line.lastIndexOf("(")).trim());
+					resultsList.add(memory);
+					System.out.println(memory);
 				}
 			}
 			System.out.println("\n");

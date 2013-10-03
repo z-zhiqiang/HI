@@ -21,7 +21,7 @@ public class Processor {
 					.toArray(new IDataSetProcessor[graphProcessors.size()]);
 		}
 
-		private void process(IProfile[] profiles, int[] statistics) {
+		private void process(IProfile[] profiles, Object[] statistics) {
 			IDataSet dataset = this.graphConstructor.createDataSet(profiles, statistics);
 			
 //			AbstractProcessorWithLabels.printMemoryUsage(1);
@@ -53,7 +53,7 @@ public class Processor {
 				.toArray(new IProfileProcessor[profileProcessors.size()]);
 	}
 
-	public void process(int[] statistics) {
+	public void process(Object[] statistics) {
 		System.out.println("###############################################");
 		System.out.println("################# STARTING... #################");
 		System.out.println("###############################################");

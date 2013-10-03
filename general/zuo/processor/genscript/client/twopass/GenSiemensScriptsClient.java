@@ -1,5 +1,6 @@
 package zuo.processor.genscript.client.twopass;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -69,23 +70,27 @@ public class GenSiemensScriptsClient {
 		compileSubject = "gcc " 
 				+ ssourceDir + subject + ".c" 
 				+ " -o " + sexecuteDir + subject + ".exe" 
-				+ " -I" + ssourceDir
-				+ " -lm";
+//				+ " -I" + ssourceDir
+				+ " -lm"
+				;
 		compileVersion = "gcc " 
 				+ vsourceDir + subject + ".c"
 				+ " -o " + vexecuteDir + version + ".exe"
-				+ " -I" + vsourceDir
-				+ " -lm";
-		compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsampler-scheme=float-kinds -fno-sample "
+//				+ " -I" + vsourceDir
+				+ " -lm"
+				;
+		compileFGInstrument = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fsampler-scheme=float-kinds -fno-sample "
 				+ vsourceDir + subject + ".c" 
 				+ " -o " + vexecuteDir + version + "_finst.exe"
-				+ " -I" + vsourceDir
-				+ " -lm";
+//				+ " -I" + vsourceDir
+				+ " -lm"
+				;
 		compileCGInstrument = "sampler-cc -fsampler-scheme=function-entries -fno-sample "
 				+ vsourceDir + subject + ".c" 
 				+ " -o " + vexecuteDir + version + "_cinst.exe"
-				+ " -I" + vsourceDir
-				+ " -lm";
+//				+ " -I" + vsourceDir
+				+ " -lm"
+				;
 		
 	}
 	
@@ -142,7 +147,7 @@ public class GenSiemensScriptsClient {
 			if(split.getFailingTests().size() >= 1){
 				subs.add(i);
 			}
-//			if(new File(gc.vexecuteDir).listFiles().length == 10){
+//			if(new File(gc.vexecuteDir).listFiles().length == 11){
 //				subs.add(i);
 //			}
 			

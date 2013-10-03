@@ -8,7 +8,7 @@ public abstract class AbstractPredicateDataSetProcessor implements
 		IDataSetProcessor {
 
 	@Override
-	public void process(IDataSet dataset, int[] statistics) {
+	public void process(IDataSet dataset, Object[] statistics) {
 		if (dataset instanceof PredicateDataSet) {
 			this.processPredicateDataSet((PredicateDataSet) dataset, statistics);
 		} else {
@@ -19,6 +19,6 @@ public abstract class AbstractPredicateDataSetProcessor implements
 		}
 	}
 
-	protected abstract void processPredicateDataSet(PredicateDataSet dataset, int[] statistics);
+	protected abstract void processPredicateDataSet(PredicateDataSet dataset, Object[] statistics);
 
 }

@@ -159,7 +159,7 @@ public class PredicateDataSetConstructor implements IDataSetConstructor {
   }
 
   @Override
-  public IDataSet createDataSet(IProfile[] profiles, int[] statistics) {
+  public IDataSet createDataSet(IProfile[] profiles, Object[] statistics) {
     PredicateItemFactory factory = new PredicateItemFactory();
     if (profiles.length == 0) {
       throw new RuntimeException("empty profiles");

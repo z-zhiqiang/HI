@@ -24,7 +24,7 @@ public abstract class AbstractProcessorWithLabels {
   }
 
   public void run(List<Object> resultsList) {
-	int[] statistics = new int[4];
+	Object[] statistics = new Object[5];
 	
     final long start = System.currentTimeMillis();
     
@@ -34,10 +34,10 @@ public abstract class AbstractProcessorWithLabels {
     new Processor(profileReader, backends, profileProcessors).process(statistics);
     
     final long end = System.currentTimeMillis();
-    long time = (end - start) / 1000;
+    double time = (double) (end - start) / 1000;
     System.out.println("preprocessing time = " + time);
     
-    for(int statistic: statistics){
+    for(Object statistic: statistics){
     	resultsList.add(statistic);
     }
     resultsList.add(time);
@@ -49,15 +49,17 @@ public abstract class AbstractProcessorWithLabels {
 
   protected abstract List<IProfileProcessor> createProfileProcessors(File resultOutputFolder);
   
-  public static void printMemoryUsage(int location){
+  public static long printMemoryUsage(int location){
 	  Runtime runtime = Runtime.getRuntime();
 	  runtime.gc();
 	  runtime.gc();
 	  long memory = runtime.totalMemory() - runtime.freeMemory();
-	  System.out.println(location);
+//	  System.out.println(location);
 	  System.out.println("Used memory is bytes: " + memory);
-	  System.out.println("Used memory is megabytes: " + memory / (1024L * 1024L));
+	  System.out.println("Used memory is kilobytes: " + memory / (1024L));
 	  System.out.println();
+	  
+	  return memory / 1024L;
   }
 
 }
