@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -42,9 +43,9 @@ public class Client {
 
 	public static void main(String[] args) {
 		String[][] argvs = {
-//				{"809", "grep"},
+				{"809", "grep"},
 				{"213", "gzip"},
-//				{"363", "sed"},
+				{"363", "sed"},
 //				{"13585", "space"},
 //				{"4130", "printtokens"},
 //				{"4115", "printtokens2"},
@@ -291,8 +292,9 @@ public class Client {
 				if(line.contains("system CUP time used,")){
 					System.out.println(line);
 					time += Double.parseDouble(line.substring(line.lastIndexOf(",") + 1, line.lastIndexOf("(")).trim());
-					resultsList.add(time);
-					System.out.println(time);
+					String timeFormat = new DecimalFormat("#.###").format(time);
+					resultsList.add(Double.parseDouble(timeFormat));
+					System.out.println(timeFormat);
 				}
 				if(line.contains("maximum resident set size,")){
 					System.out.println(line);

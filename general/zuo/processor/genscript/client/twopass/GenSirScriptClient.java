@@ -24,6 +24,7 @@ import zuo.util.file.FileUtility;
 
 public class GenSirScriptClient {
 	public final static String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/";
+	public final static String traceRootDir = "/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
 	
 	public final String subject;
 	public final String sourceName;
@@ -76,13 +77,12 @@ public class GenSirScriptClient {
 		soutputDir = rootDir + subject + "/outputs.alt/" + version + "/" + subject + "/";
 		
 		vsourceDir = rootDir + subject + "/versions.alt/versions.seeded/" + version + "/";
-		
 		vexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/";
 		voutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/outputs/";
 		vfoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained/";
 		vcoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/coarse-grained/";
-		vftraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/fine-grained/";
-		vctraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/coarse-grained/";
+		vftraceDir = traceRootDir + subject + "/traces/" + version + "/" + subVersion + "/fine-grained/";
+		vctraceDir = traceRootDir + subject + "/traces/" + version + "/" + subVersion + "/coarse-grained/";
 		
 		scriptDir = rootDir + subject + "/scripts/";
 		

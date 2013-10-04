@@ -19,6 +19,7 @@ import zuo.util.file.FileUtility;
 
 public class GenSiemensScriptsClient {
 	public final static String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/";
+	public final static String traceRootDir = "/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
 	
 	public final String subject;
 	public final int vers;
@@ -62,8 +63,8 @@ public class GenSiemensScriptsClient {
 		voutputDir = rootDir + subject + "/outputs/versions/" + version + "/outputs/";
 		vfoutputDir = rootDir + subject + "/outputs/versions/" + version + "/fine-grained/";
 		vcoutputDir = rootDir + subject + "/outputs/versions/" + version + "/coarse-grained/";
-		vftraceDir = rootDir + subject + "/traces/" + version + "/fine-grained/";
-		vctraceDir = rootDir + subject + "/traces/" + version + "/coarse-grained/";
+		vftraceDir = traceRootDir + subject + "/traces/" + version + "/fine-grained/";
+		vctraceDir = traceRootDir + subject + "/traces/" + version + "/coarse-grained/";
 		
 		scriptDir = rootDir + subject + "/scripts/";;
 		
