@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
 
 import sun.processor.predicate.PredicateDataSet;
 import sun.processor.predicate.PredicateDataSet.Run;
@@ -51,7 +53,7 @@ public class PredicateDataSetTextualOutputter extends
   }
 
   @Override
-  protected void processPredicateDataSet(PredicateDataSet dataset, Object[] statistics) {
+  protected void processPredicateDataSet(PredicateDataSet dataset, List<Object> resultsList, PrintWriter writer) {
 
     BufferedWriter outputWriter = null;
     try {

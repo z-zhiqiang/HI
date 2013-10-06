@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
 
 import edu.nus.sun.processor.mps.client.AbstractProcessorWithLabels;
 import sun.processor.predicate.PredicateDataSet;
@@ -25,7 +27,7 @@ public class PredicateDataSetMappingOutputter extends
   }
 
   @Override
-  protected void processPredicateDataSet(PredicateDataSet dataset, Object[] statistics) {
+  protected void processPredicateDataSet(PredicateDataSet dataset, List<Object> resultsList, PrintWriter writer) {
     BufferedWriter profileMappingWriter = null;
     BufferedWriter predicateMappingWriter = null;
     try {

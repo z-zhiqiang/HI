@@ -1,6 +1,8 @@
 package sun.processor.predicate.constructor;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 import sun.processor.core.IDataSet;
 import sun.processor.core.IDataSetConstructor;
@@ -159,7 +161,7 @@ public class PredicateDataSetConstructor implements IDataSetConstructor {
   }
 
   @Override
-  public IDataSet createDataSet(IProfile[] profiles, Object[] statistics) {
+  public IDataSet createDataSet(IProfile[] profiles, List<Object> resultsList, PrintWriter writer) {
     PredicateItemFactory factory = new PredicateItemFactory();
     if (profiles.length == 0) {
       throw new RuntimeException("empty profiles");
@@ -186,11 +188,17 @@ public class PredicateDataSetConstructor implements IDataSetConstructor {
         this.numberOfPredicateItemsGenerated,
         this.numberOfPredicateItemsFilteredByIncrease,
         this.numberOfPredicateItemsFilteredByLocal);
+    
+    writer.printf("Generated %d predicates and filtered away "
+            + "%d ones with increase and %d ones with local-pruning.\n",
+            this.numberOfPredicateItemsGenerated,
+            this.numberOfPredicateItemsFilteredByIncrease,
+            this.numberOfPredicateItemsFilteredByLocal);
 
     //added to get the predicates number info
-    statistics[0] = this.numberOfPredicateItemsGenerated;
-    statistics[1] = this.numberOfPredicateItemsFilteredByIncrease;
-    statistics[2] = this.numberOfPredicateItemsFilteredByLocal;
+    resultsList.add(this.numberOfPredicateItemsGenerated);
+    resultsList.add(this.numberOfPredicateItemsFilteredByIncrease);
+    resultsList.add(this.numberOfPredicateItemsFilteredByLocal);
     
     assignPredicateID(ds);
 

@@ -1,5 +1,6 @@
 package sun.processor.core;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,15 +22,15 @@ public class Processor {
 					.toArray(new IDataSetProcessor[graphProcessors.size()]);
 		}
 
-		private void process(IProfile[] profiles, Object[] statistics) {
-			IDataSet dataset = this.graphConstructor.createDataSet(profiles, statistics);
+		private void process(IProfile[] profiles, List<Object> resultsList, PrintWriter writer) {
+			IDataSet dataset = this.graphConstructor.createDataSet(profiles, resultsList, writer);
 			
 //			AbstractProcessorWithLabels.printMemoryUsage(1);
 			
 //			Runtime.getRuntime().gc();
 //			Runtime.getRuntime().gc();
 			for (IDataSetProcessor processor : this.graphProcessors) {
-				processor.process(dataset, statistics);
+				processor.process(dataset, resultsList, writer);
 			}
 			
 //			AbstractProcessorWithLabels.printMemoryUsage(2);
@@ -53,7 +54,7 @@ public class Processor {
 				.toArray(new IProfileProcessor[profileProcessors.size()]);
 	}
 
-	public void process(Object[] statistics) {
+	public void process(List<Object> resultsList, PrintWriter writer) {
 		System.out.println("###############################################");
 		System.out.println("################# STARTING... #################");
 		System.out.println("###############################################");
@@ -68,7 +69,7 @@ public class Processor {
 		}
 
 		for (BackEnd be : this.backends) {
-			be.process(profiles, statistics);
+			be.process(profiles, resultsList, writer);
 		}
 		System.out.println("###############################################");
 		System.out.println("################## ...END... ##################");

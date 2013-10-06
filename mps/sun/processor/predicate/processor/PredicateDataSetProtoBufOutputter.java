@@ -3,6 +3,7 @@ package sun.processor.predicate.processor;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,7 +71,7 @@ public class PredicateDataSetProtoBufOutputter extends
 	}
 
 	@Override
-	protected void processPredicateDataSet(PredicateDataSet dataset, Object[] statistics) {
+	protected void processPredicateDataSet(PredicateDataSet dataset, List<Object> resultsList, PrintWriter writer) {
 		TransactionDBFMT.Builder dbBuilder = TransactionDBFMT.newBuilder();
 		EdgeMap edgeMap = new EdgeMap();
 		FakeVertexMap vertexMap = new FakeVertexMap();
@@ -112,19 +113,24 @@ public class PredicateDataSetProtoBufOutputter extends
 			System.out.println("edge count = " + db.getEdgesCount());
 			System.out.println("vertex count = " + db.getVerticesCount());
 			
+			writer.println("edge count = " + db.getEdgesCount());
+			writer.println("vertex count = " + db.getVerticesCount());
+			
 			//added to get the count info
-			statistics[3] = db.getVerticesCount();
+			resultsList.add(db.getVerticesCount());
 
 			db.writeTo(os);
 			os.close();
+			
 			System.out.println("outputting minus dataset to " + this.outputFile);
+			writer.println("outputting minus dataset to " + this.outputFile);
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
 		
-		statistics[4] = AbstractProcessorWithLabels.printMemoryUsage(4);
+		resultsList.add(AbstractProcessorWithLabels.printMemoryUsage(writer));
 	}
 
 }

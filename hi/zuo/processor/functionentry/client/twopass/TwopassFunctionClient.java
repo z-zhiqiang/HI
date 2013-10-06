@@ -1,6 +1,7 @@
 package zuo.processor.functionentry.client.twopass;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -105,7 +106,7 @@ public class TwopassFunctionClient {
 	 * @param percent
 	 * @return
 	 */
-	public Set<String> getBoostFunctionSet(byte mode, float percent){
+	public Set<String> getBoostFunctionSet(byte mode, double percent){
 		Set<String> functionSet = new LinkedHashSet<String>();
 		
 		switch(mode){
@@ -143,20 +144,23 @@ public class TwopassFunctionClient {
 	}
 	
 	/**print out each function and the corresponding information
+	 * @param writer 
 	 * 
 	 */
-	public void printEntry(){
+	public void printEntry(PrintWriter writer){
 		for(int i = 0; i < list.size(); i++){
 			Entry<FunctionEntrySite, Integer> entry = (Entry<FunctionEntrySite, Integer>) list.get(i);
 			String method = entry.getKey().getFunctionName();
 			if(sInfo.getMap().containsKey(method)){
 				System.out.println(String.format("%-45s", method) + entry.getValue().toString() + "   \t" + sInfo.getMap().get(method).toStringWithoutSites());
+				writer.println(String.format("%-45s", method) + entry.getValue().toString() + "   \t" + sInfo.getMap().get(method).toStringWithoutSites());
 			}
 			else{
 				throw new RuntimeException("filtering error");
 			}
 		}
 		System.out.println();
+		writer.println();
 	}
 	
 	

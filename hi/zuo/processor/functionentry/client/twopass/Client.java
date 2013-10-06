@@ -1,10 +1,14 @@
 package zuo.processor.functionentry.client.twopass;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,10 +31,14 @@ import zuo.util.file.FileUtility;
 import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
 
 public class Client {
-	public static final int k = 1;
+	private static final int k = 1;
+	private static final byte mode = 0;
+	private static final double percent = 0.2;
+	
 	private static final String DATASET_FOLDER_NAME = "predicate-dataset";
 	private static final String mbsOutputFile = "mbs.out";
 	private static final File rootDir = new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/");
+	private static final File traceRootDir = new File("/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
 	private static final File consoleFolder = new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Console/");
 	
 	private final String subject;
@@ -43,10 +51,10 @@ public class Client {
 
 	public static void main(String[] args) {
 		String[][] argvs = {
-				{"809", "grep"},
-				{"213", "gzip"},
+				{"13585", "space"},
 				{"363", "sed"},
-//				{"13585", "space"},
+				{"213", "gzip"},
+				{"809", "grep"},
 //				{"4130", "printtokens"},
 //				{"4115", "printtokens2"},
 //				{"5542", "replace"},
@@ -57,18 +65,46 @@ public class Client {
 		};
 		for(int i = 0; i < argvs.length; i++){
 			Client client = new Client(argvs[i][1]);
-			client.runClient();
-			System.out.println("=================================================");
-			System.out.println(client.resultsMap);
-			System.out.println("\n\n\n");
+			client.runClientWithConsole();
+			
 		}
 	}
-	
-	public void runClient(){
+	public void runClientWithConsole(){
+		PrintWriter writer = null;
+		try {
+			writer =  new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "_" + this.mode + "__" + this.percent + ".console"))));
+			runClient(writer);
+			
+			System.out.println("=================================================");
+			System.out.println(this.resultsMap);
+			System.out.println("\n\n");
+			
+			writer.println("=================================================");
+			writer.println(this.resultsMap);
+			writer.println("\n\n");
+			
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally{
+			if(writer != null){
+				writer.close();
+			}
+		}
+	}
+	public void runClient(PrintWriter writer){
 		File projectRoot = new File(rootDir, this.subject);
-		if (!projectRoot.exists())
+		if (!projectRoot.exists()){
 			throw new RuntimeException("Project " + projectRoot + " does not exist!");
+		}
+		File traceProjectRoot = new File(traceRootDir, this.subject);
+		if (!traceProjectRoot.exists()){
+			throw new RuntimeException("Project " + traceProjectRoot + " does not exist!");
+		}
 
+		
 		if (this.subject.equals("space")) {
 			File[] versions = new File(projectRoot, "versions").listFiles(new FilenameFilter(){
 				@Override
@@ -86,12 +122,14 @@ public class Client {
 			for(File version: versions){
 				String vi = version.getName();
 				System.out.println(vi);
+				writer.println(vi);
+				writer.println();
 				
-				File fgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/fine-grained/");
+				File fgProfilesFolder = new File(new File(traceProjectRoot, "traces"), vi + "/fine-grained/");
 				if (!fgProfilesFolder.exists()) {
 					throw new RuntimeException("Fine-grained faulty profiles folder " + fgProfilesFolder + " does not exist.");
 				}
-				File cgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/coarse-grained/");
+				File cgProfilesFolder = new File(new File(traceProjectRoot, "traces"), vi + "/coarse-grained/");
 				if (!cgProfilesFolder.exists()) {
 					throw new RuntimeException("Coarse-grained faulty profiles folder " + cgProfilesFolder + " does not exist.");
 				}
@@ -99,10 +137,11 @@ public class Client {
 				final File fgSitesFile = new File(projectRoot, "versions/" + vi + "/" + vi + "_f.sites");
 				final File cgSitesFile = new File(projectRoot, "versions/" + vi + "/" + vi + "_c.sites");
 				
-				final File resultOutputFolder = new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
+				final File resultOutputFolder = new File(traceProjectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
+				FileUtility.removeFileOrDirectory(new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME));
 				
 				List<Object> resultsList = new ArrayList<Object>();
-				run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList);
+				run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer);
 				
 				this.resultsMap.put(vi, resultsList);
 			}
@@ -138,13 +177,15 @@ public class Client {
 				for(File subversion: subversions){
 					String vi = version.getName() + "/" + subversion.getName();
 					System.out.println(vi);
+					writer.println(vi);
+					writer.println();
 					
 					//profiles folders
-					File fgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/fine-grained/");
+					File fgProfilesFolder = new File(new File(traceProjectRoot, "traces"), vi + "/fine-grained/");
 					if (!fgProfilesFolder.exists()) {
 						throw new RuntimeException("Fine-grained faulty profiles folder " + fgProfilesFolder + " does not exist.");
 					}
-					File cgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/coarse-grained/");
+					File cgProfilesFolder = new File(new File(traceProjectRoot, "traces"), vi + "/coarse-grained/");
 					if (!cgProfilesFolder.exists()) {
 						throw new RuntimeException("Coarse-grained faulty profiles folder " + cgProfilesFolder + " does not exist.");
 					}
@@ -154,10 +195,11 @@ public class Client {
 					final File cgSitesFile = new File(projectRoot, "versions/" + vi + "/" + version.getName() + "_" + subversion.getName() + "_c.sites");
 					
 					//dataset output folder
-					final File resultOutputFolder = new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
+					final File resultOutputFolder = new File(traceProjectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
+					FileUtility.removeFileOrDirectory(new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME));
 					
 					List<Object> resultsList = new ArrayList<Object>();
-					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList);
+					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer);
 					assert(resultsList.size() == 39);
 					this.resultsMap.put(vi, resultsList);
 				}
@@ -167,14 +209,14 @@ public class Client {
 		printResultToExcel();
 	}
 
-	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList) {
+	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer) {
 		double threshold = 0;
 		String command = "mbs -k " + k + " -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 9999 --up-limit 2 --print-resource-usage ";
 		
 		/*=================================================================================================*/
 		
 		TwopassFunctionClient funClient = new TwopassFunctionClient(cgSitesFile, cgProfilesFolder, fgSitesFile);
-		funClient.printEntry();
+		funClient.printEntry(writer);
 		
 		assert(funClient.getList().size() == funClient.getsInfo().getMap().size());
 		
@@ -196,13 +238,13 @@ public class Client {
 			originalDatasetFolder.mkdirs();
 		}
 		DefaultPredicateProcessorWithLabel originalInstance = new DefaultPredicateProcessorWithLabel(fgProfilesFolder, originalDatasetFolder, fgSitesFile);
-		originalInstance.run(resultsList);
+		originalInstance.run(resultsList, writer);
 		
-		runMBS(command, originalDatasetFolder, k, resultsList);
+		runMBS(command, originalDatasetFolder, k, resultsList, writer);
 		
 		/*=================================================================================================*/
 		
-		Set<String> boostFunctionSet = funClient.getBoostFunctionSet((byte)0, 0.1f);
+		Set<String> boostFunctionSet = funClient.getBoostFunctionSet(mode, percent);
 		File boostProfilesFolder = new File(fgProfilesFolder.getParentFile(), "boost");
 		File boostSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'b'));
 		PredicateSplittingSiteProfile boostSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, boostSitesFile, boostProfilesFolder, boostFunctionSet);
@@ -217,13 +259,13 @@ public class Client {
 			boostDatasetFolder.mkdirs();
 		}
 		DefaultPredicateProcessorWithLabel boostInstance = new DefaultPredicateProcessorWithLabel(boostProfilesFolder, boostDatasetFolder, boostSitesFile);
-		boostInstance.run(resultsList);
+		boostInstance.run(resultsList, writer);
 		
 		FileUtility.removeFileOrDirectory(boostProfilesFolder);
 		FileUtility.removeFileOrDirectory(boostSitesFile);
 		
 		
-		threshold = runMBS(command, boostDatasetFolder, k, resultsList);
+		threshold = runMBS(command, boostDatasetFolder, k, resultsList, writer);
 		
 		//-------------------------------------------------------------------------------------------------//
 		
@@ -244,13 +286,13 @@ public class Client {
 			pruneDatasetFolder.mkdirs();
 		}
 		DefaultPredicateProcessorWithLabel pruneInstance = new DefaultPredicateProcessorWithLabel(pruneProfilesFolder, pruneDatasetFolder, pruneSitesFile);
-		pruneInstance.run(resultsList);
+		pruneInstance.run(resultsList, writer);
 		
 		FileUtility.removeFileOrDirectory(pruneProfilesFolder);
 		FileUtility.removeFileOrDirectory(pruneSitesFile);
 		
 		
-		runMBS(command, pruneDatasetFolder, k, resultsList);
+		runMBS(command, pruneDatasetFolder, k, resultsList, writer);
 		
 		//-------------------------------------------------------------------------------------------------//
 		
@@ -263,7 +305,7 @@ public class Client {
 		
 	}
 
-	private double runMBS(String command, File datasetFolder, int k, List<Object> resultsList) {
+	private double runMBS(String command, File datasetFolder, int k, List<Object> resultsList, PrintWriter writer) {
 		double threshold = 0;
 		double time = 0;
 		long memory = 0;
@@ -278,19 +320,23 @@ public class Client {
 			while((line = reader.readLine()) != null){
 				if(line.matches("TOP-.*(" + k + ").*SUP=.*Metric=.*")){
 					System.out.println(line);
+					writer.println(line);
 					threshold = Double.parseDouble(line.substring(line.lastIndexOf("=") + 1));
 					resultsList.add(threshold);
 					System.out.println(threshold);
 				}
 				if(line.matches("time-cost.*=.*")){
 					System.out.println(line);
+					writer.println(line);
 				}
 				if(line.contains("user CUP time used,")){
 					System.out.println(line);
-					time += Double.parseDouble(line.substring(line.lastIndexOf(",") + 1, line.lastIndexOf("(")).trim());
+					writer.println(line);
+					time = Double.parseDouble(line.substring(line.lastIndexOf(",") + 1, line.lastIndexOf("(")).trim());
 				}
 				if(line.contains("system CUP time used,")){
 					System.out.println(line);
+					writer.println(line);
 					time += Double.parseDouble(line.substring(line.lastIndexOf(",") + 1, line.lastIndexOf("(")).trim());
 					String timeFormat = new DecimalFormat("#.###").format(time);
 					resultsList.add(Double.parseDouble(timeFormat));
@@ -298,12 +344,14 @@ public class Client {
 				}
 				if(line.contains("maximum resident set size,")){
 					System.out.println(line);
+					writer.println(line);
 					memory = Long.parseLong(line.substring(line.lastIndexOf(",") + 1, line.lastIndexOf("(")).trim());
 					resultsList.add(memory);
 					System.out.println(memory);
 				}
 			}
 			System.out.println("\n");
+			writer.println("\n");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -346,7 +394,7 @@ public class Client {
 				consoleFolder.mkdirs();
 			}
 			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + ".xlsx"));
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_" + this.mode + "__" + this.percent + ".xlsx"));
 			workbook.write(out);
 			out.close();
 		} catch (Exception e) {
@@ -365,7 +413,7 @@ public class Client {
 		int cellnum1 = 0;
 		
 		String[] cgtitles = {"#Function", "cgSite_size", "cgTraces_size"};
-		String[] fgtitles = {"#Function", "fgSite_size", "fgTraces_size", "#P_total", "#P_FIncrease", "#P_FLocal", "#P", "Time_Pre", "Threshold", "Time_Mine"};
+		String[] fgtitles = {"#Function", "fgSite_size", "fgTraces_size", "#P_total", "#P_FIncrease", "#P_FLocal", "#P", "Memory_Pre", "Time_Pre", "Threshold", "Time_Mine", "Memory_Mine"};
 		String[] fgs = {"original", "boost", "prune"};
 		
 		Cell cell1 = row1.createCell(cellnum1++);
