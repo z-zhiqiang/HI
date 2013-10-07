@@ -39,7 +39,7 @@ public class Client {
 	private static final String mbsOutputFile = "mbs.out";
 	private static final File rootDir = new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/");
 	private static final File traceRootDir = new File("/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
-	private static final File consoleFolder = new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Console/");
+	private static final File consoleFolder = new File("/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Console/");
 	
 	private final String subject;
 	private final Map<String, List<Object>> resultsMap;
@@ -51,10 +51,10 @@ public class Client {
 
 	public static void main(String[] args) {
 		String[][] argvs = {
-				{"13585", "space"},
 				{"363", "sed"},
 				{"213", "gzip"},
 				{"809", "grep"},
+				{"13585", "space"},
 //				{"4130", "printtokens"},
 //				{"4115", "printtokens2"},
 //				{"5542", "replace"},
@@ -63,8 +63,8 @@ public class Client {
 //				{"1608", "tcas"},
 //				{"1052", "totinfo"}
 		};
-		for(int i = 0; i < argvs.length; i++){
-			Client client = new Client(argvs[i][1]);
+		for(int i = 0; i < args.length; i++){
+			Client client = new Client(args[i]);
 			client.runClientWithConsole();
 			
 		}
@@ -121,6 +121,9 @@ public class Client {
 			
 			for(File version: versions){
 				String vi = version.getName();
+				if(!vi.equals("v7")){
+					continue;
+				}
 				System.out.println(vi);
 				writer.println(vi);
 				writer.println();
@@ -211,7 +214,7 @@ public class Client {
 
 	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer) {
 		double threshold = 0;
-		String command = "mbs -k " + k + " -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 9999 --up-limit 2 --print-resource-usage ";
+		String command = "mbs -k " + k + " -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 999 --up-limit 2 --print-resource-usage ";
 		
 		/*=================================================================================================*/
 		
