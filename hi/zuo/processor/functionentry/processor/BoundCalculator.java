@@ -17,7 +17,8 @@ public class BoundCalculator {
 //		if(threshold < IG(0) || threshold > IG(F)){
 //			throw new RuntimeException("The threshold should be in the following range: [" + IG(0) + ", " + IG(F) + "]");
 //		}
-			
+		System.out.println("The threshold should be in the following range: [" + IG(0) + ", " + IG(F) + "]");
+		
 		int start, end, midPt;
 		start = 0;
 		end = F;
@@ -40,7 +41,7 @@ public class BoundCalculator {
 		}
 		return -1;
 	}
-	private double IG(int f){
+	public double IG(int f){
 		if(f == F){
 			return (double) ((P + F) * Math.log(P + F) - F * Math.log(F) - P * Math.log(P)) / (Math.log(2) * (P + F));
 		}

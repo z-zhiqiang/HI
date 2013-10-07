@@ -32,47 +32,54 @@ import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
 
 public class Client {
 	private static final int k = 1;
-	private static final byte mode = 0;
-	private static final double percent = 0.2;
 	
 	private static final String DATASET_FOLDER_NAME = "predicate-dataset";
 	private static final String mbsOutputFile = "mbs.out";
+	
 	private static final File rootDir = new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/");
 	private static final File traceRootDir = new File("/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
 	private static final File consoleFolder = new File("/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Console/");
 	
 	private final String subject;
+	private final byte mode;
+	private final double percent;
 	private final Map<String, List<Object>> resultsMap;
 
-	public Client(String subject){
+	public Client(String subject, byte mode, double percent){
 		this.subject = subject;
+		this.mode = mode;
+		this.percent = percent;
 		this.resultsMap = new LinkedHashMap<String, List<Object>>();
 	}
 
 	public static void main(String[] args) {
-		String[][] argvs = {
-				{"363", "sed"},
-				{"213", "gzip"},
-				{"809", "grep"},
-				{"13585", "space"},
-//				{"4130", "printtokens"},
-//				{"4115", "printtokens2"},
-//				{"5542", "replace"},
-//				{"2650", "schedule"},
-//				{"2710", "schedule2"},
-//				{"1608", "tcas"},
-//				{"1052", "totinfo"}
-		};
-		for(int i = 0; i < args.length; i++){
-			Client client = new Client(args[i]);
-			client.runClientWithConsole();
-			
+//		String[][] argvs = {
+//				{"363", "sed"},
+//				{"213", "gzip"},
+//				{"809", "grep"},
+//				{"13585", "space"},
+////				{"4130", "printtokens"},
+////				{"4115", "printtokens2"},
+////				{"5542", "replace"},
+////				{"2650", "schedule"},
+////				{"2710", "schedule2"},
+////				{"1608", "tcas"},
+////				{"1052", "totinfo"}
+//		};
+//		for(int i = 0; i < argvs.length; i++){
+//			
+//		}
+		if(args.length != 3){
+			System.err.println("Usage: subject mode(0->F&%; 1->F; 2->%) percent");
+			return;
 		}
+		Client client = new Client(args[0], Byte.parseByte(args[1]), Double.parseDouble(args[2]));
+		client.runClientWithConsole();
 	}
 	public void runClientWithConsole(){
 		PrintWriter writer = null;
 		try {
-			writer =  new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "_" + this.mode + "__" + this.percent + ".console"))));
+			writer =  new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "__" + this.mode + "_" + this.percent + ".console"))));
 			runClient(writer);
 			
 			System.out.println("=================================================");
@@ -121,9 +128,9 @@ public class Client {
 			
 			for(File version: versions){
 				String vi = version.getName();
-				if(!vi.equals("v7")){
-					continue;
-				}
+//				if(!vi.equals("v7")){
+//					continue;
+//				}
 				System.out.println(vi);
 				writer.println(vi);
 				writer.println();
@@ -179,6 +186,9 @@ public class Client {
 				
 				for(File subversion: subversions){
 					String vi = version.getName() + "/" + subversion.getName();
+//					if(!vi.equals("v2/subv1")){
+//						continue;
+//					}
 					System.out.println(vi);
 					writer.println(vi);
 					writer.println();
@@ -203,7 +213,7 @@ public class Client {
 					
 					List<Object> resultsList = new ArrayList<Object>();
 					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer);
-					assert(resultsList.size() == 39);
+					assert(resultsList.size() == 42);
 					this.resultsMap.put(vi, resultsList);
 				}
 			}
@@ -214,15 +224,24 @@ public class Client {
 
 	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer) {
 		double threshold = 0;
-		String command = "mbs -k " + k + " -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 999 --up-limit 2 --print-resource-usage ";
+		String command = "mbs -k " + k + " -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 9999 --up-limit 2 --print-resource-usage ";
 		
 		/*=================================================================================================*/
 		
 		TwopassFunctionClient funClient = new TwopassFunctionClient(cgSitesFile, cgProfilesFolder, fgSitesFile);
+		
+		int totalNeg = funClient.getProcessor().getTotalNegative();
+		int totalPos = funClient.getProcessor().getTotalPositive();
+		BoundCalculator bc = new BoundCalculator(totalNeg, totalPos);
+		
+		resultsList.add(totalNeg);
+		resultsList.add(totalPos);
+		resultsList.add(bc.IG(totalNeg));
+		
+		
 		funClient.printEntry(writer);
-		
 		assert(funClient.getList().size() == funClient.getsInfo().getMap().size());
-		
+
 		resultsList.add(funClient.getList().size());
 		resultsList.add(FileUtils.sizeOf(cgSitesFile));
 		resultsList.add(FileUtils.sizeOf(cgProfilesFolder));
@@ -267,12 +286,10 @@ public class Client {
 		FileUtility.removeFileOrDirectory(boostProfilesFolder);
 		FileUtility.removeFileOrDirectory(boostSitesFile);
 		
-		
 		threshold = runMBS(command, boostDatasetFolder, k, resultsList, writer);
 		
 		//-------------------------------------------------------------------------------------------------//
 		
-		BoundCalculator bc = new BoundCalculator(funClient.getProcessor().getTotalNegative(), funClient.getProcessor().getTotalPositive());
 		assert(threshold != 0);
 		Set<String> pruneFunctionSet = funClient.getFunctionSet(bc.computeIGBound(threshold));
 		File pruneProfilesFolder = new File(fgProfilesFolder.getParentFile(), "prune");
@@ -293,7 +310,6 @@ public class Client {
 		
 		FileUtility.removeFileOrDirectory(pruneProfilesFolder);
 		FileUtility.removeFileOrDirectory(pruneSitesFile);
-		
 		
 		runMBS(command, pruneDatasetFolder, k, resultsList, writer);
 		
@@ -397,7 +413,7 @@ public class Client {
 				consoleFolder.mkdirs();
 			}
 			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_" + this.mode + "__" + this.percent + ".xlsx"));
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "__" + this.mode + "_" + this.percent + ".xlsx"));
 			workbook.write(out);
 			out.close();
 		} catch (Exception e) {
@@ -415,8 +431,9 @@ public class Client {
 		Row row1 = sheet.createRow(rownum++);
 		int cellnum1 = 0;
 		
-		String[] cgtitles = {"#Function", "cgSite_size", "cgTraces_size"};
-		String[] fgtitles = {"#Function", "fgSite_size", "fgTraces_size", "#P_total", "#P_FIncrease", "#P_FLocal", "#P", "Memory_Pre", "Time_Pre", "Threshold", "Time_Mine", "Memory_Mine"};
+		String[] tstitles = {"F", "P", "DS_Max"};
+		String[] cgtitles = {"#Function", "CGSite_Size", "CGTraces_Size"};
+		String[] fgtitles = {"#Function", "FGSite_Size", "FGTraces_Size", "#P_Total", "#P_FIncrease", "#P_FLocal", "#Predicate", "Memory_Pre", "Time_Pre", "DS", "Time_Mine", "Memory_Mine"};
 		String[] fgs = {"original", "boost", "prune"};
 		
 		Cell cell1 = row1.createCell(cellnum1++);
@@ -424,6 +441,12 @@ public class Client {
 		Cell cell0 = row0.createCell(cellnum0++);
 		cell0.setCellValue(" ");
 		
+		for(int i = 0; i < tstitles.length; i++){
+			cell0 = row0.createCell(cellnum0++);
+			cell0.setCellValue(" ");
+			cell1 = row1.createCell(cellnum1++);
+			cell1.setCellValue(tstitles[i]);
+		}
 		for(int i = 0; i < cgtitles.length; i++){
 			cell0 = row0.createCell(cellnum0++);
 			cell0.setCellValue("cg");
