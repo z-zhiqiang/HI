@@ -11,55 +11,60 @@ import sun.processor.core.Processor.BackEnd;
 
 public abstract class AbstractProcessorWithLabels {
 
-  private final File profileFolder;
+	private final File profileFolder;
 
-  private final File resultOutputFolder;
-  
-//  private final static com.sun.management.OperatingSystemMXBean mxbean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-  
+	private final File resultOutputFolder;
 
-  public AbstractProcessorWithLabels(File profileFolder, File resultOutputFolder) {
-    super();
-    this.profileFolder = profileFolder;
-    this.resultOutputFolder = resultOutputFolder;
-  }
+	// private final static com.sun.management.OperatingSystemMXBean mxbean =
+	// (com.sun.management.OperatingSystemMXBean)
+	// ManagementFactory.getOperatingSystemMXBean();
 
-  public void run(Object[] resultsArray, PrintWriter writer) {
-    final long start = System.currentTimeMillis();
-    
-    final IProfileReader profileReader = this.createProfileReader(profileFolder);
-    final List<BackEnd> backends = this.createBackends(resultOutputFolder);
-    final List<IProfileProcessor> profileProcessors = this.createProfileProcessors(resultOutputFolder);
-    new Processor(profileReader, backends, profileProcessors).process(resultsArray, writer);
-    
-    final long end = System.currentTimeMillis();
-    double time = (double) (end - start) / 1000;
-    System.out.println("preprocessing time = " + time);
-    
-    resultsArray[5] = time;
-  }
+	public AbstractProcessorWithLabels(File profileFolder,
+			File resultOutputFolder) {
+		super();
+		this.profileFolder = profileFolder;
+		this.resultOutputFolder = resultOutputFolder;
+	}
 
-  protected abstract IProfileReader createProfileReader(File profileFolder);
+	public void run(Object[] resultsArray, PrintWriter writer) {
+		System.gc();
 
-  protected abstract List<BackEnd> createBackends(File resultOutputFolder);
+		final long start = System.currentTimeMillis();
 
-  protected abstract List<IProfileProcessor> createProfileProcessors(File resultOutputFolder);
-  
-  public static long printMemoryUsage(PrintWriter writer){
-	  Runtime runtime = Runtime.getRuntime();
-	  runtime.gc();
-	  runtime.gc();
-	  long memory = runtime.totalMemory() - runtime.freeMemory();
-	  
-	  System.out.println();
-	  System.out.println("Used memory is bytes: " + memory);
-	  System.out.println("Used memory is kilobytes: " + memory / (1024L));
-	  
-	  writer.println();
-	  writer.println("Used memory is bytes: " + memory);
-	  writer.println("Used memory is kilobytes: " + memory / (1024L));
-	  
-	  return memory / 1024L;
-  }
+		final IProfileReader profileReader = this.createProfileReader(profileFolder);
+		final List<BackEnd> backends = this.createBackends(resultOutputFolder);
+		final List<IProfileProcessor> profileProcessors = this.createProfileProcessors(resultOutputFolder);
+		new Processor(profileReader, backends, profileProcessors).process(resultsArray, writer);
+
+		final long end = System.currentTimeMillis();
+		double time = (double) (end - start) / 1000;
+		System.out.println("preprocessing time = " + time);
+
+		resultsArray[5] = time;
+	}
+
+	protected abstract IProfileReader createProfileReader(File profileFolder);
+
+	protected abstract List<BackEnd> createBackends(File resultOutputFolder);
+
+	protected abstract List<IProfileProcessor> createProfileProcessors(
+			File resultOutputFolder);
+
+	public static long printMemoryUsage(PrintWriter writer) {
+		Runtime runtime = Runtime.getRuntime();
+		runtime.gc();
+		runtime.gc();
+		long memory = runtime.totalMemory() - runtime.freeMemory();
+
+		System.out.println();
+		System.out.println("Used memory is bytes: " + memory);
+		System.out.println("Used memory is kilobytes: " + memory / (1024L));
+
+		writer.println();
+		writer.println("Used memory is bytes: " + memory);
+		writer.println("Used memory is kilobytes: " + memory / (1024L));
+
+		return memory / 1024L;
+	}
 
 }

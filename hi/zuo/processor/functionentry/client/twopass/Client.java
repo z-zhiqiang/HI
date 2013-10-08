@@ -223,6 +223,9 @@ public class Client {
 	}
 
 	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer) {
+		int rounds = 3;
+		double time = 60;
+		
 		double threshold = 0;
 		String command = "mbs -k " + k + " -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 9999 --up-limit 2 --print-resource-usage ";
 		
@@ -260,8 +263,6 @@ public class Client {
 			originalDatasetFolder.mkdirs();
 		}
 		
-		int rounds = 5;
-		double time = 60;
 		runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
 
 		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList);
@@ -283,15 +284,12 @@ public class Client {
 			boostDatasetFolder.mkdirs();
 		}
 		
-		Object[] resultsArrayBoostPre = new Object[6];
-		DefaultPredicateProcessorWithLabel boostInstance = new DefaultPredicateProcessorWithLabel(boostProfilesFolder, boostDatasetFolder, boostSitesFile);
-		boostInstance.run(resultsArrayBoostPre, writer);
+		runMultiPreprocess(boostProfilesFolder, boostDatasetFolder, boostSitesFile, rounds, time, writer, resultsList);
 		
 		FileUtility.removeFileOrDirectory(boostProfilesFolder);
 		FileUtility.removeFileOrDirectory(boostSitesFile);
 		
-		Object[] resultsArrayBoostMine = new Object[3];
-		threshold = runMBS(command, boostDatasetFolder, k, resultsArrayBoostMine, writer);
+		threshold = runMultiMBS(command, boostDatasetFolder, rounds, time, writer, resultsList);
 		
 		//-------------------------------------------------------------------------------------------------//
 		
@@ -311,15 +309,12 @@ public class Client {
 			pruneDatasetFolder.mkdirs();
 		}
 		
-		Object[] resultsArrayPrunePre = new Object[6];
-		DefaultPredicateProcessorWithLabel pruneInstance = new DefaultPredicateProcessorWithLabel(pruneProfilesFolder, pruneDatasetFolder, pruneSitesFile);
-		pruneInstance.run(resultsArrayPrunePre, writer);
+		runMultiPreprocess(pruneProfilesFolder, pruneDatasetFolder, pruneSitesFile, rounds, time, writer, resultsList);
 		
 		FileUtility.removeFileOrDirectory(pruneProfilesFolder);
 		FileUtility.removeFileOrDirectory(pruneSitesFile);
 		
-		Object[] resultsArrayPruneMine = new Object[3];
-		runMBS(command, pruneDatasetFolder, k, resultsArrayPruneMine, writer);
+		runMultiMBS(command, pruneDatasetFolder, rounds, time, writer, resultsList);
 		
 		//-------------------------------------------------------------------------------------------------//
 		
@@ -333,45 +328,49 @@ public class Client {
 	}
 
 	private void runMultiPreprocess(File fgProfilesFolder, File originalDatasetFolder, final File fgSitesFile, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
+		Object[] resultsOriginalPre = new Object[6];
 		Object[][] resultsArrayOriginalPre = new Object[rounds][6];
 		Object[] averageResultsOriginalPre;
 		
 		DefaultPredicateProcessorWithLabel originalInstance = new DefaultPredicateProcessorWithLabel(fgProfilesFolder, originalDatasetFolder, fgSitesFile);
-		originalInstance.run(resultsArrayOriginalPre[0], writer);
+		originalInstance.run(resultsOriginalPre, writer);
 		
-		if(((Double) resultsArrayOriginalPre[0][5]) < time){
-			for(int i = 1; i < resultsArrayOriginalPre.length; i++){
+		if(((Double) resultsOriginalPre[5]) < time){
+			for(int i = 0; i < resultsArrayOriginalPre.length; i++){
 				originalInstance = new DefaultPredicateProcessorWithLabel(fgProfilesFolder, originalDatasetFolder, fgSitesFile);
-				originalInstance.run(resultsArrayOriginalPre[0], writer);
+				originalInstance.run(resultsArrayOriginalPre[i], writer);
 			}
 			averageResultsOriginalPre = computeAverageResults(resultsArrayOriginalPre);
 		}
 		else{
-			averageResultsOriginalPre = resultsArrayOriginalPre[0];
+			averageResultsOriginalPre = resultsOriginalPre;
 		}
 		for(int i = 0; i < averageResultsOriginalPre.length; i++){
 			resultsList.add(averageResultsOriginalPre[i]);
 		}
 	}
 
-	private void runMultiMBS(String command, File originalDatasetFolder, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
+	private double runMultiMBS(String command, File originalDatasetFolder, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
+		Object[] resultsOriginalMine = new Object[3];
 		Object[][] resultsArrayOriginalMine = new Object[rounds][3];
 		Object[] averageResultsOriginalMine;
 		
-		runMBS(command, originalDatasetFolder, k, resultsArrayOriginalMine[0], writer);
+		double threshold = runMBS(command, originalDatasetFolder, k, resultsOriginalMine, writer);
 		
-		if(((Double) resultsArrayOriginalMine[0][1]) < time){
-			for(int i = 1; i < resultsArrayOriginalMine.length; i++){
+		if(((Double) resultsOriginalMine[1]) < time){
+			for(int i = 0; i < resultsArrayOriginalMine.length; i++){
 				runMBS(command, originalDatasetFolder, k, resultsArrayOriginalMine[i], writer);
 			}
 			averageResultsOriginalMine = computeAverageResults(resultsArrayOriginalMine);
 		}
 		else{
-			averageResultsOriginalMine = resultsArrayOriginalMine[0];
+			averageResultsOriginalMine = resultsOriginalMine;
 		}
 		for(int i = 0; i < averageResultsOriginalMine.length; i++){
 			resultsList.add(averageResultsOriginalMine[i]);
 		}
+		
+		return threshold;
 	}
 
 	private Object[] computeAverageResults(Object[][] resultsArray) {
@@ -384,21 +383,21 @@ public class Client {
 				for(int j = 0; j < resultsArray.length; j++){
 					sum += (Double) resultsArray[j][i];
 				}
-				averageResults[i] = sum / resultsArray.length;
+				averageResults[i] = sum / (resultsArray.length);
 			}
 			else if(object instanceof Integer){
 				int sum = 0;
 				for(int j = 0; j < resultsArray.length; j++){
 					sum += (Integer) resultsArray[j][i];
 				}
-				averageResults[i] = sum / resultsArray.length;
+				averageResults[i] = sum / (resultsArray.length);
 			}
 			else if(object instanceof Long){
 				long sum = 0;
 				for(int j = 0; j < resultsArray.length; j++){
 					sum += (Long) resultsArray[j][i];
 				}
-				averageResults[i] = sum / resultsArray.length;
+				averageResults[i] = sum / (resultsArray.length);
 			}
 			else{
 				throw new RuntimeException("abnormal data type");
