@@ -71,7 +71,7 @@ public class PredicateDataSetProtoBufOutputter extends
 	}
 
 	@Override
-	protected void processPredicateDataSet(PredicateDataSet dataset, List<Object> resultsList, PrintWriter writer) {
+	protected void processPredicateDataSet(PredicateDataSet dataset, Object[] resultsArray, PrintWriter writer) {
 		TransactionDBFMT.Builder dbBuilder = TransactionDBFMT.newBuilder();
 		EdgeMap edgeMap = new EdgeMap();
 		FakeVertexMap vertexMap = new FakeVertexMap();
@@ -117,7 +117,7 @@ public class PredicateDataSetProtoBufOutputter extends
 			writer.println("vertex count = " + db.getVerticesCount());
 			
 			//added to get the count info
-			resultsList.add(db.getVerticesCount());
+			resultsArray[3] = db.getVerticesCount();
 
 			db.writeTo(os);
 			os.close();
@@ -130,7 +130,7 @@ public class PredicateDataSetProtoBufOutputter extends
 		}
 
 		
-		resultsList.add(AbstractProcessorWithLabels.printMemoryUsage(writer));
+		resultsArray[4] = AbstractProcessorWithLabels.printMemoryUsage(writer);
 	}
 
 }

@@ -259,10 +259,12 @@ public class Client {
 		if(!originalDatasetFolder.exists()){
 			originalDatasetFolder.mkdirs();
 		}
-		DefaultPredicateProcessorWithLabel originalInstance = new DefaultPredicateProcessorWithLabel(fgProfilesFolder, originalDatasetFolder, fgSitesFile);
-		originalInstance.run(resultsList, writer);
 		
-		runMBS(command, originalDatasetFolder, k, resultsList, writer);
+		int rounds = 5;
+		double time = 60;
+		runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
+
+		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList);
 		
 		/*=================================================================================================*/
 		
@@ -280,13 +282,16 @@ public class Client {
 		if(!boostDatasetFolder.exists()){
 			boostDatasetFolder.mkdirs();
 		}
+		
+		Object[] resultsArrayBoostPre = new Object[6];
 		DefaultPredicateProcessorWithLabel boostInstance = new DefaultPredicateProcessorWithLabel(boostProfilesFolder, boostDatasetFolder, boostSitesFile);
-		boostInstance.run(resultsList, writer);
+		boostInstance.run(resultsArrayBoostPre, writer);
 		
 		FileUtility.removeFileOrDirectory(boostProfilesFolder);
 		FileUtility.removeFileOrDirectory(boostSitesFile);
 		
-		threshold = runMBS(command, boostDatasetFolder, k, resultsList, writer);
+		Object[] resultsArrayBoostMine = new Object[3];
+		threshold = runMBS(command, boostDatasetFolder, k, resultsArrayBoostMine, writer);
 		
 		//-------------------------------------------------------------------------------------------------//
 		
@@ -305,13 +310,16 @@ public class Client {
 		if(!pruneDatasetFolder.exists()){
 			pruneDatasetFolder.mkdirs();
 		}
+		
+		Object[] resultsArrayPrunePre = new Object[6];
 		DefaultPredicateProcessorWithLabel pruneInstance = new DefaultPredicateProcessorWithLabel(pruneProfilesFolder, pruneDatasetFolder, pruneSitesFile);
-		pruneInstance.run(resultsList, writer);
+		pruneInstance.run(resultsArrayPrunePre, writer);
 		
 		FileUtility.removeFileOrDirectory(pruneProfilesFolder);
 		FileUtility.removeFileOrDirectory(pruneSitesFile);
 		
-		runMBS(command, pruneDatasetFolder, k, resultsList, writer);
+		Object[] resultsArrayPruneMine = new Object[3];
+		runMBS(command, pruneDatasetFolder, k, resultsArrayPruneMine, writer);
 		
 		//-------------------------------------------------------------------------------------------------//
 		
@@ -324,7 +332,83 @@ public class Client {
 		
 	}
 
-	private double runMBS(String command, File datasetFolder, int k, List<Object> resultsList, PrintWriter writer) {
+	private void runMultiPreprocess(File fgProfilesFolder, File originalDatasetFolder, final File fgSitesFile, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
+		Object[][] resultsArrayOriginalPre = new Object[rounds][6];
+		Object[] averageResultsOriginalPre;
+		
+		DefaultPredicateProcessorWithLabel originalInstance = new DefaultPredicateProcessorWithLabel(fgProfilesFolder, originalDatasetFolder, fgSitesFile);
+		originalInstance.run(resultsArrayOriginalPre[0], writer);
+		
+		if(((Double) resultsArrayOriginalPre[0][5]) < time){
+			for(int i = 1; i < resultsArrayOriginalPre.length; i++){
+				originalInstance = new DefaultPredicateProcessorWithLabel(fgProfilesFolder, originalDatasetFolder, fgSitesFile);
+				originalInstance.run(resultsArrayOriginalPre[0], writer);
+			}
+			averageResultsOriginalPre = computeAverageResults(resultsArrayOriginalPre);
+		}
+		else{
+			averageResultsOriginalPre = resultsArrayOriginalPre[0];
+		}
+		for(int i = 0; i < averageResultsOriginalPre.length; i++){
+			resultsList.add(averageResultsOriginalPre[i]);
+		}
+	}
+
+	private void runMultiMBS(String command, File originalDatasetFolder, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
+		Object[][] resultsArrayOriginalMine = new Object[rounds][3];
+		Object[] averageResultsOriginalMine;
+		
+		runMBS(command, originalDatasetFolder, k, resultsArrayOriginalMine[0], writer);
+		
+		if(((Double) resultsArrayOriginalMine[0][1]) < time){
+			for(int i = 1; i < resultsArrayOriginalMine.length; i++){
+				runMBS(command, originalDatasetFolder, k, resultsArrayOriginalMine[i], writer);
+			}
+			averageResultsOriginalMine = computeAverageResults(resultsArrayOriginalMine);
+		}
+		else{
+			averageResultsOriginalMine = resultsArrayOriginalMine[0];
+		}
+		for(int i = 0; i < averageResultsOriginalMine.length; i++){
+			resultsList.add(averageResultsOriginalMine[i]);
+		}
+	}
+
+	private Object[] computeAverageResults(Object[][] resultsArray) {
+		// TODO Auto-generated method stub
+		Object[] averageResults = new Object[resultsArray[0].length];
+		for(int i = 0; i < resultsArray[0].length; i++){
+			Object object = resultsArray[0][i];
+			if(object instanceof Double){
+				double sum = 0;
+				for(int j = 0; j < resultsArray.length; j++){
+					sum += (Double) resultsArray[j][i];
+				}
+				averageResults[i] = sum / resultsArray.length;
+			}
+			else if(object instanceof Integer){
+				int sum = 0;
+				for(int j = 0; j < resultsArray.length; j++){
+					sum += (Integer) resultsArray[j][i];
+				}
+				averageResults[i] = sum / resultsArray.length;
+			}
+			else if(object instanceof Long){
+				long sum = 0;
+				for(int j = 0; j < resultsArray.length; j++){
+					sum += (Long) resultsArray[j][i];
+				}
+				averageResults[i] = sum / resultsArray.length;
+			}
+			else{
+				throw new RuntimeException("abnormal data type");
+			}
+		}
+		
+		return averageResults;
+	}
+
+	private double runMBS(String command, File datasetFolder, int k, Object[] resultsArray, PrintWriter writer) {
 		double threshold = 0;
 		double time = 0;
 		long memory = 0;
@@ -341,7 +425,7 @@ public class Client {
 					System.out.println(line);
 					writer.println(line);
 					threshold = Double.parseDouble(line.substring(line.lastIndexOf("=") + 1));
-					resultsList.add(threshold);
+					resultsArray[0] = threshold;
 					System.out.println(threshold);
 				}
 				if(line.matches("time-cost.*=.*")){
@@ -358,14 +442,14 @@ public class Client {
 					writer.println(line);
 					time += Double.parseDouble(line.substring(line.lastIndexOf(",") + 1, line.lastIndexOf("(")).trim());
 					String timeFormat = new DecimalFormat("#.###").format(time);
-					resultsList.add(Double.parseDouble(timeFormat));
+					resultsArray[1] = Double.parseDouble(timeFormat);
 					System.out.println(timeFormat);
 				}
 				if(line.contains("maximum resident set size,")){
 					System.out.println(line);
 					writer.println(line);
 					memory = Long.parseLong(line.substring(line.lastIndexOf(",") + 1, line.lastIndexOf("(")).trim());
-					resultsList.add(memory);
+					resultsArray[2] = memory;
 					System.out.println(memory);
 				}
 			}

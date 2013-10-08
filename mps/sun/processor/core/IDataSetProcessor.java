@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface IDataSetProcessor {
 
-	void process(IDataSet dataset, List<Object> resultsList, PrintWriter writer);
+	void process(IDataSet dataset, Object[] resultsArray, PrintWriter writer);
 
 }

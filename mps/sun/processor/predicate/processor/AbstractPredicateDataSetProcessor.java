@@ -1,7 +1,6 @@
 package sun.processor.predicate.processor;
 
 import java.io.PrintWriter;
-import java.util.List;
 
 import sun.processor.core.IDataSet;
 import sun.processor.core.IDataSetProcessor;
@@ -11,9 +10,9 @@ public abstract class AbstractPredicateDataSetProcessor implements
 		IDataSetProcessor {
 
 	@Override
-	public void process(IDataSet dataset, List<Object> resultsList, PrintWriter writer) {
+	public void process(IDataSet dataset, Object[] resultsArray, PrintWriter writer) {
 		if (dataset instanceof PredicateDataSet) {
-			this.processPredicateDataSet((PredicateDataSet) dataset, resultsList, writer);
+			this.processPredicateDataSet((PredicateDataSet) dataset, resultsArray, writer);
 		} else {
 			throw new RuntimeException(
 					"You use a predicate dataset processor to process "
@@ -22,6 +21,6 @@ public abstract class AbstractPredicateDataSetProcessor implements
 		}
 	}
 
-	protected abstract void processPredicateDataSet(PredicateDataSet dataset, List<Object> resultsList, PrintWriter writer);
+	protected abstract void processPredicateDataSet(PredicateDataSet dataset, Object[] resultsArray, PrintWriter writer);
 
 }

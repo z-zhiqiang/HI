@@ -53,7 +53,7 @@ public class PredicateDataSetTextualOutputter extends
   }
 
   @Override
-  protected void processPredicateDataSet(PredicateDataSet dataset, List<Object> resultsList, PrintWriter writer) {
+  protected void processPredicateDataSet(PredicateDataSet dataset, Object[] resultsArray, PrintWriter writer) {
 
     BufferedWriter outputWriter = null;
     try {

@@ -24,24 +24,19 @@ public abstract class AbstractProcessorWithLabels {
     this.resultOutputFolder = resultOutputFolder;
   }
 
-  public void run(List<Object> resultsList, PrintWriter writer) {
-//	Object[] statistics = new Object[5];
-	
+  public void run(Object[] resultsArray, PrintWriter writer) {
     final long start = System.currentTimeMillis();
     
     final IProfileReader profileReader = this.createProfileReader(profileFolder);
     final List<BackEnd> backends = this.createBackends(resultOutputFolder);
     final List<IProfileProcessor> profileProcessors = this.createProfileProcessors(resultOutputFolder);
-    new Processor(profileReader, backends, profileProcessors).process(resultsList, writer);
+    new Processor(profileReader, backends, profileProcessors).process(resultsArray, writer);
     
     final long end = System.currentTimeMillis();
     double time = (double) (end - start) / 1000;
     System.out.println("preprocessing time = " + time);
     
-//    for(Object statistic: statistics){
-//    	resultsList.add(statistic);
-//    }
-    resultsList.add(time);
+    resultsArray[5] = time;
   }
 
   protected abstract IProfileReader createProfileReader(File profileFolder);
