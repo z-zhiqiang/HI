@@ -27,6 +27,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import zuo.processor.functionentry.processor.BoundCalculator;
 import zuo.split.PredicateSplittingSiteProfile;
+import zuo.util.file.FileUtil;
 import zuo.util.file.FileUtility;
 import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
 
@@ -101,7 +102,7 @@ public class Client {
 			}
 		}
 	}
-	public void runClient(PrintWriter writer){
+	public void runClient(PrintWriter writer) throws IOException{
 		File projectRoot = new File(rootDir, this.subject);
 		if (!projectRoot.exists()){
 			throw new RuntimeException("Project " + projectRoot + " does not exist!");
@@ -222,7 +223,7 @@ public class Client {
 		printResultToExcel();
 	}
 
-	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer) {
+	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer) throws IOException {
 		int rounds = 3;
 		double time = 60;
 		
@@ -231,23 +232,48 @@ public class Client {
 		
 		/*=================================================================================================*/
 		
-		TwopassFunctionClient funClient = new TwopassFunctionClient(cgSitesFile, cgProfilesFolder, fgSitesFile);
+		int totalNeg = 0;
+		int totalPos = 0;
 		
-		int totalNeg = funClient.getProcessor().getTotalNegative();
-		int totalPos = funClient.getProcessor().getTotalPositive();
+		File[] fgProfiles = fgProfilesFolder.listFiles(FileUtil.createProfileFilter());
+		Arrays.sort(fgProfiles, new FileUtil.FileComparator());
+		File[] cgProfiles = cgProfilesFolder.listFiles(FileUtil.createProfileFilter());
+		Arrays.sort(cgProfiles, new FileUtil.FileComparator());
+		if(fgProfiles.length != cgProfiles.length){
+			throw new RuntimeException("unequal number of profiles: " + fgProfiles.length + " vs " + cgProfiles.length);
+		}
+		for(int i = 0; i < fgProfiles.length; i++){
+			String fgName = fgProfiles[i].getName();
+			String cgName = cgProfiles[i].getName();
+			if(!fgName.equals(cgName)){
+				throw new RuntimeException("wrong file mapping: " + fgName + " vs " + cgName);
+			}
+			if(fgName.matches(FileUtil.failingProfileFilterPattern())){
+				totalNeg++;
+			}
+			else{
+				totalPos++;
+			}
+		}
+		
 		BoundCalculator bc = new BoundCalculator(totalNeg, totalPos);
 		
 		resultsList.add(totalNeg);
 		resultsList.add(totalPos);
 		resultsList.add(bc.IG(totalNeg));
 		
+		/*=================================================================================================*/
 		
+		File failingCGProfilesFolder = new File(cgProfilesFolder.getParentFile(), "failingCG");
+		splitFailingCGProfiles(cgProfilesFolder, failingCGProfilesFolder);
+		
+		TwopassFunctionClient funClient = new TwopassFunctionClient(cgSitesFile, failingCGProfilesFolder, fgSitesFile);
 		funClient.printEntry(writer);
 		assert(funClient.getList().size() == funClient.getsInfo().getMap().size());
 
 		resultsList.add(funClient.getList().size());
 		resultsList.add(FileUtils.sizeOf(cgSitesFile));
-		resultsList.add(FileUtils.sizeOf(cgProfilesFolder));
+		resultsList.add(FileUtils.sizeOf(failingCGProfilesFolder));
 		
 		/*=================================================================================================*/
 		
@@ -325,6 +351,21 @@ public class Client {
 		File pruneAll = new File(resultOutputFolder, "prune_all");
 		FileUtility.removeFileOrDirectory(pruneAll);
 		
+	}
+
+	/**split failing coarse-grained profiles from cgProfilesFolder to failingCGProfilesFolder
+	 * @param cgProfilesFolder
+	 * @param failingCGProfilesFolder
+	 * @throws IOException
+	 */
+	private void splitFailingCGProfiles(File cgProfilesFolder, File failingCGProfilesFolder) throws IOException {
+		File[] cgProfiles = cgProfilesFolder.listFiles(FileUtil.createProfileFilter());
+		Arrays.sort(cgProfiles, new FileUtil.FileComparator());
+		for(File cgProfile: cgProfiles){
+			if(cgProfile.getName().matches(FileUtil.failingProfileFilterPattern())){
+				FileUtils.copyFileToDirectory(cgProfile, failingCGProfilesFolder);
+			}
+		}
 	}
 
 	private void runMultiPreprocess(File fgProfilesFolder, File originalDatasetFolder, final File fgSitesFile, int rounds, double time, PrintWriter writer, List<Object> resultsList) {

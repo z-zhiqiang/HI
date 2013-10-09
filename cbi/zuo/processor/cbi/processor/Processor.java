@@ -13,37 +13,38 @@ public class Processor {
 	private final PredicateProfile[] profiles; // profiles
 	private List<PredicateItemWithImportance> predictorsList; // the results
 	
-	private int totalPositive; // number of passing runs
-	private int totalNegative; // number of failing runs
+	private final int totalPositive; // number of passing runs
+	private final int totalNegative; // number of failing runs
 	
-	public Processor(PredicateProfile[] predicateProfiles){
+	public Processor(PredicateProfile[] predicateProfiles, int failing, int passing){
 		profiles = predicateProfiles;
 		predictorsList = new ArrayList<PredicateItemWithImportance>();
-		totalPositive = totalNegative = 0;
+		totalNegative = failing;
+		totalPositive = passing;
 	}
 	
 	public void process(){
-		computeTotalPositiveNegative();
+//		computeTotalPositiveNegative();
 		processReturnPredicates();
 		processBranchPredicates();
 		processScalarPairsPredicates();
 	}
 
-	/**compute the number of failing runs and passing runs
-	 * 
-	 */
-	private void computeTotalPositiveNegative() {
-		// TODO Auto-generated method stub
-		for (int i = 0; i < profiles.length; i++) {
-			if(profiles[i].isCorrect()){
-				this.totalPositive++;
-			}
-			else{
-				this.totalNegative++;
-			}
-		}
-		assert(totalPositive + totalNegative == profiles.length);
-	}
+//	/**compute the number of failing runs and passing runs
+//	 * 
+//	 */
+//	private void computeTotalPositiveNegative() {
+//		// TODO Auto-generated method stub
+//		for (int i = 0; i < profiles.length; i++) {
+//			if(profiles[i].isCorrect()){
+//				this.totalPositive++;
+//			}
+//			else{
+//				this.totalNegative++;
+//			}
+//		}
+//		assert(totalPositive + totalNegative == profiles.length);
+//	}
 
 
 	/**process scalar-pair predicates
@@ -378,17 +379,17 @@ public class Processor {
 		return totalPositive;
 	}
 
-	public void setTotalPositive(int totalPositive) {
-		this.totalPositive = totalPositive;
-	}
+//	public void setTotalPositive(int totalPositive) {
+//		this.totalPositive = totalPositive;
+//	}
 
 	public int getTotalNegative() {
 		return totalNegative;
 	}
 
-	public void setTotalNegative(int totalNegative) {
-		this.totalNegative = totalNegative;
-	}
+//	public void setTotalNegative(int totalNegative) {
+//		this.totalNegative = totalNegative;
+//	}
 
 	public PredicateProfile[] getProfiles() {
 		return profiles;

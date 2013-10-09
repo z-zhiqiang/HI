@@ -50,7 +50,11 @@ public class IterativeFunctionClient {
 	
 	final SitesInfo sInfo;
 	final String targetFunction;
-	final Set<Integer> samples;
+//	final Set<Integer> samples;
+//	final Set<Integer> failingSamples;
+//	final Set<Integer> passingSamples;
+	final FixPointStructure fullFixElement;
+	
 	final Map<String, CBIClient> clientsMap;
 	
 	final Result[][] results;
@@ -59,7 +63,9 @@ public class IterativeFunctionClient {
 		this.sites = sites;
 		this.sInfo = sInfo;
 		this.targetFunction = getTargetFunction(fullICBIClient);
-		this.samples = fullICBIClient.getFullFixElement().getSamples();
+//		this.samples = fullICBIClient.getFullFixElement().getSamples();
+//		this.failingSamples = fullICBIClient.getFullFixElement();
+		this.fullFixElement = fullICBIClient.getFullFixElement();
 		this.clientsMap = map;
 		
 		this.selectedFunctionEntryProfiles = constructSelectedFunctionEntryProfiles(profiles);
@@ -80,7 +86,7 @@ public class IterativeFunctionClient {
 			cbiWriter = new PrintWriter(new BufferedWriter(new FileWriter(cbiconsoleFile)));
 			functionWriter = new PrintWriter(new BufferedWriter(new FileWriter(functionconsoleFile)));
 			printOutFullFixElementInfo(fullICBIClient, cbiWriter);
-			run(cbiWriter, functionWriter, profiles, ks);
+			run(cbiWriter, functionWriter, ks);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -139,23 +145,28 @@ public class IterativeFunctionClient {
 
 
 	private FunctionEntryProfile[] constructSelectedFunctionEntryProfiles(FunctionEntryProfile[] profiles) {
-		FunctionEntryProfile[] fProfiles = new FunctionEntryProfile[samples.size()];
+		FunctionEntryProfile[] fProfiles = new FunctionEntryProfile[this.fullFixElement.getFailingSet().size() + this.fullFixElement.getPassingSet().size()];
 		int j = 0;
-		for(int k: samples){
+		for(int k: this.fullFixElement.getFailingSet()){
 			fProfiles[j++] = profiles[k];
 		}
-		assert(j == samples.size());
+		for(int k: this.fullFixElement.getPassingSet()){
+			fProfiles[j++] = profiles[k];
+		}
+//		assert(j == samples.size());
 		return fProfiles;
 	}
 
 
-	private void run(PrintWriter cbiWriter, PrintWriter functionWriter, FunctionEntryProfile[] profiles, int[] ks){
-		SelectingProcessor processor = new SelectingProcessor(selectedFunctionEntryProfiles);
+	private void run(PrintWriter cbiWriter, PrintWriter functionWriter, int[] ks){
+		SelectingProcessor processor = new SelectingProcessor(this.fullFixElement.getFailingSet().size(), 
+				this.fullFixElement.getPassingSet().size(), 
+				selectedFunctionEntryProfiles);
 		processor.process();
 		
 		//print out the general runs information
-		assert(processor.getTotalNegative() + processor.getTotalPositive() == selectedFunctionEntryProfiles.length);
-		printSelectedFunctionEntryProfilesInformation(functionWriter, profiles);
+//		assert(processor.getTotalNegative() + processor.getTotalPositive() == selectedFunctionEntryProfiles.length);
+		printSelectedFunctionEntryProfilesInformation(functionWriter);
 		
 		//print out the static instrumentation sites information 
 		assert(processor.getFrequencyMap().size() == sites.getNumFunctionEntrySites());
@@ -187,18 +198,18 @@ public class IterativeFunctionClient {
 	}
 
 
-	private void printSelectedFunctionEntryProfilesInformation(PrintWriter writer, FunctionEntryProfile[] profiles) {
-		Set<Integer> neg = new TreeSet<Integer>();
-		Set<Integer> pos = new TreeSet<Integer>();
-		for(int s: samples){
-			FunctionEntryProfile profile = profiles[s];
-			if(profile.isCorrect()){
-				pos.add(s);
-			}
-			else{
-				neg.add(s);
-			}
-		}
+	private void printSelectedFunctionEntryProfilesInformation(PrintWriter writer) {
+		Set<Integer> neg = this.fullFixElement.getFailingSet();
+		Set<Integer> pos = this.fullFixElement.getPassingSet();
+//		for(int s: samples){
+//			FunctionEntryProfile profile = profiles[s];
+//			if(profile.isCorrect()){
+//				pos.add(s);
+//			}
+//			else{
+//				neg.add(s);
+//			}
+//		}
 		assert(pos.size() + neg.size() == selectedFunctionEntryProfiles.length);
 		writer.println("The general runs information are as follows:");
 		writer.println("==============================================================");

@@ -13,11 +13,16 @@ import zuo.processor.functionentry.site.FunctionEntrySite;
  * @author sunzzq
  *
  */
-public class SelectingProcessor extends AbstractProcessor{
+public class SelectingProcessor{
+	private final FunctionEntryProfile[] profiles;
+	private final int totalNegative;
+	private final int totalPositive;
 	private Map<FunctionEntrySite, FrequencyValue> frequencyMap;
 	
-	public SelectingProcessor(FunctionEntryProfile[] profiles){
-		super(profiles);
+	public SelectingProcessor(int totalNeg, int totalPos, FunctionEntryProfile[] profiles){
+		this.totalNegative = totalNeg;
+		this.totalPositive = totalPos;
+		this.profiles = profiles;
 		this.frequencyMap = new HashMap<FunctionEntrySite, FrequencyValue>();
 	}
 	
@@ -113,6 +118,15 @@ public class SelectingProcessor extends AbstractProcessor{
 	public void setFrequencyMap(Map<FunctionEntrySite, FrequencyValue> frequencyMap) {
 		this.frequencyMap = frequencyMap;
 	}
+
+	public int getTotalNegative() {
+		return totalNegative;
+	}
+
+	public int getTotalPositive() {
+		return totalPositive;
+	}
+
 
 
 	public static class FrequencyValue{

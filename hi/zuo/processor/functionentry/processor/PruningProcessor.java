@@ -11,14 +11,15 @@ import zuo.processor.functionentry.site.FunctionEntrySite;
  * @author Zuo Zhiqiang
  *
  */
-public class PruningProcessor extends AbstractProcessor{
+public class PruningProcessor{
+	private final FunctionEntryProfile[] failingProfiles;
 	private Map<FunctionEntrySite, Integer> negativeFrequencyMap;
 	
 	/**constructor based on profiles
-	 * @param profiles
+	 * @param failingProfiles
 	 */
-	public PruningProcessor(FunctionEntryProfile[] profiles){
-		super(profiles);
+	public PruningProcessor(FunctionEntryProfile[] failingProfiles){
+		this.failingProfiles = failingProfiles;
 		negativeFrequencyMap = new HashMap<FunctionEntrySite, Integer>();
 	}
 	
@@ -28,9 +29,10 @@ public class PruningProcessor extends AbstractProcessor{
 	
 	private void computeFrequency() {
 		// TODO Auto-generated method stub
-		for(int i = 0; i < profiles.length; i++){
-			FunctionEntryProfile profile = profiles[i];
-			if(!profile.isCorrect()) {
+		for(int i = 0; i < failingProfiles.length; i++){
+			FunctionEntryProfile profile = failingProfiles[i];
+			assert(!profile.isCorrect());
+//			if(!profile.isCorrect()) {
 				for (FunctionEntryItem item : profile.getFunctionEntryItems()) {
 					FunctionEntrySite functionSite = item.getSite();
 					if (item.getCounter() > 0) {
@@ -45,7 +47,7 @@ public class PruningProcessor extends AbstractProcessor{
 						}
 					}
 				}
-			}
+//			}
 		}
 	}
 
@@ -53,8 +55,8 @@ public class PruningProcessor extends AbstractProcessor{
 		return negativeFrequencyMap;
 	}
 
-	public int getTotalNegative() {
-		return totalNegative;
-	}
+//	public int getTotalNegative() {
+//		return totalNegative;
+//	}
 
 }

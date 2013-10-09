@@ -21,18 +21,18 @@ import zuo.processor.functionentry.site.FunctionEntrySite;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class TwopassFunctionClient {
-	private FunctionEntryProfile[] profiles;
+	private FunctionEntryProfile[] failingProfiles;
 	private final PruningProcessor processor;
 	private final SitesInfo sInfo;
 	private List<Map.Entry<FunctionEntrySite, Integer>> list;
 	
-	public TwopassFunctionClient(File csitesFile, File profilesFolder, File fsitesFile){
+	public TwopassFunctionClient(File csitesFile, File failingProfilesFolder, File fsitesFile){
 		FunctionEntrySites sites = new FunctionEntrySites(csitesFile);
-		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(profilesFolder, sites);
-		profiles = reader.readFunctionEntryProfiles();
-		processor = new PruningProcessor(profiles);
+		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(failingProfilesFolder, sites);
+		failingProfiles = reader.readFailingFunctionEntryProfiles();
+		processor = new PruningProcessor(failingProfiles);
 		processor.process();
-		assert(processor.getTotalNegative() + processor.getTotalPositive() == profiles.length);
+//		assert(processor.getTotalNegative() + processor.getTotalPositive() == profiles.length);
 		assert(processor.getNegativeFrequencyMap().size() == sites.getNumFunctionEntrySites());
 		
 		this.sInfo = new SitesInfo(new InstrumentationSites(fsitesFile));
@@ -113,7 +113,7 @@ public class TwopassFunctionClient {
 		case 0: //only functions f(m)==F and the number of functions selected is less than "percent"
 			for(int i = 0, j = 0; i < list.size(); i++){
 				Entry<FunctionEntrySite, Integer> entry = list.get(i);
-				if(entry.getValue() >= processor.getTotalNegative() && j < list.size() * percent){
+				if(entry.getValue() >= this.failingProfiles.length && j < list.size() * percent){
 					functionSet.add(entry.getKey().getFunctionName());
 					j++;
 				}
@@ -122,7 +122,7 @@ public class TwopassFunctionClient {
 		case 1: //all the functions whose negative support is F
 			for(int i = 0; i < list.size(); i++){
 				Entry<FunctionEntrySite, Integer> entry = (Entry<FunctionEntrySite, Integer>) list.get(i);
-				if(entry.getValue() >= processor.getTotalNegative()){
+				if(entry.getValue() >= this.failingProfiles.length){
 					functionSet.add(entry.getKey().getFunctionName());
 				}
 				else{

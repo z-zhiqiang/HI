@@ -81,15 +81,18 @@ public class CBIClient {
 		return baseProfiles;
 	}
 	
-	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] baseProfiles, Set<Integer> samples) {
+	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] baseProfiles, Set<Integer> failingSet, Set<Integer> passingSet) {
 		// TODO Auto-generated method stub
-		PredicateProfile[] pProfiles = new PredicateProfile[samples.size()];
+		PredicateProfile[] pProfiles = new PredicateProfile[failingSet.size() + passingSet.size()];
 		
 		int j = 0;
-		for(int k: samples){
+		for(int k: failingSet){
 			pProfiles[j++] = baseProfiles[k];
 		}
-		assert(j == samples.size());
+		for(int k: passingSet){
+			pProfiles[j++] = baseProfiles[k];
+		}
+//		assert(j == samples.size());
 		return pProfiles;
 	}
 
@@ -104,11 +107,11 @@ public class CBIClient {
 		
 		for(int i = start; i <= 10; i++){
 			double per = 0.1 * i;
-			Set<Integer> partialSamples = increasePartialSamples(failingSet, passingSet, per);
+			increasePartialSamples(failingSet, passingSet, per);
 			
-			PredicateProfile[] selectedPredicateProfiles = constructSelectedPredicateProfiles(baseProfiles, partialSamples);
+			PredicateProfile[] selectedPredicateProfiles = constructSelectedPredicateProfiles(baseProfiles, failingSet, passingSet);
 			
-			Processor p = new Processor(selectedPredicateProfiles);
+			Processor p = new Processor(selectedPredicateProfiles, failingSet.size(), passingSet.size());
 			p.process();
 			assert(p.getTotalNegative() + p.getTotalPositive() == selectedPredicateProfiles.length);
 			
@@ -116,7 +119,8 @@ public class CBIClient {
 			TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
 			sortingPreditorsList(sortedPredictors, p.getPredictorsList());
 			
-			cList.insertElement(new FixPointStructure(sortedPredictors, partialSamples, per));
+			cList.insertElement(new FixPointStructure(sortedPredictors,
+					new TreeSet<Integer>(failingSet), new TreeSet<Integer>(passingSet), per));
 			
 			if(isFixPoint(cList, writer)){
 				break;
@@ -157,11 +161,11 @@ public class CBIClient {
 	}
 
 	public void runFull(){
-		Set<Integer> samples = new HashSet<Integer>();
-		samples.addAll(failings);
-		samples.addAll(passings);
+//		Set<Integer> samples = new HashSet<Integer>();
+//		samples.addAll(failings);
+//		samples.addAll(passings);
 		
-		Processor p = new Processor(profiles);
+		Processor p = new Processor(profiles, failings.size(), passings.size());
 		p.process();
 		assert(p.getTotalNegative() + p.getTotalPositive() == profiles.length);
 		
@@ -169,11 +173,12 @@ public class CBIClient {
 		TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
 		sortingPreditorsList(sortedPredictors, p.getPredictorsList());
 		
-		this.fixElement = new FixPointStructure(sortedPredictors, samples, 1.0);
+		this.fixElement = new FixPointStructure(sortedPredictors,
+				new TreeSet<Integer>(failings), new TreeSet<Integer>(passings) , 1.0);
 	}
 
 	
-	private Set<Integer> increasePartialSamples(Set<Integer> failingSet, Set<Integer> passingSet, double percent) {
+	private void increasePartialSamples(Set<Integer> failingSet, Set<Integer> passingSet, double percent) {
 		Random randomFGenerator = new Random();
 		int fs = (int) (failings.size() * percent);
 		for(; failingSet.size() < (fs > 2 ? fs : 2);){
@@ -188,11 +193,11 @@ public class CBIClient {
 			passingSet.add(passings.get(pSampleIndex));
 		}
 		
-		Set<Integer> partialSamples = new HashSet<Integer>();
-		partialSamples.addAll(failingSet);
-		partialSamples.addAll(passingSet);
-		
-		return partialSamples;
+//		Set<Integer> partialSamples = new HashSet<Integer>();
+//		partialSamples.addAll(failingSet);
+//		partialSamples.addAll(passingSet);
+//		
+//		return partialSamples;
 	}
 	
 	public void printElement(FixPointStructure element, PrintWriter writer){
@@ -202,23 +207,23 @@ public class CBIClient {
 
 	public void printSelectedPredicateProfilesInformation(FixPointStructure element, PrintWriter writer) {
 		// TODO Auto-generated method stub
-		Set<Integer> samples = element.getSamples();
-		Set<Integer> neg = new TreeSet<Integer>();
-		Set<Integer> pos = new TreeSet<Integer>();
-		for(int s: samples){
-			PredicateProfile profile = profiles[s];
-			if(profile.isCorrect()){
-				pos.add(s);
-			}
-			else{
-				neg.add(s);
-			}
-		}
-		assert(pos.size() + neg.size() == samples.size());
+//		Set<Integer> samples = element.getSamples();
+		Set<Integer> neg = element.getFailingSet();
+		Set<Integer> pos = element.getPassingSet();
+//		for(int s: samples){
+//			PredicateProfile profile = profiles[s];
+//			if(profile.isCorrect()){
+//				pos.add(s);
+//			}
+//			else{
+//				neg.add(s);
+//			}
+//		}
+//		assert(pos.size() + neg.size() == samples.size());
 		writer.println("The general runs information are as follows:");
 		writer.println("--------------------------------------------------------------");
 		writer.println(String.format("%-40s", "Percentage:") + new DecimalFormat("#.#").format(element.getPercent()));
-		writer.println(String.format("%-40s", "Total number of runs:") + samples.size());
+		writer.println(String.format("%-40s", "Total number of runs:") + (neg.size() + pos.size()));
 		writer.println(String.format("%-40s", "Total number of negative runs:") + neg.size());
 		writer.println(compressNumbers(neg));
 		writer.println(String.format("%-40s", "Total number of positive runs:") + pos.size());
