@@ -24,27 +24,10 @@ public class Processor {
 	}
 	
 	public void process(){
-//		computeTotalPositiveNegative();
 		processReturnPredicates();
 		processBranchPredicates();
 		processScalarPairsPredicates();
 	}
-
-//	/**compute the number of failing runs and passing runs
-//	 * 
-//	 */
-//	private void computeTotalPositiveNegative() {
-//		// TODO Auto-generated method stub
-//		for (int i = 0; i < profiles.length; i++) {
-//			if(profiles[i].isCorrect()){
-//				this.totalPositive++;
-//			}
-//			else{
-//				this.totalNegative++;
-//			}
-//		}
-//		assert(totalPositive + totalNegative == profiles.length);
-//	}
 
 
 	/**process scalar-pair predicates

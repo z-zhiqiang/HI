@@ -15,12 +15,9 @@ public abstract class AbstractProcessorWithLabels {
 
 	private final File resultOutputFolder;
 
-	// private final static com.sun.management.OperatingSystemMXBean mxbean =
-	// (com.sun.management.OperatingSystemMXBean)
-	// ManagementFactory.getOperatingSystemMXBean();
+	// private final static com.sun.management.OperatingSystemMXBean mxbean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
-	public AbstractProcessorWithLabels(File profileFolder,
-			File resultOutputFolder) {
+	public AbstractProcessorWithLabels(File profileFolder, File resultOutputFolder) {
 		super();
 		this.profileFolder = profileFolder;
 		this.resultOutputFolder = resultOutputFolder;
@@ -39,6 +36,7 @@ public abstract class AbstractProcessorWithLabels {
 		final long end = System.currentTimeMillis();
 		double time = (double) (end - start) / 1000;
 		System.out.println("preprocessing time = " + time);
+		System.out.println();
 
 		resultsArray[5] = time;
 	}
@@ -56,11 +54,9 @@ public abstract class AbstractProcessorWithLabels {
 		runtime.gc();
 		long memory = runtime.totalMemory() - runtime.freeMemory();
 
-		System.out.println();
 		System.out.println("Used memory is bytes: " + memory);
 		System.out.println("Used memory is kilobytes: " + memory / (1024L));
 
-		writer.println();
 		writer.println("Used memory is bytes: " + memory);
 		writer.println("Used memory is kilobytes: " + memory / (1024L));
 

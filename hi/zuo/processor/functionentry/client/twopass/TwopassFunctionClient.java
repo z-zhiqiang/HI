@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import edu.nus.sun.processor.mps.client.AbstractProcessorWithLabels;
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.processor.PruningProcessor;
@@ -26,13 +27,14 @@ public class TwopassFunctionClient {
 	private final SitesInfo sInfo;
 	private List<Map.Entry<FunctionEntrySite, Integer>> list;
 	
-	public TwopassFunctionClient(File csitesFile, File failingProfilesFolder, File fsitesFile){
+	public TwopassFunctionClient(File csitesFile, File failingProfilesFolder, File fsitesFile, Object[] resultsCG, PrintWriter writer){
+		final long start = System.currentTimeMillis();
+		
 		FunctionEntrySites sites = new FunctionEntrySites(csitesFile);
 		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(failingProfilesFolder, sites);
 		failingProfiles = reader.readFailingFunctionEntryProfiles();
 		processor = new PruningProcessor(failingProfiles);
 		processor.process();
-//		assert(processor.getTotalNegative() + processor.getTotalPositive() == profiles.length);
 		assert(processor.getNegativeFrequencyMap().size() == sites.getNumFunctionEntrySites());
 		
 		this.sInfo = new SitesInfo(new InstrumentationSites(fsitesFile));
@@ -40,6 +42,15 @@ public class TwopassFunctionClient {
 		assert(processor.getNegativeFrequencyMap().size() == this.sInfo.getMap().size());
 		// construct a sorted list of negativeFrequencyMap
 		constructEntryList();
+		
+		final long end = System.currentTimeMillis();
+		double time = (double) (end - start) / 1000;
+		
+		resultsCG[0] = list.size();
+		resultsCG[1] = AbstractProcessorWithLabels.printMemoryUsage(writer);
+		resultsCG[2] = time;
+		System.out.println("coarse-grained analysis time = " + time);
+		System.out.println();
 	}
 
 

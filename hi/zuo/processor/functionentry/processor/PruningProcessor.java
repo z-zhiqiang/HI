@@ -32,31 +32,25 @@ public class PruningProcessor{
 		for(int i = 0; i < failingProfiles.length; i++){
 			FunctionEntryProfile profile = failingProfiles[i];
 			assert(!profile.isCorrect());
-//			if(!profile.isCorrect()) {
-				for (FunctionEntryItem item : profile.getFunctionEntryItems()) {
-					FunctionEntrySite functionSite = item.getSite();
-					if (item.getCounter() > 0) {
-						if (negativeFrequencyMap.containsKey(functionSite)) {
-							negativeFrequencyMap.put(functionSite, negativeFrequencyMap.get(functionSite) + 1);
-						} else {
-							negativeFrequencyMap.put(functionSite, 1);
-						}
+			for (FunctionEntryItem item : profile.getFunctionEntryItems()) {
+				FunctionEntrySite functionSite = item.getSite();
+				if (item.getCounter() > 0) {
+					if (negativeFrequencyMap.containsKey(functionSite)) {
+						negativeFrequencyMap.put(functionSite, negativeFrequencyMap.get(functionSite) + 1);
 					} else {
-						if (!negativeFrequencyMap.containsKey(functionSite)) {
-							negativeFrequencyMap.put(functionSite, 0);
-						}
+						negativeFrequencyMap.put(functionSite, 1);
+					}
+				} else {
+					if (!negativeFrequencyMap.containsKey(functionSite)) {
+						negativeFrequencyMap.put(functionSite, 0);
 					}
 				}
-//			}
+			}
 		}
 	}
 
 	public Map<FunctionEntrySite, Integer> getNegativeFrequencyMap() {
 		return negativeFrequencyMap;
 	}
-
-//	public int getTotalNegative() {
-//		return totalNegative;
-//	}
 
 }

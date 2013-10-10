@@ -29,25 +29,25 @@ public abstract class AbstractProcessor {
 //		assert(totalNegative + totalPositive == profiles.length);
 //	}
 
-	public int getTotalNegative() {
-		return totalNegative;
-	}
+//	public int getTotalNegative() {
+//		return totalNegative;
+//	}
 
 //	public void setTotalNegative(int totalNegative) {
 //		this.totalNegative = totalNegative;
 //	}
 
-	public int getTotalPositive() {
-		return totalPositive;
-	}
+//	public int getTotalPositive() {
+//		return totalPositive;
+//	}
 
 //	public void setTotalPositive(int totalPositive) {
 //		this.totalPositive = totalPositive;
 //	}
 
-	public FunctionEntryProfile[] getProfiles() {
-		return profiles;
-	}
+//	public FunctionEntryProfile[] getProfiles() {
+//		return profiles;
+//	}
 	
 	
 }

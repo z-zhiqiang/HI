@@ -214,7 +214,7 @@ public class Client {
 					
 					List<Object> resultsList = new ArrayList<Object>();
 					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer);
-					assert(resultsList.size() == 42);
+					assert(resultsList.size() == 44);
 					this.resultsMap.put(vi, resultsList);
 				}
 			}
@@ -267,22 +267,24 @@ public class Client {
 		File failingCGProfilesFolder = new File(cgProfilesFolder.getParentFile(), "failingCG");
 		splitFailingCGProfiles(cgProfilesFolder, failingCGProfilesFolder);
 		
-		TwopassFunctionClient funClient = new TwopassFunctionClient(cgSitesFile, failingCGProfilesFolder, fgSitesFile);
-		funClient.printEntry(writer);
-		assert(funClient.getList().size() == funClient.getsInfo().getMap().size());
-
-		resultsList.add(funClient.getList().size());
 		resultsList.add(FileUtils.sizeOf(cgSitesFile));
 		resultsList.add(FileUtils.sizeOf(failingCGProfilesFolder));
+		
+		TwopassFunctionClient funClient = runMultiCGClient(cgSitesFile, failingCGProfilesFolder, fgSitesFile, rounds, time, writer, resultsList);
+		
+		assert(funClient.getList().size() == funClient.getsInfo().getMap().size());
+		funClient.printEntry(writer);
+
+		FileUtility.removeFileOrDirectory(failingCGProfilesFolder);
 		
 		/*=================================================================================================*/
 		
 		Set<String> originalFunctionSet = funClient.getFunctionSet(0);
 		assert(originalFunctionSet.size() == funClient.getList().size());
 		
-		resultsList.add(originalFunctionSet.size());
 		resultsList.add(FileUtils.sizeOf(fgSitesFile));
 		resultsList.add(FileUtils.sizeOf(fgProfilesFolder));
+		resultsList.add(originalFunctionSet.size());
 		
 		File originalDatasetFolder = new File(resultOutputFolder, "original");
 		if(!originalDatasetFolder.exists()){
@@ -301,9 +303,9 @@ public class Client {
 		PredicateSplittingSiteProfile boostSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, boostSitesFile, boostProfilesFolder, boostFunctionSet);
 		boostSplit.split();
 		
-		resultsList.add(boostFunctionSet.size());
 		resultsList.add(FileUtils.sizeOf(boostSitesFile));
 		resultsList.add(FileUtils.sizeOf(boostProfilesFolder));
+		resultsList.add(boostFunctionSet.size());
 		
 		File boostDatasetFolder = new File(resultOutputFolder, "boost");
 		if(!boostDatasetFolder.exists()){
@@ -326,9 +328,9 @@ public class Client {
 		PredicateSplittingSiteProfile pruneSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, pruneSitesFile, pruneProfilesFolder, pruneFunctionSet);
 		pruneSplit.split();
 		
-		resultsList.add(pruneFunctionSet.size());
 		resultsList.add(FileUtils.sizeOf(pruneSitesFile));
 		resultsList.add(FileUtils.sizeOf(pruneProfilesFolder));
+		resultsList.add(pruneFunctionSet.size());
 		
 		File pruneDatasetFolder = new File(resultOutputFolder, "prune");
 		if(!pruneDatasetFolder.exists()){
@@ -351,6 +353,27 @@ public class Client {
 		File pruneAll = new File(resultOutputFolder, "prune_all");
 		FileUtility.removeFileOrDirectory(pruneAll);
 		
+	}
+
+	private TwopassFunctionClient runMultiCGClient(File cgSitesFile, File failingCGProfilesFolder, final File fgSitesFile, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
+		Object[] resultsCG = new Object[3];
+		Object[][] resultsArrayCG = new Object[rounds][3];
+		Object[] averageResultsCG;
+		
+		TwopassFunctionClient funClient = new TwopassFunctionClient(cgSitesFile, failingCGProfilesFolder, fgSitesFile, resultsCG, writer);
+		if(((Double) resultsCG[2]) < time){
+			for(int i = 0; i < resultsArrayCG.length; i++){
+				new TwopassFunctionClient(cgSitesFile, failingCGProfilesFolder, fgSitesFile, resultsArrayCG[i], writer);
+			}
+			averageResultsCG = computeAverageResults(resultsArrayCG);
+		}
+		else{
+			averageResultsCG = resultsCG;
+		}
+		for(int i = 0; i < averageResultsCG.length; i++){
+			resultsList.add(averageResultsCG[i]);
+		}
+		return funClient;
 	}
 
 	/**split failing coarse-grained profiles from cgProfilesFolder to failingCGProfilesFolder
@@ -493,8 +516,8 @@ public class Client {
 					System.out.println(memory);
 				}
 			}
-			System.out.println("\n");
-			writer.println("\n");
+			System.out.println();
+			writer.println();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -556,8 +579,8 @@ public class Client {
 		int cellnum1 = 0;
 		
 		String[] tstitles = {"F", "P", "DS_Max"};
-		String[] cgtitles = {"#Function", "CGSite_Size", "CGTraces_Size"};
-		String[] fgtitles = {"#Function", "FGSite_Size", "FGTraces_Size", "#P_Total", "#P_FIncrease", "#P_FLocal", "#Predicate", "Memory_Pre", "Time_Pre", "DS", "Time_Mine", "Memory_Mine"};
+		String[] cgtitles = {"CGSite_Size", "FCGTraces_Size","#Function", "Memory", "Time"};
+		String[] fgtitles = {"FGSite_Size", "FGTraces_Size", "#Function", "#P_Total", "#P_FIncrease", "#P_FLocal", "#Predicate", "Memory_Pre", "Time_Pre", "DS", "Time_Mine", "Memory_Mine"};
 		String[] fgs = {"original", "boost", "prune"};
 		
 		Cell cell1 = row1.createCell(cellnum1++);

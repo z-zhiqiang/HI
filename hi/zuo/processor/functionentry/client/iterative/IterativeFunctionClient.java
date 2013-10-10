@@ -50,9 +50,6 @@ public class IterativeFunctionClient {
 	
 	final SitesInfo sInfo;
 	final String targetFunction;
-//	final Set<Integer> samples;
-//	final Set<Integer> failingSamples;
-//	final Set<Integer> passingSamples;
 	final FixPointStructure fullFixElement;
 	
 	final Map<String, CBIClient> clientsMap;
@@ -63,8 +60,6 @@ public class IterativeFunctionClient {
 		this.sites = sites;
 		this.sInfo = sInfo;
 		this.targetFunction = getTargetFunction(fullICBIClient);
-//		this.samples = fullICBIClient.getFullFixElement().getSamples();
-//		this.failingSamples = fullICBIClient.getFullFixElement();
 		this.fullFixElement = fullICBIClient.getFullFixElement();
 		this.clientsMap = map;
 		
@@ -153,7 +148,6 @@ public class IterativeFunctionClient {
 		for(int k: this.fullFixElement.getPassingSet()){
 			fProfiles[j++] = profiles[k];
 		}
-//		assert(j == samples.size());
 		return fProfiles;
 	}
 
@@ -165,7 +159,6 @@ public class IterativeFunctionClient {
 		processor.process();
 		
 		//print out the general runs information
-//		assert(processor.getTotalNegative() + processor.getTotalPositive() == selectedFunctionEntryProfiles.length);
 		printSelectedFunctionEntryProfilesInformation(functionWriter);
 		
 		//print out the static instrumentation sites information 
@@ -201,15 +194,6 @@ public class IterativeFunctionClient {
 	private void printSelectedFunctionEntryProfilesInformation(PrintWriter writer) {
 		Set<Integer> neg = this.fullFixElement.getFailingSet();
 		Set<Integer> pos = this.fullFixElement.getPassingSet();
-//		for(int s: samples){
-//			FunctionEntryProfile profile = profiles[s];
-//			if(profile.isCorrect()){
-//				pos.add(s);
-//			}
-//			else{
-//				neg.add(s);
-//			}
-//		}
 		assert(pos.size() + neg.size() == selectedFunctionEntryProfiles.length);
 		writer.println("The general runs information are as follows:");
 		writer.println("==============================================================");

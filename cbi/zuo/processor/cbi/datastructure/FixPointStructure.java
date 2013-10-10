@@ -8,7 +8,6 @@ import zuo.processor.cbi.processor.PredicateItem;
 
 public class FixPointStructure{
 	private final TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors;
-//	private final Set<Integer> samples;
 	private final Set<Integer> failingSet;
 	private final Set<Integer> passingSet;
 	private final double percent;
@@ -16,7 +15,6 @@ public class FixPointStructure{
 	public FixPointStructure(TreeMap<Double, SortedSet<PredicateItem>> predictors,
 			Set<Integer> failing, Set<Integer> passing, double percent){
 		this.sortedPredictors = predictors;
-//		this.samples = samples;
 		this.failingSet = failing;
 		this.passingSet = passing;
 		this.percent = percent;
@@ -26,9 +24,6 @@ public class FixPointStructure{
 		return sortedPredictors;
 	}
 
-//	public Set<Integer> getSamples() {
-//		return samples;
-//	}
 
 	public Set<Integer> getFailingSet() {
 		return failingSet;

@@ -92,7 +92,6 @@ public class CBIClient {
 		for(int k: passingSet){
 			pProfiles[j++] = baseProfiles[k];
 		}
-//		assert(j == samples.size());
 		return pProfiles;
 	}
 
@@ -161,10 +160,6 @@ public class CBIClient {
 	}
 
 	public void runFull(){
-//		Set<Integer> samples = new HashSet<Integer>();
-//		samples.addAll(failings);
-//		samples.addAll(passings);
-		
 		Processor p = new Processor(profiles, failings.size(), passings.size());
 		p.process();
 		assert(p.getTotalNegative() + p.getTotalPositive() == profiles.length);
@@ -192,12 +187,6 @@ public class CBIClient {
 			int pSampleIndex = randomPGenerator.nextInt(passings.size());
 			passingSet.add(passings.get(pSampleIndex));
 		}
-		
-//		Set<Integer> partialSamples = new HashSet<Integer>();
-//		partialSamples.addAll(failingSet);
-//		partialSamples.addAll(passingSet);
-//		
-//		return partialSamples;
 	}
 	
 	public void printElement(FixPointStructure element, PrintWriter writer){
@@ -207,19 +196,8 @@ public class CBIClient {
 
 	public void printSelectedPredicateProfilesInformation(FixPointStructure element, PrintWriter writer) {
 		// TODO Auto-generated method stub
-//		Set<Integer> samples = element.getSamples();
 		Set<Integer> neg = element.getFailingSet();
 		Set<Integer> pos = element.getPassingSet();
-//		for(int s: samples){
-//			PredicateProfile profile = profiles[s];
-//			if(profile.isCorrect()){
-//				pos.add(s);
-//			}
-//			else{
-//				neg.add(s);
-//			}
-//		}
-//		assert(pos.size() + neg.size() == samples.size());
 		writer.println("The general runs information are as follows:");
 		writer.println("--------------------------------------------------------------");
 		writer.println(String.format("%-40s", "Percentage:") + new DecimalFormat("#.#").format(element.getPercent()));
