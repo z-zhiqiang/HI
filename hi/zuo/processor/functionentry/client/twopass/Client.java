@@ -39,18 +39,23 @@ public class Client {
 	
 	private static final File rootDir = new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/");
 	private static final File traceRootDir = new File("/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
-	private static final File consoleFolder = new File("/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Console/");
+	private static final File consoleFolder = new File("/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Console/space");
 	
 	private final String subject;
 	private final byte mode;
 	private final double percent;
 	private final Map<String, List<Object>> resultsMap;
+	
+	private final int startVersion;
+	private final int endVersion;
 
-	public Client(String subject, byte mode, double percent){
+	public Client(String subject, byte mode, double percent, int start, int end){
 		this.subject = subject;
 		this.mode = mode;
 		this.percent = percent;
 		this.resultsMap = new LinkedHashMap<String, List<Object>>();
+		this.startVersion = start;
+		this.endVersion = end;
 	}
 
 	public static void main(String[] args) {
@@ -70,17 +75,21 @@ public class Client {
 //		for(int i = 0; i < argvs.length; i++){
 //			
 //		}
-		if(args.length != 3){
-			System.err.println("Usage: subject mode(0->F&%; 1->F; 2->%) percent");
+		if(args.length != 5){
+			System.err.println("Usage: subject mode(0->F&%; 1->F; 2->%) percent startVersion endVersion");
 			return;
 		}
-		Client client = new Client(args[0], Byte.parseByte(args[1]), Double.parseDouble(args[2]));
+		Client client = new Client(args[0], Byte.parseByte(args[1]), Double.parseDouble(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]));
 		client.runClientWithConsole();
 	}
 	public void runClientWithConsole(){
 		PrintWriter writer = null;
 		try {
-			writer =  new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "__" + this.mode + "_" + this.percent + ".console"))));
+			if(!consoleFolder.exists()){
+				consoleFolder.mkdirs();
+			}
+			
+			writer =  new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "__" + this.mode + "_" + this.percent + "_v" + this.startVersion + "-v" + this.endVersion + ".console"))));
 			runClient(writer);
 			
 			System.out.println("=================================================");
@@ -118,7 +127,8 @@ public class Client {
 				@Override
 				public boolean accept(File dir, String name) {
 					// TODO Auto-generated method stub
-					return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length >= 10);
+					return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length >= 10)
+							&& Integer.parseInt(name.substring(1)) >= startVersion && Integer.parseInt(name.substring(1)) <= endVersion;
 				}});
 			Arrays.sort(versions, new Comparator<File>(){
 				@Override
@@ -162,7 +172,8 @@ public class Client {
 				@Override
 				public boolean accept(File dir, String name) {
 					// TODO Auto-generated method stub
-					return Pattern.matches("v[0-9]*", name);
+					return Pattern.matches("v[0-9]*", name)
+							&& Integer.parseInt(name.substring(1)) >= startVersion && Integer.parseInt(name.substring(1)) <= endVersion;
 				}});
 			Arrays.sort(versions, new Comparator<File>(){
 				@Override
@@ -560,7 +571,7 @@ public class Client {
 				consoleFolder.mkdirs();
 			}
 			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "__" + this.mode + "_" + this.percent + ".xlsx"));
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "__" + this.mode + "_" + this.percent + "_v" + this.startVersion + "-v" + this.endVersion + ".xlsx"));
 			workbook.write(out);
 			out.close();
 		} catch (Exception e) {
