@@ -37,9 +37,9 @@ public class Client {
 	private static final String DATASET_FOLDER_NAME = "predicate-dataset";
 	private static final String mbsOutputFile = "mbs.out";
 	
-	private static final File rootDir = new File("/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/");
-	private static final File traceRootDir = new File("/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
-	private static final File consoleFolder = new File("/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Console/space");
+	private static final File rootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
+	private static final File traceRootDir = rootDir;
+	private static final File consoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/");
 	
 	private final String subject;
 	private final byte mode;
@@ -159,7 +159,7 @@ public class Client {
 				final File cgSitesFile = new File(projectRoot, "versions/" + vi + "/" + vi + "_c.sites");
 				
 				final File resultOutputFolder = new File(traceProjectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
-				FileUtility.removeFileOrDirectory(new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME));
+//				FileUtility.removeFileOrDirectory(new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME));
 				
 				List<Object> resultsList = new ArrayList<Object>();
 				run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer);
@@ -221,7 +221,7 @@ public class Client {
 					
 					//dataset output folder
 					final File resultOutputFolder = new File(traceProjectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
-					FileUtility.removeFileOrDirectory(new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME));
+//					FileUtility.removeFileOrDirectory(new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME));
 					
 					List<Object> resultsList = new ArrayList<Object>();
 					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer);

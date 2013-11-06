@@ -23,8 +23,8 @@ import zuo.processor.splitinputs.SirSplitInputs;
 import zuo.util.file.FileUtility;
 
 public class GenSirScriptClient {
-	public final static String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/";
-	public final static String traceRootDir = "/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
+	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
+	public final static String traceRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
 	
 	public final String subject;
 	public final String sourceName;
@@ -187,7 +187,7 @@ public class GenSirScriptClient {
 		
 		
 		//=========================================================================================================================================================================//
-		
+//		
 		Set<Integer> subs = new HashSet<Integer>();
 		//split inputs and generate run instrumented subversion scripts 
 		for(int index: faults.keySet()){

@@ -18,8 +18,8 @@ import zuo.util.file.FileUtility;
 
 
 public class GenSiemensScriptsClient {
-	public final static String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Twopass/Subjects/";
-	public final static String traceRootDir = "/run/media/sunzzq/Research/Research/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
+	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/Siemens/";
+	public final static String traceRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/Siemens/";
 	
 	public final String subject;
 	public final int vers;
@@ -98,14 +98,14 @@ public class GenSiemensScriptsClient {
 	
 	public static void main(String[] args) throws IOException {
 		String[][] subjects = {
-				{"space", "38"},
-//				{"printtokens", "7"},
-//				{"printtokens2", "10"},
-//				{"replace", "32"},
-//				{"schedule", "9"},
-//				{"schedule2", "10"},
-//				{"tcas", "41"},
-//				{"totinfo", "23"}
+//				{"space", "38"},
+				{"printtokens", "7"},
+				{"printtokens2", "10"},
+				{"replace", "32"},
+				{"schedule", "9"},
+				{"schedule2", "10"},
+				{"tcas", "41"},
+				{"totinfo", "23"}
 		};
 		
 		for(int i = 0; i < subjects.length; i++){
