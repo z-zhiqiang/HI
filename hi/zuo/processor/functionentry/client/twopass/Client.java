@@ -37,9 +37,11 @@ public class Client {
 	private static final String DATASET_FOLDER_NAME = "predicate-dataset";
 	private static final String mbsOutputFile = "mbs.out";
 	
-	private static final File rootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
-	private static final File traceRootDir = rootDir;
-	private static final File consoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/");
+	private static final File sirRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
+	private static final File siemensRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/Siemens/");	
+	private static final File sirConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/");
+	private static final File siemensConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/Siemens/");
+	
 	
 	private final String subject;
 	private final byte mode;
@@ -48,39 +50,54 @@ public class Client {
 	
 	private final int startVersion;
 	private final int endVersion;
+	
+	private final File rootDir;
+	private final File consoleFolder;
 
-	public Client(String subject, byte mode, double percent, int start, int end){
+	public Client(String subject, byte mode, double percent, int start, int end, File rootD, File consoleF){
 		this.subject = subject;
 		this.mode = mode;
 		this.percent = percent;
 		this.resultsMap = new LinkedHashMap<String, List<Object>>();
 		this.startVersion = start;
 		this.endVersion = end;
+		this.rootDir = rootD;
+		this.consoleFolder = consoleF;
 	}
 
 	public static void main(String[] args) {
-//		String[][] argvs = {
-//				{"363", "sed"},
-//				{"213", "gzip"},
-//				{"809", "grep"},
-//				{"13585", "space"},
-////				{"4130", "printtokens"},
-////				{"4115", "printtokens2"},
-////				{"5542", "replace"},
-////				{"2650", "schedule"},
-////				{"2710", "schedule2"},
-////				{"1608", "tcas"},
-////				{"1052", "totinfo"}
-//		};
-//		for(int i = 0; i < argvs.length; i++){
-//			
-//		}
-		if(args.length != 5){
+		String[][] argvs = {
+				{"363", "sed", "7"},
+				{"213", "gzip", "5"},
+				{"809", "grep", "5"},
+				{"13585", "space", "38"},
+				{"4130", "printtokens", "7"},
+				{"4115", "printtokens2", "10"},
+				{"5542", "replace", "32"},
+				{"2650", "schedule", "9"},
+				{"2710", "schedule2", "10"},
+				{"1608", "tcas", "41"},
+				{"1052", "totinfo", "23"}
+		};
+		if(args.length != 5 && args.length != 3){
 			System.err.println("Usage: subject mode(0->F&%; 1->F; 2->%) percent startVersion endVersion");
+			System.err.println("or");
+			System.err.println("Usage: subject mode(0->F&%; 1->F; 2->%) percent");
 			return;
 		}
-		Client client = new Client(args[0], Byte.parseByte(args[1]), Double.parseDouble(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]));
-		client.runClientWithConsole();
+		Client client;
+		if(args[0].equals("Siemens")){
+			for(int i = 4; i < argvs.length; i++){
+				client = new Client(argvs[i][1], Byte.parseByte(args[1]), Double.parseDouble(args[2]), 1, Integer.parseInt(argvs[i][2]), 
+						siemensRootDir, siemensConsoleFolder);			
+				client.runClientWithConsole();				
+			}
+		}
+		else{
+			client = new Client(args[0], Byte.parseByte(args[1]), Double.parseDouble(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), 
+					sirRootDir, sirConsoleFolder);			
+			client.runClientWithConsole();
+		}
 	}
 	public void runClientWithConsole(){
 		PrintWriter writer = null;
@@ -89,7 +106,7 @@ public class Client {
 				consoleFolder.mkdirs();
 			}
 			
-			writer =  new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "__" + this.mode + "_" + this.percent + "_v" + this.startVersion + "-v" + this.endVersion + ".console"))));
+			writer =  new PrintWriter(new BufferedWriter(new FileWriter(new File(consoleFolder, this.subject + "__" + this.mode + "_" + this.percent + "_v" + this.startVersion + "-v" + this.endVersion + ".console"))));
 			runClient(writer);
 			
 			System.out.println("=================================================");
@@ -116,13 +133,8 @@ public class Client {
 		if (!projectRoot.exists()){
 			throw new RuntimeException("Project " + projectRoot + " does not exist!");
 		}
-		File traceProjectRoot = new File(traceRootDir, this.subject);
-		if (!traceProjectRoot.exists()){
-			throw new RuntimeException("Project " + traceProjectRoot + " does not exist!");
-		}
 
-		
-		if (this.subject.equals("space")) {
+		if (this.rootDir.equals(siemensRootDir) || this.subject.equals("space")) {
 			File[] versions = new File(projectRoot, "versions").listFiles(new FilenameFilter(){
 				@Override
 				public boolean accept(File dir, String name) {
@@ -146,11 +158,11 @@ public class Client {
 				writer.println(vi);
 				writer.println();
 				
-				File fgProfilesFolder = new File(new File(traceProjectRoot, "traces"), vi + "/fine-grained/");
+				File fgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/fine-grained/");
 				if (!fgProfilesFolder.exists()) {
 					throw new RuntimeException("Fine-grained faulty profiles folder " + fgProfilesFolder + " does not exist.");
 				}
-				File cgProfilesFolder = new File(new File(traceProjectRoot, "traces"), vi + "/coarse-grained/");
+				File cgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/coarse-grained/");
 				if (!cgProfilesFolder.exists()) {
 					throw new RuntimeException("Coarse-grained faulty profiles folder " + cgProfilesFolder + " does not exist.");
 				}
@@ -158,7 +170,7 @@ public class Client {
 				final File fgSitesFile = new File(projectRoot, "versions/" + vi + "/" + vi + "_f.sites");
 				final File cgSitesFile = new File(projectRoot, "versions/" + vi + "/" + vi + "_c.sites");
 				
-				final File resultOutputFolder = new File(traceProjectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
+				final File resultOutputFolder = new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
 //				FileUtility.removeFileOrDirectory(new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME));
 				
 				List<Object> resultsList = new ArrayList<Object>();
@@ -206,11 +218,11 @@ public class Client {
 					writer.println();
 					
 					//profiles folders
-					File fgProfilesFolder = new File(new File(traceProjectRoot, "traces"), vi + "/fine-grained/");
+					File fgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/fine-grained/");
 					if (!fgProfilesFolder.exists()) {
 						throw new RuntimeException("Fine-grained faulty profiles folder " + fgProfilesFolder + " does not exist.");
 					}
-					File cgProfilesFolder = new File(new File(traceProjectRoot, "traces"), vi + "/coarse-grained/");
+					File cgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/coarse-grained/");
 					if (!cgProfilesFolder.exists()) {
 						throw new RuntimeException("Coarse-grained faulty profiles folder " + cgProfilesFolder + " does not exist.");
 					}
@@ -220,7 +232,7 @@ public class Client {
 					final File cgSitesFile = new File(projectRoot, "versions/" + vi + "/" + version.getName() + "_" + subversion.getName() + "_c.sites");
 					
 					//dataset output folder
-					final File resultOutputFolder = new File(traceProjectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
+					final File resultOutputFolder = new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME);
 //					FileUtility.removeFileOrDirectory(new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME));
 					
 					List<Object> resultsList = new ArrayList<Object>();
