@@ -27,6 +27,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import zuo.processor.functionentry.processor.BoundCalculator;
 import zuo.split.PredicateSplittingSiteProfile;
+import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtil;
 import zuo.util.file.FileUtility;
 import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
@@ -334,6 +335,7 @@ public class Client {
 		if(!boostDatasetFolder.exists()){
 			boostDatasetFolder.mkdirs();
 		}
+		FileCollection.writeCollection(boostFunctionSet, new File(boostDatasetFolder, "boost_functions_" + mode + "_" + percent + ".txt" ));
 		
 		runMultiPreprocess(boostProfilesFolder, boostDatasetFolder, boostSitesFile, rounds, time, writer, resultsList);
 		
@@ -359,6 +361,7 @@ public class Client {
 		if(!pruneDatasetFolder.exists()){
 			pruneDatasetFolder.mkdirs();
 		}
+		FileCollection.writeCollection(pruneFunctionSet, new File(pruneDatasetFolder, "prune_functions_" + mode + "_" + percent + ".txt" ));
 		
 		runMultiPreprocess(pruneProfilesFolder, pruneDatasetFolder, pruneSitesFile, rounds, time, writer, resultsList);
 		
