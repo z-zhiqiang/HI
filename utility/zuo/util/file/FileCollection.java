@@ -9,7 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class FileCollection {
@@ -37,7 +37,7 @@ public class FileCollection {
 	
 	public static Set<String> readSet(File file) {
 		// TODO Auto-generated method stub
-		Set<String> collections = new HashSet<String>();
+		Set<String> collections = new LinkedHashSet<String>();
 		BufferedReader reader = null;
 		try {
 			String line;
@@ -45,6 +45,7 @@ public class FileCollection {
 			while((line = reader.readLine()) != null){
 				collections.add(line.trim());
 			}
+			reader.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

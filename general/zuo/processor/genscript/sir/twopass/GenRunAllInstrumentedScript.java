@@ -23,6 +23,7 @@ public class GenRunAllInstrumentedScript extends AbstractGenRunAllScript {
 		code.append("\techo subv$i\n");
 		code.append("\tsh " + version + "\\_subv$i\\_cg.sh > ../outputs.alt/" + version + "/versions/subv$i/coarse-grained/execution\n");
 		code.append("\tsh " + version + "\\_subv$i\\_fg.sh > ../outputs.alt/" + version + "/versions/subv$i/fine-grained/execution\n");
+		code.append("\tsh " + version + "\\_subv$i\\_cfg.sh > ../outputs.alt/" + version + "/versions/subv$i/coarse-fine-grained/execution\n");
 		code.append("done");
 		
 		System.out.println(code.toString());
