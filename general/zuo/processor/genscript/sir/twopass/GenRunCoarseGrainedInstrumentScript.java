@@ -29,6 +29,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
+		code.append("rm $TRACESDIR/o*profile\n");
 
 		stmts(code);
 		code.append(startTimeCommand + "\n");
@@ -38,6 +39,8 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		code.append(endTimeCommand + " >& " + outputDir + "time\n");
 		
 		code.append("rm ../outputs/*\n");
+//		code.append("rm $TRACESDIR/o*profile\n");
+		
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_cg.sh");
 	}
 

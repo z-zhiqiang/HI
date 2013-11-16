@@ -33,11 +33,19 @@ public class GenSiemensScriptsClient {
 	
 	final String vsourceDir;
 	final String vexecuteDir;
+	
 	final String voutputDir;
 	final String vfoutputDir;
 	final String vcoutputDir;
+	final String vcfoutputDir;
+	final String vboostoutputDir;
+	final String vpruneoutputDir;
+	
 	final String vftraceDir;
 	final String vctraceDir;
+	final String vcftraceDir;
+	final String vboosttraceDir;
+	final String vprunetraceDir;
 	
 	final String scriptDir;
 	
@@ -45,6 +53,7 @@ public class GenSiemensScriptsClient {
 	final String compileVersion;
 	final String compileFGInstrument;
 	final String compileCGInstrument;
+	final String compileCFGInstrument;
 	
 	public GenSiemensScriptsClient(String sub, int vs, String ver){
 		subject = sub;
@@ -60,11 +69,20 @@ public class GenSiemensScriptsClient {
 		
 		vsourceDir = rootDir + subject + "/versions.alt/versions.orig/" + version + "/";
 		vexecuteDir = rootDir + subject + "/versions/" + version + "/";
+		
 		voutputDir = rootDir + subject + "/outputs/versions/" + version + "/outputs/";
 		vfoutputDir = rootDir + subject + "/outputs/versions/" + version + "/fine-grained/";
 		vcoutputDir = rootDir + subject + "/outputs/versions/" + version + "/coarse-grained/";
+		vcfoutputDir = rootDir + subject + "/outputs/versions/" + version + "/coarse-fine-grained/";
+		vboostoutputDir = rootDir + subject + "/outputs/versions/" + version + "/boost/";
+		vpruneoutputDir = rootDir + subject + "/outputs/versions/" + version + "/prune/";
+		
+		
 		vftraceDir = traceRootDir + subject + "/traces/" + version + "/fine-grained/";
 		vctraceDir = traceRootDir + subject + "/traces/" + version + "/coarse-grained/";
+		vcftraceDir = traceRootDir + subject + "/traces/" + version + "/coarse-fine-grained/";
+		vboosttraceDir = traceRootDir + subject + "/traces/" + version + "/boost/";
+		vprunetraceDir = traceRootDir + subject + "/traces/" + version + "/prune/";
 		
 		scriptDir = rootDir + subject + "/scripts/";;
 		
@@ -92,7 +110,15 @@ public class GenSiemensScriptsClient {
 //				+ " -I" + vsourceDir
 				+ " -lm"
 				;
-		
+		compileCFGInstrument = "sampler-cc " 
+				+ "-fsampler-scheme=function-entries " 
+				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fsampler-scheme=float-kinds " 
+				+ "-fno-sample "
+				+ vsourceDir + subject + ".c" 
+				+ " -o " + vexecuteDir + version + "_cfinst.exe"
+//				+ " -I" + vsourceDir
+				+ " -lm"
+				;
 	}
 	
 	

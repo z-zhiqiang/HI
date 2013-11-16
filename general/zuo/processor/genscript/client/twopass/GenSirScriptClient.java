@@ -15,9 +15,11 @@ import zuo.processor.genscript.sir.twopass.AbstractGenRunAllScript;
 import zuo.processor.genscript.sir.twopass.AbstractGenRunScript;
 import zuo.processor.genscript.sir.twopass.GenRunAllInstrumentedScript;
 import zuo.processor.genscript.sir.twopass.GenRunAllScript;
+import zuo.processor.genscript.sir.twopass.GenRunBoostFineGrainedInstrumentScript;
 import zuo.processor.genscript.sir.twopass.GenRunCoarseFineGrainedInstrumentScript;
 import zuo.processor.genscript.sir.twopass.GenRunCoarseGrainedInstrumentScript;
 import zuo.processor.genscript.sir.twopass.GenRunFineGrainedInstrumentScript;
+import zuo.processor.genscript.sir.twopass.GenRunPruneFineGrainedInstrumentScript;
 import zuo.processor.genscript.sir.twopass.GenRunSubjectScript;
 import zuo.processor.genscript.sir.twopass.GenRunVersionsScript;
 import zuo.processor.splitinputs.SirSplitInputs;
@@ -146,7 +148,10 @@ public class GenSirScriptClient {
 				+ " -o " + vexecuteDir + subVersion + "_cinst.exe"
 				+ includeVC
 				;
-		compileCFGInstrument = "sampler-cc -fsampler-scheme=function-entries -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fsampler-scheme=float-kinds -fno-sample "
+		compileCFGInstrument = "sampler-cc " 
+				+ "-fsampler-scheme=function-entries " 
+				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fsampler-scheme=float-kinds " 
+				+ "-fno-sample "
 				+ vsourceDir + sourceName + ".c" 
 				+ " $COMPILE_PARAMETERS"
 				+ paraC
@@ -237,6 +242,10 @@ public class GenSirScriptClient {
 			gs.genRunScript();
 			gs = new GenRunCoarseFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, setEnv + export + gc.compileCFGInstrument, gc.vsourceDir, gc.vexecuteDir, gc.vcfoutputDir, gc.scriptDir, gc.vcftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 			gs.genRunScript();
+			gs = new GenRunBoostFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vexecuteDir, gc.vboostoutputDir, gc.scriptDir, gc.vboosttraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.sourceName, new File(""));
+			gs.genRunScript();
+			gs = new GenRunPruneFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vexecuteDir, gc.vpruneoutputDir, gc.scriptDir, gc.vprunetraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.sourceName, new File(""));
+			gs.genRunScript();
 			
 		}
 		
@@ -244,7 +253,6 @@ public class GenSirScriptClient {
 		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
 		ga.genRunAllScript();
 
-		
 	}
 	
 	
