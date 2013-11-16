@@ -9,8 +9,11 @@ import zuo.processor.genscript.siemens.twopass.AbstractGenRunAllScript;
 import zuo.processor.genscript.siemens.twopass.AbstractGenRunScript;
 import zuo.processor.genscript.siemens.twopass.GenRunAllInstrumentedScript;
 import zuo.processor.genscript.siemens.twopass.GenRunAllScript;
+import zuo.processor.genscript.siemens.twopass.GenRunBoostFineGrainedInstrumentScript;
+import zuo.processor.genscript.siemens.twopass.GenRunCoarseFineGrainedInstrumentScript;
 import zuo.processor.genscript.siemens.twopass.GenRunCoarseGrainedInstrumentScript;
 import zuo.processor.genscript.siemens.twopass.GenRunFineGrainedInstrumentScript;
+import zuo.processor.genscript.siemens.twopass.GenRunPruneFineGrainedInstrumentScript;
 import zuo.processor.genscript.siemens.twopass.GenRunSubjectScript;
 import zuo.processor.genscript.siemens.twopass.GenRunVersionsScript;
 import zuo.processor.splitinputs.SplitInputs;
@@ -184,6 +187,15 @@ public class GenSiemensScriptsClient {
 			gs.genRunScript();
 			gs = new GenRunCoarseGrainedInstrumentScript(gc.subject, gc.version, gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, 
 					gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+			gs.genRunScript();
+			gs = new GenRunCoarseFineGrainedInstrumentScript(gc.subject, gc.version, gc.compileCFGInstrument, gc.vsourceDir, gc.vexecuteDir, 
+					gc.vcfoutputDir, gc.scriptDir, gc.vcftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+			gs.genRunScript();
+			gs = new GenRunBoostFineGrainedInstrumentScript(gc.subject, gc.version, "", gc.vsourceDir, gc.vexecuteDir, 
+					gc.vboostoutputDir, gc.scriptDir, gc.vboosttraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", new File(""));
+			gs.genRunScript();
+			gs = new GenRunPruneFineGrainedInstrumentScript(gc.subject, gc.version, "", gc.vsourceDir, gc.vexecuteDir, 
+					gc.vpruneoutputDir, gc.scriptDir, gc.vprunetraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", new File(""));
 			gs.genRunScript();
 		}
 		

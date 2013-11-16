@@ -43,6 +43,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 			code.append("\n");
 		}
 		code.append("mv ../outputs/* " + outputDir + "\n");
+		
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + ".sh");
 		
 	}
