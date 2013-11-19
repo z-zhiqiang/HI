@@ -123,7 +123,7 @@ public class TwopassFunctionClient {
 	}
 
 	/**
-	 * @param mode: 0->%*F; 1->%*f; 2->%*f & F
+	 * @param mode: 0->%*f & F; 1->%*F; 2->%*f; 
 	 * @param percent
 	 * @return
 	 */
@@ -131,18 +131,18 @@ public class TwopassFunctionClient {
 		Set<String> functionSet = new LinkedHashSet<String>();
 		
 		switch(mode){
-		case 0: //the number of functions selected is equal to "percent" * the total number of functions whose f(m)==F
+		case 0: //only functions f(m)==F and the number of functions selected is less than "percent"
+			for(int i = 0; i < ((list.size() * percent < this.numberOfF) ? (list.size() * percent) : this.numberOfF); i++){
+				functionSet.add(list.get(i).getKey().getFunctionName());
+			}
+			break;
+		case 1: //the number of functions selected is equal to "percent" * the total number of functions whose f(m)==F
 			for(int i = 0; i < this.numberOfF * percent; i++){
 				functionSet.add(list.get(i).getKey().getFunctionName());
 			}
 			break;
-		case 1: //the number of functions selected is equal to "percent" * the total number of functions
+		case 2: //the number of functions selected is equal to "percent" * the total number of functions
 			for(int i = 0; i < list.size() * percent; i++){
-				functionSet.add(list.get(i).getKey().getFunctionName());
-			}
-			break;
-		case 2: //only functions f(m)==F and the number of functions selected is less than "percent"
-			for(int i = 0; i < ((list.size() * percent < this.numberOfF) ? (list.size() * percent) : this.numberOfF); i++){
 				functionSet.add(list.get(i).getKey().getFunctionName());
 			}
 			break;
