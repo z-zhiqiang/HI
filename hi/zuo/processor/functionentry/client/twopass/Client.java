@@ -238,7 +238,7 @@ public class Client {
 					
 					List<Object> resultsList = new ArrayList<Object>();
 					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer);
-					assert(resultsList.size() == 44);
+					assert(resultsList.size() == 45);
 					this.resultsMap.put(vi, resultsList);
 				}
 			}
@@ -382,12 +382,12 @@ public class Client {
 	}
 
 	private TwopassFunctionClient runMultiCGClient(File cgSitesFile, File failingCGProfilesFolder, final File fgSitesFile, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
-		Object[] resultsCG = new Object[3];
-		Object[][] resultsArrayCG = new Object[rounds][3];
+		Object[] resultsCG = new Object[4];
+		Object[][] resultsArrayCG = new Object[rounds][4];
 		Object[] averageResultsCG;
 		
 		TwopassFunctionClient funClient = new TwopassFunctionClient(cgSitesFile, failingCGProfilesFolder, fgSitesFile, resultsCG, writer);
-		if(((Double) resultsCG[2]) < time){
+		if(((Double) resultsCG[3]) < time){
 			for(int i = 0; i < resultsArrayCG.length; i++){
 				new TwopassFunctionClient(cgSitesFile, failingCGProfilesFolder, fgSitesFile, resultsArrayCG[i], writer);
 			}
@@ -605,7 +605,7 @@ public class Client {
 		int cellnum1 = 0;
 		
 		String[] tstitles = {"F", "P", "DS_Max"};
-		String[] cgtitles = {"CGSite_Size", "FCGTraces_Size","#Function", "Memory", "Time"};
+		String[] cgtitles = {"CGSite_Size", "FCGTraces_Size","#Function", "#FFunction", "Memory", "Time"};
 		String[] fgtitles = {"FGSite_Size", "FGTraces_Size", "#Function", "#P_Total", "#P_FIncrease", "#P_FLocal", "#Predicate", "Memory_Pre", "Time_Pre", "DS", "Time_Mine", "Memory_Mine"};
 		String[] fgs = {"original", "boost", "prune"};
 		

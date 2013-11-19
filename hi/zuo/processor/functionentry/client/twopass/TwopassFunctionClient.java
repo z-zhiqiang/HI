@@ -26,6 +26,7 @@ public class TwopassFunctionClient {
 	private final PruningProcessor processor;
 	private final SitesInfo sInfo;
 	private List<Map.Entry<FunctionEntrySite, Integer>> list;
+	private int numberOfF; //the number of functions whose f(m)==F
 	
 	public TwopassFunctionClient(File csitesFile, File failingProfilesFolder, File fsitesFile, Object[] resultsCG, PrintWriter writer){
 		final long start = System.currentTimeMillis();
@@ -47,15 +48,22 @@ public class TwopassFunctionClient {
 		double time = (double) (end - start) / 1000;
 		
 		resultsCG[0] = list.size();
-		resultsCG[1] = AbstractProcessorWithLabels.printMemoryUsage(writer);
-		resultsCG[2] = time;
+		resultsCG[1] = this.numberOfF;
+		resultsCG[2] = AbstractProcessorWithLabels.printMemoryUsage(writer);
+		resultsCG[3] = time;
 		System.out.println("coarse-grained analysis time = " + time);
 		System.out.println();
 	}
 
 
 	private void constructEntryList() {
-		List<Map.Entry<FunctionEntrySite, Integer>> list = new ArrayList<Map.Entry<FunctionEntrySite, Integer>>(processor.getNegativeFrequencyMap().entrySet());
+		List<Map.Entry<FunctionEntrySite, Integer>> list = new ArrayList<Map.Entry<FunctionEntrySite, Integer>>();
+		for(Map.Entry<FunctionEntrySite, Integer> entry: processor.getNegativeFrequencyMap().entrySet()){
+			list.add(entry);
+			if(entry.getValue() >= this.failingProfiles.length){
+				this.numberOfF++;
+			}
+		}
 		Collections.sort(list, new Comparator<Map.Entry<FunctionEntrySite, Integer>>(){
 
 			@Override
@@ -85,9 +93,11 @@ public class TwopassFunctionClient {
 		});
 		
 		this.list = Collections.unmodifiableList(list);
+		
+		assert(list.get(this.numberOfF - 1).getValue() == this.failingProfiles.length);
+		assert(list.get(this.numberOfF).getValue() < this.failingProfiles.length);
 	}
 
-	
 	private void filterNegativeFrequencyMap(Map<FunctionEntrySite, Integer> negativeFrequencyMap) {
 		// TODO Auto-generated method stub
 		for(Iterator<FunctionEntrySite> it = negativeFrequencyMap.keySet().iterator(); it.hasNext();){
@@ -113,7 +123,7 @@ public class TwopassFunctionClient {
 	}
 
 	/**
-	 * @param mode: 0->F&%; 1->F; 2->%
+	 * @param mode: 0->%*F; 1->%*f; 2->%*f & F
 	 * @param percent
 	 * @return
 	 */
@@ -121,30 +131,19 @@ public class TwopassFunctionClient {
 		Set<String> functionSet = new LinkedHashSet<String>();
 		
 		switch(mode){
-		case 0: //only functions f(m)==F and the number of functions selected is less than "percent"
-			for(int i = 0, j = 0; i < list.size(); i++){
-				Entry<FunctionEntrySite, Integer> entry = list.get(i);
-				if(entry.getValue() >= this.failingProfiles.length && j < list.size() * percent){
-					functionSet.add(entry.getKey().getFunctionName());
-					j++;
-				}
+		case 0: //the number of functions selected is equal to "percent" * the total number of functions whose f(m)==F
+			for(int i = 0; i < this.numberOfF * percent; i++){
+				functionSet.add(list.get(i).getKey().getFunctionName());
 			}
 			break;
-		case 1: //all the functions whose negative support is F
-			for(int i = 0; i < list.size(); i++){
-				Entry<FunctionEntrySite, Integer> entry = (Entry<FunctionEntrySite, Integer>) list.get(i);
-				if(entry.getValue() >= this.failingProfiles.length){
-					functionSet.add(entry.getKey().getFunctionName());
-				}
-				else{
-					break;
-				}
-
-			}
-			break;
-		case 2: //the number of functions selected is less than "percent"
+		case 1: //the number of functions selected is equal to "percent" * the total number of functions
 			for(int i = 0; i < list.size() * percent; i++){
-				functionSet.add(((Entry<FunctionEntrySite,Integer>) list.get(i)).getKey().getFunctionName());
+				functionSet.add(list.get(i).getKey().getFunctionName());
+			}
+			break;
+		case 2: //only functions f(m)==F and the number of functions selected is less than "percent"
+			for(int i = 0; i < ((list.size() * percent < this.numberOfF) ? (list.size() * percent) : this.numberOfF); i++){
+				functionSet.add(list.get(i).getKey().getFunctionName());
 			}
 			break;
 		default:
