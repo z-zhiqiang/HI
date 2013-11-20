@@ -123,7 +123,7 @@ public class TwopassFunctionClient {
 	}
 
 	/**
-	 * @param mode: 0->%*f & F; 1->%*F; 2->%*f; 
+	 * @param mode: 0->%*f & F; 1->%*F; 2->%*f; 3->%*S; 4->%*P; 
 	 * @param percent
 	 * @return
 	 */
@@ -146,6 +146,20 @@ public class TwopassFunctionClient {
 				functionSet.add(list.get(i).getKey().getFunctionName());
 			}
 			break;
+		case 3: //functions within which the number of sites are equal to "percent" * the total number of sites
+			int numberofSites = (int) (sInfo.getNumPredicateSites() * percent);
+			for(int i = 0, j = 0; i < list.size() && j < numberofSites; i++){
+				String function = list.get(i).getKey().getFunctionName();
+				functionSet.add(function);
+				j += sInfo.getMap().get(function).getNumSites();
+			}
+		case 4: //functions within which the number of predicates are equal to "percent" * the total number of predicates
+			int numberofPredicates = (int) (sInfo.getNumPredicateItems() * percent);
+			for(int i = 0, j = 0; i < list.size() && j < numberofPredicates; i++){
+				String function = list.get(i).getKey().getFunctionName();
+				functionSet.add(function);
+				j += sInfo.getMap().get(function).getNumPredicates();
+			}
 		default:
 			throw new RuntimeException("Option Error");
 		}

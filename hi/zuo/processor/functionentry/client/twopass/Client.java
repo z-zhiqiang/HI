@@ -81,9 +81,9 @@ public class Client {
 				{"1052", "totinfo", "23"}
 		};
 		if(args.length != 5 && args.length != 3){
-			System.err.println("Usage: subject mode(0->%*f & F; 1->%*F; 2->%*f) percent startVersion endVersion");
+			System.err.println("Usage: subject mode(0->%*f & F; 1->%*F; 2->%*f; 3->%*S; 4->%*P) percent startVersion endVersion");
 			System.err.println("or");
-			System.err.println("Usage: subject mode(0->%*f & F; 1->%*F; 2->%*f) percent");
+			System.err.println("Usage: subject mode(0->%*f & F; 1->%*F; 2->%*f; 3->%*S; 4->%*P) percent");
 			return;
 		}
 		Client client;
