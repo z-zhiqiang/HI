@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import zuo.processor.functionentry.processor.PruningProcessor.FrequencyValue;
 import zuo.processor.functionentry.profile.FunctionEntryItem;
 import zuo.processor.functionentry.profile.FunctionEntryProfile;
 import zuo.processor.functionentry.site.FunctionEntrySite;
@@ -35,29 +36,39 @@ public class SelectingProcessor{
 	 */
 	private void computeFrequencyPair(){
 		for(FunctionEntryProfile profile: profiles){
-			for(FunctionEntryItem item: profile.getFunctionEntryItems()){
-				FunctionEntrySite function = item.getSite();
-				if(item.getCounter() > 0){
-					if(frequencyMap.containsKey(function)){
-						if(profile.isCorrect()){
+			if(profile.isCorrect()){
+				for(FunctionEntryItem item: profile.getFunctionEntryItems()){
+					FunctionEntrySite function = item.getSite();
+					if(item.getCounter() > 0){
+						if(frequencyMap.containsKey(function)){
 							frequencyMap.get(function).increasePositive();
 						}
 						else{
-							frequencyMap.get(function).increaseNegative();
+							frequencyMap.put(function, new FrequencyValue(0, 1));
 						}
 					}
 					else{
-						if(profile.isCorrect()){
-							frequencyMap.put(function, new FrequencyValue(0, 1));
+						if(!frequencyMap.containsKey(function)){
+							frequencyMap.put(function, new FrequencyValue(0, 0));
+						}
+					}
+				}
+			}
+			else{
+				for(FunctionEntryItem item: profile.getFunctionEntryItems()){
+					FunctionEntrySite function = item.getSite();
+					if(item.getCounter() > 0){
+						if(frequencyMap.containsKey(function)){
+							frequencyMap.get(function).increaseNegative();
 						}
 						else{
 							frequencyMap.put(function, new FrequencyValue(1, 0));
 						}
 					}
-				}
-				else{
-					if(!frequencyMap.containsKey(function)){
-						frequencyMap.put(function, new FrequencyValue(0, 0));
+					else{
+						if(!frequencyMap.containsKey(function)){
+							frequencyMap.put(function, new FrequencyValue(0, 0));
+						}
 					}
 				}
 			}

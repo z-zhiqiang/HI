@@ -16,31 +16,31 @@ import edu.nus.sun.processor.mps.client.AbstractProcessorWithLabels;
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.processor.PruningProcessor;
+import zuo.processor.functionentry.processor.PruningProcessor.FrequencyValue;
 import zuo.processor.functionentry.profile.FunctionEntryProfile;
 import zuo.processor.functionentry.profile.FunctionEntryProfileReader;
 import zuo.processor.functionentry.site.FunctionEntrySite;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 
 public class TwopassFunctionClient {
-	private FunctionEntryProfile[] failingProfiles;
+	private FunctionEntryProfile[] cgProfiles;
 	private final PruningProcessor processor;
 	private final SitesInfo sInfo;
-	private List<Map.Entry<FunctionEntrySite, Integer>> list;
-	private int numberOfF; //the number of functions whose f(m)==F
+	private List<Map.Entry<FunctionEntrySite, FrequencyValue>> list;
 	
-	public TwopassFunctionClient(File csitesFile, File failingProfilesFolder, File fsitesFile, Object[] resultsCG, PrintWriter writer){
+	public TwopassFunctionClient(File csitesFile, File cgProfilesFolder, File fsitesFile, Object[] resultsCG, PrintWriter writer){
 		final long start = System.currentTimeMillis();
 		
 		FunctionEntrySites sites = new FunctionEntrySites(csitesFile);
-		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(failingProfilesFolder, sites);
-		failingProfiles = reader.readFailingFunctionEntryProfiles();
-		processor = new PruningProcessor(failingProfiles);
+		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(cgProfilesFolder, sites);
+		cgProfiles = reader.readFunctionEntryProfiles();
+		processor = new PruningProcessor(cgProfiles);
 		processor.process();
-		assert(processor.getNegativeFrequencyMap().size() == sites.getNumFunctionEntrySites());
+		assert(processor.getFrequencyMap().size() == sites.getNumFunctionEntrySites());
 		
 		this.sInfo = new SitesInfo(new InstrumentationSites(fsitesFile));
-		filterNegativeFrequencyMap(processor.getNegativeFrequencyMap());
-		assert(processor.getNegativeFrequencyMap().size() == this.sInfo.getMap().size());
+		filterNegativeFrequencyMap(processor.getFrequencyMap());
+		assert(processor.getFrequencyMap().size() == this.sInfo.getMap().size());
 		// construct a sorted list of negativeFrequencyMap
 		constructEntryList();
 		
@@ -48,7 +48,7 @@ public class TwopassFunctionClient {
 		double time = (double) (end - start) / 1000;
 		
 		resultsCG[0] = list.size();
-		resultsCG[1] = this.numberOfF;
+		resultsCG[1] = processor.getNumberofTFFunctions();
 		resultsCG[2] = AbstractProcessorWithLabels.printMemoryUsage(writer);
 		resultsCG[3] = time;
 		System.out.println("coarse-grained analysis time = " + time);
@@ -57,26 +57,20 @@ public class TwopassFunctionClient {
 
 
 	private void constructEntryList() {
-		List<Map.Entry<FunctionEntrySite, Integer>> list = new ArrayList<Map.Entry<FunctionEntrySite, Integer>>();
-		for(Map.Entry<FunctionEntrySite, Integer> entry: processor.getNegativeFrequencyMap().entrySet()){
-			list.add(entry);
-			if(entry.getValue() >= this.failingProfiles.length){
-				this.numberOfF++;
-			}
-		}
-		Collections.sort(list, new Comparator<Map.Entry<FunctionEntrySite, Integer>>(){
+		List<Map.Entry<FunctionEntrySite, FrequencyValue>> list = new ArrayList<Map.Entry<FunctionEntrySite, FrequencyValue>>(processor.getFrequencyMap().entrySet());
+		Collections.sort(list, new Comparator<Map.Entry<FunctionEntrySite, FrequencyValue>>(){
 
 			@Override
-			public int compare(Map.Entry<FunctionEntrySite, Integer> arg0, Map.Entry<FunctionEntrySite, Integer> arg1) {
+			public int compare(Map.Entry<FunctionEntrySite, FrequencyValue> arg0, Map.Entry<FunctionEntrySite, FrequencyValue> arg1) {
 				// TODO Auto-generated method stub
 				return rank(arg0, arg1);
 			}
 
-			private int rank(Map.Entry<FunctionEntrySite, Integer> arg0, Map.Entry<FunctionEntrySite, Integer> arg1) {
+			private int rank(Map.Entry<FunctionEntrySite, FrequencyValue> arg0, Map.Entry<FunctionEntrySite, FrequencyValue> arg1) {
 				// TODO Auto-generated method stub
 				int r = 0;
-				r = new Integer(arg1.getValue())
-					.compareTo(new Integer(arg0.getValue()));
+				r = new Double(arg1.getValue().getDS())
+					.compareTo(new Double(arg0.getValue().getDS()));
 				if(r == 0){
 					String method0 = arg0.getKey().getFunctionName();
 					String method1 = arg1.getKey().getFunctionName();
@@ -93,14 +87,11 @@ public class TwopassFunctionClient {
 		});
 		
 		this.list = Collections.unmodifiableList(list);
-		
-		assert(list.get(this.numberOfF - 1).getValue() == this.failingProfiles.length);
-		assert(list.get(this.numberOfF).getValue() < this.failingProfiles.length);
 	}
 
-	private void filterNegativeFrequencyMap(Map<FunctionEntrySite, Integer> negativeFrequencyMap) {
+	private void filterNegativeFrequencyMap(Map<FunctionEntrySite, FrequencyValue> map) {
 		// TODO Auto-generated method stub
-		for(Iterator<FunctionEntrySite> it = negativeFrequencyMap.keySet().iterator(); it.hasNext();){
+		for(Iterator<FunctionEntrySite> it = map.keySet().iterator(); it.hasNext();){
 			String function = it.next().getFunctionName();
 			if(!sInfo.getMap().containsKey(function)){
 				it.remove();
@@ -111,8 +102,8 @@ public class TwopassFunctionClient {
 	public Set<String> getFunctionSet(int bound){
 		Set<String> functionSet = new LinkedHashSet<String>();
 		for(int i = 0; i < list.size(); i++){
-			Entry<FunctionEntrySite, Integer> entry = (Entry<FunctionEntrySite, Integer>) list.get(i);
-			if(entry.getValue() >= bound){
+			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
+			if(entry.getValue().getNegative() >= bound){
 				String functionName = entry.getKey().getFunctionName();
 				if(functionSet.contains(functionName))
 					throw new RuntimeException("multiple functions with the same name");
@@ -123,7 +114,7 @@ public class TwopassFunctionClient {
 	}
 
 	/**
-	 * @param mode: 0->%*f & F; 1->%*F; 2->%*f; 3->%*S; 4->%*P; 
+	 * @param mode: 0->%*f; 1->%*S; 2->%*P; 
 	 * @param percent
 	 * @return
 	 */
@@ -131,35 +122,27 @@ public class TwopassFunctionClient {
 		Set<String> functionSet = new LinkedHashSet<String>();
 		
 		switch(mode){
-		case 0: //only functions f(m)==F and the number of functions selected is less than "percent"
-			for(int i = 0; i < ((list.size() * percent < this.numberOfF) ? (list.size() * percent) : this.numberOfF); i++){
-				functionSet.add(list.get(i).getKey().getFunctionName());
-			}
-			break;
-		case 1: //the number of functions selected is equal to "percent" * the total number of functions whose f(m)==F
-			for(int i = 0; i < this.numberOfF * percent; i++){
-				functionSet.add(list.get(i).getKey().getFunctionName());
-			}
-			break;
-		case 2: //the number of functions selected is equal to "percent" * the total number of functions
+		case 0: //the number of functions selected is equal to "percent" * the total number of functions
 			for(int i = 0; i < list.size() * percent; i++){
 				functionSet.add(list.get(i).getKey().getFunctionName());
 			}
 			break;
-		case 3: //functions within which the number of sites are equal to "percent" * the total number of sites
+		case 1: //functions within which the number of sites are equal to "percent" * the total number of sites
 			int numberofSites = (int) (sInfo.getNumPredicateSites() * percent);
 			for(int i = 0, j = 0; i < list.size() && j < numberofSites; i++){
 				String function = list.get(i).getKey().getFunctionName();
 				functionSet.add(function);
 				j += sInfo.getMap().get(function).getNumSites();
 			}
-		case 4: //functions within which the number of predicates are equal to "percent" * the total number of predicates
+			break;
+		case 2: //functions within which the number of predicates are equal to "percent" * the total number of predicates
 			int numberofPredicates = (int) (sInfo.getNumPredicateItems() * percent);
 			for(int i = 0, j = 0; i < list.size() && j < numberofPredicates; i++){
 				String function = list.get(i).getKey().getFunctionName();
 				functionSet.add(function);
 				j += sInfo.getMap().get(function).getNumPredicates();
 			}
+			break;
 		default:
 			throw new RuntimeException("Option Error");
 		}
@@ -173,7 +156,7 @@ public class TwopassFunctionClient {
 	 */
 	public void printEntry(PrintWriter writer){
 		for(int i = 0; i < list.size(); i++){
-			Entry<FunctionEntrySite, Integer> entry = (Entry<FunctionEntrySite, Integer>) list.get(i);
+			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
 			String method = entry.getKey().getFunctionName();
 			if(sInfo.getMap().containsKey(method)){
 				System.out.println(String.format("%-45s", method) + entry.getValue().toString() + "   \t" + sInfo.getMap().get(method).toStringWithoutSites());
@@ -194,7 +177,7 @@ public class TwopassFunctionClient {
 	}
 
 
-	public List<Map.Entry<FunctionEntrySite, Integer>> getList() {
+	public List<Map.Entry<FunctionEntrySite, FrequencyValue>> getList() {
 		return list;
 	}
 

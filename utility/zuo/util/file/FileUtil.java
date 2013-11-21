@@ -44,11 +44,28 @@ public class FileUtil {
 		};
 	}
 	
+	public static FilenameFilter createPassingProfileFilter() {
+		return new FilenameFilter() {
+			@Override
+			public boolean accept(File arg0, String name) {
+				return Pattern.matches(passingProfileFilterPattern(), name);
+			}
+		};
+	}
+	
 	public static String profileFilterPattern() {
 		return "o[0-9]+\\.[fp]profile";
 	}
 
 	public static String failingProfileFilterPattern() {
 		return "o[0-9]+\\.fprofile";
+	}
+	
+	public static String passingProfileFilterPattern() {
+		return "o[0-9]+\\.pprofile";
+	}
+	
+	public static int getIndex(String profileName){
+		return Integer.parseInt(canonicalizeProfileName(profileName.substring(1)));
 	}
 }

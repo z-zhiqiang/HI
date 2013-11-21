@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class FileCollection {
 	
-	public static void writeCollection(Collection<String> list, File file){
+	public static <T> void writeCollection(Collection<T> collection, File file){
 		PrintWriter out = null;
 		try{
 			if (!file.getParentFile().exists()) {
@@ -22,7 +22,7 @@ public class FileCollection {
 			}
 			//write the passing inputs
 			out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
-			for(String method: list){
+			for(T method: collection){
 				out.println(method);
 			}
 			out.close();

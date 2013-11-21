@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -238,7 +239,7 @@ public class Client {
 					
 					List<Object> resultsList = new ArrayList<Object>();
 					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer);
-					assert(resultsList.size() == 45);
+					assert(resultsList.size() == 47);
 					this.resultsMap.put(vi, resultsList);
 				}
 			}
@@ -288,18 +289,24 @@ public class Client {
 		
 		/*=================================================================================================*/
 		
-		File failingCGProfilesFolder = new File(cgProfilesFolder.getParentFile(), "failingCG");
-		splitFailingCGProfiles(cgProfilesFolder, failingCGProfilesFolder);
+		File selectedCGProfilesFolder = new File(cgProfilesFolder.getParentFile(), "cg");
+		Set<Integer> indices = selectCGProfiles(cgProfilesFolder, selectedCGProfilesFolder, totalNeg, totalPos, resultsList);
 		
 		resultsList.add(FileUtils.sizeOf(cgSitesFile));
-		resultsList.add(FileUtils.sizeOf(failingCGProfilesFolder));
+		resultsList.add(FileUtils.sizeOf(selectedCGProfilesFolder));
 		
-		TwopassFunctionClient funClient = runMultiCGClient(cgSitesFile, failingCGProfilesFolder, fgSitesFile, rounds, time, writer, resultsList);
+		File cgFolder = new File(resultOutputFolder, "cg");
+		if(!cgFolder.exists()){
+			cgFolder.mkdirs();
+		}
+		FileCollection.writeCollection(indices, new File(cgFolder, "indices.txt" ));
+		
+		TwopassFunctionClient funClient = runMultiCGClient(cgSitesFile, selectedCGProfilesFolder, fgSitesFile, rounds, time, writer, resultsList);
 		
 		assert(funClient.getList().size() == funClient.getsInfo().getMap().size());
 		funClient.printEntry(writer);
 
-		FileUtility.removeFileOrDirectory(failingCGProfilesFolder);
+		FileUtility.removeFileOrDirectory(selectedCGProfilesFolder);
 		
 		/*=================================================================================================*/
 		
@@ -381,15 +388,15 @@ public class Client {
 		
 	}
 
-	private TwopassFunctionClient runMultiCGClient(File cgSitesFile, File failingCGProfilesFolder, final File fgSitesFile, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
+	private TwopassFunctionClient runMultiCGClient(File cgSitesFile, File selectedCGProfilesFolder, final File fgSitesFile, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
 		Object[] resultsCG = new Object[4];
 		Object[][] resultsArrayCG = new Object[rounds][4];
 		Object[] averageResultsCG;
 		
-		TwopassFunctionClient funClient = new TwopassFunctionClient(cgSitesFile, failingCGProfilesFolder, fgSitesFile, resultsCG, writer);
+		TwopassFunctionClient funClient = new TwopassFunctionClient(cgSitesFile, selectedCGProfilesFolder, fgSitesFile, resultsCG, writer);
 		if(((Double) resultsCG[3]) < time){
 			for(int i = 0; i < resultsArrayCG.length; i++){
-				new TwopassFunctionClient(cgSitesFile, failingCGProfilesFolder, fgSitesFile, resultsArrayCG[i], writer);
+				new TwopassFunctionClient(cgSitesFile, selectedCGProfilesFolder, fgSitesFile, resultsArrayCG[i], writer);
 			}
 			averageResultsCG = computeAverageResults(resultsArrayCG);
 		}
@@ -402,19 +409,48 @@ public class Client {
 		return funClient;
 	}
 
-	/**split failing coarse-grained profiles from cgProfilesFolder to failingCGProfilesFolder
+	/**select coarse-grained profiles from cgProfilesFolder to selectedCGProfilesFolder
 	 * @param cgProfilesFolder
-	 * @param failingCGProfilesFolder
+	 * @param selectedCGProfilesFolder
+	 * @param totalPos 
+	 * @param totalNeg 
+	 * @param resultsList 
 	 * @throws IOException
 	 */
-	private void splitFailingCGProfiles(File cgProfilesFolder, File failingCGProfilesFolder) throws IOException {
-		File[] cgProfiles = cgProfilesFolder.listFiles(FileUtil.createProfileFilter());
-		Arrays.sort(cgProfiles, new FileUtil.FileComparator());
-		for(File cgProfile: cgProfiles){
-			if(cgProfile.getName().matches(FileUtil.failingProfileFilterPattern())){
-				FileUtils.copyFileToDirectory(cgProfile, failingCGProfilesFolder);
-			}
+	private Set<Integer> selectCGProfiles(File cgProfilesFolder, File selectedCGProfilesFolder, int totalNeg, int totalPos, List<Object> resultsList) throws IOException {
+		Set<Integer> files = new LinkedHashSet<Integer>();
+		
+		File[] cgFailingProfiles = cgProfilesFolder.listFiles(FileUtil.createFailingProfileFilter());
+		Arrays.sort(cgFailingProfiles, new FileUtil.FileComparator());
+		for(File cgFailingProfile: cgFailingProfiles){
+			FileUtils.copyFileToDirectory(cgFailingProfile, selectedCGProfilesFolder);
+			files.add(FileUtil.getIndex(cgFailingProfile.getName()));
 		}
+		assert(cgFailingProfiles.length == files.size());
+		resultsList.add(cgFailingProfiles.length);
+		
+		File[] cgPassingProfiles = cgProfilesFolder.listFiles(FileUtil.createPassingProfileFilter());
+		assert(cgPassingProfiles.length == totalPos);
+		Arrays.sort(cgPassingProfiles, new FileUtil.FileComparator());
+		int p;
+		if(totalNeg <= 0.1 * (totalNeg + totalPos)){
+			p = (int) (0.1 * (totalNeg + totalPos));
+		}
+		else if(totalNeg >= totalPos){
+			p = totalPos;
+		}
+		else{
+			p = totalNeg;
+		}
+		for(int i = 0; i < totalPos / p * p; i += totalPos / p){
+			File cgPassingProfile = cgPassingProfiles[i];
+			FileUtils.copyFileToDirectory(cgPassingProfile, selectedCGProfilesFolder);
+			files.add(FileUtil.getIndex(cgPassingProfile.getName()));
+		}
+		resultsList.add(p);
+		assert(p + cgFailingProfiles.length == files.size());
+		
+		return files;
 	}
 
 	private void runMultiPreprocess(File fgProfilesFolder, File originalDatasetFolder, final File fgSitesFile, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
@@ -605,7 +641,7 @@ public class Client {
 		int cellnum1 = 0;
 		
 		String[] tstitles = {"F", "P", "DS_Max"};
-		String[] cgtitles = {"CGSite_Size", "FCGTraces_Size","#Function", "#FFunction", "Memory", "Time"};
+		String[] cgtitles = {"F", "P", "CGSite_Size", "FCGTraces_Size","#Function", "#FFunction", "Memory", "Time"};
 		String[] fgtitles = {"FGSite_Size", "FGTraces_Size", "#Function", "#P_Total", "#P_FIncrease", "#P_FLocal", "#Predicate", "Memory_Pre", "Time_Pre", "DS", "Time_Mine", "Memory_Mine"};
 		String[] fgs = {"original", "boost", "prune"};
 		
