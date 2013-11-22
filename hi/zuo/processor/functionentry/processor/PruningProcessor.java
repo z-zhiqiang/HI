@@ -98,7 +98,7 @@ public class PruningProcessor{
 	private static double IG(int neg, int pos, int totalNeg, int totalPos) {
 		// TODO Auto-generated method stub
 		int total = totalNeg + totalPos;
-		return H(totalNeg, totalPos) - (neg + pos) / total * H(neg, pos) - (total - neg - pos) / total * H(totalNeg - neg, totalPos - pos);
+		return H(totalNeg, totalPos) - (neg + pos) * H(neg, pos) / total - (total - neg - pos) * H(totalNeg - neg, totalPos - pos) / total;
 		
 	}
 

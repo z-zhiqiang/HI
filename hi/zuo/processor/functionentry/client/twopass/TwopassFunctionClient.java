@@ -69,16 +69,19 @@ public class TwopassFunctionClient {
 			private int rank(Map.Entry<FunctionEntrySite, FrequencyValue> arg0, Map.Entry<FunctionEntrySite, FrequencyValue> arg1) {
 				// TODO Auto-generated method stub
 				int r = 0;
-				r = new Double(arg1.getValue().getDS())
-					.compareTo(new Double(arg0.getValue().getDS()));
+				r = new Double(arg1.getValue().getDS()).compareTo(new Double(arg0.getValue().getDS()));
 				if(r == 0){
-					String method0 = arg0.getKey().getFunctionName();
-					String method1 = arg1.getKey().getFunctionName();
-					r = new Integer(sInfo.getMap().get(method0).getNumSites())
-						.compareTo(new Integer(sInfo.getMap().get(method1).getNumSites()));
+					r = new Integer(arg1.getValue().getNegative()).compareTo(new Integer(arg0.getValue().getNegative()));
 					if(r == 0){
-						r = new Integer(sInfo.getMap().get(method0).getNumPredicates())
-							.compareTo(new Integer(sInfo.getMap().get(method1).getNumPredicates()));
+						r = new Integer(arg0.getValue().getPositive()).compareTo(new Integer(arg1.getValue().getPositive()));
+						if(r == 0){
+							String method0 = arg0.getKey().getFunctionName();
+							String method1 = arg1.getKey().getFunctionName();
+							r = new Integer(sInfo.getMap().get(method0).getNumSites()).compareTo(new Integer(sInfo.getMap().get(method1).getNumSites()));
+							if(r == 0){
+								r = new Integer(sInfo.getMap().get(method0).getNumPredicates()).compareTo(new Integer(sInfo.getMap().get(method1).getNumPredicates()));
+							}
+						}
 					}
 				}
 				return r;
@@ -124,12 +127,18 @@ public class TwopassFunctionClient {
 		switch(mode){
 		case 0: //the number of functions selected is equal to "percent" * the total number of functions
 			for(int i = 0; i < list.size() * percent; i++){
+				if(list.get(i).getValue().getNegative() == 0){
+					break;
+				}
 				functionSet.add(list.get(i).getKey().getFunctionName());
 			}
 			break;
 		case 1: //functions within which the number of sites are equal to "percent" * the total number of sites
 			int numberofSites = (int) (sInfo.getNumPredicateSites() * percent);
 			for(int i = 0, j = 0; i < list.size() && j < numberofSites; i++){
+				if(list.get(i).getValue().getNegative() == 0){
+					break;
+				}
 				String function = list.get(i).getKey().getFunctionName();
 				functionSet.add(function);
 				j += sInfo.getMap().get(function).getNumSites();
@@ -138,6 +147,9 @@ public class TwopassFunctionClient {
 		case 2: //functions within which the number of predicates are equal to "percent" * the total number of predicates
 			int numberofPredicates = (int) (sInfo.getNumPredicateItems() * percent);
 			for(int i = 0, j = 0; i < list.size() && j < numberofPredicates; i++){
+				if(list.get(i).getValue().getNegative() == 0){
+					break;
+				}
 				String function = list.get(i).getKey().getFunctionName();
 				functionSet.add(function);
 				j += sInfo.getMap().get(function).getNumPredicates();

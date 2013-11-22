@@ -26,6 +26,8 @@ public class Test {
 		int a = 20, b = 3;
 		System.out.println(a / b * b);
 		
+		System.out.println(2 * Math.log(3));
+		
 ////		System.out.println("Hello world!");
 ////		Map<String, int[]> map = new HashMap<String, int[]>();
 ////		map.put("1", new int[2]);
