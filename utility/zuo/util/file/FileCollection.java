@@ -22,8 +22,8 @@ public class FileCollection {
 			}
 			//write the passing inputs
 			out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
-			for(T method: collection){
-				out.println(method);
+			for(T element: collection){
+				out.println(element);
 			}
 			out.close();
 		}

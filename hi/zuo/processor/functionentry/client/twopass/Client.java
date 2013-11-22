@@ -82,9 +82,9 @@ public class Client {
 				{"1052", "totinfo", "23"}
 		};
 		if(args.length != 5 && args.length != 3){
-			System.err.println("Usage: subject mode(0->%*f & F; 1->%*F; 2->%*f; 3->%*S; 4->%*P) percent startVersion endVersion");
+			System.err.println("Usage: subject mode(0->%*f; 1->%*S; 2->%*P) percent startVersion endVersion");
 			System.err.println("or");
-			System.err.println("Usage: subject mode(0->%*f & F; 1->%*F; 2->%*f; 3->%*S; 4->%*P) percent");
+			System.err.println("Usage: subject mode(0->%*f; 1->%*S; 2->%*P) percent");
 			return;
 		}
 		Client client;
@@ -418,6 +418,7 @@ public class Client {
 	 * @throws IOException
 	 */
 	private Set<Integer> selectCGProfiles(File cgProfilesFolder, File selectedCGProfilesFolder, int totalNeg, int totalPos, List<Object> resultsList) throws IOException {
+		double percent = 0.1;
 		Set<Integer> files = new LinkedHashSet<Integer>();
 		
 		File[] cgFailingProfiles = cgProfilesFolder.listFiles(FileUtil.createFailingProfileFilter());
@@ -432,9 +433,10 @@ public class Client {
 		File[] cgPassingProfiles = cgProfilesFolder.listFiles(FileUtil.createPassingProfileFilter());
 		assert(cgPassingProfiles.length == totalPos);
 		Arrays.sort(cgPassingProfiles, new FileUtil.FileComparator());
+		//p == Min{Max{percent * (totalPos + totalNeg), totalNeg}, totalPos}
 		int p;
-		if(totalNeg <= 0.1 * (totalNeg + totalPos)){
-			p = (int) (0.1 * (totalNeg + totalPos));
+		if(totalNeg <= percent * (totalNeg + totalPos)){
+			p = (int) (percent * (totalNeg + totalPos));
 		}
 		else if(totalNeg >= totalPos){
 			p = totalPos;
@@ -448,7 +450,7 @@ public class Client {
 			files.add(FileUtil.getIndex(cgPassingProfile.getName()));
 		}
 		resultsList.add(p);
-		assert(p + cgFailingProfiles.length == files.size());
+		assert(p + totalNeg == files.size());
 		
 		return files;
 	}
