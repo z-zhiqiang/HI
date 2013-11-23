@@ -353,7 +353,7 @@ public class Client {
 		
 		//-------------------------------------------------------------------------------------------------//
 		
-		assert(threshold != 0);
+//		assert(threshold != 0);
 		Set<String> pruneFunctionSet = funClient.getFunctionSet(bc.computeIGBound(threshold));
 		File pruneProfilesFolder = new File(fgProfilesFolder.getParentFile(), "prune");
 		File pruneSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'p'));
@@ -483,10 +483,12 @@ public class Client {
 		Object[][] resultsArrayOriginalMine = new Object[rounds][3];
 		Object[] averageResultsOriginalMine;
 		
+		initializeResultsMine(resultsOriginalMine);
 		double threshold = runMBS(command, originalDatasetFolder, k, resultsOriginalMine, writer);
 		
 		if(((Double) resultsOriginalMine[1]) < time){
 			for(int i = 0; i < resultsArrayOriginalMine.length; i++){
+				initializeResultsMine(resultsArrayOriginalMine[i]);
 				runMBS(command, originalDatasetFolder, k, resultsArrayOriginalMine[i], writer);
 			}
 			averageResultsOriginalMine = computeAverageResults(resultsArrayOriginalMine);
@@ -499,6 +501,12 @@ public class Client {
 		}
 		
 		return threshold;
+	}
+	
+	private void initializeResultsMine(Object[] resultsMine){
+		resultsMine[0] = 0.0D;
+		resultsMine[1] = 0.0D;
+		resultsMine[2] = 0L;
 	}
 
 	private Object[] computeAverageResults(Object[][] resultsArray) {

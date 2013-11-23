@@ -220,8 +220,9 @@ public class BoundCalculator {
 //		System.out.println(Math.log(1));
 //		System.out.println(Double.compare(bc.IG(1), 0.918296));
 		
-		BoundCalculator bc = new BoundCalculator(243, 120);
+		BoundCalculator bc = new BoundCalculator(243, 6620);
 		bc.computeCBIBound(0.5836264823531641);
+		System.out.println(bc.computeIGBound(0));
 	}
 
 	public int getF() {
