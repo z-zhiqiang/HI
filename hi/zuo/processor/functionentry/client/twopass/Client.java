@@ -74,12 +74,12 @@ public class Client {
 				{"809", "grep", "5"},
 				{"13585", "space", "38"},
 				{"4130", "printtokens", "7"},
-				{"4115", "printtokens2", "10"},
+//				{"4115", "printtokens2", "10"},
 				{"5542", "replace", "32"},
-				{"2650", "schedule", "9"},
-				{"2710", "schedule2", "10"},
-				{"1608", "tcas", "41"},
-				{"1052", "totinfo", "23"}
+//				{"2650", "schedule", "9"},
+//				{"2710", "schedule2", "10"},
+//				{"1608", "tcas", "41"},
+//				{"1052", "totinfo", "23"}
 		};
 		if(args.length != 5 && args.length != 3){
 			System.err.println("Usage: subject mode(0->%*f; 1->%*S; 2->%*P) percent startVersion endVersion");
