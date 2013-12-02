@@ -21,6 +21,10 @@ import zuo.util.file.FileUtility;
 
 
 public class GenSiemensScriptsClient {
+	private static final String CG_INDICES = "indices.txt";
+	private static final String BOOST_FUNCTIONS = "boost_functions_2_0.2.txt";
+	private static final String PRUNE_FUNCTIONS = "prune_functions_2_0.2.txt";
+	
 	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/Siemens/";
 	public final static String traceRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/Siemens/";
 	
@@ -49,6 +53,10 @@ public class GenSiemensScriptsClient {
 	final String vcftraceDir;
 	final String vboosttraceDir;
 	final String vprunetraceDir;
+	
+	final String cgIndicesDir;
+	final String boostFunctionsDir;
+	final String pruneFunctionsDir;
 	
 	final String scriptDir;
 	
@@ -86,6 +94,10 @@ public class GenSiemensScriptsClient {
 		vcftraceDir = traceRootDir + subject + "/traces/" + version + "/coarse-fine-grained/";
 		vboosttraceDir = traceRootDir + subject + "/traces/" + version + "/boost/";
 		vprunetraceDir = traceRootDir + subject + "/traces/" + version + "/prune/";
+		
+		cgIndicesDir = rootDir + subject + "/versions/" + version + "/predicate-dataset/cg/";
+		boostFunctionsDir = rootDir + subject + "/versions/" + version + "/predicate-dataset/boost/";
+		pruneFunctionsDir = rootDir + subject + "/versions/" + version + "/predicate-dataset/prune/";
 		
 		scriptDir = rootDir + subject + "/scripts/";;
 		
@@ -129,12 +141,12 @@ public class GenSiemensScriptsClient {
 		String[][] subjects = {
 //				{"space", "38"},
 				{"printtokens", "7"},
-				{"printtokens2", "10"},
+//				{"printtokens2", "10"},
 				{"replace", "32"},
-				{"schedule", "9"},
-				{"schedule2", "10"},
-				{"tcas", "41"},
-				{"totinfo", "23"}
+//				{"schedule", "9"},
+//				{"schedule2", "10"},
+//				{"tcas", "41"},
+//				{"totinfo", "23"}
 		};
 		
 		for(int i = 0; i < subjects.length; i++){
@@ -186,16 +198,16 @@ public class GenSiemensScriptsClient {
 					gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 			gs.genRunScript();
 			gs = new GenRunCoarseGrainedInstrumentScript(gc.subject, gc.version, gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, 
-					gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+					gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", new File(gc.cgIndicesDir, CG_INDICES));
 			gs.genRunScript();
 			gs = new GenRunCoarseFineGrainedInstrumentScript(gc.subject, gc.version, gc.compileCFGInstrument, gc.vsourceDir, gc.vexecuteDir, 
 					gc.vcfoutputDir, gc.scriptDir, gc.vcftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 			gs.genRunScript();
 			gs = new GenRunBoostFineGrainedInstrumentScript(gc.subject, gc.version, "", gc.vsourceDir, gc.vexecuteDir, 
-					gc.vboostoutputDir, gc.scriptDir, gc.vboosttraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", new File(""));
+					gc.vboostoutputDir, gc.scriptDir, gc.vboosttraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", new File(gc.boostFunctionsDir, BOOST_FUNCTIONS));
 			gs.genRunScript();
 			gs = new GenRunPruneFineGrainedInstrumentScript(gc.subject, gc.version, "", gc.vsourceDir, gc.vexecuteDir, 
-					gc.vpruneoutputDir, gc.scriptDir, gc.vprunetraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", new File(""));
+					gc.vpruneoutputDir, gc.scriptDir, gc.vprunetraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", new File(gc.pruneFunctionsDir, PRUNE_FUNCTIONS));
 			gs.genRunScript();
 		}
 		

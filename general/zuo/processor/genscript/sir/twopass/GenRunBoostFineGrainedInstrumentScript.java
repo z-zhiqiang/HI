@@ -71,7 +71,7 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 	private String functionFiltering() {
 		// TODO Auto-generated method stub
 		StringBuilder builder = new StringBuilder();
-		for(String function: FileCollection.readSet(boostFunctions)){
+		for(String function: FileCollection.readFunctions(boostFunctions)){
 			builder.append("-finclude-function=").append(function).append(" ");
 		}
 		builder.append("-fexclude-function=* ");

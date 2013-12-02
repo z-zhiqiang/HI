@@ -12,7 +12,6 @@ public class GenRunCoarseFineGrainedInstrumentScript extends AbstractGenRunScrip
 	private final List<Integer> failingTests;
 	private final List<Integer> passingTests;
 	
-	
 	public GenRunCoarseFineGrainedInstrumentScript(String sub, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing) {
 		super(sub, ver, subV, cc, sD, eD, oD, scD);
 		this.traceDir = tD;

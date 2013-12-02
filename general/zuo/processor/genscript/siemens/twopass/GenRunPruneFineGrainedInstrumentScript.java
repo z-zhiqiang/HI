@@ -58,7 +58,7 @@ public class GenRunPruneFineGrainedInstrumentScript extends AbstractGenRunScript
 	private String functionFiltering() {
 		// TODO Auto-generated method stub
 		StringBuilder builder = new StringBuilder();
-		for(String function: FileCollection.readSet(pruneFunctions)){
+		for(String function: FileCollection.readFunctions(pruneFunctions)){
 			builder.append("-finclude-function=").append(function).append(" ");
 		}
 		builder.append("-fexclude-function=* ");

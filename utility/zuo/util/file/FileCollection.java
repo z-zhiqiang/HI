@@ -35,7 +35,7 @@ public class FileCollection {
 		}
 	}
 	
-	public static Set<String> readSet(File file) {
+	public static Set<String> readFunctions(File file) {
 		// TODO Auto-generated method stub
 		Set<String> collections = new LinkedHashSet<String>();
 		BufferedReader reader = null;
@@ -63,6 +63,35 @@ public class FileCollection {
 			}
 		}
 		return collections;
+	}
+	
+	public static Set<Integer> readIndices(File file){
+		Set<Integer> indices = new LinkedHashSet<Integer>();
+		BufferedReader reader = null;
+		try {
+			String line;
+			reader = new BufferedReader(new FileReader(file));
+			while((line = reader.readLine()) != null){
+				indices.add(Integer.parseInt(line.trim()));
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			if(reader != null){
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		return indices;
 	}
 
 }
