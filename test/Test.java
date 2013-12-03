@@ -28,6 +28,18 @@ public class Test {
 		
 		System.out.println(2 * Math.log(3));
 		
+		Set<String> set0 = new LinkedHashSet<String>();
+		set0.add("a");
+		set0.add("b");
+		System.out.println(set0);
+		Set<String> set1 = new LinkedHashSet<String>(set0);
+		System.out.println(set1);
+		set0.add("c");
+		set1.add("d");
+		System.out.println(set0);
+		System.out.println(set1);
+		set0.removeAll(set1);
+		System.out.println(set0);
 ////		System.out.println("Hello world!");
 ////		Map<String, int[]> map = new HashMap<String, int[]>();
 ////		map.put("1", new int[2]);
