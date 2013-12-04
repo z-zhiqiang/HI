@@ -26,7 +26,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import zuo.processor.cbi.site.InstrumentationSites;
+import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.functionentry.processor.BoundCalculator;
+import zuo.processor.functionentry.site.FunctionEntrySites;
 import zuo.split.PredicateSplittingSiteProfile;
 import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtil;
@@ -239,7 +242,7 @@ public class Client {
 					
 					List<Object> resultsList = new ArrayList<Object>();
 					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer);
-					assert(resultsList.size() == 48);
+					assert(resultsList.size() == 55);
 					this.resultsMap.put(vi, resultsList);
 				}
 			}
@@ -293,6 +296,7 @@ public class Client {
 		Set<Integer> indices = selectCGProfiles(cgProfilesFolder, selectedCGProfilesFolder, totalNeg, totalPos, resultsList);
 		
 		resultsList.add(FileUtils.sizeOf(cgSitesFile));
+		resultsList.add(new FunctionEntrySites(cgSitesFile).getNumFunctionEntrySites());
 		resultsList.add(FileUtils.sizeOf(selectedCGProfilesFolder));
 		
 		File cgFolder = new File(resultOutputFolder, "cg");
@@ -314,7 +318,10 @@ public class Client {
 		Set<String> originalFunctionSet = funClient.getFunctionSet(0);
 		assert(originalFunctionSet.size() == funClient.getList().size());
 		
+		SitesInfo fgSitesInfo = new SitesInfo(new InstrumentationSites(fgSitesFile));
 		resultsList.add(FileUtils.sizeOf(fgSitesFile));
+		resultsList.add(fgSitesInfo.getNumPredicateSites());
+		resultsList.add(fgSitesInfo.getNumPredicateItems());
 		resultsList.add(FileUtils.sizeOf(fgProfilesFolder));
 		resultsList.add(originalFunctionSet.size());
 		
@@ -335,7 +342,10 @@ public class Client {
 		PredicateSplittingSiteProfile boostSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, boostSitesFile, boostProfilesFolder, boostFunctionSet);
 		boostSplit.split();
 		
+		SitesInfo boostSitesInfo = new SitesInfo(new InstrumentationSites(boostSitesFile));
 		resultsList.add(FileUtils.sizeOf(boostSitesFile));
+		resultsList.add(boostSitesInfo.getNumPredicateSites());
+		resultsList.add(boostSitesInfo.getNumPredicateItems());
 		resultsList.add(FileUtils.sizeOf(boostProfilesFolder));
 		resultsList.add(boostFunctionSet.size());
 		
@@ -360,6 +370,8 @@ public class Client {
 		
 		if(pruneMinusBoostFunctionSet.isEmpty()){
 			resultsList.add(0L);
+			resultsList.add(0);
+			resultsList.add(0);
 			resultsList.add(0L);
 			resultsList.add(0);
 			
@@ -387,7 +399,10 @@ public class Client {
 			PredicateSplittingSiteProfile pruneMinusBoostSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, pruneMinusBoostSitesFile, pruneMinusBoostProfilesFolder, pruneMinusBoostFunctionSet);
 			pruneMinusBoostSplit.split();
 			
+			SitesInfo pruneMinusBoostSitesInfo = new SitesInfo(new InstrumentationSites(pruneMinusBoostSitesFile));
 			resultsList.add(FileUtils.sizeOf(pruneMinusBoostSitesFile));
+			resultsList.add(pruneMinusBoostSitesInfo.getNumPredicateSites());
+			resultsList.add(pruneMinusBoostSitesInfo.getNumPredicateItems());
 			resultsList.add(FileUtils.sizeOf(pruneMinusBoostProfilesFolder));
 			resultsList.add(pruneMinusBoostFunctionSet.size());
 			
@@ -715,9 +730,9 @@ public class Client {
 		int cellnum1 = 0;
 		
 		String[] tstitles = {"F", "P", "DS_Max"};
-		String[] cgtitles = {"F", "P", "CGSite_Size", "CGTraces_Size","#Function", "#FFunction", "Memory", "Time"};
-		String[] fgtitles = {"FGSite_Size", "FGTraces_Size", "#Function", "#P_Total", "#P_FIncrease", "#P_FLocal", "#Predicate", "Memory_Pre", "Time_Pre", "DS", "Time_Mine", "Memory_Mine"};
-		String[] pruneMinusBoosttitles = {"FGSite_Size", "FGTraces_Size", "#Function"};
+		String[] cgtitles = {"F", "P", "CGSite_Size", "#FunctionEntry", "CGTraces_Size","#Function", "#TFFunction", "Memory", "Time"};
+		String[] fgtitles = {"FGSite_Size", "#Site_Static", "#Predicate_Static", "FGTraces_Size", "#Function", "#P_Total", "#P_FIncrease", "#P_FLocal", "#Predicate", "Memory_Pre", "Time_Pre", "DS", "Time_Mine", "Memory_Mine"};
+		String[] pruneMinusBoosttitles = {"FGSite_Size", "#Site_Static", "#Predicate_Static", "FGTraces_Size", "#Function"};
 		String[] prunetitles = {"#Function", "#P_Total", "#P_FIncrease", "#P_FLocal", "#Predicate", "Memory_Pre", "Time_Pre", "DS", "Time_Mine", "Memory_Mine"};
 		String[] fgs = {"original", "boost", "pruneMinusBoost", "prune"};
 		

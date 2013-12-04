@@ -76,7 +76,7 @@ public class PruningProcessor{
 			
 		}
 		
-		//set the f-score and specificity
+		//set the DS
 		for(FunctionEntrySite site: frequencyMap.keySet()){
 			FrequencyValue p = frequencyMap.get(site);
 			frequencyMap.get(site).setDS(DS(p.getNegative(), p.getPositive(), totalNegative, totalPositive));
