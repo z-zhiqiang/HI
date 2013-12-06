@@ -288,7 +288,7 @@ public class Client {
 		
 		resultsList.add(totalNeg);
 		resultsList.add(totalPos);
-		resultsList.add(bc.IG(totalNeg));
+		resultsList.add(bc.IG(totalNeg, 0));
 		
 		/*=================================================================================================*/
 		
@@ -331,7 +331,7 @@ public class Client {
 		}
 		
 		runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
-		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList);
+		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, bc);
 		
 		
 		/*=================================================================================================*/
@@ -356,7 +356,7 @@ public class Client {
 		FileCollection.writeCollection(boostFunctionSet, new File(boostDatasetFolder, "boost_functions_" + mode + "_" + percent + ".txt" ));
 		
 		runMultiPreprocess(boostProfilesFolder, boostDatasetFolder, boostSitesFile, rounds, time, writer, resultsList);
-		threshold = runMultiMBS(command, boostDatasetFolder, rounds, time, writer, resultsList);
+		threshold = runMultiMBS(command, boostDatasetFolder, rounds, time, writer, resultsList, bc);
 
 		FileUtility.removeFileOrDirectory(boostProfilesFolder);
 		FileUtility.removeFileOrDirectory(boostSitesFile);
@@ -433,7 +433,7 @@ public class Client {
 			else{
 				runMultiPreprocess(pruneProfilesFolder, pruneDatasetFolder, pruneSitesFile, rounds, time, writer, resultsList);
 			}
-			runMultiMBS(command, pruneDatasetFolder, rounds, time, writer, resultsList);
+			runMultiMBS(command, pruneDatasetFolder, rounds, time, writer, resultsList, bc);
 			
 			FileUtility.removeFileOrDirectory(pruneMinusBoostProfilesFolder);
 			FileUtility.removeFileOrDirectory(pruneMinusBoostSitesFile);
@@ -557,18 +557,18 @@ public class Client {
 		}
 	}
 
-	private double runMultiMBS(String command, File originalDatasetFolder, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
+	private double runMultiMBS(String command, File originalDatasetFolder, int rounds, double time, PrintWriter writer, List<Object> resultsList, BoundCalculator bc) {
 		Object[] resultsOriginalMine = new Object[3];
 		Object[][] resultsArrayOriginalMine = new Object[rounds][3];
 		Object[] averageResultsOriginalMine;
 		
 		initializeResultsMine(resultsOriginalMine);
-		double threshold = runMBS(command, originalDatasetFolder, k, resultsOriginalMine, writer);
+		double threshold = runMBS(command, originalDatasetFolder, k, resultsOriginalMine, writer, bc);
 		
 		if(((Double) resultsOriginalMine[1]) < time){
 			for(int i = 0; i < resultsArrayOriginalMine.length; i++){
 				initializeResultsMine(resultsArrayOriginalMine[i]);
-				runMBS(command, originalDatasetFolder, k, resultsArrayOriginalMine[i], writer);
+				runMBS(command, originalDatasetFolder, k, resultsArrayOriginalMine[i], writer, bc);
 			}
 			averageResultsOriginalMine = computeAverageResults(resultsArrayOriginalMine);
 		}
@@ -622,7 +622,7 @@ public class Client {
 		return averageResults;
 	}
 
-	private double runMBS(String command, File datasetFolder, int k, Object[] resultsArray, PrintWriter writer) {
+	private double runMBS(String command, File datasetFolder, int k, Object[] resultsArray, PrintWriter writer, BoundCalculator bc) {
 		double threshold = 0;
 		double time = 0;
 		long memory = 0;
@@ -638,7 +638,9 @@ public class Client {
 				if(line.matches("TOP-.*(" + k + ").*SUP=.*Metric=.*")){
 					System.out.println(line);
 					writer.println(line);
-					threshold = Double.parseDouble(line.substring(line.lastIndexOf("=") + 1));
+//					threshold = Double.parseDouble(line.substring(line.lastIndexOf("=") + 1));
+					threshold = bc.IG(Integer.parseInt(line.substring(line.lastIndexOf('-') + 1, line.lastIndexOf(')')).trim()), 
+							Integer.parseInt(line.substring(line.lastIndexOf('+') + 1, line.lastIndexOf('/')).trim()));
 					resultsArray[0] = threshold;
 					System.out.println(threshold);
 				}

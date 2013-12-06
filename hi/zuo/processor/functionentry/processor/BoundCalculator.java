@@ -14,17 +14,17 @@ public class BoundCalculator {
 	 * @return
 	 */
 	public int computeIGBound(double threshold){
-//		if(threshold < IG(0) || threshold > IG(F)){
-//			throw new RuntimeException("The threshold should be in the following range: [" + IG(0) + ", " + IG(F) + "]");
-//		}
-		System.out.println("The threshold should be in the following range: [" + IG(0) + ", " + IG(F) + "]");
+		if(threshold < IG(0, 0) || threshold > IG(F, 0)){
+			throw new RuntimeException("The threshold should be in the following range: [" + IG(0, 0) + ", " + IG(F, 0) + "]");
+		}
+		System.out.println("The threshold should be in the following range: [" + IG(0, 0) + ", " + IG(F, 0) + "]");
 		
 		int start, end, midPt;
 		start = 0;
 		end = F;
 		while(start < end){
 			midPt = (start + end) / 2;
-			double ig = IG(midPt);
+			double ig = IG(midPt, 0);
 			if(ig > threshold){
 				end = midPt;
 			}
@@ -41,15 +41,23 @@ public class BoundCalculator {
 		}
 		return -1;
 	}
-	public double IG(int f){
-		if(f == F){
-			return (double) ((P + F) * Math.log(P + F) - F * Math.log(F) - P * Math.log(P)) / (Math.log(2) * (P + F));
+	
+	public double IG(int neg, int pos) {
+		// TODO Auto-generated method stub
+		int total = F + P;
+		return H(F, P) - (neg + pos) * H(neg, pos) / total - (total - neg - pos) * H(F - neg, P - pos) / total;
+		
+	}
+
+	private static double H(int neg, int pos) {
+		// TODO Auto-generated method stub
+		if(neg * pos == 0){
+			return 0;
 		}
 		else{
-			return (double) ((P + F) * Math.log(P + F) - F * Math.log(F) + (F - f) * Math.log(F - f) - (P + F - f) * Math.log(P + F - f)) / (Math.log(2) * (P + F));
+			return ((neg + pos) * Math.log(neg + pos) - neg * Math.log(neg) - pos * Math.log(pos)) / (Math.log(2) * (neg + pos));
 		}
 	}
-	
 	
 	public int computeCBIBound(double threshold){
 		if(DH(2, P) <= 0){
@@ -220,8 +228,9 @@ public class BoundCalculator {
 //		System.out.println(Math.log(1));
 //		System.out.println(Double.compare(bc.IG(1), 0.918296));
 		
-		BoundCalculator bc = new BoundCalculator(243, 6620);
-		bc.computeCBIBound(0.5836264823531641);
+		BoundCalculator bc = new BoundCalculator(205, 158);
+		System.out.println(bc.IG(203, 0));
+		System.out.println(bc.computeIGBound(0.9451427749638099));
 		System.out.println(bc.computeIGBound(0));
 	}
 

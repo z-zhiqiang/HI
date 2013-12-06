@@ -14,6 +14,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import zuo.processor.cbi.client.CBIClient;
+import zuo.processor.functionentry.processor.BoundCalculator;
 
 
 public class Test {
@@ -40,6 +41,15 @@ public class Test {
 		System.out.println(set1);
 		set0.removeAll(set1);
 		System.out.println(set0);
+		
+		String line = "TOP-(1) SUP=[  20=(+   0/-  20)] Metric=0.281028";
+		System.out.println(Integer.parseInt(line.substring(line.lastIndexOf('-') + 1, line.lastIndexOf(')')).trim()));
+		System.out.println(Integer.parseInt(line.substring(line.lastIndexOf('+') + 1, line.lastIndexOf('/')).trim()));
+		BoundCalculator bc = new BoundCalculator(22, 341);
+		double threshold = bc.IG(Integer.parseInt(line.substring(line.lastIndexOf('-') + 1, line.lastIndexOf(')')).trim()), 
+				Integer.parseInt(line.substring(line.lastIndexOf('+') + 1, line.lastIndexOf('/')).trim()));
+		System.out.println(threshold);
+		System.out.println(bc.computeIGBound(threshold));
 ////		System.out.println("Hello world!");
 ////		Map<String, int[]> map = new HashMap<String, int[]>();
 ////		map.put("1", new int[2]);
