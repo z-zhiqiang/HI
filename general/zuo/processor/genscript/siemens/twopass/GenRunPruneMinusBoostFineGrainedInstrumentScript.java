@@ -9,19 +9,19 @@ import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtility;
 
 
-public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript implements GenRunInstrumentScript {
+public class GenRunPruneMinusBoostFineGrainedInstrumentScript extends AbstractGenRunScript implements GenRunInstrumentScript {
 	final String traceDir;
 	private final List<Integer> failingTests;
 	private final List<Integer> passingTests;
-	private final Set<String> boostFunctions;
+	private final Set<String> pruneMinusBoostFunctions;
 	
-	public GenRunBoostFineGrainedInstrumentScript(String sub, String ver, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, File boost) {
+	public GenRunPruneMinusBoostFineGrainedInstrumentScript(String sub, String ver, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, File pruneMinusBoost) {
 		super(sub, ver, cc, sD, eD, oD, scD);
 		this.traceDir = tD;
 		this.mkOutDir();
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
-		this.boostFunctions = FileCollection.readFunctions(boost);
+		this.pruneMinusBoostFunctions = FileCollection.readFunctions(pruneMinusBoost);
 	}
 
 
@@ -33,7 +33,7 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 				+ "-fno-sample "
 				+ functionFiltering()
 				+ sourceDir + subject + ".c" 
-				+ " -o " + executeDir + version + "_binst.exe"
+				+ " -o " + executeDir + version + "_pmbinst.exe"
 //				+ " -I" + sourceDir
 				+ " -lm";
 		
@@ -55,13 +55,13 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 		code.append("rm $OUTPUTSDIR/o*out\n");
 		code.append("rm $TRACESDIR/o*profile\n");
 		
-		printToFile(code.toString(), scriptDir, version + "_boost.sh");
+		printToFile(code.toString(), scriptDir, version + "_pruneMinusBoost.sh");
 	}
 
 	private String functionFiltering() {
 		// TODO Auto-generated method stub
 		StringBuilder builder = new StringBuilder();
-		for(String function: this.boostFunctions){
+		for(String function: this.pruneMinusBoostFunctions){
 			builder.append("-finclude-function=").append(function).append(" ");
 		}
 		builder.append("-fexclude-function=* ");
@@ -69,7 +69,7 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 	}
 
 	private void stmts(StringBuffer code) {
-		if(this.boostFunctions.isEmpty()){
+		if(this.pruneMinusBoostFunctions.isEmpty()){
 			return;
 		}
 		
@@ -77,7 +77,7 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_binst.exe ");//executables
+			code.append("$VERSIONSDIR/" + version + "_pmbinst.exe ");//executables
 			code.append(inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
 		}
@@ -86,7 +86,7 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_binst.exe ");//executables
+			code.append("$VERSIONSDIR/" + version + "_pmbinst.exe ");//executables
 			code.append(inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
 		}

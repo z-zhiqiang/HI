@@ -3,6 +3,7 @@ package zuo.processor.genscript.sir.twopass;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtility;
@@ -13,7 +14,7 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 	private final List<Integer> failingTests;
 	private final List<Integer> passingTests;
 	private String srcName;
-	private final File boostFunctions;
+	private final Set<String> boostFunctions;
 	
 	
 	public GenRunBoostFineGrainedInstrumentScript(String sub, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, String srcN, File boost) {
@@ -24,7 +25,7 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
 		this.srcName = srcN;
-		this.boostFunctions = boost;
+		this.boostFunctions = FileCollection.readFunctions(boost);
 	}
 
 
@@ -39,7 +40,9 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 			includeC = " -I" + sourceDir;
 		}
 		String instrumentCommand = compileCommand
-				+ "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fsampler-scheme=float-kinds -fno-sample "
+				+ "sampler-cc "
+				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fsampler-scheme=float-kinds "
+				+ "-fno-sample "
 				+ functionFiltering()
 				+ sourceDir + srcName + ".c" 
 				+ " $COMPILE_PARAMETERS"
@@ -63,7 +66,7 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 		code.append(endTimeCommand + " >& " + outputDir + "time\n");
 		
 		code.append("rm ../outputs/*\n");
-//		code.append("rm $TRACESDIR/o*profile\n");
+		code.append("rm $TRACESDIR/o*profile\n");
 		
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_boost.sh");
 	}
@@ -71,7 +74,7 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 	private String functionFiltering() {
 		// TODO Auto-generated method stub
 		StringBuilder builder = new StringBuilder();
-		for(String function: FileCollection.readFunctions(boostFunctions)){
+		for(String function: this.boostFunctions){
 			builder.append("-finclude-function=").append(function).append(" ");
 		}
 		builder.append("-fexclude-function=* ");
@@ -79,6 +82,10 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 	}
 
 	private void stmts(StringBuffer code) {
+		if(this.boostFunctions.isEmpty()){
+			return;
+		}
+		
 		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info

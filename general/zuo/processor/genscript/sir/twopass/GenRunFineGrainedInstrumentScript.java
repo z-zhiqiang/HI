@@ -38,11 +38,6 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 		}
 		code.append(endTimeCommand + " >& " + outputDir + "time\n");
 		
-//		code.append("mv ../outputs/* " + outputDir + "\n");
-//		code.append("rm " + outputDir + "t[0-9]*\n");
-//		code.append("rm " + outputDir + "s*\n");
-//		code.append("rm " + outputDir + "test*\n");
-		
 		code.append("rm ../outputs/*\n");
 //		code.append("rm $TRACESDIR/o*profile\n");
 		
