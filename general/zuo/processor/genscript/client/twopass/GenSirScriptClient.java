@@ -28,12 +28,13 @@ import zuo.util.file.FileUtility;
 
 public class GenSirScriptClient {
 	private static final String CG_INDICES = "indices.txt";
-	private static final String BOOST_FUNCTIONS = "boost_functions_2_0.05.txt";
-	private static final String PRUNE_MINUS_BOOST_FUNCTIONS = "prune_minus_boost_functions_2_0.05.txt";
-	private static final String PRUNE_FUNCTIONS = "prune_functions_2_0.05.txt";
+	
+	public static final String mode = "2_0.05";
+	private static final String BOOST_FUNCTIONS = "boost_functions_" + mode + ".txt";
+	private static final String PRUNE_MINUS_BOOST_FUNCTIONS = "prune_minus_boost_functions_" + mode + ".txt";
+	private static final String PRUNE_FUNCTIONS = "prune_functions_" + mode + ".txt";
 	
 	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
-	public final static String traceRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
 	
 	public final String subject;
 	public final String sourceName;
@@ -112,12 +113,12 @@ public class GenSirScriptClient {
 		vpruneminusboostoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/prune-minus-boost/";
 		vpruneoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/prune/";
 		
-		vftraceDir = traceRootDir + subject + "/traces/" + version + "/" + subVersion + "/fine-grained/";
-		vctraceDir = traceRootDir + subject + "/traces/" + version + "/" + subVersion + "/coarse-grained/";
-		vcftraceDir = traceRootDir + subject + "/traces/" + version + "/" + subVersion + "/coarse-fine-grained/";
-		vboosttraceDir = traceRootDir + subject + "/traces/" + version + "/" + subVersion + "/boost/";
-		vpruneminusboosttraceDir = traceRootDir + subject + "/traces/" + version + "/" + subVersion + "/prune-minus-boost/";
-		vprunetraceDir = traceRootDir + subject + "/traces/" + version + "/" + subVersion + "/prune/";
+		vftraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/fine-grained/";
+		vctraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/coarse-grained/";
+		vcftraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/coarse-fine-grained/";
+		vboosttraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/boost/";
+		vpruneminusboosttraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/prune-minus-boost/";
+		vprunetraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/prune/";
 		
 		cgIndicesDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/cg/";
 		boostFunctionsDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/boost/";

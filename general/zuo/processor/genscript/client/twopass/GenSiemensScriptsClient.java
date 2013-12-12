@@ -23,18 +23,20 @@ import zuo.util.file.FileUtility;
 
 public class GenSiemensScriptsClient {
 	private static final String CG_INDICES = "indices.txt";
-	private static final String BOOST_FUNCTIONS = "boost_functions_2_0.05.txt";
-	private static final String PRUNE_MINUS_BOOST_FUNCTIONS = "prune_minus_boost_functions_2_0.05.txt";
-	private static final String PRUNE_FUNCTIONS = "prune_functions_2_0.05.txt";
 	
-	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
-	public final static String traceRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
+	public static final String spaceMode = "2_0.05";
+	public static final String siemensMode = "2_0.1";
+	
+	public final static String spaceRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
+	public final static String siemensRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/Siemens/";
 	
 	public final String subject;
 	public final int vers;
 	public final String version;
 	public final String inputs;
 	public final String inputsMapFile;
+	
+	final String rootDir;
 	
 	final String ssourceDir;
 	final String sexecuteDir;
@@ -76,6 +78,13 @@ public class GenSiemensScriptsClient {
 		vers = vs;
 		version = ver;
 		
+		if(subject.equals("space")){
+			rootDir = spaceRootDir;
+		}
+		else{
+			rootDir = siemensRootDir;
+		}
+		
 		inputs = rootDir + subject + "/testplans.alt/" + "universe";
 		inputsMapFile = rootDir + subject + "/testplans.alt/" + "inputs.map";
 		
@@ -95,12 +104,12 @@ public class GenSiemensScriptsClient {
 		vpruneoutputDir = rootDir + subject + "/outputs/versions/" + version + "/prune/";
 		
 		
-		vftraceDir = traceRootDir + subject + "/traces/" + version + "/fine-grained/";
-		vctraceDir = traceRootDir + subject + "/traces/" + version + "/coarse-grained/";
-		vcftraceDir = traceRootDir + subject + "/traces/" + version + "/coarse-fine-grained/";
-		vboosttraceDir = traceRootDir + subject + "/traces/" + version + "/boost/";
-		vpruneminusboosttraceDir = traceRootDir + subject + "/traces/" + version + "/prune-minus-boost/";
-		vprunetraceDir = traceRootDir + subject + "/traces/" + version + "/prune/";
+		vftraceDir = rootDir + subject + "/traces/" + version + "/fine-grained/";
+		vctraceDir = rootDir + subject + "/traces/" + version + "/coarse-grained/";
+		vcftraceDir = rootDir + subject + "/traces/" + version + "/coarse-fine-grained/";
+		vboosttraceDir = rootDir + subject + "/traces/" + version + "/boost/";
+		vpruneminusboosttraceDir = rootDir + subject + "/traces/" + version + "/prune-minus-boost/";
+		vprunetraceDir = rootDir + subject + "/traces/" + version + "/prune/";
 		
 		cgIndicesDir = rootDir + subject + "/versions/" + version + "/predicate-dataset/cg/";
 		boostFunctionsDir = rootDir + subject + "/versions/" + version + "/predicate-dataset/boost/";
@@ -188,6 +197,16 @@ public class GenSiemensScriptsClient {
 		
 		
 		//==========================================================================================================================================================//
+		String mode;
+		if(subject.equals("space")){
+			mode = spaceMode;
+		}
+		else{
+			mode = siemensMode;
+		}
+		final String BOOST_FUNCTIONS = "boost_functions_" + mode + ".txt";
+		final String PRUNE_MINUS_BOOST_FUNCTIONS = "prune_minus_boost_functions_" + mode + ".txt";
+		final String PRUNE_FUNCTIONS = "prune_functions_" + mode + ".txt";
 		
 		
 		Set<Integer> subs = new HashSet<Integer>();

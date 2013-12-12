@@ -42,10 +42,10 @@ public class Client {
 	private static final String DATASET_FOLDER_NAME = "predicate-dataset";
 	private static final String mbsOutputFile = "mbs.out";
 	
-	private static final File sirRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
-	private static final File siemensRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/Siemens/");	
-	private static final File sirConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/");
-	private static final File siemensConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/Siemens/");
+	public static final File sirRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
+	public static final File siemensRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/Siemens/");	
+	public static final File sirConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/");
+	public static final File siemensConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/Siemens/");
 	
 	
 	private final String subject;
@@ -165,11 +165,11 @@ public class Client {
 				
 				File fgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/fine-grained/");
 				if (!fgProfilesFolder.exists()) {
-					throw new RuntimeException("Fine-grained faulty profiles folder " + fgProfilesFolder + " does not exist.");
+					throw new RuntimeException("Fine-grained profiles folder " + fgProfilesFolder + " does not exist.");
 				}
 				File cgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/coarse-grained/");
 				if (!cgProfilesFolder.exists()) {
-					throw new RuntimeException("Coarse-grained faulty profiles folder " + cgProfilesFolder + " does not exist.");
+					throw new RuntimeException("Coarse-grained profiles folder " + cgProfilesFolder + " does not exist.");
 				}
 				
 				final File fgSitesFile = new File(projectRoot, "versions/" + vi + "/" + vi + "_f.sites");
@@ -225,11 +225,11 @@ public class Client {
 					//profiles folders
 					File fgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/fine-grained/");
 					if (!fgProfilesFolder.exists()) {
-						throw new RuntimeException("Fine-grained faulty profiles folder " + fgProfilesFolder + " does not exist.");
+						throw new RuntimeException("Fine-grained profiles folder " + fgProfilesFolder + " does not exist.");
 					}
 					File cgProfilesFolder = new File(new File(projectRoot, "traces"), vi + "/coarse-grained/");
 					if (!cgProfilesFolder.exists()) {
-						throw new RuntimeException("Coarse-grained faulty profiles folder " + cgProfilesFolder + " does not exist.");
+						throw new RuntimeException("Coarse-grained profiles folder " + cgProfilesFolder + " does not exist.");
 					}
 					
 					//instrumentation sites files
