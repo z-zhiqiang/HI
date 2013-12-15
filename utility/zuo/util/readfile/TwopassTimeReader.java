@@ -145,7 +145,7 @@ public class TwopassTimeReader extends AbstractTimeReader {
 				mode = "2_0.1";
 			}
 			AbstractTimeReader timeReader = new TwopassTimeReader(rootDir, argvs[i][1]);
-			timeReader.readAndExportTimeResults(consoleFolder, argvs[i][1] + "_" + mode + ".xlsx");
+			timeReader.readAndExportTimeResults(consoleFolder, argvs[i][1] + "_" + mode + "_overhead.xlsx");
 			
 		}
 	}

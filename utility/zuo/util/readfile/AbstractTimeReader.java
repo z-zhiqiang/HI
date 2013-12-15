@@ -58,6 +58,7 @@ public abstract class AbstractTimeReader {
 				return new Integer(Integer.parseInt(arg0.getName().substring(1))).compareTo(new Integer(Integer.parseInt(arg1.getName().substring(1))));
 			}});
 		
+		System.out.println("\n" + subject);
 		for(File version: versions){
 			File[] subversions = new File(version, "versions").listFiles(new FilenameFilter(){
 				@Override
@@ -93,6 +94,8 @@ public abstract class AbstractTimeReader {
 				// TODO Auto-generated method stub
 				return new Integer(Integer.parseInt(arg0.getName().substring(1))).compareTo(new Integer(Integer.parseInt(arg1.getName().substring(1))));
 			}});
+		
+		System.out.println("\n" + subject);
 		for(File version: versions){
 			readTimeSiemens(version.getName(), version);
 		}
