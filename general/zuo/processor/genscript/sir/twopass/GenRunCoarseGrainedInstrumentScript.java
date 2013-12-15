@@ -34,7 +34,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
-		code.append("rm $TRACESDIR/o*profile\n");
+//		code.append("rm $TRACESDIR/o*profile\n");
 
 		stmts(code);
 		code.append(startTimeCommand + "\n");

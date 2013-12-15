@@ -339,7 +339,7 @@ public class InstrumentationSites {
 		if(floatSites.containsKey(unit)){
 			throw new RuntimeException("Wrong sites information: <unit, scheme> is not unique!!");
 		}
-//		floatSites.put(unit, sites);
+		floatSites.put(unit, sites);
 	}
 
 	private void readBranches(BufferedReader reader, Map<String, List<BranchSite>> branchSites, String unit)
