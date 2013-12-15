@@ -160,10 +160,10 @@ public class GenSiemensScriptsClient {
 	
 	public static void main(String[] args) throws IOException {
 		String[][] subjects = {
-				{"space", "38"},
+//				{"space", "38"},
 //				{"printtokens", "7"},
 //				{"printtokens2", "10"},
-//				{"replace", "32"},
+				{"replace", "32"},
 //				{"schedule", "9"},
 //				{"schedule2", "10"},
 //				{"tcas", "41"},
