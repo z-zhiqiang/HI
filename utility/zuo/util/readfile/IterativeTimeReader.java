@@ -25,7 +25,7 @@ public class IterativeTimeReader extends AbstractTimeReader {
 	@Override
 	protected void readTimeSir(String verName, File versionFolder, File subVersionFolder) {
 		// TODO Auto-generated method stub
-		List<Integer> results = new ArrayList<Integer>();
+		List<Object> results = new ArrayList<Object>();
 		
 		System.out.print(verName + "\t");
 		for(int i = 0; i < timeFolders.length; i++){
@@ -59,7 +59,7 @@ public class IterativeTimeReader extends AbstractTimeReader {
 	@Override
 	protected void readTimeSiemens(String verName, File versionFolder) {
 		// TODO Auto-generated method stub
-		List<Integer> results = new ArrayList<Integer>();
+		List<Object> results = new ArrayList<Object>();
 		
 		System.out.print(verName + "\t");
 		for(int i = 0; i < timeFolders.length; i++){

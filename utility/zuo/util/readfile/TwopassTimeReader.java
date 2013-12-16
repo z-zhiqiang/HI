@@ -1,6 +1,10 @@
 package zuo.util.readfile;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -26,9 +30,14 @@ public class TwopassTimeReader extends AbstractTimeReader {
 	@Override
 	protected void readTimeSir(String verName, File versionFolder, File subVersionFolder) {
 		// TODO Auto-generated method stub
-		List<Integer> results = new ArrayList<Integer>();
+		List<Object> results = new ArrayList<Object>();
 		
 		System.out.print(verName + "\t");
+		
+		File mbsOutFile = new File(new File(new File(this.rootDir, subject), "versions"), versionFolder.getName() + "/" + subVersionFolder.getName() + "/predicate-dataset/original/mbs.out");
+        double ds = readDS(mbsOutFile);	
+        results.add(ds);
+		System.out.print(ds + "\t");
 		
 		File fgProfilesFolder = new File(new File(new File(this.rootDir, subject), "traces"), versionFolder.getName() + "/" + subVersionFolder.getName() + "/fine-grained/");
 		if (!fgProfilesFolder.exists()) {
@@ -42,12 +51,12 @@ public class TwopassTimeReader extends AbstractTimeReader {
 		results.add(indices.size());
 		System.out.print(indices.size() + "\t");
 		
-		File cgProfilesFolder = new File(new File(new File(this.rootDir, subject), "traces"), versionFolder.getName() + "/" + subVersionFolder.getName() + "/coarse-grained/");
-		if (!cgProfilesFolder.exists()) {
-			throw new RuntimeException("Coarse-grained profiles folder " + cgProfilesFolder + " does not exist.");
-		}
-		File[] cgProfiles = cgProfilesFolder.listFiles(FileUtil.createProfileFilter());
-		assert(indices.size() == cgProfiles.length);
+//		File cgProfilesFolder = new File(new File(new File(this.rootDir, subject), "traces"), versionFolder.getName() + "/" + subVersionFolder.getName() + "/coarse-grained/");
+//		if (!cgProfilesFolder.exists()) {
+//			throw new RuntimeException("Coarse-grained profiles folder " + cgProfilesFolder + " does not exist.");
+//		}
+//		File[] cgProfiles = cgProfilesFolder.listFiles(FileUtil.createProfileFilter());
+//		assert(indices.size() == cgProfiles.length);
 		
 		for(int i = 0; i < timeFolders.length; i++){
 			int time = readTimeFile(new File(new File(subVersionFolder, timeFolders[i]), "time"));
@@ -60,12 +69,46 @@ public class TwopassTimeReader extends AbstractTimeReader {
 		
 	}
 	
+	private double readDS(File mbsOutFile) {
+		// TODO Auto-generated method stub
+		BufferedReader reader = null;
+		double threshold = -1;
+		try {
+			reader = new BufferedReader(new FileReader(mbsOutFile));
+			String line = reader.readLine();
+			assert(line.matches("TOP-.*(" + Client.k + ").*SUP=.*Metric=.*"));
+			threshold = Double.parseDouble(line.substring(line.lastIndexOf("=") + 1));
+			reader.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			if(reader != null){
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		return threshold;
+	}
+
 	@Override
 	protected void readTimeSiemens(String verName, File versionFolder) {
 		// TODO Auto-generated method stub
-		List<Integer> results = new ArrayList<Integer>();
+		List<Object> results = new ArrayList<Object>();
 		
 		System.out.print(verName + "\t");
+		
+		File mbsOutFile = new File(new File(new File(this.rootDir, subject), "versions"), versionFolder.getName() + "/predicate-dataset/original/mbs.out");
+        double ds = readDS(mbsOutFile);	
+        results.add(ds);
+		System.out.print(ds + "\t");
 		
 		File fgProfilesFolder = new File(new File(new File(this.rootDir, subject), "traces"), versionFolder.getName() + "/fine-grained/");
 		if (!fgProfilesFolder.exists()) {
@@ -79,12 +122,12 @@ public class TwopassTimeReader extends AbstractTimeReader {
 		results.add(indices.size());
 		System.out.print(indices.size() + "\t");
 		
-		File cgProfilesFolder = new File(new File(new File(this.rootDir, subject), "traces"), versionFolder.getName() + "/coarse-grained/");
-		if (!cgProfilesFolder.exists()) {
-			throw new RuntimeException("Coarse-grained profiles folder " + cgProfilesFolder + " does not exist.");
-		}
-		File[] cgProfiles = cgProfilesFolder.listFiles(FileUtil.createProfileFilter());
-		assert(indices.size() == cgProfiles.length);
+//		File cgProfilesFolder = new File(new File(new File(this.rootDir, subject), "traces"), versionFolder.getName() + "/coarse-grained/");
+//		if (!cgProfilesFolder.exists()) {
+//			throw new RuntimeException("Coarse-grained profiles folder " + cgProfilesFolder + " does not exist.");
+//		}
+//		File[] cgProfiles = cgProfilesFolder.listFiles(FileUtil.createProfileFilter());
+//		assert(indices.size() == cgProfiles.length);
 		
 		for(int i = 0; i < timeFolders.length; i++){
 			int time = readTimeFile(new File(new File(versionFolder, timeFolders[i]), "time"));
@@ -104,7 +147,7 @@ public class TwopassTimeReader extends AbstractTimeReader {
 		Row row0 = sheet.createRow(rownum++);
 		int cellnum0 = 0;
 		
-		String[] titles = {"tests", "partial_tests", "outputs", "cg", "fg", "cfg", "boost", "prune_minus_boost", "prune"};
+		String[] titles = {"DS", "tests", "partial_tests", "outputs", "cg", "fg", "cfg", "boost", "prune_minus_boost", "prune"};
 		
 		Cell cell0 = row0.createCell(cellnum0++);
 		cell0.setCellValue(" ");

@@ -37,7 +37,7 @@ import zuo.util.file.FileUtility;
 import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
 
 public class Client {
-	private static final int k = 1;
+	public static final int k = 1;
 	
 	private static final String DATASET_FOLDER_NAME = "predicate-dataset";
 	private static final String mbsOutputFile = "mbs.out";

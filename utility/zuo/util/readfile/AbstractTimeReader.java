@@ -22,7 +22,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public abstract class AbstractTimeReader {
 	protected final File rootDir;
 	protected final String subject;
-	protected final Map<String, List<Integer>> timeResultsMap;
+	protected final Map<String, List<Object>> timeResultsMap;
 	
 	protected final String[] timeFolders; 
 	
@@ -30,7 +30,7 @@ public abstract class AbstractTimeReader {
 		this.rootDir = rootD;
 		this.subject = sub;
 		this.timeFolders = timeFolders;
-		this.timeResultsMap = new LinkedHashMap<String, List<Integer>>();
+		this.timeResultsMap = new LinkedHashMap<String, List<Object>>();
 	}
 	
 	public void readAndExportTimeResults(File consoleFolder, String excelFileName){
@@ -138,7 +138,7 @@ public abstract class AbstractTimeReader {
 	
 	private void exportResultToExcel(File consoleFolder, String excelFileName){
 		XSSFWorkbook workbook = new XSSFWorkbook();
-		XSSFSheet sheet = workbook.createSheet("Data");
+		XSSFSheet sheet = workbook.createSheet("TimeOverhead");
 		int columns = addTitle(sheet);
 //		System.out.println(columns);
 		assert(columns == 1 + this.timeResultsMap.entrySet().iterator().next().getValue().size());
@@ -151,9 +151,21 @@ public abstract class AbstractTimeReader {
 			Cell cell = row.createCell(cellnum++);
 			cell.setCellValue(version);
 			
-			for(int time: this.timeResultsMap.get(version)){
+			for(Object object: this.timeResultsMap.get(version)){
 				cell = row.createCell(cellnum++);
-				cell.setCellValue(time);
+//				cell.setCellValue(time);
+				if(object instanceof Integer){
+					cell.setCellValue((Integer) object);
+				}
+				else if(object instanceof Double){
+					cell.setCellValue((Double) object);
+				}
+				else if(object instanceof Long){
+					cell.setCellValue((Long) object);
+				}
+				else if(object instanceof String){
+					cell.setCellValue((String) object);
+				}
 			}
 		}
 		
