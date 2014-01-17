@@ -22,7 +22,7 @@ public class Processor {
 					.toArray(new IDataSetProcessor[graphProcessors.size()]);
 		}
 
-		private void process(IProfile[] profiles, Object[] resultsArray, PrintWriter writer) {
+		private IDataSet process(IProfile[] profiles, Object[] resultsArray, PrintWriter writer) {
 			IDataSet dataset = this.graphConstructor.createDataSet(profiles, resultsArray, writer);
 			
 //			AbstractProcessorWithLabels.printMemoryUsage(1);
@@ -34,6 +34,8 @@ public class Processor {
 			}
 			
 //			AbstractProcessorWithLabels.printMemoryUsage(2);
+			
+			return dataset;
 		}
 	}
 
@@ -54,7 +56,7 @@ public class Processor {
 				.toArray(new IProfileProcessor[profileProcessors.size()]);
 	}
 
-	public void process(Object[] resultsArray, PrintWriter writer) {
+	public IDataSet process(Object[] resultsArray, PrintWriter writer) {
 		System.out.println("###############################################");
 		System.out.println("################# STARTING... #################");
 		System.out.println("###############################################");
@@ -68,12 +70,15 @@ public class Processor {
 			pp.dispose();
 		}
 
+		IDataSet dataset = null;
 		for (BackEnd be : this.backends) {
-			be.process(profiles, resultsArray, writer);
+			dataset = be.process(profiles, resultsArray, writer);
 		}
 		System.out.println("###############################################");
 		System.out.println("################## ...END... ##################");
 		System.out.println("###############################################");
+		
+		return dataset;
 	}
 
 }

@@ -1,19 +1,12 @@
-import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
-import zuo.processor.cbi.client.CBIClient;
+import zuo.processor.functionentry.client.twopass.Client;
 import zuo.processor.functionentry.processor.BoundCalculator;
 
 
@@ -50,6 +43,32 @@ public class Test {
 				Integer.parseInt(line.substring(line.lastIndexOf('+') + 1, line.lastIndexOf('/')).trim()));
 		System.out.println(threshold);
 		System.out.println(bc.computeIGBound(threshold));
+		
+		
+		Map<String, List<Object>> resultsDS = new LinkedHashMap<String, List<Object>>();
+		List<Object> arrayA = new ArrayList<Object>();
+		arrayA.add(3.8D);
+		arrayA.add(2.8D);
+		resultsDS.put("A", arrayA);
+		List<Object> arrayB = new ArrayList<Object>();
+		arrayB.add(0D);
+		arrayB.add(0D);
+		resultsDS.put("B", arrayB);
+		List<Object> arrayC = new ArrayList<Object>();
+		arrayC.add(4.0D);
+		arrayC.add(3.5D);
+		resultsDS.put("C", arrayC);
+		List<Object> arrayD = new ArrayList<Object>();
+		arrayD.add(0D);
+		arrayD.add(0D);
+		resultsDS.put("D", arrayD);
+		List<Object> arrayE = new ArrayList<Object>();
+		arrayE.add(3.3D);
+		arrayE.add(2.5D);
+		resultsDS.put("E", arrayE);
+		
+//		System.out.println(Client.computeCorrelationCoefficient(resultsDS, 0, 1));
+		
 ////		System.out.println("Hello world!");
 ////		Map<String, int[]> map = new HashMap<String, int[]>();
 ////		map.put("1", new int[2]);
@@ -91,7 +110,7 @@ public class Test {
 //		lSet.add("2");
 //		lSet.add("3");
 //		lSet.add("1");
-//		lSet.add("3");
+//		lSet.add("");
 //		System.out.println(lSet);
 //		
 //		SortedSet<Integer> tSet = new TreeSet<Integer>();

@@ -26,11 +26,17 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import sun.processor.core.IDataSet;
+import sun.processor.predicate.PredicateDataSet;
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
+import zuo.processor.ds.processor.PredicateDSInfoWithinFunction;
+import zuo.processor.ds.processor.ProcessorPreDSInfoWithinFun;
 import zuo.processor.functionentry.processor.BoundCalculator;
+import zuo.processor.functionentry.processor.PruningProcessor.FrequencyValue;
+import zuo.processor.functionentry.site.FunctionEntrySite;
 import zuo.processor.functionentry.site.FunctionEntrySites;
-import zuo.split.PredicateSplittingSiteProfile;
+import zuo.processor.split.PredicateSplittingSiteProfile;
 import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtil;
 import zuo.util.file.FileUtility;
@@ -38,7 +44,7 @@ import edu.nus.sun.processor.mps.client.DefaultPredicateProcessorWithLabel;
 
 public class Client {
 	public static final int k = 1;
-	public static final int l = 3;
+	public static final int l = 2;
 	
 	private static final String DATASET_FOLDER_NAME = "predicate-dataset";
 	private static final String mbsOutputFile = "mbs.out";
@@ -54,6 +60,9 @@ public class Client {
 	private final double percent;
 	private final Map<String, List<Object>> resultsMap;
 	
+	private final Map<String, Map<String, List<Object>>> correlationDataMap;
+	private final Map<String, List<Object>> correlationResultsMap;
+	
 	private final int startVersion;
 	private final int endVersion;
 	
@@ -65,6 +74,8 @@ public class Client {
 		this.mode = mode;
 		this.percent = percent;
 		this.resultsMap = new LinkedHashMap<String, List<Object>>();
+		this.correlationDataMap = new LinkedHashMap<String, Map<String, List<Object>>>();
+		this.correlationResultsMap = new LinkedHashMap<String, List<Object>>();
 		this.startVersion = start;
 		this.endVersion = end;
 		this.rootDir = rootD;
@@ -180,9 +191,13 @@ public class Client {
 //				FileUtility.removeFileOrDirectory(new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME));
 				
 				List<Object> resultsList = new ArrayList<Object>();
-				run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer);
+				Map<String, List<Object>> correlationData = new LinkedHashMap<String, List<Object>>();
+				List<Object> correlationResults = new ArrayList<Object>();
+				run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer, correlationData, correlationResults);
 				
 				this.resultsMap.put(vi, resultsList);
+				this.correlationDataMap.put(vi, correlationData);
+				this.correlationResultsMap.put(vi, correlationResults);
 			}
 		} 
 		else {
@@ -242,17 +257,24 @@ public class Client {
 //					FileUtility.removeFileOrDirectory(new File(projectRoot, "versions/" + vi + "/" + DATASET_FOLDER_NAME));
 					
 					List<Object> resultsList = new ArrayList<Object>();
-					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer);
+					Map<String, List<Object>> correlationData = new LinkedHashMap<String, List<Object>>();
+					List<Object> correlationResults = new ArrayList<Object>();
+					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer, correlationData, correlationResults);
+					
 					assert(resultsList.size() == 55);
 					this.resultsMap.put(vi, resultsList);
+					this.correlationDataMap.put(vi, correlationData);
+					assert(correlationResults.size() == 4);
+					this.correlationResultsMap.put(vi, correlationResults);
 				}
 			}
 		}
 		
 		printResultToExcel();
+		printCorrelationToExcel();
 	}
 
-	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer) throws IOException {
+	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer, Map<String, List<Object>> correlationData, List<Object> correlationResults) throws IOException {
 		int rounds = 3;
 		double time = 60;
 		
@@ -331,8 +353,19 @@ public class Client {
 			originalDatasetFolder.mkdirs();
 		}
 		
-		runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
+		IDataSet dataset = runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
 		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, bc);
+		
+		
+		/*=================================================================================================*/
+		assert(dataset instanceof PredicateDataSet);
+		ProcessorPreDSInfoWithinFun processorDSInfo = new ProcessorPreDSInfoWithinFun((PredicateDataSet) dataset);
+		processorDSInfo.process();
+		Map<String, PredicateDSInfoWithinFunction> DSInfo = processorDSInfo.getDSInfoMap();
+		List<Map.Entry<FunctionEntrySite, FrequencyValue>> list = funClient.getList();
+		assert(list.size() >= DSInfo.size());
+		
+		processDSCorrelation(DSInfo, list, correlationData, correlationResults);
 		
 		
 		/*=================================================================================================*/
@@ -454,6 +487,68 @@ public class Client {
 		
 	}
 
+	private void processDSCorrelation(Map<String, PredicateDSInfoWithinFunction> DSInfo, List<Map.Entry<FunctionEntrySite, FrequencyValue>> list,
+			Map<String, List<Object>> correlationData, List<Object> correlationResults) {
+		//construct the DS map
+		for(int i = 0; i < list.size(); i++){
+			Map.Entry<FunctionEntrySite, FrequencyValue> entry = list.get(i);
+			String function = entry.getKey().getFunctionName();
+			List<Object> array = new ArrayList<Object>();
+			FrequencyValue value = entry.getValue();
+			array.add(list.size() - i - 1);
+			array.add(value.getDS());
+			array.add(value.getNegative());
+			array.add(value.getPositive());
+			if(DSInfo.containsKey(function)){
+				PredicateDSInfoWithinFunction dsInfo = DSInfo.get(function);
+				array.add(dsInfo.getMax_DS());
+				array.add(dsInfo.getMean_DS());
+			}
+			else{
+				array.add(0.0D);
+				array.add(0.0D);
+			}
+			if(correlationData.containsKey(function)){
+				throw new RuntimeException("multiple functions error");
+			}
+			correlationData.put(function, array);
+		}
+		
+		//compute the Correlation Coefficient
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 4));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 4));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 5));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 5));
+	}
+
+	/**
+	 * @param resultsDS
+	 * 0:ordering index; 1:ds; 2:neg; 3:pos; 4:max_ds; 5:mean_ds;
+	 * @param i: variable
+	 * @param j: variable
+	 * @return
+	 */
+	private double computeCorrelationCoefficient(Map<String, List<Object>> resultsDS, int i, int j) {
+		// TODO Auto-generated method stub
+		double sumi = 0, sumj = 0, sumii = 0, sumjj = 0, sumij = 0;
+		int size = 0;
+		for(String function: resultsDS.keySet()){
+			List<Object> list = resultsDS.get(function);
+			size++;
+			sumi += (Double)list.get(i);
+			sumj += (Double)list.get(j);
+			sumii += (Double)list.get(i) * (Double)list.get(i);
+			sumjj += (Double)list.get(j) * (Double)list.get(j);
+			sumij += (Double)list.get(i) * (Double)list.get(j);
+		}
+		assert(size == resultsDS.size());
+		double ij = sumij - sumi * sumj / size;
+		double ii = sumii - sumi * sumi / size;
+		double jj = sumjj - sumj * sumj / size;
+		
+		return ij / Math.sqrt(ii * jj);
+	}
+
 	private void assignResultsListForPreprocessAndMBS(List<Object> resultsList) {
 		//for preprocessing
 		resultsList.add(0);
@@ -535,13 +630,13 @@ public class Client {
 		return files;
 	}
 
-	private void runMultiPreprocess(File fgProfilesFolder, File originalDatasetFolder, final File fgSitesFile, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
+	private IDataSet runMultiPreprocess(File fgProfilesFolder, File originalDatasetFolder, final File fgSitesFile, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
 		Object[] resultsOriginalPre = new Object[6];
 		Object[][] resultsArrayOriginalPre = new Object[rounds][6];
 		Object[] averageResultsOriginalPre;
 		
 		DefaultPredicateProcessorWithLabel originalInstance = new DefaultPredicateProcessorWithLabel(fgProfilesFolder, originalDatasetFolder, fgSitesFile);
-		originalInstance.run(resultsOriginalPre, writer);
+		IDataSet dataset = originalInstance.run(resultsOriginalPre, writer);
 		
 		if(((Double) resultsOriginalPre[5]) < time){
 			for(int i = 0; i < resultsArrayOriginalPre.length; i++){
@@ -556,6 +651,8 @@ public class Client {
 		for(int i = 0; i < averageResultsOriginalPre.length; i++){
 			resultsList.add(averageResultsOriginalPre[i]);
 		}
+		
+		return dataset;
 	}
 
 	private double runMultiMBS(String command, File originalDatasetFolder, int rounds, double time, PrintWriter writer, List<Object> resultsList, BoundCalculator bc) {
@@ -682,7 +779,7 @@ public class Client {
 	private void printResultToExcel(){
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("Data");
-		addTitle(sheet);
+		addResultTitle(sheet);
 		
 		int rownum = sheet.getPhysicalNumberOfRows();
 		for(String version: this.resultsMap.keySet()){
@@ -722,7 +819,7 @@ public class Client {
 		}
 	}
 
-	private void addTitle(XSSFSheet sheet) {
+	private void addResultTitle(XSSFSheet sheet) {
 		// TODO Auto-generated method stub
 		int rownum = sheet.getPhysicalNumberOfRows();
 		
@@ -788,6 +885,118 @@ public class Client {
 		}
 	}
 	
+	private void printCorrelationToExcel(){
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		printCorrelationResultsToExcel(workbook);
+		printCorrelationDataToExcel(workbook);
+		try {
+			if(!consoleFolder.exists()){
+				consoleFolder.mkdirs();
+			}
+			// Write the workbook in file system
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_correlation.xlsx"));
+			workbook.write(out);
+			out.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void printCorrelationResultsToExcel(XSSFWorkbook workbook) {
+		// TODO Auto-generated method stub
+		XSSFSheet sheet = workbook.createSheet("Data");
+		addCorrelationResultsTitle(sheet);
+		
+		int rownum = sheet.getPhysicalNumberOfRows();
+		for(String version: this.correlationResultsMap.keySet()){
+			Row row = sheet.createRow(rownum++);
+			int cellnum = 0;
+			
+			Cell cell = row.createCell(cellnum++);
+			cell.setCellValue(version);
+			
+			for(Object object: this.correlationResultsMap.get(version)){
+				cell = row.createCell(cellnum++);
+				if(object instanceof Integer){
+					cell.setCellValue((Integer) object);
+				}
+				else if(object instanceof Double){
+					cell.setCellValue((Double) object);
+				}
+				else if(object instanceof Long){
+					cell.setCellValue((Long) object);
+				}
+				else if(object instanceof String){
+					cell.setCellValue((String) object);
+				}
+			}
+		}
+	}
+
+	private void addCorrelationResultsTitle(XSSFSheet sheet) {
+		// TODO Auto-generated method stub
+		int rownum = sheet.getPhysicalNumberOfRows();
+		
+		Row row0 = sheet.createRow(rownum++);
+		int cellnum0 = 0;
+		
+		String[] titles = {" ", "Index-Max", "DS-Max", "Index-Mean", "DS-Mean"};
+		
+		for(int i = 0; i < titles.length; i++){
+			Cell cell0 = row0.createCell(cellnum0++);
+			cell0.setCellValue(titles[i]);
+		}
+	}
+
+	private void printCorrelationDataToExcel(XSSFWorkbook workbook) {
+		// TODO Auto-generated method stub
+		for(String version: this.correlationDataMap.keySet()){
+			XSSFSheet sheet = workbook.createSheet(version);
+			addCorrelationDataTitle(sheet);
+			
+			int rownum = sheet.getPhysicalNumberOfRows();
+			for(String function: this.correlationDataMap.get(version).keySet()){
+				Row row = sheet.createRow(rownum++);
+				int cellnum = 0;
+				
+				Cell cell = row.createCell(cellnum++);
+				cell.setCellValue(function);
+				
+				for(Object object: this.correlationDataMap.get(version).get(function)){
+					cell = row.createCell(cellnum++);
+					if(object instanceof Integer){
+						cell.setCellValue((Integer) object);
+					}
+					else if(object instanceof Double){
+						cell.setCellValue((Double) object);
+					}
+					else if(object instanceof Long){
+						cell.setCellValue((Long) object);
+					}
+					else if(object instanceof String){
+						cell.setCellValue((String) object);
+					}
+				}
+			}
+		}
+		
+	}
+
+	private void addCorrelationDataTitle(XSSFSheet sheet) {
+		// TODO Auto-generated method stub
+		int rownum = sheet.getPhysicalNumberOfRows();
+		
+		Row row0 = sheet.createRow(rownum++);
+		int cellnum0 = 0;
+		
+		String[] titles = {" ", "Index", "DS", "Negative", "Positive","Max_DS", "Mean_DS"};
+		
+		for(int i = 0; i < titles.length; i++){
+			Cell cell0 = row0.createCell(cellnum0++);
+			cell0.setCellValue(titles[i]);
+		}
+		
+	}
 	
 
 }

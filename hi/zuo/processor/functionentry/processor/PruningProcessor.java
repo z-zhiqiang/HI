@@ -86,7 +86,7 @@ public class PruningProcessor{
 		}
 	}
 	
-	private static double DS(int neg, int pos, int totalNeg, int totalPos){
+	public static double DS(int neg, int pos, int totalNeg, int totalPos){
 		if((double)(neg / totalNeg) <= (double)(pos / totalPos)){
 			return 0;
 		}

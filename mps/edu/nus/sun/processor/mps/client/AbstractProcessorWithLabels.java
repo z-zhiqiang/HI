@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.List;
 
+import sun.processor.core.IDataSet;
 import sun.processor.core.IProfileProcessor;
 import sun.processor.core.IProfileReader;
 import sun.processor.core.Processor;
@@ -23,7 +24,7 @@ public abstract class AbstractProcessorWithLabels {
 		this.resultOutputFolder = resultOutputFolder;
 	}
 
-	public void run(Object[] resultsArray, PrintWriter writer) {
+	public IDataSet run(Object[] resultsArray, PrintWriter writer) {
 		System.gc();
 
 		final long start = System.currentTimeMillis();
@@ -31,7 +32,7 @@ public abstract class AbstractProcessorWithLabels {
 		final IProfileReader profileReader = this.createProfileReader(profileFolder);
 		final List<BackEnd> backends = this.createBackends(resultOutputFolder);
 		final List<IProfileProcessor> profileProcessors = this.createProfileProcessors(resultOutputFolder);
-		new Processor(profileReader, backends, profileProcessors).process(resultsArray, writer);
+		IDataSet dataset = new Processor(profileReader, backends, profileProcessors).process(resultsArray, writer);
 
 		final long end = System.currentTimeMillis();
 		double time = (double) (end - start) / 1000;
@@ -39,6 +40,8 @@ public abstract class AbstractProcessorWithLabels {
 		System.out.println();
 
 		resultsArray[5] = time;
+		
+		return dataset;
 	}
 
 	protected abstract IProfileReader createProfileReader(File profileFolder);
