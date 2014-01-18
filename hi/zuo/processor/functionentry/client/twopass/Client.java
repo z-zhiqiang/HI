@@ -134,8 +134,8 @@ public class Client {
 			
 			writer.println("=================================================");
 			writer.println(this.resultsMap);
-			System.out.println("\n");
-			System.out.println(this.correlationResultsMap);
+			writer.println("\n");
+			writer.println(this.correlationResultsMap);
 			writer.println("\n\n");
 			
 			writer.close();
@@ -500,10 +500,10 @@ public class Client {
 			String function = entry.getKey().getFunctionName();
 			List<Object> array = new ArrayList<Object>();
 			FrequencyValue value = entry.getValue();
-			array.add(list.size() - i - 1);
+			array.add((double) (list.size() - i - 1));
 			array.add(value.getDS());
-			array.add(value.getNegative());
-			array.add(value.getPositive());
+			array.add((double) value.getNegative());
+			array.add((double) value.getPositive());
 			if(DSInfo.containsKey(function)){
 				PredicateDSInfoWithinFunction dsInfo = DSInfo.get(function);
 				array.add(dsInfo.getMax_DS());
@@ -956,7 +956,7 @@ public class Client {
 	private void printCorrelationDataToExcel(XSSFWorkbook workbook) {
 		// TODO Auto-generated method stub
 		for(String version: this.correlationDataMap.keySet()){
-			XSSFSheet sheet = workbook.createSheet(version);
+			XSSFSheet sheet = workbook.createSheet(version.replace('/', '_'));
 			addCorrelationDataTitle(sheet);
 			
 			int rownum = sheet.getPhysicalNumberOfRows();

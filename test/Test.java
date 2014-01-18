@@ -17,6 +17,9 @@ public class Test {
 	}
 	
 	public static void main(String[] args) throws IOException {
+		System.out.println(4 * 0.2D);
+		List<Double> dlist = new ArrayList<Double>();
+		dlist.add(2 * 1.0D);
 		int a = 20, b = 3;
 		System.out.println(a / b * b);
 		

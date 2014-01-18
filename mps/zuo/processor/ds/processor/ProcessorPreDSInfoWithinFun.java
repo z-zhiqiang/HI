@@ -49,6 +49,7 @@ public class ProcessorPreDSInfoWithinFun {
 		
 		double ds = PruningProcessor.DS(neg, pos, this.predicateDataSet.getNegative(), this.predicateDataSet.getPositive());
 		assert(this.predicateDataSet.getNegative() + this.predicateDataSet.getPositive() == runs.length);
+//		System.out.println(ds + "\t" + neg + "\t" + this.predicateDataSet.getNegative() + "\t" + pos + "\t" + this.predicateDataSet.getPositive());
 		assert(ds > 0);
 		PredicateItemWithDS predicateWithDS = new PredicateItemWithDS(key, ds);
 		
