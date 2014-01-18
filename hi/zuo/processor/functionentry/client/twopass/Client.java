@@ -128,10 +128,14 @@ public class Client {
 			
 			System.out.println("=================================================");
 			System.out.println(this.resultsMap);
+			System.out.println("\n");
+			System.out.println(this.correlationResultsMap);
 			System.out.println("\n\n");
 			
 			writer.println("=================================================");
 			writer.println(this.resultsMap);
+			System.out.println("\n");
+			System.out.println(this.correlationResultsMap);
 			writer.println("\n\n");
 			
 			writer.close();
@@ -261,7 +265,7 @@ public class Client {
 					List<Object> correlationResults = new ArrayList<Object>();
 					run(fgProfilesFolder, fgSitesFile, cgProfilesFolder, cgSitesFile, resultOutputFolder, resultsList, writer, correlationData, correlationResults);
 					
-					assert(resultsList.size() == 55);
+//					assert(resultsList.size() == 55);
 					this.resultsMap.put(vi, resultsList);
 					this.correlationDataMap.put(vi, correlationData);
 					assert(correlationResults.size() == 4);
@@ -270,13 +274,13 @@ public class Client {
 			}
 		}
 		
-		printResultToExcel();
+//		printResultToExcel();
 		printCorrelationToExcel();
 	}
 
 	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer, Map<String, List<Object>> correlationData, List<Object> correlationResults) throws IOException {
 		int rounds = 3;
-		double time = 60;
+		double time = 0;
 		
 		double threshold = 0;
 		String command = "mbs -k " + k + " -n 0.5 -g --refine 2  --metric 0  --dfs  --merge  --cache 9999 --up-limit " + l + " --print-resource-usage ";
@@ -354,10 +358,11 @@ public class Client {
 		}
 		
 		IDataSet dataset = runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
-		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, bc);
+//		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, bc);
 		
 		
 		/*=================================================================================================*/
+		
 		assert(dataset instanceof PredicateDataSet);
 		ProcessorPreDSInfoWithinFun processorDSInfo = new ProcessorPreDSInfoWithinFun((PredicateDataSet) dataset);
 		processorDSInfo.process();
@@ -370,120 +375,120 @@ public class Client {
 		
 		/*=================================================================================================*/
 		
-		Set<String> boostFunctionSet = funClient.getBoostFunctionSet(mode, percent);
-		File boostProfilesFolder = new File(fgProfilesFolder.getParentFile(), "boost");
-		File boostSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'b'));
-		PredicateSplittingSiteProfile boostSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, boostSitesFile, boostProfilesFolder, boostFunctionSet);
-		boostSplit.split();
-		
-		SitesInfo boostSitesInfo = new SitesInfo(new InstrumentationSites(boostSitesFile));
-		resultsList.add(FileUtils.sizeOf(boostSitesFile));
-		resultsList.add(boostSitesInfo.getNumPredicateSites());
-		resultsList.add(boostSitesInfo.getNumPredicateItems());
-		resultsList.add(FileUtils.sizeOf(boostProfilesFolder));
-		resultsList.add(boostFunctionSet.size());
-		
-		File boostDatasetFolder = new File(resultOutputFolder, "boost");
-		if(!boostDatasetFolder.exists()){
-			boostDatasetFolder.mkdirs();
-		}
-		FileCollection.writeCollection(boostFunctionSet, new File(boostDatasetFolder, "boost_functions_" + mode + "_" + percent + ".txt" ));
-		
-		runMultiPreprocess(boostProfilesFolder, boostDatasetFolder, boostSitesFile, rounds, time, writer, resultsList);
-		threshold = runMultiMBS(command, boostDatasetFolder, rounds, time, writer, resultsList, bc);
-
-		FileUtility.removeFileOrDirectory(boostProfilesFolder);
-		FileUtility.removeFileOrDirectory(boostSitesFile);
-		
-		
-		//-------------------------------------------------------------------------------------------------//
-		
-		Set<String> pruneFunctionSet = funClient.getFunctionSet(bc.computeIGBound(threshold));
-		Set<String> pruneMinusBoostFunctionSet = new LinkedHashSet<String>(pruneFunctionSet);
-		pruneMinusBoostFunctionSet.removeAll(boostFunctionSet);
-		
-		if(pruneMinusBoostFunctionSet.isEmpty()){
-			resultsList.add(0L);
-			resultsList.add(0);
-			resultsList.add(0);
-			resultsList.add(0L);
-			resultsList.add(0);
-			
-			File pruneMinusBoostDatasetFolder = new File(resultOutputFolder, "pruneMinusBoost");
-			if(!pruneMinusBoostDatasetFolder.exists()){
-				pruneMinusBoostDatasetFolder.mkdirs();
-			}
-			FileCollection.writeCollection(pruneMinusBoostFunctionSet, new File(pruneMinusBoostDatasetFolder, "prune_minus_boost_functions_" + mode + "_" + percent + ".txt" ));
-			
-			//--------------------------------------------//
-			
-			resultsList.add(pruneFunctionSet.size());
-			
-			File pruneDatasetFolder = new File(resultOutputFolder, "prune");
-			if(!pruneDatasetFolder.exists()){
-				pruneDatasetFolder.mkdirs();
-			}
-			FileCollection.writeCollection(pruneFunctionSet, new File(pruneDatasetFolder, "prune_functions_" + mode + "_" + percent + ".txt" ));
-			
-			assignResultsListForPreprocessAndMBS(resultsList);
-		}
-		else{
-			File pruneMinusBoostProfilesFolder = new File(fgProfilesFolder.getParentFile(), "pruneMinusBoost");
-			File pruneMinusBoostSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'm'));
-			PredicateSplittingSiteProfile pruneMinusBoostSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, pruneMinusBoostSitesFile, pruneMinusBoostProfilesFolder, pruneMinusBoostFunctionSet);
-			pruneMinusBoostSplit.split();
-			
-			SitesInfo pruneMinusBoostSitesInfo = new SitesInfo(new InstrumentationSites(pruneMinusBoostSitesFile));
-			resultsList.add(FileUtils.sizeOf(pruneMinusBoostSitesFile));
-			resultsList.add(pruneMinusBoostSitesInfo.getNumPredicateSites());
-			resultsList.add(pruneMinusBoostSitesInfo.getNumPredicateItems());
-			resultsList.add(FileUtils.sizeOf(pruneMinusBoostProfilesFolder));
-			resultsList.add(pruneMinusBoostFunctionSet.size());
-			
-			File pruneMinusBoostDatasetFolder = new File(resultOutputFolder, "pruneMinusBoost");
-			if(!pruneMinusBoostDatasetFolder.exists()){
-				pruneMinusBoostDatasetFolder.mkdirs();
-			}
-			FileCollection.writeCollection(pruneMinusBoostFunctionSet, new File(pruneMinusBoostDatasetFolder, "prune_minus_boost_functions_" + mode + "_" + percent + ".txt" ));
-
-			//--------------------------------------------//
-			
-			File pruneProfilesFolder = new File(fgProfilesFolder.getParentFile(), "prune");
-			File pruneSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'p'));
-			PredicateSplittingSiteProfile pruneSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, pruneSitesFile, pruneProfilesFolder, pruneFunctionSet);
-			pruneSplit.split();
-			
-			resultsList.add(pruneFunctionSet.size());
-			
-			File pruneDatasetFolder = new File(resultOutputFolder, "prune");
-			if(!pruneDatasetFolder.exists()){
-				pruneDatasetFolder.mkdirs();
-			}
-			FileCollection.writeCollection(pruneFunctionSet, new File(pruneDatasetFolder, "prune_functions_" + mode + "_" + percent + ".txt" ));
-
-			if(threshold == 0){
-				runMultiPreprocess(pruneMinusBoostProfilesFolder, pruneDatasetFolder, pruneMinusBoostSitesFile, rounds, time, writer, resultsList);
-			}
-			else{
-				runMultiPreprocess(pruneProfilesFolder, pruneDatasetFolder, pruneSitesFile, rounds, time, writer, resultsList);
-			}
-			runMultiMBS(command, pruneDatasetFolder, rounds, time, writer, resultsList, bc);
-			
-			FileUtility.removeFileOrDirectory(pruneMinusBoostProfilesFolder);
-			FileUtility.removeFileOrDirectory(pruneMinusBoostSitesFile);
-			FileUtility.removeFileOrDirectory(pruneProfilesFolder);
-			FileUtility.removeFileOrDirectory(pruneSitesFile);
-		}
-
-		
-		//-------------------------------------------------------------------------------------------------//
-		
-		File originalAll = new File(resultOutputFolder, "original_all");
-		FileUtility.removeFileOrDirectory(originalAll);
-		File boostAll = new File(resultOutputFolder, "boost_all");
-		FileUtility.removeFileOrDirectory(boostAll);
-		File pruneAll = new File(resultOutputFolder, "prune_all");
-		FileUtility.removeFileOrDirectory(pruneAll);
+//		Set<String> boostFunctionSet = funClient.getBoostFunctionSet(mode, percent);
+//		File boostProfilesFolder = new File(fgProfilesFolder.getParentFile(), "boost");
+//		File boostSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'b'));
+//		PredicateSplittingSiteProfile boostSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, boostSitesFile, boostProfilesFolder, boostFunctionSet);
+//		boostSplit.split();
+//		
+//		SitesInfo boostSitesInfo = new SitesInfo(new InstrumentationSites(boostSitesFile));
+//		resultsList.add(FileUtils.sizeOf(boostSitesFile));
+//		resultsList.add(boostSitesInfo.getNumPredicateSites());
+//		resultsList.add(boostSitesInfo.getNumPredicateItems());
+//		resultsList.add(FileUtils.sizeOf(boostProfilesFolder));
+//		resultsList.add(boostFunctionSet.size());
+//		
+//		File boostDatasetFolder = new File(resultOutputFolder, "boost");
+//		if(!boostDatasetFolder.exists()){
+//			boostDatasetFolder.mkdirs();
+//		}
+//		FileCollection.writeCollection(boostFunctionSet, new File(boostDatasetFolder, "boost_functions_" + mode + "_" + percent + ".txt" ));
+//		
+//		runMultiPreprocess(boostProfilesFolder, boostDatasetFolder, boostSitesFile, rounds, time, writer, resultsList);
+//		threshold = runMultiMBS(command, boostDatasetFolder, rounds, time, writer, resultsList, bc);
+//
+//		FileUtility.removeFileOrDirectory(boostProfilesFolder);
+//		FileUtility.removeFileOrDirectory(boostSitesFile);
+//		
+//		
+//		//-------------------------------------------------------------------------------------------------//
+//		
+//		Set<String> pruneFunctionSet = funClient.getFunctionSet(bc.computeIGBound(threshold));
+//		Set<String> pruneMinusBoostFunctionSet = new LinkedHashSet<String>(pruneFunctionSet);
+//		pruneMinusBoostFunctionSet.removeAll(boostFunctionSet);
+//		
+//		if(pruneMinusBoostFunctionSet.isEmpty()){
+//			resultsList.add(0L);
+//			resultsList.add(0);
+//			resultsList.add(0);
+//			resultsList.add(0L);
+//			resultsList.add(0);
+//			
+//			File pruneMinusBoostDatasetFolder = new File(resultOutputFolder, "pruneMinusBoost");
+//			if(!pruneMinusBoostDatasetFolder.exists()){
+//				pruneMinusBoostDatasetFolder.mkdirs();
+//			}
+//			FileCollection.writeCollection(pruneMinusBoostFunctionSet, new File(pruneMinusBoostDatasetFolder, "prune_minus_boost_functions_" + mode + "_" + percent + ".txt" ));
+//			
+//			//--------------------------------------------//
+//			
+//			resultsList.add(pruneFunctionSet.size());
+//			
+//			File pruneDatasetFolder = new File(resultOutputFolder, "prune");
+//			if(!pruneDatasetFolder.exists()){
+//				pruneDatasetFolder.mkdirs();
+//			}
+//			FileCollection.writeCollection(pruneFunctionSet, new File(pruneDatasetFolder, "prune_functions_" + mode + "_" + percent + ".txt" ));
+//			
+//			assignResultsListForPreprocessAndMBS(resultsList);
+//		}
+//		else{
+//			File pruneMinusBoostProfilesFolder = new File(fgProfilesFolder.getParentFile(), "pruneMinusBoost");
+//			File pruneMinusBoostSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'm'));
+//			PredicateSplittingSiteProfile pruneMinusBoostSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, pruneMinusBoostSitesFile, pruneMinusBoostProfilesFolder, pruneMinusBoostFunctionSet);
+//			pruneMinusBoostSplit.split();
+//			
+//			SitesInfo pruneMinusBoostSitesInfo = new SitesInfo(new InstrumentationSites(pruneMinusBoostSitesFile));
+//			resultsList.add(FileUtils.sizeOf(pruneMinusBoostSitesFile));
+//			resultsList.add(pruneMinusBoostSitesInfo.getNumPredicateSites());
+//			resultsList.add(pruneMinusBoostSitesInfo.getNumPredicateItems());
+//			resultsList.add(FileUtils.sizeOf(pruneMinusBoostProfilesFolder));
+//			resultsList.add(pruneMinusBoostFunctionSet.size());
+//			
+//			File pruneMinusBoostDatasetFolder = new File(resultOutputFolder, "pruneMinusBoost");
+//			if(!pruneMinusBoostDatasetFolder.exists()){
+//				pruneMinusBoostDatasetFolder.mkdirs();
+//			}
+//			FileCollection.writeCollection(pruneMinusBoostFunctionSet, new File(pruneMinusBoostDatasetFolder, "prune_minus_boost_functions_" + mode + "_" + percent + ".txt" ));
+//
+//			//--------------------------------------------//
+//			
+//			File pruneProfilesFolder = new File(fgProfilesFolder.getParentFile(), "prune");
+//			File pruneSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'p'));
+//			PredicateSplittingSiteProfile pruneSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, pruneSitesFile, pruneProfilesFolder, pruneFunctionSet);
+//			pruneSplit.split();
+//			
+//			resultsList.add(pruneFunctionSet.size());
+//			
+//			File pruneDatasetFolder = new File(resultOutputFolder, "prune");
+//			if(!pruneDatasetFolder.exists()){
+//				pruneDatasetFolder.mkdirs();
+//			}
+//			FileCollection.writeCollection(pruneFunctionSet, new File(pruneDatasetFolder, "prune_functions_" + mode + "_" + percent + ".txt" ));
+//
+//			if(threshold == 0){
+//				runMultiPreprocess(pruneMinusBoostProfilesFolder, pruneDatasetFolder, pruneMinusBoostSitesFile, rounds, time, writer, resultsList);
+//			}
+//			else{
+//				runMultiPreprocess(pruneProfilesFolder, pruneDatasetFolder, pruneSitesFile, rounds, time, writer, resultsList);
+//			}
+//			runMultiMBS(command, pruneDatasetFolder, rounds, time, writer, resultsList, bc);
+//			
+//			FileUtility.removeFileOrDirectory(pruneMinusBoostProfilesFolder);
+//			FileUtility.removeFileOrDirectory(pruneMinusBoostSitesFile);
+//			FileUtility.removeFileOrDirectory(pruneProfilesFolder);
+//			FileUtility.removeFileOrDirectory(pruneSitesFile);
+//		}
+//
+//		
+//		//-------------------------------------------------------------------------------------------------//
+//		
+//		File originalAll = new File(resultOutputFolder, "original_all");
+//		FileUtility.removeFileOrDirectory(originalAll);
+//		File boostAll = new File(resultOutputFolder, "boost_all");
+//		FileUtility.removeFileOrDirectory(boostAll);
+//		File pruneAll = new File(resultOutputFolder, "prune_all");
+//		FileUtility.removeFileOrDirectory(pruneAll);
 		
 	}
 
@@ -522,18 +527,18 @@ public class Client {
 	}
 
 	/**
-	 * @param resultsDS
+	 * @param correlationData
 	 * 0:ordering index; 1:ds; 2:neg; 3:pos; 4:max_ds; 5:mean_ds;
 	 * @param i: variable
 	 * @param j: variable
 	 * @return
 	 */
-	private double computeCorrelationCoefficient(Map<String, List<Object>> resultsDS, int i, int j) {
+	private double computeCorrelationCoefficient(Map<String, List<Object>> correlationData, int i, int j) {
 		// TODO Auto-generated method stub
 		double sumi = 0, sumj = 0, sumii = 0, sumjj = 0, sumij = 0;
 		int size = 0;
-		for(String function: resultsDS.keySet()){
-			List<Object> list = resultsDS.get(function);
+		for(String function: correlationData.keySet()){
+			List<Object> list = correlationData.get(function);
 			size++;
 			sumi += (Double)list.get(i);
 			sumj += (Double)list.get(j);
@@ -541,7 +546,7 @@ public class Client {
 			sumjj += (Double)list.get(j) * (Double)list.get(j);
 			sumij += (Double)list.get(i) * (Double)list.get(j);
 		}
-		assert(size == resultsDS.size());
+		assert(size == correlationData.size());
 		double ij = sumij - sumi * sumj / size;
 		double ii = sumii - sumi * sumi / size;
 		double jj = sumjj - sumj * sumj / size;
@@ -904,7 +909,7 @@ public class Client {
 	
 	private void printCorrelationResultsToExcel(XSSFWorkbook workbook) {
 		// TODO Auto-generated method stub
-		XSSFSheet sheet = workbook.createSheet("Data");
+		XSSFSheet sheet = workbook.createSheet("Results");
 		addCorrelationResultsTitle(sheet);
 		
 		int rownum = sheet.getPhysicalNumberOfRows();
