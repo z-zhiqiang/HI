@@ -17,6 +17,13 @@ public class Test {
 	}
 	
 	public static void main(String[] args) throws IOException {
+		List<Object> olist = new ArrayList<Object>();
+		olist.add((double) 0);
+		System.out.println(olist.get(0));
+		System.out.println((Double) olist.get(0) == 0.0D);
+		System.out.println(Math.abs((Double) olist.get(0) - 0) < 0.00000001);
+		
+		
 		System.out.println(4 * 0.2D);
 		List<Double> dlist = new ArrayList<Double>();
 		dlist.add(2 * 1.0D);

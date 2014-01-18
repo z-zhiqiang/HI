@@ -268,7 +268,7 @@ public class Client {
 //					assert(resultsList.size() == 55);
 					this.resultsMap.put(vi, resultsList);
 					this.correlationDataMap.put(vi, correlationData);
-					assert(correlationResults.size() == 4);
+					assert(correlationResults.size() == 8);
 					this.correlationResultsMap.put(vi, correlationResults);
 				}
 			}
@@ -520,10 +520,14 @@ public class Client {
 		}
 		
 		//compute the Correlation Coefficient
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 4));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 4));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 5));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 5));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 4, true));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 4, true));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 5, true));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 5, true));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 4, false));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 4, false));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 5, false));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 5, false));
 	}
 
 	/**
@@ -533,20 +537,37 @@ public class Client {
 	 * @param j: variable
 	 * @return
 	 */
-	private double computeCorrelationCoefficient(Map<String, List<Object>> correlationData, int i, int j) {
+	private double computeCorrelationCoefficient(Map<String, List<Object>> correlationData, int i, int j, boolean fullList) {
 		// TODO Auto-generated method stub
 		double sumi = 0, sumj = 0, sumii = 0, sumjj = 0, sumij = 0;
 		int size = 0;
-		for(String function: correlationData.keySet()){
-			List<Object> list = correlationData.get(function);
-			size++;
-			sumi += (Double)list.get(i);
-			sumj += (Double)list.get(j);
-			sumii += (Double)list.get(i) * (Double)list.get(i);
-			sumjj += (Double)list.get(j) * (Double)list.get(j);
-			sumij += (Double)list.get(i) * (Double)list.get(j);
+		if(fullList){//all the functions
+			for(String function: correlationData.keySet()){
+				List<Object> list = correlationData.get(function);
+				size++;
+				sumi += (Double)list.get(i);
+				sumj += (Double)list.get(j);
+				sumii += (Double)list.get(i) * (Double)list.get(i);
+				sumjj += (Double)list.get(j) * (Double)list.get(j);
+				sumij += (Double)list.get(i) * (Double)list.get(j);
+			}
+			assert(size == correlationData.size());
 		}
-		assert(size == correlationData.size());
+		else{//all the functions whose negative support is bigger than 0
+			for(String function: correlationData.keySet()){
+				List<Object> list = correlationData.get(function);
+				if(Math.abs((Double) list.get(2) - 0) < 0.0000001){
+					break;
+				}
+				size++;
+				sumi += (Double)list.get(i);
+				sumj += (Double)list.get(j);
+				sumii += (Double)list.get(i) * (Double)list.get(i);
+				sumjj += (Double)list.get(j) * (Double)list.get(j);
+				sumij += (Double)list.get(i) * (Double)list.get(j);
+			}
+		}
+		
 		double ij = sumij - sumi * sumj / size;
 		double ii = sumii - sumi * sumi / size;
 		double jj = sumjj - sumj * sumj / size;
@@ -944,12 +965,24 @@ public class Client {
 		
 		Row row0 = sheet.createRow(rownum++);
 		int cellnum0 = 0;
+		Row row1 = sheet.createRow(rownum++);
+		int cellnum1 = 0;
 		
-		String[] titles = {" ", "Index-Max", "DS-Max", "Index-Mean", "DS-Mean"};
+		String[] ftitles = {"Full", "Partial"};
+		String[] titles = {"Index-Max", "DS-Max", "Index-Mean", "DS-Mean"};
 		
-		for(int i = 0; i < titles.length; i++){
-			Cell cell0 = row0.createCell(cellnum0++);
-			cell0.setCellValue(titles[i]);
+		Cell cell0 = row0.createCell(cellnum0++);
+		cell0.setCellValue(" ");
+		Cell cell1 = row1.createCell(cellnum1++);
+		cell1.setCellValue(" ");
+		
+		for(int j = 0; j < ftitles.length; j++){
+			for(int i = 0; i < titles.length; i++){
+				cell0 = row0.createCell(cellnum0++);
+				cell0.setCellValue(ftitles[j]);
+				cell1 = row1.createCell(cellnum1++);
+				cell1.setCellValue(titles[i]);
+			}
 		}
 	}
 
