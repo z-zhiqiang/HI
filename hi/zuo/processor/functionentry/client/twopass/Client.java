@@ -358,11 +358,8 @@ public class Client {
 		}
 		
 		IDataSet dataset = runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
-		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, bc);
-		
-		
-		/*=================================================================================================*/
-		
+
+		//-------------------------------------------------------------------------------------------------//
 		assert(dataset instanceof PredicateDataSet);
 		ProcessorPreDSInfoWithinFun processorDSInfo = new ProcessorPreDSInfoWithinFun((PredicateDataSet) dataset);
 		processorDSInfo.process();
@@ -371,6 +368,9 @@ public class Client {
 		assert(list.size() >= DSInfo.size());
 		
 		processDSCorrelation(DSInfo, list, correlationData, correlationResults);
+		//-------------------------------------------------------------------------------------------------//
+		
+		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, bc);
 		
 		
 		/*=================================================================================================*/
