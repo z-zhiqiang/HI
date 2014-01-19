@@ -27,6 +27,10 @@ public class ProcessorPreDSInfoWithinFun {
 		for(int i = 0; i < predicateItems.size(); i++){
 			processEachPredicateItem(i, runs);
 		}
+		//set the median DS value of predicates within each function
+		for(String function: this.DSInfoMap.keySet()){
+			this.DSInfoMap.get(function).setDS_Max_Mean_Median();
+		}
 	}
 
 	private void processEachPredicateItem(int i, Run[] runs) {

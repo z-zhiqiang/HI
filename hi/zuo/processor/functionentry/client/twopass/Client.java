@@ -268,14 +268,14 @@ public class Client {
 					assert(resultsList.size() == 55);
 					this.resultsMap.put(vi, resultsList);
 					this.correlationDataMap.put(vi, correlationData);
-//					assert(correlationResults.size() == 8);
+					assert(correlationResults.size() == 12);
 					this.correlationResultsMap.put(vi, correlationResults);
 				}
 			}
 		}
 		
 		printResultToExcel();
-//		printCorrelationToExcel();
+		printCorrelationToExcel();
 	}
 
 	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer, Map<String, List<Object>> correlationData, List<Object> correlationResults) throws IOException {
@@ -360,14 +360,14 @@ public class Client {
 		IDataSet dataset = runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
 
 		//-------------------------------------------------------------------------------------------------//
-//		assert(dataset instanceof PredicateDataSet);
-//		ProcessorPreDSInfoWithinFun processorDSInfo = new ProcessorPreDSInfoWithinFun((PredicateDataSet) dataset);
-//		processorDSInfo.process();
-//		Map<String, PredicateDSInfoWithinFunction> DSInfo = processorDSInfo.getDSInfoMap();
-//		List<Map.Entry<FunctionEntrySite, FrequencyValue>> list = funClient.getList();
-//		assert(list.size() >= DSInfo.size());
-//		
-//		processDSCorrelation(DSInfo, list, correlationData, correlationResults);
+		assert(dataset instanceof PredicateDataSet);
+		ProcessorPreDSInfoWithinFun processorDSInfo = new ProcessorPreDSInfoWithinFun((PredicateDataSet) dataset);
+		processorDSInfo.process();
+		Map<String, PredicateDSInfoWithinFunction> DSInfo = processorDSInfo.getDSInfoMap();
+		List<Map.Entry<FunctionEntrySite, FrequencyValue>> list = funClient.getList();
+		assert(list.size() >= DSInfo.size());
+		
+		processDSCorrelation(DSInfo, list, correlationData, correlationResults);
 //		//-------------------------------------------------------------------------------------------------//
 		
 		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, bc);
@@ -508,8 +508,10 @@ public class Client {
 				PredicateDSInfoWithinFunction dsInfo = DSInfo.get(function);
 				array.add(dsInfo.getMax_DS());
 				array.add(dsInfo.getMean_DS());
+				array.add(dsInfo.getMedian_DS());
 			}
 			else{
+				array.add(0.0D);
 				array.add(0.0D);
 				array.add(0.0D);
 			}
@@ -524,15 +526,19 @@ public class Client {
 		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 4, true));
 		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 5, true));
 		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 5, true));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 6, true));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 6, true));
 		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 4, false));
 		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 4, false));
 		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 5, false));
 		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 5, false));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 6, false));
+		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 6, false));
 	}
 
 	/**
 	 * @param correlationData
-	 * 0:ordering index; 1:ds; 2:neg; 3:pos; 4:max_ds; 5:mean_ds;
+	 * 0:ordering index; 1:ds; 2:neg; 3:pos; 4:max_ds; 5:mean_ds; 6:median_ds;
 	 * @param i: variable
 	 * @param j: variable
 	 * @return
@@ -969,7 +975,7 @@ public class Client {
 		int cellnum1 = 0;
 		
 		String[] ftitles = {"Full", "Partial"};
-		String[] titles = {"Index-Max", "DS-Max", "Index-Mean", "DS-Mean"};
+		String[] titles = {"Index-Max", "DS-Max", "Index-Mean", "DS-Mean", "Index-Median", "DS-Median"};
 		
 		Cell cell0 = row0.createCell(cellnum0++);
 		cell0.setCellValue(" ");
@@ -1027,7 +1033,7 @@ public class Client {
 		Row row0 = sheet.createRow(rownum++);
 		int cellnum0 = 0;
 		
-		String[] titles = {" ", "Index", "DS", "Negative", "Positive","Max_DS", "Mean_DS"};
+		String[] titles = {" ", "Index", "DS", "Negative", "Positive","Max_DS", "Mean_DS", "Median_DS"};
 		
 		for(int i = 0; i < titles.length; i++){
 			Cell cell0 = row0.createCell(cellnum0++);
