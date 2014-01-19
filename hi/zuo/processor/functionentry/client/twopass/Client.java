@@ -268,14 +268,14 @@ public class Client {
 					assert(resultsList.size() == 55);
 					this.resultsMap.put(vi, resultsList);
 					this.correlationDataMap.put(vi, correlationData);
-					assert(correlationResults.size() == 8);
+//					assert(correlationResults.size() == 8);
 					this.correlationResultsMap.put(vi, correlationResults);
 				}
 			}
 		}
 		
 		printResultToExcel();
-		printCorrelationToExcel();
+//		printCorrelationToExcel();
 	}
 
 	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer, Map<String, List<Object>> correlationData, List<Object> correlationResults) throws IOException {
@@ -360,15 +360,15 @@ public class Client {
 		IDataSet dataset = runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
 
 		//-------------------------------------------------------------------------------------------------//
-		assert(dataset instanceof PredicateDataSet);
-		ProcessorPreDSInfoWithinFun processorDSInfo = new ProcessorPreDSInfoWithinFun((PredicateDataSet) dataset);
-		processorDSInfo.process();
-		Map<String, PredicateDSInfoWithinFunction> DSInfo = processorDSInfo.getDSInfoMap();
-		List<Map.Entry<FunctionEntrySite, FrequencyValue>> list = funClient.getList();
-		assert(list.size() >= DSInfo.size());
-		
-		processDSCorrelation(DSInfo, list, correlationData, correlationResults);
-		//-------------------------------------------------------------------------------------------------//
+//		assert(dataset instanceof PredicateDataSet);
+//		ProcessorPreDSInfoWithinFun processorDSInfo = new ProcessorPreDSInfoWithinFun((PredicateDataSet) dataset);
+//		processorDSInfo.process();
+//		Map<String, PredicateDSInfoWithinFunction> DSInfo = processorDSInfo.getDSInfoMap();
+//		List<Map.Entry<FunctionEntrySite, FrequencyValue>> list = funClient.getList();
+//		assert(list.size() >= DSInfo.size());
+//		
+//		processDSCorrelation(DSInfo, list, correlationData, correlationResults);
+//		//-------------------------------------------------------------------------------------------------//
 		
 		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, bc);
 		
