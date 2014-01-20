@@ -16,9 +16,14 @@ public class Test {
 		RANDOM, NEGATIVE, H_1, F_1, H_2, PRECISION, POSITIVE
 	}
 	
+	
 	public static void main(String[] args) throws IOException {
+		System.out.println(Client.computeTValueOfCC(0.3539878994, 90));
 		List<Object> olist = new ArrayList<Object>();
 		olist.add((double) 0);
+		
+		olist.add(2 / 0);
+		System.out.println(olist.toString());
 		System.out.println(olist.get(0));
 		System.out.println((Double) olist.get(0) == 0.0D);
 		System.out.println(Math.abs((Double) olist.get(0) - 0) < 0.00000001);

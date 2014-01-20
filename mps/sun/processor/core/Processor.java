@@ -25,15 +25,9 @@ public class Processor {
 		private IDataSet process(IProfile[] profiles, Object[] resultsArray, PrintWriter writer) {
 			IDataSet dataset = this.graphConstructor.createDataSet(profiles, resultsArray, writer);
 			
-//			AbstractProcessorWithLabels.printMemoryUsage(1);
-			
-//			Runtime.getRuntime().gc();
-//			Runtime.getRuntime().gc();
-			for (IDataSetProcessor processor : this.graphProcessors) {
-				processor.process(dataset, resultsArray, writer);
-			}
-			
-//			AbstractProcessorWithLabels.printMemoryUsage(2);
+//			for (IDataSetProcessor processor : this.graphProcessors) {
+//				processor.process(dataset, resultsArray, writer);
+//			}
 			
 			return dataset;
 		}

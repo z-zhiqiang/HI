@@ -268,7 +268,7 @@ public class Client {
 //					assert(resultsList.size() == 55);
 					this.resultsMap.put(vi, resultsList);
 					this.correlationDataMap.put(vi, correlationData);
-					assert(correlationResults.size() == 12);
+					assert(correlationResults.size() == 26);
 					this.correlationResultsMap.put(vi, correlationResults);
 				}
 			}
@@ -522,18 +522,82 @@ public class Client {
 		}
 		
 		//compute the Correlation Coefficient
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 4, true));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 4, true));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 5, true));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 5, true));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 6, true));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 6, true));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 4, false));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 4, false));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 5, false));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 5, false));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 0, 6, false));
-		correlationResults.add(computeCorrelationCoefficient(correlationData, 1, 6, false));
+		double cc;
+		
+		int fullSize = correlationData.size();
+		correlationResults.add(fullSize);
+		
+		cc = computeCorrelationCoefficient(correlationData, 0, 4, true);
+		correlationResults.add(cc);
+		correlationResults.add(computeTValueOfCC(cc, fullSize));
+		
+		cc = computeCorrelationCoefficient(correlationData, 1, 4, true);
+		correlationResults.add(cc);
+		correlationResults.add(computeTValueOfCC(cc, fullSize));
+		
+		cc = computeCorrelationCoefficient(correlationData, 0, 5, true);
+		correlationResults.add(cc);
+		correlationResults.add(computeTValueOfCC(cc, fullSize));
+		
+		cc = computeCorrelationCoefficient(correlationData, 1, 5, true);
+		correlationResults.add(cc);
+		correlationResults.add(computeTValueOfCC(cc, fullSize));
+		
+		cc = computeCorrelationCoefficient(correlationData, 0, 6, true);
+		correlationResults.add(cc);
+		correlationResults.add(computeTValueOfCC(cc, fullSize));
+		
+		cc = computeCorrelationCoefficient(correlationData, 1, 6, true);
+		correlationResults.add(cc);
+		correlationResults.add(computeTValueOfCC(cc, fullSize));
+		
+		
+		int partialSize = getPartialSize(correlationData);
+		correlationResults.add(partialSize);
+		
+		cc = computeCorrelationCoefficient(correlationData, 0, 4, false);
+		correlationResults.add(cc);
+		correlationResults.add(computeTValueOfCC(cc, partialSize));
+		
+		cc = computeCorrelationCoefficient(correlationData, 1, 4, false);
+		correlationResults.add(cc);
+		correlationResults.add(computeTValueOfCC(cc, partialSize));
+		
+		cc = computeCorrelationCoefficient(correlationData, 0, 5, false);
+		correlationResults.add(cc);
+		correlationResults.add(computeTValueOfCC(cc, partialSize));
+		
+		cc = computeCorrelationCoefficient(correlationData, 1, 5, false);
+		correlationResults.add(cc);
+		correlationResults.add(computeTValueOfCC(cc, partialSize));
+		
+		cc = computeCorrelationCoefficient(correlationData, 0, 6, false);
+		correlationResults.add(cc);
+		correlationResults.add(computeTValueOfCC(cc, partialSize));
+		
+		cc = computeCorrelationCoefficient(correlationData, 1, 6, false);
+		correlationResults.add(cc);
+		correlationResults.add(computeTValueOfCC(cc, partialSize));
+		
+	}
+
+	public static double computeTValueOfCC(double cc, int size) {
+		// TODO Auto-generated method stub
+		return cc / Math.sqrt((1 - cc * cc) / (size - 2));
+	}
+
+	private int getPartialSize(Map<String, List<Object>> correlationData) {
+		// TODO Auto-generated method stub
+		int size = 0;
+		for(String function: correlationData.keySet()){
+			List<Object> list = correlationData.get(function);
+			if(Math.abs((Double) list.get(2) - 0) < 0.0000001){
+				break;
+			}
+			size++;
+		}
+		
+		return size;
 	}
 
 	/**
@@ -975,7 +1039,8 @@ public class Client {
 		int cellnum1 = 0;
 		
 		String[] ftitles = {"Full", "Partial"};
-		String[] titles = {"Index-Max", "DS-Max", "Index-Mean", "DS-Mean", "Index-Median", "DS-Median"};
+		String[] titles = {"Size", "Index-Max", "T", "DS-Max", "T", "Index-Mean", "T",
+				"DS-Mean", "T", "Index-Median", "T", "DS-Median", "T"};
 		
 		Cell cell0 = row0.createCell(cellnum0++);
 		cell0.setCellValue(" ");
