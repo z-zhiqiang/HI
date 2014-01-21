@@ -25,9 +25,9 @@ public class Processor {
 		private IDataSet process(IProfile[] profiles, Object[] resultsArray, PrintWriter writer) {
 			IDataSet dataset = this.graphConstructor.createDataSet(profiles, resultsArray, writer);
 			
-//			for (IDataSetProcessor processor : this.graphProcessors) {
-//				processor.process(dataset, resultsArray, writer);
-//			}
+			for (IDataSetProcessor processor : this.graphProcessors) {
+				processor.process(dataset, resultsArray, writer);
+			}
 			
 			return dataset;
 		}
