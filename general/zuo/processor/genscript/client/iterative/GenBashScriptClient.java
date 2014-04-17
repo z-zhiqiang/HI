@@ -3,12 +3,18 @@ package zuo.processor.genscript.client.iterative;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import zuo.processor.genscript.bash.iterative.AbstractGenRunAllScript;
 import zuo.processor.genscript.bash.iterative.AbstractGenRunScript;
@@ -23,12 +29,13 @@ import zuo.processor.genscript.bash.iterative.GenRunSampledFineGrainedInstrument
 import zuo.processor.genscript.bash.iterative.GenRunSubjectScript;
 import zuo.processor.genscript.bash.iterative.GenRunVersionsScript;
 import zuo.processor.splitinputs.SplitInputs;
-import zuo.util.file.FileUtility;
 
 public class GenBashScriptClient {
 	public final static String rootDir = "/home/sunzzq/Research/Automated_Bug_Isolation/Iterative/Subjects/";
 	
+	public final static String setEnv = "export experiment_root=" + rootDir + "\n"; 
 	public final static String exeFile = rootDir + "bash/source/bin/" + "bash ";
+	public final static String inputsDir = rootDir + "bash/testplans.alt/testplans.fine/";
 	
 	public final String subject;
 	public final String version;
@@ -90,11 +97,6 @@ public class GenBashScriptClient {
 		
 		scriptDir = rootDir + subject + "/scripts/";
 		
-		compileFGInstrument = "CC=\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample \""
-				;
-		compileCGInstrument = "CC=\"sampler-cc -fsampler-scheme=function-entries -fno-sample \""
-				;
-		
 	}
 
 	
@@ -111,8 +113,6 @@ public class GenBashScriptClient {
 	private void gen() throws IOException {
 		AbstractGenRunScript gs;
 		AbstractGenRunAllScript ga;
-		String setEnv = "export experiment_root=" + rootDir + "\n";
-		String sf = rootDir + subject + "/testplans.alt/universe";
 
 		//read faults (subversion)
 		readFaults();
@@ -120,7 +120,7 @@ public class GenBashScriptClient {
 		
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 		
-		constructBashInputsMapFile(new File(""), inputsMapFile);
+		constructBashInputsMapFile(new File(inputsDir), inputsMapFile);
 		//generate run subject and subversion scripts
 		String subjectCompile = setEnv + "./makevers " + version.substring(1);
 		gs = new GenRunSubjectScript(subject, version, subjectCompile, sexecuteDir, soutputDir, scriptDir);
@@ -164,19 +164,21 @@ public class GenBashScriptClient {
 			gs.genRunScript();
 			
 			String cgCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
-					+ "CC=\"sampler-cc -fsampler-scheme=function-entries -fno-sample \"";
+					+ " CC=\"sampler-cc -fsampler-scheme=function-entries -fno-sample \"";
 			gs = new GenRunCoarseGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, cgCompile, gc.vexecuteDir, 
 					gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 			gs.genRunScript();
 			
 			
-			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, setEnv, gc.vsexecuteDir, gc.vsfoutputDir, 
+			String sampleCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
+					+ " CC=\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed \"";
+			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
 					gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
 			gs.genRunScript();
-			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, setEnv, gc.vsexecuteDir, gc.vsfoutputDir, 
+			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
 					gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
 			gs.genRunScript();
-			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, setEnv, gc.vsexecuteDir, gc.vsfoutputDir, 
+			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
 					gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
 			gs.genRunScript();
 			
@@ -184,7 +186,8 @@ public class GenBashScriptClient {
 //				FileUtility.removeDirectory(new File(gc.vsexecuteDir));
 //				FileUtility.removeDirectory(new File(gc.vaexecuteDir));
 				
-				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, setEnv, gc.vaexecuteDir, 
+				String adaptiveCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index);
+				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, adaptiveCompile, gc.vaexecuteDir, 
 						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
 				gs.genRunScript();
 			}
@@ -208,9 +211,42 @@ public class GenBashScriptClient {
 	}
 	
 	
-	private void constructBashInputsMapFile(File file, String inputsMapFile2) {
+	private static Map<Integer, String> constructBashInputsMapFile(File inputsDir, String inputsMapFile) {
 		// TODO Auto-generated method stub
+		Map<Integer, String> inputsmap = new LinkedHashMap<Integer, String>();
 		
+		int count = 0;
+		File[] files = inputsDir.listFiles(new FilenameFilter(){
+			@Override
+			public boolean accept(File arg0, String arg1) {
+				// TODO Auto-generated method stub
+				return arg1.endsWith(".test");
+			}
+		});
+		
+		for(File file: files){
+			inputsmap.put(++count, file.getName());
+		}
+		
+		
+		ObjectOutputStream out = null;
+    	try{
+    		out = new ObjectOutputStream(new FileOutputStream(inputsMapFile));
+    		out.writeObject(inputsmap);
+    	}
+    	catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	finally{
+    		try {
+				out.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    	
+		return Collections.unmodifiableMap(inputsmap);
 	}
 
 

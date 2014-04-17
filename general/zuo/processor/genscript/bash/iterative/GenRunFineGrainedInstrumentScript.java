@@ -32,6 +32,7 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
+		code.append("export INPUTSDIR=" + GenBashScriptClient.inputsDir + "\n");
 		
 		stmts(code);
 		code.append(startTimeCommand + "\n");
@@ -51,7 +52,7 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
 			code.append("$VERSIONSDIR/" + subVersion + "_finst.exe ");//executables
-			code.append(inputsMap.get(index));//parameters
+			code.append("$INPUTSDIR/" + inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
 			code.append("\n");
 		}
@@ -61,7 +62,7 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
 			code.append("$VERSIONSDIR/" + subVersion + "_finst.exe ");//executables
-			code.append(inputsMap.get(index));//parameters
+			code.append("$INPUTSDIR/" + inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
 			code.append("\n");
 		}

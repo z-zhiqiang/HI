@@ -22,12 +22,13 @@ public class GenRunSubjectScript extends AbstractGenRunScript {
 		code.append("echo script: " + subject + "_" + version + "\n");
 		code.append("export SUBJECTDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
+		code.append("export INPUTSDIR=" + GenBashScriptClient.inputsDir + "\n");
 		
 		for (Iterator<Integer> it = inputsMap.keySet().iterator(); it.hasNext();) {
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("$SUBJECTDIR/" + version + ".exe ");//executables
-			code.append(inputsMap.get(index));//parameters
+			code.append("$INPUTSDIR/" + inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".out\n");//output file
 			code.append("\n");
 		}

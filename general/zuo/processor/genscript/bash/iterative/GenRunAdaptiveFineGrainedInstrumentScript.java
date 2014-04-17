@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import zuo.processor.genscript.client.iterative.GenBashScriptClient;
 import zuo.util.file.FileUtility;
 
 
@@ -70,15 +71,16 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		for(int i = 0; i < num; i++){
 			String method = methods.get(i);
 			instrumentCommand = compileCommand 
-					+ "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
-					+ "-finclude-function=" + method + " -fexclude-function=* "
-					;
+					+ " CC=\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
+					+ "-finclude-function=" + method + " -fexclude-function=* \"";
 			
 			code.append(instrumentCommand + "\n");
+			code.append("mv " + GenBashScriptClient.exeFile + executeDir + subVersion + "_finst__" + method + ".exe\n");
 			code.append("echo script: " + subVersion + "\n");
 			code.append("export VERSIONSDIR=" + executeDir + "\n");
 			code.append("export OUTPUTSDIR=" + outputDir + method + "/\n");
 			code.append("export TRACESDIR=" + traceDir + method + "/\n");
+			code.append("export INPUTSDIR=" + GenBashScriptClient.inputsDir + "\n");
 			
 			stmts(code, method);
 			code.append(startTimeCommand + "\n");
@@ -104,10 +106,9 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_finst__" + method + ".exe ");//executables
-			code.append(inputsMap.get(index));//parameters
+			code.append("$VERSIONSDIR/" + subVersion + "_finst__" + method + ".exe ");//executables
+			code.append("$INPUTSDIR/" + inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
-//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + method + ".exe "));
 			code.append("\n");
 		}
 		
@@ -115,10 +116,9 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_finst__" + method + ".exe ");//executables
-			code.append(inputsMap.get(index));//parameters
+			code.append("$VERSIONSDIR/" + subVersion + "_finst__" + method + ".exe ");//executables
+			code.append("$INPUTSDIR/" + inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
-//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + method + ".exe "));
 			code.append("\n");
 		}
 	}

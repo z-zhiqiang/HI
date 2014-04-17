@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
+import zuo.processor.genscript.client.iterative.GenBashScriptClient;
 import zuo.util.file.FileUtility;
 
 
@@ -26,17 +27,14 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 
 	@Override
 	public void genRunScript() {
-		
-		String instrumentCommand = compileCommand 
-				+ "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed "
-				;
-		
 		StringBuffer code = new StringBuffer();
-		code.append(instrumentCommand + "\n");
+		code.append(compileCommand + "\n");
+		code.append("mv " + GenBashScriptClient.exeFile + executeDir + subVersion + "_finst__" + sample + ".exe\n");
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
+		code.append("export INPUTSDIR=" + GenBashScriptClient.inputsDir + "\n");
 		
 		stmts(code);
 		code.append(startTimeCommand + "\n");
@@ -58,10 +56,9 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_finst__" + sample + ".exe ");//executables
-			code.append(inputsMap.get(index));//parameters
+			code.append("$VERSIONSDIR/" + subVersion + "_finst__" + sample + ".exe ");//executables
+			code.append("$INPUTSDIR/" + inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".fout\n");//output file
-//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + sample + ".exe "));
 			code.append("\n");
 		}
 		
@@ -70,10 +67,9 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append("$VERSIONSDIR/" + version + "_finst__" + sample + ".exe ");//executables
-			code.append(inputsMap.get(index));//parameters
+			code.append("$VERSIONSDIR/" + subVersion + "_finst__" + sample + ".exe ");//executables
+			code.append("$INPUTSDIR/" + inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
-//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + sample + ".exe "));
 			code.append("\n");
 		}
 	}

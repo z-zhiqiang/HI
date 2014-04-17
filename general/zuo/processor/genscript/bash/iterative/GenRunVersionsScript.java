@@ -21,6 +21,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
+		code.append("export INPUTSDIR=" + GenBashScriptClient.inputsDir + "\n");
 		
 		stmts(code);
 		code.append(startTimeCommand + "\n");
@@ -38,7 +39,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("$VERSIONSDIR/" + version + ".exe ");//executables
-			code.append(inputsMap.get(index));//parameters
+			code.append("$INPUTSDIR/" + inputsMap.get(index));//parameters
 			code.append(" >& $OUTPUTSDIR/o" + index + ".out\n");//output file
 			code.append("\n");
 		}
