@@ -18,7 +18,7 @@ public class GenRunSubjectScript extends AbstractGenRunScript {
 	public void genRunScript() {
 		StringBuffer code = new StringBuffer();
 		code.append(compileCommand + "\n"); // compile subject program
-		code.append("mv " + GenBashScriptClient.exeFile + executeDir + version + "exe\n");
+		code.append("mv " + GenBashScriptClient.exeFile + executeDir + "/" + version + ".exe\n");
 		code.append("echo script: " + subject + "_" + version + "\n");
 		code.append("export SUBJECTDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");

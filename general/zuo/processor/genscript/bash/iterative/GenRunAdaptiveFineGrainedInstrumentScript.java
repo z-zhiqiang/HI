@@ -71,15 +71,15 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		for(int i = 0; i < num; i++){
 			String method = methods.get(i);
 			instrumentCommand = compileCommand 
-					+ " CC=\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
-					+ "-finclude-function=" + method + " -fexclude-function=* \"";
+					+ " CC=\"\\\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
+					+ "-finclude-function=" + method + " -fexclude-function=* \\\"\"";
 			
 			code.append(instrumentCommand + "\n");
-			code.append("mv " + GenBashScriptClient.exeFile + executeDir + subVersion + "_finst__" + method + ".exe\n");
+			code.append("mv " + GenBashScriptClient.exeFile + executeDir + "/" + subVersion + "_finst__" + method + ".exe\n");
 			code.append("echo script: " + subVersion + "\n");
 			code.append("export VERSIONSDIR=" + executeDir + "\n");
-			code.append("export OUTPUTSDIR=" + outputDir + method + "/\n");
-			code.append("export TRACESDIR=" + traceDir + method + "/\n");
+			code.append("export OUTPUTSDIR=" + outputDir + "/" + method + "/\n");
+			code.append("export TRACESDIR=" + traceDir + "/" + method + "/\n");
 			code.append("export INPUTSDIR=" + GenBashScriptClient.inputsDir + "\n");
 			
 			stmts(code, method);
@@ -87,7 +87,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			for(int j = 0; j < ROUNDS; j++){
 				stmts(code, method);
 			}
-			code.append(endTimeCommand + " >& " + outputDir + method + "/time\n");
+			code.append(endTimeCommand + " >& " + outputDir + "/" + method + "/time\n");
 			
 			code.append("tTime=$((tTime+time))\n");
 			code.append("rm $OUTPUTSDIR/o*out\n");
@@ -151,13 +151,13 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		
 		for(String method: methods){
 			//make directory for outputs
-			File fo = new File(outputDir + method + "/");
+			File fo = new File(outputDir + "/" + method + "/");
 			if(!fo.exists()){
 				fo.mkdirs();
 			}
 			
 			//make directory for traces
-			File ft = new File(traceDir + method + "/");
+			File ft = new File(traceDir + "/" + method + "/");
 			if(!ft.exists()){
 				ft.mkdirs();
 			}
