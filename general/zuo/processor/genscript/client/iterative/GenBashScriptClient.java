@@ -98,7 +98,8 @@ public class GenBashScriptClient {
 
 	
 	public static void main(String[] args) throws IOException {
-		for(int j = 1; j <= 1; j++){
+		constructBashInputsMapFile(new File(inputsDir), inputsMapFile);
+		for(int j = 1; j <= 2; j++){
 			GenBashScriptClient gc = new GenBashScriptClient("bash", "v" + j, null);
 			gc.gen();
 			faults.clear();
@@ -117,8 +118,7 @@ public class GenBashScriptClient {
 		
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 		
-//		constructBashInputsMapFile(new File(inputsDir), inputsMapFile);
-//		//generate run subject and subversion scripts
+		//generate run subject and subversion scripts
 //		String subjectCompile = setEnv + "./makevers " + version.substring(1);
 //		gs = new GenRunSubjectScript(subject, version, subjectCompile, sexecuteDir, soutputDir, scriptDir);
 //		gs.genRunScript();
@@ -167,17 +167,17 @@ public class GenBashScriptClient {
 			gs.genRunScript();
 			
 			
-			String sampleCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
-					+ " CC=\"\\\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed \\\"\"";
-			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
-					gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", 1);
-			gs.genRunScript();
-			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
-					gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", 100);
-			gs.genRunScript();
-			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
-					gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", 10000);
-			gs.genRunScript();
+//			String sampleCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
+//					+ " CC=\"\\\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed \\\"\"";
+//			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
+//					gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", 1);
+//			gs.genRunScript();
+//			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
+//					gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", 100);
+//			gs.genRunScript();
+//			gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
+//					gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", 10000);
+//			gs.genRunScript();
 //			
 //			if(new File(gc.vexecuteDir).listFiles().length == 12){
 ////				FileUtility.removeDirectory(new File(gc.vsexecuteDir));
@@ -194,13 +194,13 @@ public class GenBashScriptClient {
 		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
 		ga.genRunAllScript();
 
-		//generate run all sampled instrumented triggered subversion scripts
-		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 1);
-		ga.genRunAllScript();
-		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 100);
-		ga.genRunAllScript();
-		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
-		ga.genRunAllScript();
+//		//generate run all sampled instrumented triggered subversion scripts
+//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 1);
+//		ga.genRunAllScript();
+//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 100);
+//		ga.genRunAllScript();
+//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
+//		ga.genRunAllScript();
 //		
 //		//generate run all adaptive instrumented triggered subversion scripts
 //		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
