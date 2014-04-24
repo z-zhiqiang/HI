@@ -239,7 +239,7 @@ public class Client_Ranking {
 			Map<String, List<Object>> correlationData, List<Object> correlationResults, List<Object> convergenceResults, SitesInfo sInfo) {
 		
 		//construct the Importance map
-		constructData(ImportanceInfo, list, correlationData);
+		constructData(ImportanceInfo, list, correlationData, sInfo);
 		
 		//compute the Correlation Coefficient
 		computeCorrelationResults(correlationData, correlationResults);
@@ -266,6 +266,13 @@ public class Client_Ranking {
 		int sites_partial = 0;
 
 		for(String function: correlationData.keySet()){
+			//update top importance value
+			double importance = (Double) correlationData.get(function).get(4);
+			if(importance > max_importance){
+				max_importance = importance;
+			}
+			
+			
 			area_full_functions += max_importance;
 			functions_full++;
 			
@@ -281,11 +288,6 @@ public class Client_Ranking {
 				sites_partial += numSites; 
 			}
 			
-			//update top importance value
-			double importance = (Double) correlationData.get(function).get(4);
-			if(importance > max_importance){
-				max_importance = importance;
-			}
 		}
 		
 		assert(functions_full == correlationData.size());
@@ -297,18 +299,18 @@ public class Client_Ranking {
 		convergenceResults.add(max_importance);
 		
 		convergenceResults.add(area_full_functions);
-		convergenceResults.add(functions_full * max_importance);
-		convergenceResults.add(area_full_functions / (functions_full * max_importance));
+		convergenceResults.add((functions_full + 1) * max_importance);
+		convergenceResults.add(area_full_functions / ((functions_full + 1) * max_importance));
 		convergenceResults.add(area_full_sites);
-		convergenceResults.add(sites_full * max_importance);
-		convergenceResults.add(area_full_sites / (sites_full * max_importance));
+		convergenceResults.add((sites_full + 1) * max_importance);
+		convergenceResults.add(area_full_sites / ((sites_full + 1) * max_importance));
 		
 		convergenceResults.add(area_partial_functions);
-		convergenceResults.add(functions_partial * max_importance);
-		convergenceResults.add(area_partial_functions / (functions_partial * max_importance));
+		convergenceResults.add((functions_partial + 1) * max_importance);
+		convergenceResults.add(area_partial_functions / ((functions_partial + 1) * max_importance));
 		convergenceResults.add(area_partial_sites);
-		convergenceResults.add(sites_partial * max_importance);
-		convergenceResults.add(area_partial_sites / (sites_partial * max_importance));
+		convergenceResults.add((sites_partial + 1) * max_importance);
+		convergenceResults.add(area_partial_sites / ((sites_partial + 1) * max_importance));
 		
 		
 	}
@@ -389,12 +391,13 @@ public class Client_Ranking {
 	/**construct importance information within each function with H value
 	 * @param ImportanceInfo
 	 * @param list
+	 * @param sInfo 
 	 * @param correlationData: 0:index; 1:H; 2:neg; 3:pos; 4:max_importance; 5:mean_importance; 6:median_importance 
 	 */
 	private static void constructData(
 			Map<String, PredicateImportanceInfoWithinFunction> ImportanceInfo,
 			List<Map.Entry<FunctionEntrySite, FrequencyValue>> list,
-			Map<String, List<Object>> correlationData) {
+			Map<String, List<Object>> correlationData, SitesInfo sInfo) {
 		for(int i = 0; i < list.size(); i++){
 			Map.Entry<FunctionEntrySite, FrequencyValue> entry = list.get(i);
 			String function = entry.getKey().getFunctionName();
@@ -411,6 +414,8 @@ public class Client_Ranking {
 			array.add(importanceInfo.getMax_Importance());
 			array.add(importanceInfo.getMean_Importance());
 			array.add(importanceInfo.getMedian_Importance());
+			array.add(sInfo.getMap().get(function).getNumSites());
+			array.add(sInfo.getMap().get(function).getNumPredicates());
 			
  			if(correlationData.containsKey(function)){
 				throw new RuntimeException("multiple functions error");
@@ -492,7 +497,7 @@ public class Client_Ranking {
 				consoleFolder.mkdirs();
 			}
 			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_correlation.xlsx"));
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_correlation1.xlsx"));
 			workbook.write(out);
 			out.close();
 		} catch (Exception e) {
@@ -663,7 +668,7 @@ public class Client_Ranking {
 		Row row0 = sheet.createRow(rownum++);
 		int cellnum0 = 0;
 		
-		String[] titles = {" ", "Index", "H", "Negative", "Positive","Max_Importance", "Mean_Importance", "Median_Importance"};
+		String[] titles = {" ", "Index", "H", "Negative", "Positive","Max_Importance", "Mean_Importance", "Median_Importance", "Sites", "Predicates"};
 		
 		for(int i = 0; i < titles.length; i++){
 			Cell cell0 = row0.createCell(cellnum0++);
@@ -708,7 +713,7 @@ public class Client_Ranking {
 //		}
 //		else if(args.length == 3){
 //			assert(Integer.parseInt(args[0]) == 0);
-//			for(int i = 4; i < argvs.length; i++){
+//			for(int i = 3; i < argvs.length - 1; i++){
 //				Client_Ranking c = new Client_Ranking(new File(args[1]), argvs[i][1], new File(args[2]), 1, Integer.parseInt(argvs[i][2]));
 //				c.runSiemens();
 //			}
@@ -720,15 +725,15 @@ public class Client_Ranking {
 		
 		for(int i = 0; i < argvs.length; i++){
 			if(i < 3){
-				Client_Ranking client = new Client_Ranking(new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects\\"), argvs[i][1], new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Console_Ranking_1\\"), 1, Integer.parseInt(argvs[i][2]));
+				Client_Ranking client = new Client_Ranking(new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects\\"), argvs[i][1], new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Console_Ranking\\"), 1, Integer.parseInt(argvs[i][2]));
 				client.runSir();
 			}
 			else if(i < 10){
-				Client_Ranking client = new Client_Ranking(new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects\\Siemens\\"), argvs[i][1], new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Console_Ranking_1\\"), 1, Integer.parseInt(argvs[i][2]));
+				Client_Ranking client = new Client_Ranking(new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects\\Siemens\\"), argvs[i][1], new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Console_Ranking\\"), 1, Integer.parseInt(argvs[i][2]));
 				client.runSiemens();
 			}
 			else if(i == 10){
-				Client_Ranking client = new Client_Ranking(new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects\\"), argvs[i][1], new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Console_Ranking_1\\"), 1, Integer.parseInt(argvs[i][2]));
+				Client_Ranking client = new Client_Ranking(new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects\\"), argvs[i][1], new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Console_Ranking\\"), 1, Integer.parseInt(argvs[i][2]));
 				client.runSiemens();
 			}
 			else{
