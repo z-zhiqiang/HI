@@ -184,7 +184,7 @@ public class Client_Ranking {
 		Map<String, List<Object>> correlationData = new LinkedHashMap<String, List<Object>>();
 		List<Object> correlationResults = new ArrayList<Object>();
 		List<Object> convergenceResults = new ArrayList<Object>();
-		processImportanceCorrelationConvergence(ImportanceInfo, list, correlationData, correlationResults, convergenceResults);
+		processImportanceCorrelationConvergence(ImportanceInfo, list, correlationData, correlationResults, convergenceResults, sInfo);
 
 		this.correlationDataMap.put(vi, correlationData);
 		this.correlationResultsMap.put(vi, correlationResults);
@@ -236,7 +236,7 @@ public class Client_Ranking {
 	}
 	
 	private static void processImportanceCorrelationConvergence(Map<String, PredicateImportanceInfoWithinFunction> ImportanceInfo, List<Map.Entry<FunctionEntrySite, FrequencyValue>> list,
-			Map<String, List<Object>> correlationData, List<Object> correlationResults, List<Object> convergenceResults) {
+			Map<String, List<Object>> correlationData, List<Object> correlationResults, List<Object> convergenceResults, SitesInfo sInfo) {
 		
 		//construct the Importance map
 		constructData(ImportanceInfo, list, correlationData);
@@ -245,61 +245,70 @@ public class Client_Ranking {
 		computeCorrelationResults(correlationData, correlationResults);
 		
 		//compute the convergence information of importance
-		computeConvergenceResults(correlationData, convergenceResults);
+		computeConvergenceResults(correlationData, convergenceResults, sInfo);
 	}
 
 
-	private static void computeConvergenceResults(Map<String, List<Object>> correlationData, List<Object> convergenceResults) {
+	private static void computeConvergenceResults(Map<String, List<Object>> correlationData, List<Object> convergenceResults, SitesInfo sInfo) {
 		// TODO Auto-generated method stub
 		double max_importance = 0;
 		
-		int iterations_increase_full = 0;
-		int iterations_increase_partial = 0;
+		double area_full_functions = 0.0D;
+		double area_partial_functions = 0.0D;
 		
-		double sum_full = 0.0D;
-		double sum_partial = 0.0D;
+		double area_full_sites = 0.0D;
+		double area_partial_sites = 0.0D;
 		
-		int index_full = 0;
-		int index_partial = 0;
+		int functions_full = 0;
+		int functions_partial = 0;
+		
+		int sites_full = 0;
+		int sites_partial = 0;
 
 		for(String function: correlationData.keySet()){
-			sum_full += max_importance;
-			index_full++;
+			area_full_functions += max_importance;
+			functions_full++;
+			
+			int numSites = sInfo.getMap().get(function).getNumSites();
+			area_full_sites += numSites * max_importance;
+			sites_full += numSites;
+			
 			if(!trivialCase(correlationData, function)){
-				sum_partial += max_importance;
-				index_partial++;
+				area_partial_functions += max_importance;
+				functions_partial++;
+				
+				area_partial_sites += numSites * max_importance;
+				sites_partial += numSites; 
 			}
 			
+			//update top importance value
 			double importance = (Double) correlationData.get(function).get(4);
 			if(importance > max_importance){
 				max_importance = importance;
-				
-				iterations_increase_full++;
-				if(!trivialCase(correlationData, function)){
-					iterations_increase_partial++;
-				}
 			}
 		}
 		
-		assert(index_full == correlationData.size());
-		assert(index_partial == getPartialSize(correlationData));
+		assert(functions_full == correlationData.size());
+		assert(functions_partial == getPartialSize(correlationData));
+		assert(sites_full == sInfo.getNumPredicateSites());
 		
 		
 		convergenceResults.add(max_importance);
 		
-		convergenceResults.add(iterations_increase_full);
-		convergenceResults.add(index_full);
-		convergenceResults.add(((double) iterations_increase_full) / index_full);
-		convergenceResults.add(sum_full);
-		convergenceResults.add(index_full * max_importance);
-		convergenceResults.add(sum_full / (index_full * max_importance));
+		convergenceResults.add(area_full_functions);
+		convergenceResults.add(functions_full * max_importance);
+		convergenceResults.add(area_full_functions / (functions_full * max_importance));
+		convergenceResults.add(area_full_sites);
+		convergenceResults.add(sites_full * max_importance);
+		convergenceResults.add(area_full_sites * (sites_full * max_importance));
 		
-		convergenceResults.add(iterations_increase_partial);
-		convergenceResults.add(index_partial);
-		convergenceResults.add(((double) iterations_increase_partial) / index_partial);
-		convergenceResults.add(sum_partial);
-		convergenceResults.add(index_partial * max_importance);
-		convergenceResults.add(sum_partial / (index_partial * max_importance));
+		convergenceResults.add(area_partial_functions);
+		convergenceResults.add(functions_partial * max_importance);
+		convergenceResults.add(area_partial_functions / (functions_partial * max_importance));
+		convergenceResults.add(area_partial_sites);
+		convergenceResults.add(sites_partial * max_importance);
+		convergenceResults.add(area_partial_sites / (sites_partial * max_importance));
+		
 		
 	}
 
@@ -531,7 +540,7 @@ public class Client_Ranking {
 		int cellnum1 = 0;
 		
 		String[] ftitles = {"Full", "Partial"};
-		String[] titles = {"Iteration_increase", "Iteration", "Percent_iteration", "Sum", "Sum_total", "Percent_sum"};
+		String[] titles = {"Area_functions", "Area_total_functions", "Percent_functions","Area_sites", "Area_total_sites", "Percent_sites"};
 		
 		Cell cell0 = row0.createCell(cellnum0++);
 		cell0.setCellValue(" ");
