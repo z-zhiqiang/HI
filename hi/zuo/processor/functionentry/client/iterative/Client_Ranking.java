@@ -293,6 +293,7 @@ public class Client_Ranking {
 		assert(sites_full == sInfo.getNumPredicateSites());
 		
 		
+		//add results data
 		convergenceResults.add(max_importance);
 		
 		convergenceResults.add(area_full_functions);
@@ -300,7 +301,7 @@ public class Client_Ranking {
 		convergenceResults.add(area_full_functions / (functions_full * max_importance));
 		convergenceResults.add(area_full_sites);
 		convergenceResults.add(sites_full * max_importance);
-		convergenceResults.add(area_full_sites * (sites_full * max_importance));
+		convergenceResults.add(area_full_sites / (sites_full * max_importance));
 		
 		convergenceResults.add(area_partial_functions);
 		convergenceResults.add(functions_partial * max_importance);
@@ -676,47 +677,64 @@ public class Client_Ranking {
 				{"363", "sed", "7"},
 				{"213", "gzip", "5"},
 				{"809", "grep", "5"},
-				{"13585", "space", "38"},
 				{"4130", "printtokens", "7"},
 				{"4115", "printtokens2", "10"},
 				{"5542", "replace", "32"},
 				{"2650", "schedule", "9"},
 				{"2710", "schedule2", "10"},
 				{"1608", "tcas", "41"},
-				{"1052", "totinfo", "23"}
+				{"1052", "totinfo", "23"},
+				{"13585", "space", "38"}
 		};
 		
-		if(args.length != 6 && args.length != 3){
-			System.out.println("The characteristics of subjects are as follows:");
-			for(int i = 0; i < argvs.length; i++){
-				System.out.println(String.format("%-20s", argvs[i][0]) + String.format("%-20s", argvs[i][1]) + argvs[i][2]);
-			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir startVersion endVersion" +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir");
-			return;
-		}
-		long time0 = System.currentTimeMillis();
-		if(args.length == 6){
-			Client_Ranking c = new Client_Ranking(new File(args[1]), args[2], new File(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
-			if(Integer.parseInt(args[0]) == 0){
-				c.runSiemens();
-			}
-			else if(Integer.parseInt(args[0]) == 1){
-				c.runSir();
-			}
-		}
-		else if(args.length == 3){
-			assert(Integer.parseInt(args[0]) == 0);
-			for(int i = 4; i < argvs.length; i++){
-				Client_Ranking c = new Client_Ranking(new File(args[1]), argvs[i][1], new File(args[2]), 1, Integer.parseInt(argvs[i][2]));
-				c.runSiemens();
-			}
-		}
+//		if(args.length != 6 && args.length != 3){
+//			System.out.println("The characteristics of subjects are as follows:");
+//			for(int i = 0; i < argvs.length; i++){
+//				System.out.println(String.format("%-20s", argvs[i][0]) + String.format("%-20s", argvs[i][1]) + argvs[i][2]);
+//			}
+//			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir startVersion endVersion" +
+//					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir");
+//			return;
+//		}
+//		long time0 = System.currentTimeMillis();
+//		if(args.length == 6){
+//			Client_Ranking c = new Client_Ranking(new File(args[1]), args[2], new File(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
+//			if(Integer.parseInt(args[0]) == 0){
+//				c.runSiemens();
+//			}
+//			else if(Integer.parseInt(args[0]) == 1){
+//				c.runSir();
+//			}
+//		}
+//		else if(args.length == 3){
+//			assert(Integer.parseInt(args[0]) == 0);
+//			for(int i = 4; i < argvs.length; i++){
+//				Client_Ranking c = new Client_Ranking(new File(args[1]), argvs[i][1], new File(args[2]), 1, Integer.parseInt(argvs[i][2]));
+//				c.runSiemens();
+//			}
+//		}
+//		
+//		long time1 = System.currentTimeMillis();
+//		long s = (time1 - time0) / 1000;
+//		System.out.println("time: \t" + s + "s\t" + (s / 60) + "m\t" + (s / 3600) + "h");
 		
-		long time1 = System.currentTimeMillis();
-		long s = (time1 - time0) / 1000;
-		System.out.println("time: \t" + s + "s\t" + (s / 60) + "m\t" + (s / 3600) + "h");
-
+		for(int i = 0; i < argvs.length; i++){
+			if(i < 3){
+				Client_Ranking client = new Client_Ranking(new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects\\"), argvs[i][1], new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Console_Ranking_1\\"), 1, Integer.parseInt(argvs[i][2]));
+				client.runSir();
+			}
+			else if(i < 10){
+				Client_Ranking client = new Client_Ranking(new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects\\Siemens\\"), argvs[i][1], new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Console_Ranking_1\\"), 1, Integer.parseInt(argvs[i][2]));
+				client.runSiemens();
+			}
+			else if(i == 10){
+				Client_Ranking client = new Client_Ranking(new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects\\"), argvs[i][1], new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Console_Ranking_1\\"), 1, Integer.parseInt(argvs[i][2]));
+				client.runSiemens();
+			}
+			else{
+				System.err.println("length error");
+			}
+		}
 	}
 	
 }
