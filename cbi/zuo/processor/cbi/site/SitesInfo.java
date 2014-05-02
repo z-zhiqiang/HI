@@ -92,12 +92,12 @@ public class SitesInfo {
 					assert(map.get(method).getSitesSet().add(site));
 					map.get(method).increaseNumSites(1);
 					map.get(method).increaseNumPredicates(2);
-					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
 				}
 				else{
 					map.put(method, new InfoValue(1, 2, new HashSet<AbstractSite>()));
 					map.get(method).getSitesSet().add(site);
-					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
 				}
 			}
 		}
@@ -113,12 +113,12 @@ public class SitesInfo {
 					assert(map.get(method).getSitesSet().add(site));
 					map.get(method).increaseNumSites(1);
 					map.get(method).increaseNumPredicates(9);
-					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
 				}
 				else{
 					map.put(method, new InfoValue(1, 9, new HashSet<AbstractSite>()));
 					map.get(method).getSitesSet().add(site);
-					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
 				}
 			}
 		}
@@ -134,12 +134,12 @@ public class SitesInfo {
 					assert(map.get(method).getSitesSet().add(site));
 					map.get(method).increaseNumSites(1);
 					map.get(method).increaseNumPredicates(6);
-					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
 				}
 				else{
 					map.put(method, new InfoValue(1, 6, new HashSet<AbstractSite>()));
 					map.get(method).getSitesSet().add(site);
-					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
 				}
 			}
 		}
@@ -155,12 +155,12 @@ public class SitesInfo {
 					assert(map.get(method).getSitesSet().add(site));
 					map.get(method).increaseNumSites(1);
 					map.get(method).increaseNumPredicates(6);
-					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
 				}
 				else{
 					map.put(method, new InfoValue(1, 6, new HashSet<AbstractSite>()));
 					map.get(method).getSitesSet().add(site);
-					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
 				}
 			}
 		}

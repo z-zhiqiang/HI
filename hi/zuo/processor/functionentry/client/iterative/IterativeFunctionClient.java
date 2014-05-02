@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -24,6 +25,7 @@ import zuo.processor.cbi.client.CBIClients;
 import zuo.processor.cbi.datastructure.FixPointStructure;
 import zuo.processor.cbi.processor.PredicateItem;
 import zuo.processor.cbi.site.SitesInfo;
+import zuo.processor.cbi.site.SitesInfo.InfoValue;
 import zuo.processor.functionentry.datastructure.PruneResult;
 import zuo.processor.functionentry.datastructure.Result;
 import zuo.processor.functionentry.processor.BoundCalculator;
@@ -167,6 +169,8 @@ public class IterativeFunctionClient {
 		
 		//filter out methods within which no predicates are instrumented
 		filterFrequencyMap(processor.getFrequencyMap());
+		
+		printout(processor.getFrequencyMap(), this.sInfo.getMap());
 		assert(processor.getFrequencyMap().size() == this.sInfo.getMap().size());
 		
 		//print out entry and percentage information
@@ -180,6 +184,28 @@ public class IterativeFunctionClient {
 				}
 			}
 		}
+	}
+
+
+	private void printout(Map<FunctionEntrySite, FrequencyValue> frequencyMap, Map<String, InfoValue> map) {
+		// TODO Auto-generated method stub
+		System.out.println();
+		System.out.println(frequencyMap.size());
+		System.out.println(map.size());
+		
+		Set<String> functions = new HashSet<String>();
+		for(FunctionEntrySite functionSite: frequencyMap.keySet()){
+			String function = functionSite.getFunctionName();
+			if(!functions.add(function)){
+				System.out.println(function);
+			}
+		}
+		System.out.println(functions.size());
+		
+		Set<String> functionsSet = new HashSet<String>(map.keySet());
+		System.out.println(functionsSet.size());
+		functionsSet.removeAll(functions);
+		System.out.println(functionsSet);
 	}
 
 
@@ -402,9 +428,20 @@ public class IterativeFunctionClient {
 	 * @param frequencyMap
 	 */
 	private void filterFrequencyMap(Map<FunctionEntrySite, FrequencyValue> frequencyMap) {
+		Set<String> functionsSet = new HashSet<String>();
 		for(Iterator<FunctionEntrySite> it = frequencyMap.keySet().iterator(); it.hasNext();){
 			String function = it.next().getFunctionName();
 			if(!sInfo.getMap().containsKey(function)){
+				it.remove();
+			}
+			else{
+				functionsSet.add(function);
+			}
+		}
+		
+		for(Iterator<String> it = sInfo.getMap().keySet().iterator(); it.hasNext();){
+			String function = it.next();
+			if(!functionsSet.contains(function)){
 				it.remove();
 			}
 		}

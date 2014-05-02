@@ -29,7 +29,7 @@ public class FunctionEntrySite {
 	}
 
 	public String getFunctionName() {
-		return functionName;
+		return functionName + ";;" + this.fileName;
 	}
 
 	public int getCfgNumber() {

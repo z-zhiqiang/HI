@@ -43,7 +43,7 @@ public class InstrumentationSites {
 		}
 
 		public String getFunctionName() {
-			return functionName;
+			return functionName + ";;" + this.fileName;
 		}
 
 		public int getCfgNumber() {
