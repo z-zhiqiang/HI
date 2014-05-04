@@ -278,7 +278,7 @@ public class Client {
 //		printCorrelationToExcel();
 	}
 
-	private void run(File fgProfilesFolder, final File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer, Map<String, List<Object>> correlationData, List<Object> correlationResults) throws IOException {
+	private void run(File fgProfilesFolder, File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer, Map<String, List<Object>> correlationData, List<Object> correlationResults) throws IOException {
 		int rounds = 3;
 		double time = 60;
 		
@@ -319,6 +319,37 @@ public class Client {
 		
 		/*=================================================================================================*/
 		
+		FunctionEntrySites cgSites = new FunctionEntrySites(cgSitesFile);
+		
+		InstrumentationSites fSites = new InstrumentationSites(fgSitesFile);
+		if(zuo.processor.functionentry.client.iterative.Client.needTransform(fSites, cgSites.getFunctions())){
+			File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
+			File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
+			PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cgSites.getFunctions());
+			transformSplit.split();
+			
+			fSites = new InstrumentationSites(transformSitesFile);
+			
+			fgSitesFile = transformSitesFile;
+			fgProfilesFolder = transformProfilesFolder;
+		}
+		
+		SitesInfo fgSitesInfo = new SitesInfo(fSites);
+		resultsList.add(FileUtils.sizeOf(fgSitesFile));
+		resultsList.add(fgSitesInfo.getNumPredicateSites());
+		resultsList.add(fgSitesInfo.getNumPredicateItems());
+		resultsList.add(FileUtils.sizeOf(fgProfilesFolder));
+		resultsList.add(cgSites.getNumFunctionEntrySites());
+		
+		File originalDatasetFolder = new File(resultOutputFolder, "original");
+		if(!originalDatasetFolder.exists()){
+			originalDatasetFolder.mkdirs();
+		}
+		
+		IDataSet dataset = runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
+		
+		/*=================================================================================================*/
+		
 		File selectedCGProfilesFolder = new File(cgProfilesFolder.getParentFile(), "cg");
 		Set<Integer> indices = selectCGProfiles(cgProfilesFolder, selectedCGProfilesFolder, totalNeg, totalPos, resultsList);
 		
@@ -339,35 +370,15 @@ public class Client {
 
 		FileUtility.removeFileOrDirectory(selectedCGProfilesFolder);
 		
-		
-		/*=================================================================================================*/
-		
-		Set<String> originalFunctionSet = funClient.getFunctionSet(0);
-		assert(originalFunctionSet.size() == funClient.getList().size());
-		
-		SitesInfo fgSitesInfo = new SitesInfo(new InstrumentationSites(fgSitesFile));
-		resultsList.add(FileUtils.sizeOf(fgSitesFile));
-		resultsList.add(fgSitesInfo.getNumPredicateSites());
-		resultsList.add(fgSitesInfo.getNumPredicateItems());
-		resultsList.add(FileUtils.sizeOf(fgProfilesFolder));
-		resultsList.add(originalFunctionSet.size());
-		
-		File originalDatasetFolder = new File(resultOutputFolder, "original");
-		if(!originalDatasetFolder.exists()){
-			originalDatasetFolder.mkdirs();
-		}
-		
-		IDataSet dataset = runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
-
 		//-------------------------------------------------------------------------------------------------//
-//		assert(dataset instanceof PredicateDataSet);
-//		ProcessorPreDSInfoWithinFun processorDSInfo = new ProcessorPreDSInfoWithinFun((PredicateDataSet) dataset);
-//		processorDSInfo.process();
-//		Map<String, PredicateDSInfoWithinFunction> DSInfo = processorDSInfo.getDSInfoMap();
-//		List<Map.Entry<FunctionEntrySite, FrequencyValue>> list = funClient.getList();
-//		assert(list.size() >= DSInfo.size());
-//		
-//		processDSCorrelation(DSInfo, list, correlationData, correlationResults);
+		assert(dataset instanceof PredicateDataSet);
+		ProcessorPreDSInfoWithinFun processorDSInfo = new ProcessorPreDSInfoWithinFun((PredicateDataSet) dataset);
+		processorDSInfo.process();
+		Map<String, PredicateDSInfoWithinFunction> DSInfo = processorDSInfo.getDSInfoMap();
+		List<Map.Entry<FunctionEntrySite, FrequencyValue>> list = funClient.getList();
+		assert(list.size() >= DSInfo.size());
+		
+		processDSCorrelation(DSInfo, list, correlationData, correlationResults);
 		//-------------------------------------------------------------------------------------------------//
 		
 		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, bc);

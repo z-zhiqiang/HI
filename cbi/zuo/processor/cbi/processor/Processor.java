@@ -66,6 +66,8 @@ public class Processor {
 		assert(statistics.length == 6 && statistics[0].length == 4);
 		for (int j = 0; j < profiles.length; j++){
 			ScalarPairPredicateSite sPredicate = profiles[j].getScalarPredicateSites().get(index);
+			assert(sPredicate.getId() == profiles[0].getScalarPredicateSites().get(index).getId());
+			assert(sPredicate.getSite() == profiles[0].getScalarPredicateSites().get(index).getSite());
 			if(profiles[j].isCorrect()){// passing run
 				if(sPredicate.getTotalCount() != 0){
 					for (int k = 0; k < statistics.length; k++) {
@@ -153,6 +155,8 @@ public class Processor {
 		assert(statistics.length == 2 && statistics[0].length == 4);
 		for (int j = 0; j < profiles.length; j++) {
 			BranchPredicateSite bPredicate = profiles[j].getBranchPredicateSites().get(index);
+			assert(bPredicate.getId() == profiles[0].getBranchPredicateSites().get(index).getId());
+			assert(bPredicate.getSite() == profiles[0].getBranchPredicateSites().get(index).getSite());
 			if(profiles[j].isCorrect()){
 				if(bPredicate.getTotalCount() != 0){
 					for (int k = 0; k < statistics.length; k++) {
@@ -219,6 +223,8 @@ public class Processor {
 		}
 		for (int j = 0; j < profiles.length; j++){
 			ReturnPredicateSite rPredicate = profiles[j].getReturnPredicateSites().get(index);
+			assert(rPredicate.getId() == profiles[0].getReturnPredicateSites().get(index).getId());
+			assert(rPredicate.getSite() == profiles[0].getReturnPredicateSites().get(index).getSite());
 			if(profiles[j].isCorrect()){// passing run
 				if(rPredicate.getTotalCount() != 0){
 					for (int k = 0; k < statistics.length; k++) {
