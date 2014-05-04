@@ -15,6 +15,7 @@ import sun.processor.profile.predicate.FloatKindPredicate;
 import sun.processor.profile.predicate.ReturnPredicate;
 import sun.processor.profile.predicate.ScalarPairPredicate;
 import sun.processor.profile.predicate.ScalarPairPredicate.Factory;
+import zuo.processor.cbi.profile.PredicateProfile.PredicateSiteIDAllocator;
 
 import com.google.common.collect.ImmutableList;
 
@@ -57,13 +58,14 @@ public class PredicateProfile extends AbstractProfile implements
         .builder();
     try {
       BufferedReader reader = new BufferedReader(new FileReader(profilePath));
+      PredicateSiteIDAllocator allo = new PredicateSiteIDAllocator();
       for (String line = reader.readLine(); line != null; line = reader
           .readLine()) {
         if (line.contains("<report id=\"samples\">")) {
           // read the report.
           this.readReport(reader, scalarPredicates, returnPredicates,
               branchPredicates, floatPredicates, scalarFactory, branchFactory,
-              returnFactory);
+              returnFactory, allo);
           break;
         }
       }
@@ -85,18 +87,19 @@ public class PredicateProfile extends AbstractProfile implements
       ImmutableList.Builder<FloatKindPredicate> floatPredicates,
       Factory factory,
       sun.processor.profile.predicate.BranchPredicate.Factory branchFactory,
-      ReturnPredicate.Factory returnFactory) throws IOException {
+      ReturnPredicate.Factory returnFactory, PredicateSiteIDAllocator allo) throws IOException {
     for (String line = reader.readLine(); line != null; line = reader
         .readLine()) {
       if (line.startsWith("<samples")) {
+    	  String unit = zuo.processor.cbi.site.InstrumentationSites.getUnitID(line);
         if (line.contains("scheme=\"returns\"")) {
-          readReturns(reader, returnPredicates, returnFactory);
+          readReturns(reader, returnPredicates, returnFactory, unit, allo);
         } else if (line.contains("scheme=\"branches\"")) {
-          readBranches(reader, branchPredicates, branchFactory);
+          readBranches(reader, branchPredicates, branchFactory, unit, allo);
         } else if (line.contains("scheme=\"scalar-pairs\"")) {
-          readScalarPairs(reader, scalarPredicates, factory);
+          readScalarPairs(reader, scalarPredicates, factory, unit, allo);
         } else if (line.contains("scheme=\"float-kinds\"")) {
-          this.readFloats(reader, floatPredicates);
+          readFloats(reader, floatPredicates, unit, allo);
         } else {
           throw new RuntimeException();
         }
@@ -106,7 +109,7 @@ public class PredicateProfile extends AbstractProfile implements
 
   private void readScalarPairs(BufferedReader reader,
       ImmutableList.Builder<ScalarPairPredicate> predicates,
-      ScalarPairPredicate.Factory factory) {
+      ScalarPairPredicate.Factory factory, String unit, PredicateSiteIDAllocator allo) {
     int sequence = -1;
     try {
       for (String line = reader.readLine(); line != null; line = reader
@@ -126,9 +129,9 @@ public class PredicateProfile extends AbstractProfile implements
         
         final int id = ++sequence;
         
-        ScalarSite site = this.sites.getScalarSite(id);
+        ScalarSite site = this.sites.getScalarSite(unit, id);
 //        if(this.functionSet.contains(site.getFunctionName())){
-        	predicates.add(factory.create(id, site, lessThanCounter, equalCounter, greaterThanCounter));
+        	predicates.add(factory.create(allo.allocateID(), site, lessThanCounter, equalCounter, greaterThanCounter));
 //        }
       }
     } catch (IOException e) {
@@ -137,7 +140,7 @@ public class PredicateProfile extends AbstractProfile implements
   }
 
   private void readFloats(BufferedReader reader,
-      ImmutableList.Builder<FloatKindPredicate> predicates) {
+      ImmutableList.Builder<FloatKindPredicate> predicates, String unit, PredicateSiteIDAllocator allo) {
     int sequence = -1;
     try {
       for (String line = reader.readLine(); line != null; line = reader
@@ -164,9 +167,9 @@ public class PredicateProfile extends AbstractProfile implements
 
         int id = ++sequence;
         
-        FloatKindSite site = this.sites.getFloatKindSite(id);
+        FloatKindSite site = this.sites.getFloatKindSite(unit, id);
 //        if (this.functionSet.contains(site.getFunctionName())) {
-			predicates.add(new FloatKindPredicate(id, site, negativeInfinite, negativeNormalized, negativeDenormalized, negativeZero,
+			predicates.add(new FloatKindPredicate(allo.allocateID(), site, negativeInfinite, negativeNormalized, negativeDenormalized, negativeZero,
 					nan, positiveZero, positiveDenormalized, positiveNormalized, positiveInfinite));
 //		}
       }
@@ -177,7 +180,7 @@ public class PredicateProfile extends AbstractProfile implements
 
   private void readBranches(BufferedReader reader,
       ImmutableList.Builder<BranchPredicate> predicates,
-      sun.processor.profile.predicate.BranchPredicate.Factory branchFactory) {
+      sun.processor.profile.predicate.BranchPredicate.Factory branchFactory, String unit, PredicateSiteIDAllocator allo) {
     int sequence = -1;
     try {
       for (String line = reader.readLine(); line != null; line = reader
@@ -196,9 +199,9 @@ public class PredicateProfile extends AbstractProfile implements
         
         int id = ++sequence;
         
-        BranchSite site = this.sites.getBranchSite(id);
+        BranchSite site = this.sites.getBranchSite(unit, id);
 //        if (this.functionSet.contains(site.getFunctionName())) {
-			predicates.add(branchFactory.create(id, site, trueCounter, falseCounter));
+			predicates.add(branchFactory.create(allo.allocateID(), site, trueCounter, falseCounter));
 //		}
       }
     } catch (IOException e) {
@@ -228,7 +231,7 @@ public class PredicateProfile extends AbstractProfile implements
 
   private void readReturns(BufferedReader reader,
       ImmutableList.Builder<ReturnPredicate> predicates,
-      ReturnPredicate.Factory factory) {
+      ReturnPredicate.Factory factory, String unit, PredicateSiteIDAllocator allo) {
     int sequence = -1;
     // ArrayList<ReturnPredicate> predicates = new ArrayList<ReturnPredicate>();
     try {
@@ -249,9 +252,9 @@ public class PredicateProfile extends AbstractProfile implements
         
         final int id = ++sequence;
         
-        ReturnSite site = this.sites.getReturnSite(id);
+        ReturnSite site = this.sites.getReturnSite(unit, id);
 //        if (this.functionSet.contains(site.getFunctionName())) {
-			predicates.add(factory.create(id, site, negativeCounter, zeroCounter, positiveCounter));
+			predicates.add(factory.create(allo.allocateID(), site, negativeCounter, zeroCounter, positiveCounter));
 //		}
       }
     } catch (IOException e) {

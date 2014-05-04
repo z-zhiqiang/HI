@@ -1,11 +1,15 @@
 package sun.processor.profile;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-
-import zuo.processor.functionentry.site.FunctionEntrySite;
+import java.io.PrintWriter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 
@@ -84,7 +88,7 @@ public class InstrumentationSites {
     }
 
     public String getFunctionName() {
-      return functionName + FunctionEntrySite.DELIMITER + fileName;
+      return functionName + zuo.processor.functionentry.site.FunctionEntrySite.DELIMITER + fileName;
     }
 
     public int getCfgNumber() {
@@ -221,60 +225,80 @@ public class InstrumentationSites {
 
   }
 
-  private final ImmutableList<ScalarSite> scalarSites;
+//  private final ImmutableList<ScalarSite> scalarSites;
+//
+//  private final ImmutableList<ReturnSite> returnSites;
+//
+//  private final ImmutableList<BranchSite> branchSites;
+//
+//  private final ImmutableList<FloatKindSite> floatSites;
 
-  private final ImmutableList<ReturnSite> returnSites;
-
-  private final ImmutableList<BranchSite> branchSites;
-
-  private final ImmutableList<FloatKindSite> floatSites;
-
-  public FloatKindSite getFloatKindSite(int index) {
-    return this.floatSites.get(index);
+  
+  private final Map<String, ImmutableList<ScalarSite>> scalarSites;
+  
+  private final Map<String, ImmutableList<ReturnSite>> returnSites;
+  
+  private final Map<String, ImmutableList<BranchSite>> branchSites;
+  
+  private final Map<String, ImmutableList<FloatKindSite>> floatSites;
+  
+  
+  public FloatKindSite getFloatKindSite(String unit, int index) {
+    return this.floatSites.get(unit).get(index);
   }
 
-  public ScalarSite getScalarSite(int index) {
-    return this.scalarSites.get(index);
+  public ScalarSite getScalarSite(String unit, int index) {
+    return this.scalarSites.get(unit).get(index);
   }
 
-  public ReturnSite getReturnSite(int index) {
-    return this.returnSites.get(index);
+  public ReturnSite getReturnSite(String unit, int index) {
+    return this.returnSites.get(unit).get(index);
   }
 
-  public BranchSite getBranchSite(int index) {
-    return this.branchSites.get(index);
+  public BranchSite getBranchSite(String unit, int index) {
+    return this.branchSites.get(unit).get(index);
   }
 
-  public static InstrumentationSites manuallyCreateInstrumentationSitesForBranches(
-      ImmutableList<BranchSite> branchSites) {
-    return new InstrumentationSites(branchSites);
-  }
+//  public static InstrumentationSites manuallyCreateInstrumentationSitesForBranches(
+//      ImmutableList<BranchSite> branchSites) {
+//    return new InstrumentationSites(branchSites);
+//  }
 
-  private InstrumentationSites(ImmutableList<BranchSite> branchSites) {
-    this.scalarSites = ImmutableList.of();
-    this.returnSites = ImmutableList.of();
-    this.branchSites = branchSites;
-    this.floatSites = ImmutableList.of();
-  }
+//  private InstrumentationSites(ImmutableList<BranchSite> branchSites) {
+//    this.scalarSites = ImmutableList.of();
+//    this.returnSites = ImmutableList.of();
+//    this.branchSites = branchSites;
+//    this.floatSites = ImmutableList.of();
+//  }
 
   public InstrumentationSites(File sitesPath) {
-    ImmutableList.Builder<ScalarSite> scalarSites = ImmutableList.builder();
-    ImmutableList.Builder<ReturnSite> returnSites = ImmutableList.builder();
-    ImmutableList.Builder<BranchSite> branchSites = ImmutableList.builder();
-    ImmutableList.Builder<FloatKindSite> floats = ImmutableList.builder();
+//    ImmutableList.Builder<ScalarSite> scalarSites = ImmutableList.builder();
+//    ImmutableList.Builder<ReturnSite> returnSites = ImmutableList.builder();
+//    ImmutableList.Builder<BranchSite> branchSites = ImmutableList.builder();
+//    ImmutableList.Builder<FloatKindSite> floats = ImmutableList.builder();
+    
+    Map<String, ImmutableList<ScalarSite>> scalarSites = new HashMap<String, ImmutableList<ScalarSite>>();
+    
+    Map<String, ImmutableList<ReturnSite>> returnSites = new HashMap<String, ImmutableList<ReturnSite>>();
+    
+    Map<String, ImmutableList<BranchSite>> branchSites = new HashMap<String, ImmutableList<BranchSite>>();
+    
+    Map<String, ImmutableList<FloatKindSite>> floatSites = new HashMap<String, ImmutableList<FloatKindSite>>();
+    
     try {
       BufferedReader reader = new BufferedReader(new FileReader(sitesPath));
       for (String line = reader.readLine(); line != null; line = reader
           .readLine()) {
         if (line.startsWith("<sites")) {
+        	String unit = zuo.processor.cbi.site.InstrumentationSites.getUnitID(line);
           if (line.contains("scheme=\"branches\"")) {
-            this.readBranches(reader, branchSites);
+            this.readBranches(reader, branchSites, unit);
           } else if (line.contains("scheme=\"returns\"")) {
-            this.readReturns(reader, returnSites);
+            this.readReturns(reader, returnSites, unit);
           } else if (line.contains("scheme=\"scalar-pairs\"")) {
-            this.readScalarPairs(reader, scalarSites);
+            this.readScalarPairs(reader, scalarSites, unit);
           } else if (line.contains("scheme=\"float-kinds\"")) {
-            this.readFloatKinds(reader, floats);
+            this.readFloatKinds(reader, floatSites, unit);
           } else {
             throw new RuntimeException();
           }
@@ -285,29 +309,50 @@ public class InstrumentationSites {
       throw new RuntimeException(e);
     }
 
-    this.scalarSites = scalarSites.build();
-    this.returnSites = returnSites.build();
-    this.branchSites = branchSites.build();
-    this.floatSites = floats.build();
+//    this.scalarSites = scalarSites.build();
+//    this.returnSites = returnSites.build();
+//    this.branchSites = branchSites.build();
+//    this.floatSites = floats.build();
+    
+    this.scalarSites = Collections.unmodifiableMap(scalarSites);
+	this.returnSites = Collections.unmodifiableMap(returnSites);
+	this.branchSites = Collections.unmodifiableMap(branchSites);
+	this.floatSites = Collections.unmodifiableMap(floatSites);
   }
 
   public void print() {
-    for (BranchSite s : this.branchSites) {
-      System.out.println(s);
-    }
-    for (ScalarSite s : this.scalarSites) {
-      System.out.println(s);
-    }
-    for (ReturnSite s : this.returnSites) {
-      System.out.println(s);
-    }
-    for (FloatKindSite s : this.floatSites)
-      System.out.println(s);
+	try {
+		PrintWriter out =  new PrintWriter(new BufferedWriter(new FileWriter(new File("test.out"))));
+		for (String unit: this.branchSites.keySet()) {
+			for(BranchSite branch: this.branchSites.get(unit)){
+				out.println(branch);
+			}
+		}
+		for (String unit: this.scalarSites.keySet()) {
+			for(ScalarSite scalar: this.scalarSites.get(unit)){
+				out.println(scalar);
+			}
+		}
+		for(String unit: this.returnSites.keySet()){
+			for (ReturnSite s: this.returnSites.get(unit)) {
+				out.println(s);
+			}
+		}
+		for(String unit: this.floatSites.keySet()){
+			for (FloatKindSite s: this.floatSites.get(unit))
+				out.println(s);
+		}
+		
+		out.close();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
   }
 
-  private void readFloatKinds(BufferedReader reader,
-      ImmutableList.Builder<FloatKindSite> builder)
+  private void readFloatKinds(BufferedReader reader, Map<String, ImmutableList<FloatKindSite>> floatSites, String unit)
       throws NumberFormatException, IOException {
+	  ImmutableList.Builder<FloatKindSite> builder = new ImmutableList.Builder<FloatKindSite>();
     for (String line = reader.readLine(); line != null; line = reader
         .readLine()) {
       if (line.contains("</sites>")) {
@@ -329,11 +374,17 @@ public class InstrumentationSites {
             cfgNumber, left, leftType, containerType));
       }
     }
+    
+    ImmutableList<FloatKindSite> floats = builder.build();
+    if(floatSites.containsKey(unit)){
+		throw new RuntimeException("Wrong sites information: <unit, scheme> is not unique!!");
+	}
+	floatSites.put(unit, floats);
   }
 
-  private void readBranches(BufferedReader reader,
-      ImmutableList.Builder<BranchSite> builder) throws NumberFormatException,
+  private void readBranches(BufferedReader reader, Map<String, ImmutableList<BranchSite>> branchSites, String unit) throws NumberFormatException,
       IOException {
+	  ImmutableList.Builder<BranchSite> builder = new ImmutableList.Builder<BranchSite>();
     for (String line = reader.readLine(); line != null; line = reader
         .readLine()) {
       if (line.contains("</sites>")) {
@@ -352,6 +403,12 @@ public class InstrumentationSites {
             cfgNumber, predicate));
       }
     }
+    
+    ImmutableList<BranchSite> branches = builder.build();
+    if(branchSites.containsKey(unit)){
+		throw new RuntimeException("Wrong sites information: <unit, scheme> is not unique!!");
+	}
+	branchSites.put(unit, branches);
   }
 
   private void skip(BufferedReader reader) throws IOException {
@@ -360,9 +417,9 @@ public class InstrumentationSites {
     }
   }
 
-  private void readReturns(BufferedReader reader,
-      ImmutableList.Builder<ReturnSite> builder) throws NumberFormatException,
+  private void readReturns(BufferedReader reader, Map<String, ImmutableList<ReturnSite>> returnSites, String unit) throws NumberFormatException,
       IOException {
+      ImmutableList.Builder<ReturnSite> builder = new ImmutableList.Builder<ReturnSite>();
     for (String line = reader.readLine(); line != null; line = reader
         .readLine()) {
       if (line.contains("</sites>")) {
@@ -381,10 +438,16 @@ public class InstrumentationSites {
             cfgNumber, callee));
       }
     }
+
+    ImmutableList<ReturnSite> returns = builder.build();
+    if(returnSites.containsKey(unit)){
+		throw new RuntimeException("Wrong sites information: <unit, scheme> is not unique!!");
+	}
+	returnSites.put(unit, returns);
   }
 
-  private void readScalarPairs(BufferedReader reader,
-      ImmutableList.Builder<ScalarSite> builder) throws IOException {
+  private void readScalarPairs(BufferedReader reader, Map<String, ImmutableList<ScalarSite>> scalarSites, String unit) throws IOException {
+	  ImmutableList.Builder<ScalarSite> builder = new ImmutableList.Builder<ScalarSite>();
     for (String line = reader.readLine(); line != null; line = reader
         .readLine()) {
       if (line.contains("</sites>")) {
@@ -407,13 +470,17 @@ public class InstrumentationSites {
             cfgNumber, left, leftType, containerType, right, rightType));
       }
     }
+    
+    ImmutableList<ScalarSite> scalars = builder.build();
+    if(scalarSites.containsKey(unit)){
+		throw new RuntimeException("Wrong sites information: <unit, scheme> is not unique!!");
+	}
+	scalarSites.put(unit, scalars);
   }
 
-  public static void main(String[] args) {
-
-    File file = new File(
-        "/home/neo/experiments/predicate-debug/print_tokens/versions/v1/sites.txt");
-    new InstrumentationSites(file).print();
-  }
+//  public static void main(String[] args) {
+//    File file = new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects\\bash\\versions\\v1\\subv1\\v1_subv1_f.sites");
+//    new InstrumentationSites(file).print();
+//  }
 
 }
