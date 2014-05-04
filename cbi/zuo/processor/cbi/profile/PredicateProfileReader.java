@@ -76,10 +76,6 @@ public class PredicateProfileReader {
 	}
 	
 
-	public InstrumentationSites getSites() {
-		return sites;
-	}
-
 	public File getProfileFolder() {
 		return profileFolder;
 	}

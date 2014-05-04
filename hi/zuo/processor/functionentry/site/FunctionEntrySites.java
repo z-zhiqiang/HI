@@ -17,11 +17,13 @@ import zuo.util.file.FileUtility;
 
 public class FunctionEntrySites {
 	private final Map<String, List<FunctionEntrySite>> sites;
-	final int numFunctionEntrySites;
+	private final Set<String> functions;
+	private final int numFunctionEntrySites;
 	
 	public FunctionEntrySites(File sitesFile){
 		int index = 0;
 		Map<String, List<FunctionEntrySite>> sites = new LinkedHashMap<String, List<FunctionEntrySite>>();
+		Set<String> functions = new HashSet<String>();
 		
 		BufferedReader in = null;
 		try {
@@ -41,7 +43,13 @@ public class FunctionEntrySites {
 						if(s.length != 4){
 							throw new RuntimeException();
 						}
-						sitesList.add(new FunctionEntrySite(++index, s[0], Integer.parseInt(s[1]), s[2], Integer.parseInt(s[3])));
+						FunctionEntrySite site = new FunctionEntrySite(++index, s[0], Integer.parseInt(s[1]), s[2], Integer.parseInt(s[3]));
+						sitesList.add(site);
+						
+						if(functions.contains(site.getFunctionName())){
+							throw new RuntimeException("Function error");
+						}
+						functions.add(site.getFunctionName());
 					}
 					
 					if(sites.containsKey(unit)){
@@ -64,7 +72,9 @@ public class FunctionEntrySites {
 		}
 		
 		this.sites = Collections.unmodifiableMap(sites);
+		this.functions = Collections.unmodifiableSet(functions);
 		this.numFunctionEntrySites = index;
+		assert(index == this.functions.size());
 	}
 	
 	
@@ -72,6 +82,12 @@ public class FunctionEntrySites {
 	public Map<String, List<FunctionEntrySite>> getSites() {
 		return sites;
 	}
+
+	
+	public Set<String> getFunctions() {
+		return functions;
+	}
+
 
 	public int getNumFunctionEntrySites() {
 		return numFunctionEntrySites;

@@ -110,7 +110,7 @@ public class CBIClient {
 			
 			PredicateProfile[] selectedPredicateProfiles = constructSelectedPredicateProfiles(baseProfiles, failingSet, passingSet);
 			
-			Processor p = new Processor(selectedPredicateProfiles, failingSet.size(), passingSet.size());
+			Processor p = new Processor(selectedPredicateProfiles);
 			p.process();
 			assert(p.getTotalNegative() + p.getTotalPositive() == selectedPredicateProfiles.length);
 			
@@ -160,7 +160,7 @@ public class CBIClient {
 	}
 
 	public void runFull(){
-		Processor p = new Processor(profiles, failings.size(), passings.size());
+		Processor p = new Processor(profiles);
 		p.process();
 		assert(p.getTotalNegative() + p.getTotalPositive() == profiles.length);
 		

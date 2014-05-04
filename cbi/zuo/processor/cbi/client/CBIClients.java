@@ -32,7 +32,7 @@ public class CBIClients {
 		divideProfiles();
 		this.functions = Collections.unmodifiableSet(sitesInfo.getMap().keySet());
 		
-		run(sitesInfo, start);
+		run(start);
 	}
 
 	private void divideProfiles() {
@@ -53,7 +53,7 @@ public class CBIClients {
 	}
 
 
-	private void run(SitesInfo sitesInfo, final int start) {
+	private void run(final int start) {
 		//full CBIClient
 		fullInstrumentedCBIClient = new CBIClient(profiles, functions, failings, passings, start);
 		

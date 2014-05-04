@@ -30,7 +30,7 @@ public class PredicateProfile {
 
 	private final List<BranchPredicateSite> branches;
 
-	private final InstrumentationSites sites;
+	private InstrumentationSites sites;
 	
 	
 	public void dispose() {
@@ -45,7 +45,6 @@ public class PredicateProfile {
 		this.scalarPairs = scalarPairs;
 		this.returns = returns;
 		this.branches = branches;
-		this.sites = null;
 	}
 	
 	public PredicateProfile(File profilePath, InstrumentationSites sites, boolean isCorrect) {
@@ -210,11 +209,6 @@ public class PredicateProfile {
 		return isCorrect;
 	}
 	
-	public InstrumentationSites getSites() {
-		return sites;
-	}
-
-
 
 	public static class PredicateSiteIDAllocator{
 		private int id;

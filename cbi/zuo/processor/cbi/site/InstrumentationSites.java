@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import zuo.processor.functionentry.site.FunctionEntrySite;
+
 public class InstrumentationSites {
 	
 	public static enum SiteCategory {
@@ -43,7 +45,7 @@ public class InstrumentationSites {
 		}
 
 		public String getFunctionName() {
-			return functionName + ";;" + this.fileName;
+			return functionName + FunctionEntrySite.DELIMITER + this.fileName;
 		}
 
 		public int getCfgNumber() {

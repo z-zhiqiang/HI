@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -25,7 +26,11 @@ import zuo.processor.cbi.client.CBIClients;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.site.InstrumentationSites;
+import zuo.processor.cbi.site.InstrumentationSites.BranchSite;
+import zuo.processor.cbi.site.InstrumentationSites.FloatKindSite;
+import zuo.processor.cbi.site.InstrumentationSites.ReturnSite;
 import zuo.processor.cbi.site.SitesInfo;
+import zuo.processor.cbi.site.InstrumentationSites.ScalarSite;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Order;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
 import zuo.processor.functionentry.datastructure.Result;
@@ -33,6 +38,7 @@ import zuo.processor.functionentry.datastructure.Statistic;
 import zuo.processor.functionentry.profile.FunctionEntryProfile;
 import zuo.processor.functionentry.profile.FunctionEntryProfileReader;
 import zuo.processor.functionentry.site.FunctionEntrySites;
+import zuo.processor.split.PredicateSplittingSiteProfile;
 
 public class Client {
 	final File rootDir;
@@ -91,12 +97,28 @@ public class Client {
 			String vi = version.getName();
 			System.out.println(vi);
 			
-			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version, vi + "_f.sites")));
-			PredicateProfile[] fProfiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), sInfo.getSites()).readProfiles();
-//			printMethodsList(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
-			
 			FunctionEntrySites cSites = new FunctionEntrySites(new File(version, vi + "_c.sites"));
 			FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), cSites).readFunctionEntryProfiles();
+			
+			File fgSitesFile = new File(version, vi + "_f.sites");
+			InstrumentationSites fSites = new InstrumentationSites(fgSitesFile);
+			File fgProfilesFolder = new File(rootDir, subject + "/traces/" + vi + "/fine-grained");
+			PredicateProfile[] fProfiles = null;
+			
+			if(needTransform(fSites, cSites.getFunctions())){
+				File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
+				File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
+				PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cSites.getFunctions());
+				transformSplit.split();
+				
+				fSites = new InstrumentationSites(transformSitesFile);
+				fProfiles = new PredicateProfileReader(transformProfilesFolder, fSites).readProfiles();
+			}
+			else{
+				fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
+			}
+			SitesInfo sInfo = new SitesInfo(fSites);
+//			printMethodsList(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
 			
 			this.cResutlsMap.put(vi, new int[3]);
 			int[] cResult = this.cResutlsMap.get(vi);
@@ -146,6 +168,7 @@ public class Client {
 		printOutMethodsListByMode();
 	}
 
+
 	/**compute and print out the results for Sir subject excluding Siemens and space
 	 * 
 	 */
@@ -183,12 +206,28 @@ public class Client {
 				String vi = version.getName() + "_" + subversion.getName();
 				System.out.println(vi);
 				
-				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion, vi + "_f.sites")));
-				PredicateProfile[] fProfiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), sInfo.getSites()).readProfiles();
-//				printMethodsList(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
-				
 				FunctionEntrySites cSites = new FunctionEntrySites(new File(subversion, vi + "_c.sites"));
 				FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), cSites).readFunctionEntryProfiles();
+				
+				File fgSitesFile = new File(subversion, vi + "_f.sites");
+				InstrumentationSites fSites = new InstrumentationSites(fgSitesFile);
+				File fgProfilesFolder = new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained");
+				PredicateProfile[] fProfiles = null;
+				
+				if(needTransform(fSites, cSites.getFunctions())){
+					File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
+					File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
+					PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cSites.getFunctions());
+					transformSplit.split();
+					
+					fSites = new InstrumentationSites(transformSitesFile);
+					fProfiles = new PredicateProfileReader(transformProfilesFolder, fSites).readProfiles();
+				}
+				else{
+					fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
+				}
+				SitesInfo sInfo = new SitesInfo(fSites);
+//				printMethodsList(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
 				this.cResutlsMap.put(vi, new int[3]);
 				int[] cResult = this.cResutlsMap.get(vi);
@@ -242,6 +281,44 @@ public class Client {
 		printResultsByFlagToExcel();
 		printOutMethodsListByMode();
 	}
+
+	public static boolean needTransform(InstrumentationSites fSites, Set<String> functions) {
+		// TODO Auto-generated method stub
+		for(String unit: fSites.getBranchSites().keySet()){
+			for(BranchSite site: fSites.getBranchSites().get(unit)){
+				if(!functions.contains(site.getFunctionName())){
+					return true;
+				}
+			}
+		}
+		
+		for(String unit: fSites.getReturnSites().keySet()){
+			for(ReturnSite site: fSites.getReturnSites().get(unit)){
+				if(!functions.contains(site.getFunctionName())){
+					return true;
+				}
+			}
+		}
+		
+		for(String unit: fSites.getFloatSites().keySet()){
+			for(FloatKindSite site: fSites.getFloatSites().get(unit)){
+				if(!functions.contains(site.getFunctionName())){
+					return true;
+				}
+			}
+		}
+		
+		for(String unit: fSites.getScalarSites().keySet()){
+			for(ScalarSite site: fSites.getScalarSites().get(unit)){
+				if(!functions.contains(site.getFunctionName())){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+
 
 	private void printOutMethodsListByMode() {
 		// TODO Auto-generated method stub
@@ -816,7 +893,7 @@ public class Client {
 		int[] ks = {1};
 		long time0 = System.currentTimeMillis();
 		if(args.length == 8){
-			Client c = new Client(ks, new File(args[1]), args[2], new File(args[3] + "_" + args[4] + "_" + args[5] + "_v" + args[6] + "-v" + args[7]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]), Integer.parseInt(args[7]));
+			Client c = new Client(ks, new File(args[1]), args[2], new File(new File(args[3]), args[2] + "_" + args[4] + "_" + args[5] + "_v" + args[6] + "-v" + args[7]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]), Integer.parseInt(args[7]));
 			if(Integer.parseInt(args[0]) == 0){
 				c.runSiemens();
 			}
@@ -827,7 +904,7 @@ public class Client {
 		else if(args.length == 7){
 			assert(Integer.parseInt(args[0]) == 0);
 			for(int i = 4; i < argvs.length; i++){
-				Client c = new Client(ks, new File(args[1]), argvs[i][1], new File(args[2] + "_" + args[3] + "_" + args[4] + "_v" + args[5] + "-v" + args[6], argvs[i][1]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]));
+				Client c = new Client(ks, new File(args[1]), argvs[i][1], new File(new File(args[2]), argvs[i][1] + "_" + args[3] + "_" + args[4] + "_v" + args[5] + "-v" + args[6]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]));
 				c.runSiemens();
 			}
 		}

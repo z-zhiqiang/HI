@@ -1,6 +1,8 @@
 package zuo.processor.functionentry.site;
 
 public class FunctionEntrySite {
+	public static final String DELIMITER = ";;";
+
 	final int id;
 	
 	final String fileName;
@@ -29,7 +31,7 @@ public class FunctionEntrySite {
 	}
 
 	public String getFunctionName() {
-		return functionName + ";;" + this.fileName;
+		return functionName + DELIMITER + this.fileName;
 	}
 
 	public int getCfgNumber() {

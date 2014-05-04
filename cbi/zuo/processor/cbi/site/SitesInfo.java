@@ -76,6 +76,7 @@ public class SitesInfo {
 		this.numPredicateItems = 0;
 		map = new HashMap<String, InfoValue>();
 		
+		
 		collectInfo();
 	}
 	
@@ -88,17 +89,24 @@ public class SitesInfo {
 			for(BranchSite site: entry.getValue()){
 				String method = site.getFunctionName();
 				
-				if(map.containsKey(method)){
-					assert(map.get(method).getSitesSet().add(site));
-					map.get(method).increaseNumSites(1);
-					map.get(method).increaseNumPredicates(2);
-//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
-				}
-				else{
-					map.put(method, new InfoValue(1, 2, new HashSet<AbstractSite>()));
-					map.get(method).getSitesSet().add(site);
-//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
-				}
+//				if(this.functions.contains(method)){
+					if(map.containsKey(method)){
+						assert(map.get(method).getSitesSet().add(site));
+						map.get(method).increaseNumSites(1);
+						map.get(method).increaseNumPredicates(2);
+						assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+					}
+					else{
+						map.put(method, new InfoValue(1, 2, new HashSet<AbstractSite>()));
+						map.get(method).getSitesSet().add(site);
+						assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+					}
+//				}
+//				else{
+//					this.numPredicateItems -= 2;
+//					this.numPredicateSites--;
+//				}
+				
 			}
 		}
 		//floatkindSites
@@ -109,17 +117,24 @@ public class SitesInfo {
 			for(FloatKindSite site: entry.getValue()){
 				String method = site.getFunctionName();
 				
-				if(map.containsKey(method)){
-					assert(map.get(method).getSitesSet().add(site));
-					map.get(method).increaseNumSites(1);
-					map.get(method).increaseNumPredicates(9);
-//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
-				}
-				else{
-					map.put(method, new InfoValue(1, 9, new HashSet<AbstractSite>()));
-					map.get(method).getSitesSet().add(site);
-//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
-				}
+//				if(this.functions.contains(method)){
+					if(map.containsKey(method)){
+						assert(map.get(method).getSitesSet().add(site));
+						map.get(method).increaseNumSites(1);
+						map.get(method).increaseNumPredicates(9);
+						assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+					}
+					else{
+						map.put(method, new InfoValue(1, 9, new HashSet<AbstractSite>()));
+						map.get(method).getSitesSet().add(site);
+						assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+					}
+//				}
+//				else{
+//					this.numPredicateItems -= 9;
+//					this.numPredicateSites--;
+//				}
+				
 			}
 		}
 		//returnSites
@@ -130,17 +145,24 @@ public class SitesInfo {
 			for(ReturnSite site: entry.getValue()){
 				String method = site.getFunctionName();
 				
-				if(map.containsKey(method)){
-					assert(map.get(method).getSitesSet().add(site));
-					map.get(method).increaseNumSites(1);
-					map.get(method).increaseNumPredicates(6);
-//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
-				}
-				else{
-					map.put(method, new InfoValue(1, 6, new HashSet<AbstractSite>()));
-					map.get(method).getSitesSet().add(site);
-//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
-				}
+//				if(this.functions.contains(method)){
+					if(map.containsKey(method)){
+						assert(map.get(method).getSitesSet().add(site));
+						map.get(method).increaseNumSites(1);
+						map.get(method).increaseNumPredicates(6);
+						assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+					}
+					else{
+						map.put(method, new InfoValue(1, 6, new HashSet<AbstractSite>()));
+						map.get(method).getSitesSet().add(site);
+						assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+					}
+//				}
+//				else{
+//					this.numPredicateItems -= 6;
+//					this.numPredicateSites--;
+//				}
+				
 			}
 		}
 		//scalarSites
@@ -151,17 +173,24 @@ public class SitesInfo {
 			for(ScalarSite site: entry.getValue()){
 				String method = site.getFunctionName();
 				
-				if(map.containsKey(method)){
-					assert(map.get(method).getSitesSet().add(site));
-					map.get(method).increaseNumSites(1);
-					map.get(method).increaseNumPredicates(6);
-//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
-				}
-				else{
-					map.put(method, new InfoValue(1, 6, new HashSet<AbstractSite>()));
-					map.get(method).getSitesSet().add(site);
-//					assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
-				}
+//				if(this.functions.contains(method)){
+					if(map.containsKey(method)){
+						assert(map.get(method).getSitesSet().add(site));
+						map.get(method).increaseNumSites(1);
+						map.get(method).increaseNumPredicates(6);
+						assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+					}
+					else{
+						map.put(method, new InfoValue(1, 6, new HashSet<AbstractSite>()));
+						map.get(method).getSitesSet().add(site);
+						assert(map.get(method).getSitesSet().iterator().next().getFileName().equals(site.getFileName()));
+					}
+//				}
+//				else{
+//					this.numPredicateItems -= 6;
+//					this.numPredicateSites--;
+//				}
+				
 			}
 		}
 	}
@@ -188,10 +217,6 @@ public class SitesInfo {
 
 	public void setMap(Map<String, InfoValue> map) {
 		this.map = map;
-	}
-
-	public InstrumentationSites getSites() {
-		return sites;
 	}
 	
 	

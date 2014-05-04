@@ -16,13 +16,11 @@ import zuo.processor.functionentry.site.FunctionEntrySite;
  */
 public class SelectingProcessor{
 	private final FunctionEntryProfile[] profiles;
-	private final int totalNegative;
-	private final int totalPositive;
+	private int totalNegative;
+	private int totalPositive;
 	private Map<FunctionEntrySite, FrequencyValue> frequencyMap;
 	
-	public SelectingProcessor(int totalNeg, int totalPos, FunctionEntryProfile[] profiles){
-		this.totalNegative = totalNeg;
-		this.totalPositive = totalPos;
+	public SelectingProcessor(FunctionEntryProfile[] profiles){
 		this.profiles = profiles;
 		this.frequencyMap = new HashMap<FunctionEntrySite, FrequencyValue>();
 	}
@@ -37,6 +35,7 @@ public class SelectingProcessor{
 	private void computeFrequencyPair(){
 		for(FunctionEntryProfile profile: profiles){
 			if(profile.isCorrect()){
+				this.totalPositive++;
 				for(FunctionEntryItem item: profile.getFunctionEntryItems()){
 					FunctionEntrySite function = item.getSite();
 					if(item.getCounter() > 0){
@@ -55,6 +54,7 @@ public class SelectingProcessor{
 				}
 			}
 			else{
+				this.totalNegative++;
 				for(FunctionEntryItem item: profile.getFunctionEntryItems()){
 					FunctionEntrySite function = item.getSite();
 					if(item.getCounter() > 0){

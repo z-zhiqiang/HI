@@ -16,11 +16,21 @@ public class Processor {
 	private final int totalPositive; // number of passing runs
 	private final int totalNegative; // number of failing runs
 	
-	public Processor(PredicateProfile[] predicateProfiles, int failing, int passing){
-		profiles = predicateProfiles;
-		predictorsList = new ArrayList<PredicateItemWithImportance>();
+	public Processor(PredicateProfile[] predicateProfiles){
+		int passing = 0, failing = 0;
+		for(int i = 0; i < predicateProfiles.length; i++){
+			if(predicateProfiles[i].isCorrect()){
+				passing++;
+			}
+			else{
+				failing++;
+			}
+		}
 		totalNegative = failing;
 		totalPositive = passing;
+		
+		profiles = predicateProfiles;
+		predictorsList = new ArrayList<PredicateItemWithImportance>();
 	}
 	
 	public void process(){

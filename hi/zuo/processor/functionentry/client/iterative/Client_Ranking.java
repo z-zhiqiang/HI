@@ -32,6 +32,7 @@ import zuo.processor.functionentry.site.FunctionEntrySite;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 import zuo.processor.importance.processor.PredicateImportanceInfoWithinFunction;
 import zuo.processor.importance.processor.ProcessorPreImportanceInfoWithinFun;
+import zuo.processor.split.PredicateSplittingSiteProfile;
 
 public class Client_Ranking {
 	final File rootDir;
@@ -83,12 +84,28 @@ public class Client_Ranking {
 			String vi = version.getName();
 			System.out.println(vi);
 			
-			SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(version, vi + "_f.sites")));
-			PredicateProfile[] fProfiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + vi +"/fine-grained"), sInfo.getSites()).readProfiles();
-//			printMethodsList(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
-			
 			FunctionEntrySites cSites = new FunctionEntrySites(new File(version, vi + "_c.sites"));
 			FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), cSites).readFunctionEntryProfiles();
+			
+			File fgSitesFile = new File(version, vi + "_f.sites");
+			InstrumentationSites fSites = new InstrumentationSites(fgSitesFile);
+			File fgProfilesFolder = new File(rootDir, subject + "/traces/" + vi + "/fine-grained");
+			PredicateProfile[] fProfiles = null;
+			
+			if(Client.needTransform(fSites, cSites.getFunctions())){
+				File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
+				File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
+				PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cSites.getFunctions());
+				transformSplit.split();
+				
+				fSites = new InstrumentationSites(transformSitesFile);
+				fProfiles = new PredicateProfileReader(transformProfilesFolder, fSites).readProfiles();
+			}
+			else{
+				fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
+			}
+			SitesInfo sInfo = new SitesInfo(fSites);
+//			printMethodsList(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
 			
 			runForRankingInfo(vi, sInfo, fProfiles, cProfiles);
 		}
@@ -134,12 +151,28 @@ public class Client_Ranking {
 				String vi = version.getName() + "_" + subversion.getName();
 				System.out.println(vi);
 				
-				SitesInfo sInfo = new SitesInfo(new InstrumentationSites(new File(subversion, vi + "_f.sites")));
-				PredicateProfile[] fProfiles = new PredicateProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained"), sInfo.getSites()).readProfiles();
-//				printMethodsList(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
-				
 				FunctionEntrySites cSites = new FunctionEntrySites(new File(subversion, vi + "_c.sites"));
 				FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), cSites).readFunctionEntryProfiles();
+				
+				File fgSitesFile = new File(subversion, vi + "_f.sites");
+				InstrumentationSites fSites = new InstrumentationSites(fgSitesFile);
+				File fgProfilesFolder = new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained");
+				PredicateProfile[] fProfiles = null;
+				
+				if(Client.needTransform(fSites, cSites.getFunctions())){
+					File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
+					File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
+					PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cSites.getFunctions());
+					transformSplit.split();
+					
+					fSites = new InstrumentationSites(transformSitesFile);
+					fProfiles = new PredicateProfileReader(transformProfilesFolder, fSites).readProfiles();
+				}
+				else{
+					fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
+				}
+				SitesInfo sInfo = new SitesInfo(fSites);
+//				printMethodsList(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
 				runForRankingInfo(vi, sInfo, fProfiles, cProfiles);
 			}
@@ -151,28 +184,16 @@ public class Client_Ranking {
 	
 	private void runForRankingInfo(String vi, SitesInfo sInfo,
 			PredicateProfile[] fProfiles, FunctionEntryProfile[] cProfiles) {
-		//divide profiles
-		int passing = 0, failing = 0;
-		assert(fProfiles.length == cProfiles.length);
-		for(int i = 0; i < fProfiles.length; i++){
-			assert(fProfiles[i].isCorrect() == cProfiles[i].isCorrect());
-			if(fProfiles[i].isCorrect()){
-				passing++;
-			}
-			else{
-				failing++;
-			}
-		}
 		
 		//fine-grained analysis
-		Processor fgProcessor = new Processor(fProfiles, failing, passing);
+		Processor fgProcessor = new Processor(fProfiles);
 		fgProcessor.process();
 		ProcessorPreImportanceInfoWithinFun imProcessor = new ProcessorPreImportanceInfoWithinFun(fgProcessor.getPredictorsList());
 		imProcessor.process();
 		Map<String, PredicateImportanceInfoWithinFunction> ImportanceInfo = imProcessor.getImportanceInfoMap();
 		
 		//coarse-grained analysis
-		SelectingProcessor cgProcessor = new SelectingProcessor(failing, passing, cProfiles);
+		SelectingProcessor cgProcessor = new SelectingProcessor(cProfiles);
 		cgProcessor.process();
 		
 		//filter out methods within which no predicates are instrumented

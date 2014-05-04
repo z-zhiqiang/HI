@@ -155,9 +155,7 @@ public class IterativeFunctionClient {
 
 
 	private void run(PrintWriter cbiWriter, PrintWriter functionWriter, int[] ks){
-		SelectingProcessor processor = new SelectingProcessor(this.fullFixElement.getFailingSet().size(), 
-				this.fullFixElement.getPassingSet().size(), 
-				selectedFunctionEntryProfiles);
+		SelectingProcessor processor = new SelectingProcessor(selectedFunctionEntryProfiles);
 		processor.process();
 		
 		//print out the general runs information
@@ -169,7 +167,6 @@ public class IterativeFunctionClient {
 		
 		//filter out methods within which no predicates are instrumented
 		filterFrequencyMap(processor.getFrequencyMap());
-		
 		printout(processor.getFrequencyMap(), this.sInfo.getMap());
 		assert(processor.getFrequencyMap().size() == this.sInfo.getMap().size());
 		
@@ -428,20 +425,9 @@ public class IterativeFunctionClient {
 	 * @param frequencyMap
 	 */
 	private void filterFrequencyMap(Map<FunctionEntrySite, FrequencyValue> frequencyMap) {
-		Set<String> functionsSet = new HashSet<String>();
 		for(Iterator<FunctionEntrySite> it = frequencyMap.keySet().iterator(); it.hasNext();){
 			String function = it.next().getFunctionName();
 			if(!sInfo.getMap().containsKey(function)){
-				it.remove();
-			}
-			else{
-				functionsSet.add(function);
-			}
-		}
-		
-		for(Iterator<String> it = sInfo.getMap().keySet().iterator(); it.hasNext();){
-			String function = it.next();
-			if(!functionsSet.contains(function)){
 				it.remove();
 			}
 		}

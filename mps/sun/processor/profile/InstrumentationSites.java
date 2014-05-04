@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import zuo.processor.functionentry.site.FunctionEntrySite;
+
 import com.google.common.collect.ImmutableList;
 
 public class InstrumentationSites {
@@ -82,7 +84,7 @@ public class InstrumentationSites {
     }
 
     public String getFunctionName() {
-      return functionName;
+      return functionName + FunctionEntrySite.DELIMITER + fileName;
     }
 
     public int getCfgNumber() {

@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import zuo.processor.functionentry.site.FunctionEntrySite;
+
 public class PredicateSplittingSiteProfile extends AbstractSplittingSiteProfile {
 	private final Set<String> functions;
 	private final Map<String, Set<Integer>> sitesMap;
@@ -62,7 +64,7 @@ public class PredicateSplittingSiteProfile extends AbstractSplittingSiteProfile 
 			} 
 			else{
 				String[] s = line.split("\t");
-				String functionName = s[2];
+				String functionName = s[2] + FunctionEntrySite.DELIMITER + s[0];
 				if(this.functions.contains(functionName)){
 					builder.append(line).append("\n");
 					set.add(index);
