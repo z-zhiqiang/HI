@@ -50,9 +50,9 @@ public class Client {
 	private static final String mbsOutputFile = "mbs.out";
 	
 	public static final File sirRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
-	public static final File siemensRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/Siemens/");	
+	public static final File siemensRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects1/Siemens/");	
 	public static final File sirConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/");
-	public static final File siemensConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/Siemens/");
+	public static final File siemensConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console1/Siemens/");
 	
 	
 	private final String subject;
@@ -90,7 +90,7 @@ public class Client {
 				{"13585", "space", "38"},
 //				{"4130", "printtokens", "7"},
 //				{"4115", "printtokens2", "10"},
-				{"5542", "replace", "32"},
+				{"5542", "replace", "3"},
 //				{"2650", "schedule", "9"},
 //				{"2710", "schedule2", "10"},
 //				{"1608", "tcas", "41"},
@@ -275,7 +275,7 @@ public class Client {
 		}
 		
 		printResultToExcel();
-//		printCorrelationToExcel();
+		printCorrelationToExcel();
 	}
 
 	private void run(File fgProfilesFolder, File fgSitesFile, File cgProfilesFolder, File cgSitesFile, final File resultOutputFolder, List<Object> resultsList, PrintWriter writer, Map<String, List<Object>> correlationData, List<Object> correlationResults) throws IOException {
@@ -347,6 +347,7 @@ public class Client {
 		}
 		
 		IDataSet dataset = runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
+		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, bc);
 		
 		/*=================================================================================================*/
 		
@@ -380,9 +381,6 @@ public class Client {
 		
 		processDSCorrelation(DSInfo, list, correlationData, correlationResults);
 		//-------------------------------------------------------------------------------------------------//
-		
-		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, bc);
-		
 		
 		/*=================================================================================================*/
 		
@@ -941,7 +939,7 @@ public class Client {
 		String[] fgtitles = {"FGSite_Size", "#Site_Static", "#Predicate_Static", "FGTraces_Size", "#Function", "#P_Total", "#P_FIncrease", "#P_FLocal", "#Predicate", "Memory_Pre", "Time_Pre", "DS", "Time_Mine", "Memory_Mine"};
 		String[] pruneMinusBoosttitles = {"FGSite_Size", "#Site_Static", "#Predicate_Static", "FGTraces_Size", "#Function"};
 		String[] prunetitles = {"#Function", "#P_Total", "#P_FIncrease", "#P_FLocal", "#Predicate", "Memory_Pre", "Time_Pre", "DS", "Time_Mine", "Memory_Mine"};
-		String[] fgs = {"original", "boost", "pruneMinusBoost", "prune"};
+		String[] fgs = {"boost", "pruneMinusBoost", "prune"};
 		
 		Cell cell1 = row1.createCell(cellnum1++);
 		cell1.setCellValue(" ");
@@ -953,6 +951,12 @@ public class Client {
 			cell0.setCellValue(" ");
 			cell1 = row1.createCell(cellnum1++);
 			cell1.setCellValue(tstitles[i]);
+		}
+		for(int i = 0; i < cgtitles.length; i++){
+			cell0 = row0.createCell(cellnum0++);
+			cell0.setCellValue("original");
+			cell1 = row1.createCell(cellnum1++);
+			cell1.setCellValue(fgtitles[i]);
 		}
 		for(int i = 0; i < cgtitles.length; i++){
 			cell0 = row0.createCell(cellnum0++);

@@ -44,9 +44,6 @@ public abstract class AbstractPredicate {
     return site;
   }
 
-  public String getMethodName() {
-    return this.site.getFunctionName();
-  }
 
   public static byte normalize(int counter) {
     return (byte) (counter > 0 ? 1 : 0);

@@ -69,6 +69,8 @@ public class PredicateDataSetConstructor implements IDataSetConstructor {
     for (int i = 0; i < length; ++i) {
       verticalReturnPredicates[i] = profiles[i].getBranchPredicates()
           .get(index);
+      assert(profiles[0].getBranchPredicates().get(index).getId() == verticalReturnPredicates[i].getId());
+      assert(profiles[0].getBranchPredicates().get(index).getSite() == verticalReturnPredicates[i].getSite());
     }
     // return branchPredicates;
   }
@@ -81,6 +83,8 @@ public class PredicateDataSetConstructor implements IDataSetConstructor {
     assert scalarPredicates.length == length;
     for (int i = 0; i < length; ++i) {
       scalarPredicates[i] = profiles[i].getScalarPredicates().get(index);
+      assert(profiles[0].getScalarPredicates().get(index).getId() == scalarPredicates[i].getId());
+      assert(profiles[0].getScalarPredicates().get(index).getSite() == scalarPredicates[i].getSite());
     }
     return scalarPredicates;
   }
@@ -94,6 +98,8 @@ public class PredicateDataSetConstructor implements IDataSetConstructor {
     for (int i = 0; i < numberOfProfiles; ++i) {
       returnPredicatesCollector[i] = profiles[i].getReturnPredicates().get(
           index);
+      assert(profiles[0].getReturnPredicates().get(index).getId() == returnPredicatesCollector[i].getId());
+      assert(profiles[0].getReturnPredicates().get(index).getSite() == returnPredicatesCollector[i].getSite());
     }
     // return returnPredicates;
   }
@@ -247,6 +253,8 @@ public class PredicateDataSetConstructor implements IDataSetConstructor {
     assert predicatesCollector.length == numberOfProfiles;
     for (int i = 0; i < numberOfProfiles; ++i) {
       predicatesCollector[i] = profiles[i].getFloatKindPredicates().get(index);
+      assert(profiles[0].getFloatKindPredicates().get(index).getId() == predicatesCollector[i].getId());
+      assert(profiles[0].getFloatKindPredicates().get(index).getSite() == predicatesCollector[i].getSite());
     }
     // return predicates;
   }
