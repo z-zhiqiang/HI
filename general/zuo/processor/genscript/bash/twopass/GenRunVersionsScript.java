@@ -3,8 +3,7 @@ package zuo.processor.genscript.bash.twopass;
 import java.io.File;
 import java.util.Iterator;
 
-import zuo.processor.genscript.client.iterative.GenBashScriptClient;
-
+import zuo.processor.genscript.client.twopass.GenBashScriptClient;
 
 
 public class GenRunVersionsScript extends AbstractGenRunScript {

@@ -27,7 +27,7 @@ public class GenRunAllScript extends AbstractGenRunAllScript{
 	}
 	
 
-	public static void main(String[] args) {
-		new GenRunAllScript("v1", "grep", "", 18).genRunAllScript();
-	}
+//	public static void main(String[] args) {
+//		new GenRunAllScript("v1", "grep", "", 18).genRunAllScript();
+//	}
 }

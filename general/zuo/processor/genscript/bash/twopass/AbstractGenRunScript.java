@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import zuo.processor.genscript.client.iterative.GenBashScriptClient;
+import zuo.processor.genscript.client.twopass.GenBashScriptClient;
 import zuo.util.file.FileUtility;
 
 public abstract class AbstractGenRunScript {
