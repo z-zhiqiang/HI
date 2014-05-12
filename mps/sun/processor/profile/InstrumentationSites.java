@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import zuo.processor.functionentry.site.FunctionEntrySite;
+
 import com.google.common.collect.ImmutableList;
 
 public class InstrumentationSites {
@@ -88,7 +90,7 @@ public class InstrumentationSites {
     }
 
     public String getFunctionName() {
-      return functionName + zuo.processor.functionentry.site.FunctionEntrySite.DELIMITER + fileName;
+      return FunctionEntrySite.getUniqueFunctionName(this.functionName, this.fileName);
     }
 
     public int getCfgNumber() {

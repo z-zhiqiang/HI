@@ -92,7 +92,7 @@ public class Client_Ranking {
 			File fgProfilesFolder = new File(rootDir, subject + "/traces/" + vi + "/fine-grained");
 			PredicateProfile[] fProfiles = null;
 			
-			if(Client.needTransform(fSites, cSites.getFunctions())){
+			if(Client.needRefine(fSites, cSites.getFunctions())){
 				File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
 				File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
 				PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cSites.getFunctions());
@@ -159,7 +159,7 @@ public class Client_Ranking {
 				File fgProfilesFolder = new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained");
 				PredicateProfile[] fProfiles = null;
 				
-				if(Client.needTransform(fSites, cSites.getFunctions())){
+				if(Client.needRefine(fSites, cSites.getFunctions())){
 					File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
 					File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
 					PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cSites.getFunctions());

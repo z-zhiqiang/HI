@@ -105,7 +105,7 @@ public class Client {
 			File fgProfilesFolder = new File(rootDir, subject + "/traces/" + vi + "/fine-grained");
 			PredicateProfile[] fProfiles = null;
 			
-			if(needTransform(fSites, cSites.getFunctions())){
+			if(needRefine(fSites, cSites.getFunctions())){
 				File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
 				File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
 				PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cSites.getFunctions());
@@ -214,7 +214,7 @@ public class Client {
 				File fgProfilesFolder = new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained");
 				PredicateProfile[] fProfiles = null;
 				
-				if(needTransform(fSites, cSites.getFunctions())){
+				if(needRefine(fSites, cSites.getFunctions())){
 					File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
 					File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
 					PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cSites.getFunctions());
@@ -282,7 +282,7 @@ public class Client {
 		printOutMethodsListByMode();
 	}
 
-	public static boolean needTransform(InstrumentationSites fSites, Set<String> functions) {
+	public static boolean needRefine(InstrumentationSites fSites, Set<String> functions) {
 		// TODO Auto-generated method stub
 		for(String unit: fSites.getBranchSites().keySet()){
 			for(BranchSite site: fSites.getBranchSites().get(unit)){

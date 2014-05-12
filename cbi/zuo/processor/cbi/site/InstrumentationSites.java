@@ -45,7 +45,7 @@ public class InstrumentationSites {
 		}
 
 		public String getFunctionName() {
-			return functionName + FunctionEntrySite.DELIMITER + this.fileName;
+			return FunctionEntrySite.getUniqueFunctionName(this.functionName, this.fileName);
 		}
 
 		public int getCfgNumber() {

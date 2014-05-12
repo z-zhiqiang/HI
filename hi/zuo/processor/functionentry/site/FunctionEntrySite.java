@@ -1,7 +1,7 @@
 package zuo.processor.functionentry.site;
 
+
 public class FunctionEntrySite {
-	public static final String DELIMITER = ";;";
 
 	final int id;
 	
@@ -31,7 +31,7 @@ public class FunctionEntrySite {
 	}
 
 	public String getFunctionName() {
-		return functionName + DELIMITER + this.fileName;
+		return getUniqueFunctionName(this.functionName, this.fileName);
 	}
 
 	public int getCfgNumber() {
@@ -54,6 +54,10 @@ public class FunctionEntrySite {
 	
 	public boolean equals(Object o){
 		return (o instanceof FunctionEntrySite) && (((FunctionEntrySite) o).id == id);
+	}
+	
+	public static String getUniqueFunctionName(String function, String file){
+		return function + "->" + file.substring(zuo.processor.functionentry.client.twopass.Client.sirRootDir.getAbsolutePath().length());
 	}
 
 }

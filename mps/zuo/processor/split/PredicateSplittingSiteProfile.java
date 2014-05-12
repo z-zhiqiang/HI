@@ -64,7 +64,7 @@ public class PredicateSplittingSiteProfile extends AbstractSplittingSiteProfile 
 			} 
 			else{
 				String[] s = line.split("\t");
-				String functionName = s[2] + FunctionEntrySite.DELIMITER + s[0];
+				String functionName = FunctionEntrySite.getUniqueFunctionName(s[2], s[0]);
 				if(this.functions.contains(functionName)){
 					builder.append(line).append("\n");
 					set.add(index);

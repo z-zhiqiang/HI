@@ -50,9 +50,9 @@ public class Client {
 	private static final String mbsOutputFile = "mbs.out";
 	
 	public static final File sirRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
-	public static final File siemensRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects1/Siemens/");	
+	public static final File siemensRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/Siemens/");	
 	public static final File sirConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/");
-	public static final File siemensConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console1/Siemens/");
+	public static final File siemensConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/Siemens/");
 	
 	
 	private final String subject;
@@ -224,7 +224,7 @@ public class Client {
 					@Override
 					public boolean accept(File dir, String name) {
 						// TODO Auto-generated method stub
-						return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 11);
+						return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 10);
 					}});
 				Arrays.sort(subversions, new Comparator<File>(){
 					@Override
@@ -235,7 +235,7 @@ public class Client {
 				
 				for(File subversion: subversions){
 					String vi = version.getName() + "/" + subversion.getName();
-//					if(!vi.equals("v2/subv1")){
+//					if(!vi.equals("v2/subv3")){
 //						continue;
 //					}
 					System.out.println(vi);
@@ -322,16 +322,32 @@ public class Client {
 		FunctionEntrySites cgSites = new FunctionEntrySites(cgSitesFile);
 		
 		InstrumentationSites fSites = new InstrumentationSites(fgSitesFile);
-		if(zuo.processor.functionentry.client.iterative.Client.needTransform(fSites, cgSites.getFunctions())){
-			File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
-			File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
-			PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cgSites.getFunctions());
+		if(zuo.processor.functionentry.client.iterative.Client.needRefine(fSites, cgSites.getFunctions())){
+			File refineProfilesFolder = new File(fgProfilesFolder.getParentFile(), "refine");
+			File refineSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'r'));
+			System.out.println(refineSitesFile.getAbsolutePath());
+			System.out.println(refineProfilesFolder.getAbsolutePath());
+			PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, refineSitesFile, refineProfilesFolder, cgSites.getFunctions());
 			transformSplit.split();
 			
-			fSites = new InstrumentationSites(transformSitesFile);
+			fSites = new InstrumentationSites(refineSitesFile);
 			
-			fgSitesFile = transformSitesFile;
-			fgProfilesFolder = transformProfilesFolder;
+			FileUtility.removeFileOrDirectory(fgProfilesFolder);
+			FileUtility.removeFileOrDirectory(fgSitesFile);
+			
+			fgSitesFile = new File(refineSitesFile.getParentFile(), refineSitesFile.getName().replace('r', 'f'));
+			fgProfilesFolder = new File(refineProfilesFolder.getParentFile(), "fine-grained");
+			System.out.println(fgSitesFile.getAbsolutePath());
+			System.out.println(fgProfilesFolder.getAbsolutePath());
+			System.out.println(fgSitesFile.exists());
+			System.out.println(fgProfilesFolder.exists());
+			
+			refineSitesFile.renameTo(fgSitesFile);
+			refineProfilesFolder.renameTo(fgProfilesFolder);
+			System.out.println(refineSitesFile.getAbsolutePath());
+			System.out.println(refineProfilesFolder.getAbsolutePath());
+			System.out.println(fgSitesFile.exists());
+			System.out.println(fgProfilesFolder.exists());
 		}
 		
 		SitesInfo fgSitesInfo = new SitesInfo(fSites);
@@ -952,7 +968,7 @@ public class Client {
 			cell1 = row1.createCell(cellnum1++);
 			cell1.setCellValue(tstitles[i]);
 		}
-		for(int i = 0; i < cgtitles.length; i++){
+		for(int i = 0; i < fgtitles.length; i++){
 			cell0 = row0.createCell(cellnum0++);
 			cell0.setCellValue("original");
 			cell1 = row1.createCell(cellnum1++);

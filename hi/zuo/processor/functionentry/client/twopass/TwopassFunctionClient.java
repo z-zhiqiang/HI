@@ -171,8 +171,8 @@ public class TwopassFunctionClient {
 			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
 			String method = entry.getKey().getFunctionName();
 			if(sInfo.getMap().containsKey(method)){
-				System.out.println(String.format("%-45s", method) + entry.getValue().toString() + "   \t" + sInfo.getMap().get(method).toStringWithoutSites());
-				writer.println(String.format("%-45s", method) + entry.getValue().toString() + "   \t" + sInfo.getMap().get(method).toStringWithoutSites());
+				System.out.println(String.format("%-70s", method) + entry.getValue().toString() + "   \t" + sInfo.getMap().get(method).toStringWithoutSites());
+				writer.println(String.format("%-70s", method) + entry.getValue().toString() + "   \t" + sInfo.getMap().get(method).toStringWithoutSites());
 			}
 			else{
 				throw new RuntimeException("filtering error");
