@@ -40,9 +40,9 @@ public class GenBashScriptClient {
 	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects";
 	
 	public final static String setEnv = "export experiment_root=" + rootDir 
-			+ "\nexport TESTS_SRC=" + rootDir + "/bash/testplans.alt/testplans.fine\n"; 
+			+ "\nexport TESTS_SRC=" + rootDir + "/bash/testplans.alt/testplans.selected\n"; 
 	public final static String exeFile = rootDir + "/bash/source/bin/" + "bash ";
-	public final static String inputsDir = rootDir + "/bash/testplans.alt/testplans.fine";
+	public final static String inputsDir = rootDir + "/bash/testplans.alt/testplans.selected";
 	public final static String inputsMapFile = rootDir + "/bash/testplans.alt/" + "inputs.map";
 	
 	public final String subject;
@@ -144,7 +144,7 @@ public class GenBashScriptClient {
 		
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 		
-		//generate run subject and subversion scripts
+//		//generate run subject and subversion scripts
 //		String subjectCompile = setEnv + "./makevers " + version.substring(1);
 //		gs = new GenRunSubjectScript(subject, version, subjectCompile, sexecuteDir, soutputDir, scriptDir);
 //		gs.genRunScript();
