@@ -40,9 +40,9 @@ public class GenBashScriptClient {
 	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects";
 	
 	public final static String setEnv = "export experiment_root=" + rootDir 
-			+ "\nexport TESTS_SRC=" + rootDir + "/bash/testplans.alt/testplans.selected\n"; 
+			+ "\nexport TESTS_SRC=" + rootDir + "/bash/testplans.alt/testplans.selected_150\n"; 
 	public final static String exeFile = rootDir + "/bash/source/bin/" + "bash ";
-	public final static String inputsDir = rootDir + "/bash/testplans.alt/testplans.selected";
+	public final static String inputsDir = rootDir + "/bash/testplans.alt/testplans.selected_150";
 	public final static String inputsMapFile = rootDir + "/bash/testplans.alt/" + "inputs.map";
 	
 	public final String subject;
@@ -113,10 +113,10 @@ public class GenBashScriptClient {
 		vpruneminusboosttraceDir = rootDir + "/" + subject + "/traces/" + version + "/" + subVersion + "/prune-minus-boost";
 		vprunetraceDir = rootDir + "/" + subject + "/traces/" + version + "/" + subVersion + "/prune";
 		
-		cgIndicesDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/cg";
-		boostFunctionsDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/boost";
-		pruneMinusBoostFunctionsDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/pruneMinusBoost";
-		pruneFunctionsDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/prune";
+		cgIndicesDir = rootDir + "/" + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/cg";
+		boostFunctionsDir = rootDir + "/" + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/boost";
+		pruneMinusBoostFunctionsDir = rootDir + "/" + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/pruneMinusBoost";
+		pruneFunctionsDir = rootDir + "/" + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/prune";
 		
 		scriptDir = rootDir + "/" + subject + "/scripts";
 		
@@ -144,23 +144,23 @@ public class GenBashScriptClient {
 		
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 		
-//		//generate run subject and subversion scripts
-//		String subjectCompile = setEnv + "./makevers " + version.substring(1);
-//		gs = new GenRunSubjectScript(subject, version, subjectCompile, sexecuteDir, soutputDir, scriptDir);
-//		gs.genRunScript();
-//		
-//		for(int index: faults.keySet()){
-//			GenBashScriptClient gc = new GenBashScriptClient(subject, version, "subv" + index);
-//			
-//			System.out.println("generating run script for subVersion" + index);
-//			String versionCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
-//					+ " CC=gcc ";
-//			new GenRunVersionsScript(gc.subject, gc.version, gc.subVersion, versionCompile, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
-//		}
-//		
-//		//generate run all scripts  
-//		ga = new GenRunAllScript(version, subject, scriptDir, faults.size());
-//		ga.genRunAllScript();
+		//generate run subject and subversion scripts
+		String subjectCompile = setEnv + "./makevers " + version.substring(1);
+		gs = new GenRunSubjectScript(subject, version, subjectCompile, sexecuteDir, soutputDir, scriptDir);
+		gs.genRunScript();
+		
+		for(int index: faults.keySet()){
+			GenBashScriptClient gc = new GenBashScriptClient(subject, version, "subv" + index);
+			
+			System.out.println("generating run script for subVersion" + index);
+			String versionCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
+					+ " CC=gcc ";
+			new GenRunVersionsScript(gc.subject, gc.version, gc.subVersion, versionCompile, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
+		}
+		
+		//generate run all scripts  
+		ga = new GenRunAllScript(version, subject, scriptDir, faults.size());
+		ga.genRunAllScript();
 		
 		
 		//=========================================================================================================================================================================//
@@ -187,27 +187,27 @@ public class GenBashScriptClient {
 				String cgCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
 						+ " CC=\"\\\"sampler-cc -fsampler-scheme=function-entries -fno-sample \\\"\"";
 				gs = new GenRunCoarseGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, cgCompile, gc.vexecuteDir, 
-						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array");
+						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", new File(gc.cgIndicesDir, CG_INDICES));
 				gs.genRunScript();
 				
-//				String cfgCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
-//						+ " CC=\"\\\"sampler-cc -fsampler-scheme=function-entries -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fsampler-scheme=float-kinds -fno-sample \\\"\"";
-//				gs = new GenRunCoarseFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, cfgCompile, gc.vexecuteDir, 
-//						gc.vcfoutputDir, gc.scriptDir, gc.vcftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array");
-//				gs.genRunScript();
-//				
-//				//=================================================================================================//
-//				String compile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index);
-//				
-//				gs = new GenRunBoostFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, compile, gc.vexecuteDir, 
-//						gc.vboostoutputDir, gc.scriptDir, gc.vboosttraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", new File(gc.boostFunctionsDir, BOOST_FUNCTIONS));
-//				gs.genRunScript();
-//				gs = new GenRunPruneMinusBoostFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, compile, gc.vexecuteDir, 
-//						gc.vpruneminusboostoutputDir, gc.scriptDir, gc.vpruneminusboosttraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", new File(gc.pruneMinusBoostFunctionsDir, PRUNE_MINUS_BOOST_FUNCTIONS));
-//				gs.genRunScript();
-//				gs = new GenRunPruneFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, compile, gc.vexecuteDir, 
-//						gc.vpruneoutputDir, gc.scriptDir, gc.vprunetraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", new File(gc.pruneFunctionsDir, PRUNE_FUNCTIONS));
-//				gs.genRunScript();
+				String cfgCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
+						+ " CC=\"\\\"sampler-cc -fsampler-scheme=function-entries -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fsampler-scheme=float-kinds -fno-sample \\\"\"";
+				gs = new GenRunCoarseFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, cfgCompile, gc.vexecuteDir, 
+						gc.vcfoutputDir, gc.scriptDir, gc.vcftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array");
+				gs.genRunScript();
+				
+				//=================================================================================================//
+				String compile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index);
+				
+				gs = new GenRunBoostFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, compile, gc.vexecuteDir, 
+						gc.vboostoutputDir, gc.scriptDir, gc.vboosttraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", new File(gc.boostFunctionsDir, BOOST_FUNCTIONS));
+				gs.genRunScript();
+				gs = new GenRunPruneMinusBoostFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, compile, gc.vexecuteDir, 
+						gc.vpruneminusboostoutputDir, gc.scriptDir, gc.vpruneminusboosttraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", new File(gc.pruneMinusBoostFunctionsDir, PRUNE_MINUS_BOOST_FUNCTIONS));
+				gs.genRunScript();
+				gs = new GenRunPruneFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, compile, gc.vexecuteDir, 
+						gc.vpruneoutputDir, gc.scriptDir, gc.vprunetraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", new File(gc.pruneFunctionsDir, PRUNE_FUNCTIONS));
+				gs.genRunScript();
 			}
 			
 		}

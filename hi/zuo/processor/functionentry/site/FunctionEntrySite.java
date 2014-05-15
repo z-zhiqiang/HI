@@ -2,6 +2,7 @@ package zuo.processor.functionentry.site;
 
 
 public class FunctionEntrySite {
+	public static final String DELIMITER = "->";
 
 	final int id;
 	
@@ -57,7 +58,7 @@ public class FunctionEntrySite {
 	}
 	
 	public static String getUniqueFunctionName(String function, String file){
-		return function + "->" + file.substring(zuo.processor.functionentry.client.twopass.Client.sirRootDir.getAbsolutePath().length());
+		return function + DELIMITER + file.substring(zuo.processor.functionentry.client.twopass.Client.sirRootDir.getAbsolutePath().length());
 	}
 
 }

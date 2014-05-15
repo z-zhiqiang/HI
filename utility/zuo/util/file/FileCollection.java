@@ -12,6 +12,8 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import zuo.processor.functionentry.site.FunctionEntrySite;
+
 public class FileCollection {
 	
 	public static <T> void writeCollection(Collection<T> collection, File file){
@@ -43,7 +45,9 @@ public class FileCollection {
 			String line;
 			reader = new BufferedReader(new FileReader(file));
 			while((line = reader.readLine()) != null){
-				collections.add(line.trim());
+				String uniqueFunctionName = line.trim();
+				String functionName = uniqueFunctionName.split(FunctionEntrySite.DELIMITER, 2)[0];
+				collections.add(functionName);
 			}
 			reader.close();
 		} catch (FileNotFoundException e) {
