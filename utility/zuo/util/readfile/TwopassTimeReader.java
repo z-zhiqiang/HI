@@ -162,6 +162,7 @@ public class TwopassTimeReader extends AbstractTimeReader {
 	
 	public static void main(String[] args) {
 		String[][] argvs = {
+				{"150", "bash", "2"},
 				{"363", "sed", "7"},
 				{"213", "gzip", "5"},
 				{"809", "grep", "5"},
@@ -177,7 +178,7 @@ public class TwopassTimeReader extends AbstractTimeReader {
 		for(int i = 0; i < argvs.length; i++){
 			File rootDir, consoleFolder;
 			String mode;
-			if(i <= 3){
+			if(i <= 4){
 				rootDir = Client.sirRootDir;
 				consoleFolder = Client.sirConsoleFolder;
 				mode = "2_0.05";
@@ -185,7 +186,7 @@ public class TwopassTimeReader extends AbstractTimeReader {
 			else{
 				rootDir = Client.siemensRootDir;
 				consoleFolder = Client.siemensConsoleFolder;
-				mode = "2_0.1";
+				mode = "2_0.05";
 			}
 			AbstractTimeReader timeReader = new TwopassTimeReader(rootDir, argvs[i][1]);
 			timeReader.readAndExportTimeResults(consoleFolder, argvs[i][1] + "_" + mode + "_overhead.xlsx");

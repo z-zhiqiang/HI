@@ -34,7 +34,7 @@ public abstract class AbstractTimeReader {
 	}
 	
 	public void readAndExportTimeResults(File consoleFolder, String excelFileName){
-		if(this.subject.equals("sed") || this.subject.equals("grep") || this.subject.equals("gzip")){
+		if(this.subject.equals("sed") || this.subject.equals("grep") || this.subject.equals("gzip") || this.subject.equals("bash")){
 			readSir();
 		}
 		else{
