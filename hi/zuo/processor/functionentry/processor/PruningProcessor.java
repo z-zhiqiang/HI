@@ -14,6 +14,7 @@ import zuo.processor.functionentry.site.FunctionEntrySite;
  *
  */
 public class PruningProcessor{
+	private final int actualTotalPositive; // the actually total number of positive runs
 	private final FunctionEntryProfile[] profiles;
 	private int totalNegative;
 	private int totalPositive;
@@ -21,7 +22,8 @@ public class PruningProcessor{
 	
 	private int numberofTFFunctions;//the number of functions whose f(m)==F
 	
-	public PruningProcessor(FunctionEntryProfile[] profiles){
+	public PruningProcessor(FunctionEntryProfile[] profiles, int actualTotalPos){
+		this.actualTotalPositive = actualTotalPos;
 		this.profiles = profiles;
 		this.frequencyMap = new HashMap<FunctionEntrySite, FrequencyValue>();
 	}
@@ -79,7 +81,8 @@ public class PruningProcessor{
 		//set the DS
 		for(FunctionEntrySite site: frequencyMap.keySet()){
 			FrequencyValue p = frequencyMap.get(site);
-			frequencyMap.get(site).setDS(DS(p.getNegative(), p.getPositive(), totalNegative, totalPositive));
+			frequencyMap.get(site).setC_r(DS(p.getNegative(), p.getPositive(), totalNegative, totalPositive));
+			frequencyMap.get(site).setC_p(IG(p.getNegative(), 0, totalNegative, this.actualTotalPositive));
 			if(p.getNegative() >= this.totalNegative){
 				this.numberofTFFunctions++;
 			}
@@ -95,7 +98,7 @@ public class PruningProcessor{
 		}
 	}
 	
-	private static double IG(int neg, int pos, int totalNeg, int totalPos) {
+	public static double IG(int neg, int pos, int totalNeg, int totalPos) {
 		// TODO Auto-generated method stub
 		int total = totalNeg + totalPos;
 		return H(totalNeg, totalPos) - (neg + pos) * H(neg, pos) / total - (total - neg - pos) * H(totalNeg - neg, totalPos - pos) / total;
@@ -137,23 +140,27 @@ public class PruningProcessor{
 	public static class FrequencyValue{
 		int negative;
 		int positive;
-		double DS;
+		double C_r;
+		double C_p;
 		
 		public FrequencyValue(){
 			this.negative = 0;
 			this.positive = 0;
-			this.DS = 0;
+			this.C_r = 0;
+			this.C_p = 0;
 		}
 		
 		public FrequencyValue(int n, int p){
 			this.negative = n;
 			this.positive = p;
-			this.DS = 0;
+			this.C_r = 0;
+			this.C_p = 0;
 		}
 		
 		public String toString(){
-			return String.format("%-10s", "F:" + negative) + String.format("%-10s", "S:" + positive) 
-					+ String.format("%-15s", "DS:" + new DecimalFormat("#.###").format(this.DS))
+			return String.format("%-10s", "neg:" + negative) + String.format("%-10s", "pos:" + positive) 
+					+ String.format("%-15s", "C_r:" + new DecimalFormat("#.###").format(this.C_r))
+					+ String.format("%-15s", "C_p:" + new DecimalFormat("#.###").format(this.C_p))
 					;
 		}
 		
@@ -177,11 +184,19 @@ public class PruningProcessor{
 		public void setPositive(int positive) {
 			this.positive = positive;
 		}
-		public double getDS() {
-			return DS;
+		public double getC_r() {
+			return C_r;
 		}
-		public void setDS(double dS) {
-			DS = dS;
+		public void setC_r(double dS) {
+			C_r = dS;
+		}
+
+		public double getC_p() {
+			return C_p;
+		}
+
+		public void setC_p(double c_p) {
+			C_p = c_p;
 		}
 
 		

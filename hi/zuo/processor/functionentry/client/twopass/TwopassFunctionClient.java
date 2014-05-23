@@ -28,13 +28,13 @@ public class TwopassFunctionClient {
 	private final SitesInfo sInfo;
 	private List<Map.Entry<FunctionEntrySite, FrequencyValue>> list;
 	
-	public TwopassFunctionClient(File csitesFile, File cgProfilesFolder, File fsitesFile, Object[] resultsCG, PrintWriter writer){
+	public TwopassFunctionClient(File csitesFile, File cgProfilesFolder, int totalPos, File fsitesFile, Object[] resultsCG, PrintWriter writer){
 		final long start = System.currentTimeMillis();
 		
 		FunctionEntrySites sites = new FunctionEntrySites(csitesFile);
 		FunctionEntryProfileReader reader = new FunctionEntryProfileReader(cgProfilesFolder, sites);
 		cgProfiles = reader.readFunctionEntryProfiles();
-		processor = new PruningProcessor(cgProfiles);
+		processor = new PruningProcessor(cgProfiles, totalPos);
 		processor.process();
 		assert(processor.getFrequencyMap().size() == sites.getNumFunctionEntrySites());
 		
@@ -69,7 +69,7 @@ public class TwopassFunctionClient {
 			private int rank(Map.Entry<FunctionEntrySite, FrequencyValue> arg0, Map.Entry<FunctionEntrySite, FrequencyValue> arg1) {
 				// TODO Auto-generated method stub
 				int r = 0;
-				r = new Double(arg1.getValue().getDS()).compareTo(new Double(arg0.getValue().getDS()));
+				r = new Double(arg1.getValue().getC_r()).compareTo(new Double(arg0.getValue().getC_r()));
 				if(r == 0){
 					r = new Integer(arg1.getValue().getNegative()).compareTo(new Integer(arg0.getValue().getNegative()));
 					if(r == 0){
@@ -102,11 +102,12 @@ public class TwopassFunctionClient {
 		}
 	}
 
-	public Set<String> getFunctionSet(int bound){
+
+	public Set<String> getFunctionSet(double threshold){
 		Set<String> functionSet = new LinkedHashSet<String>();
 		for(int i = 0; i < list.size(); i++){
 			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
-			if(entry.getValue().getNegative() >= bound){
+			if(entry.getValue().getC_p() >= threshold){
 				String functionName = entry.getKey().getFunctionName();
 				if(functionSet.contains(functionName))
 					throw new RuntimeException("multiple functions with the same name");
@@ -115,7 +116,7 @@ public class TwopassFunctionClient {
 		}
 		return Collections.unmodifiableSet(functionSet);
 	}
-
+	
 	/**
 	 * @param mode: 0->%*f; 1->%*S; 2->%*P; 
 	 * @param percent
@@ -171,8 +172,8 @@ public class TwopassFunctionClient {
 			Entry<FunctionEntrySite, FrequencyValue> entry = (Entry<FunctionEntrySite, FrequencyValue>) list.get(i);
 			String method = entry.getKey().getFunctionName();
 			if(sInfo.getMap().containsKey(method)){
-				System.out.println(String.format("%-70s", method) + entry.getValue().toString() + "   \t" + sInfo.getMap().get(method).toStringWithoutSites());
-				writer.println(String.format("%-70s", method) + entry.getValue().toString() + "   \t" + sInfo.getMap().get(method).toStringWithoutSites());
+				System.out.println(String.format("%-80s", method) + entry.getValue().toString() + "   \t" + sInfo.getMap().get(method).toStringWithoutSites());
+				writer.println(String.format("%-80s", method) + entry.getValue().toString() + "   \t" + sInfo.getMap().get(method).toStringWithoutSites());
 			}
 			else{
 				throw new RuntimeException("filtering error");

@@ -32,7 +32,7 @@ import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.SitesInfo;
 import zuo.processor.ds.processor.PredicateDSInfoWithinFunction;
 import zuo.processor.ds.processor.ProcessorPreDSInfoWithinFun;
-import zuo.processor.functionentry.processor.BoundCalculator;
+import zuo.processor.functionentry.processor.PruningProcessor;
 import zuo.processor.functionentry.processor.PruningProcessor.FrequencyValue;
 import zuo.processor.functionentry.site.FunctionEntrySite;
 import zuo.processor.functionentry.site.FunctionEntrySites;
@@ -90,7 +90,7 @@ public class Client {
 				{"13585", "space", "38"},
 //				{"4130", "printtokens", "7"},
 //				{"4115", "printtokens2", "10"},
-				{"5542", "replace", "3"},
+				{"5542", "replace", "31"},
 //				{"2650", "schedule", "9"},
 //				{"2710", "schedule2", "10"},
 //				{"1608", "tcas", "41"},
@@ -311,11 +311,9 @@ public class Client {
 			}
 		}
 		
-		BoundCalculator bc = new BoundCalculator(totalNeg, totalPos);
-		
 		resultsList.add(totalNeg);
 		resultsList.add(totalPos);
-		resultsList.add(bc.IG(totalNeg, 0));
+		resultsList.add(PruningProcessor.IG(totalNeg, 0, totalNeg, totalPos));
 		
 		/*=================================================================================================*/
 		
@@ -363,7 +361,7 @@ public class Client {
 		}
 		
 		IDataSet dataset = runMultiPreprocess(fgProfilesFolder, originalDatasetFolder, fgSitesFile, rounds, time, writer, resultsList);
-		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, bc);
+		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, totalNeg, totalPos);
 		
 		/*=================================================================================================*/
 		
@@ -380,7 +378,7 @@ public class Client {
 		}
 		FileCollection.writeCollection(indices, new File(cgFolder, "indices.txt" ));
 		
-		TwopassFunctionClient funClient = runMultiCGClient(cgSitesFile, selectedCGProfilesFolder, fgSitesFile, rounds, time, writer, resultsList);
+		TwopassFunctionClient funClient = runMultiCGClient(cgSitesFile, selectedCGProfilesFolder, totalPos, fgSitesFile, rounds, time, writer, resultsList);
 		
 		assert(funClient.getList().size() == funClient.getsInfo().getMap().size());
 		funClient.printEntry(writer);
@@ -420,7 +418,7 @@ public class Client {
 		FileCollection.writeCollection(boostFunctionSet, new File(boostDatasetFolder, "boost_functions_" + mode + "_" + percent + ".txt" ));
 		
 		runMultiPreprocess(boostProfilesFolder, boostDatasetFolder, boostSitesFile, rounds, time, writer, resultsList);
-		threshold = runMultiMBS(command, boostDatasetFolder, rounds, time, writer, resultsList, bc);
+		threshold = runMultiMBS(command, boostDatasetFolder, rounds, time, writer, resultsList, totalNeg, totalPos);
 
 		FileUtility.removeFileOrDirectory(boostProfilesFolder);
 		FileUtility.removeFileOrDirectory(boostSitesFile);
@@ -428,7 +426,7 @@ public class Client {
 		
 		//-------------------------------------------------------------------------------------------------//
 		
-		Set<String> pruneFunctionSet = funClient.getFunctionSet(bc.computeIGBound(threshold));
+		Set<String> pruneFunctionSet = funClient.getFunctionSet(threshold);
 		Set<String> pruneMinusBoostFunctionSet = new LinkedHashSet<String>(pruneFunctionSet);
 		pruneMinusBoostFunctionSet.removeAll(boostFunctionSet);
 		
@@ -497,7 +495,7 @@ public class Client {
 			else{
 				runMultiPreprocess(pruneProfilesFolder, pruneDatasetFolder, pruneSitesFile, rounds, time, writer, resultsList);
 			}
-			runMultiMBS(command, pruneDatasetFolder, rounds, time, writer, resultsList, bc);
+			runMultiMBS(command, pruneDatasetFolder, rounds, time, writer, resultsList, totalNeg, totalPos);
 			
 			FileUtility.removeFileOrDirectory(pruneMinusBoostProfilesFolder);
 			FileUtility.removeFileOrDirectory(pruneMinusBoostSitesFile);
@@ -526,7 +524,7 @@ public class Client {
 			List<Object> array = new ArrayList<Object>();
 			FrequencyValue value = entry.getValue();
 			array.add((double) (list.size() - i - 1));
-			array.add(value.getDS());
+			array.add(value.getC_r());
 			array.add((double) value.getNegative());
 			array.add((double) value.getPositive());
 			if(DSInfo.containsKey(function)){
@@ -684,15 +682,15 @@ public class Client {
 		resultsList.add(0L);
 	}
 
-	private TwopassFunctionClient runMultiCGClient(File cgSitesFile, File selectedCGProfilesFolder, final File fgSitesFile, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
+	private TwopassFunctionClient runMultiCGClient(File cgSitesFile, File selectedCGProfilesFolder, int totalPos, final File fgSitesFile, int rounds, double time, PrintWriter writer, List<Object> resultsList) {
 		Object[] resultsCG = new Object[4];
 		Object[][] resultsArrayCG = new Object[rounds][4];
 		Object[] averageResultsCG;
 		
-		TwopassFunctionClient funClient = new TwopassFunctionClient(cgSitesFile, selectedCGProfilesFolder, fgSitesFile, resultsCG, writer);
+		TwopassFunctionClient funClient = new TwopassFunctionClient(cgSitesFile, selectedCGProfilesFolder, totalPos, fgSitesFile, resultsCG, writer);
 		if(((Double) resultsCG[3]) < time){
 			for(int i = 0; i < resultsArrayCG.length; i++){
-				new TwopassFunctionClient(cgSitesFile, selectedCGProfilesFolder, fgSitesFile, resultsArrayCG[i], writer);
+				new TwopassFunctionClient(cgSitesFile, selectedCGProfilesFolder, totalPos, fgSitesFile, resultsArrayCG[i], writer);
 			}
 			averageResultsCG = computeAverageResults(resultsArrayCG);
 		}
@@ -733,6 +731,9 @@ public class Client {
 		int p;
 		if(totalNeg <= percent * (totalNeg + totalPos)){
 			p = (int) (percent * (totalNeg + totalPos));
+			if(p > totalPos){
+				p = totalPos;
+			}
 		}
 		else if(totalNeg >= totalPos){
 			p = totalPos;
@@ -776,18 +777,18 @@ public class Client {
 		return dataset;
 	}
 
-	private double runMultiMBS(String command, File originalDatasetFolder, int rounds, double time, PrintWriter writer, List<Object> resultsList, BoundCalculator bc) {
+	private double runMultiMBS(String command, File originalDatasetFolder, int rounds, double time, PrintWriter writer, List<Object> resultsList, int totalNeg, int totalPos) {
 		Object[] resultsOriginalMine = new Object[3];
 		Object[][] resultsArrayOriginalMine = new Object[rounds][3];
 		Object[] averageResultsOriginalMine;
 		
 		initializeResultsMine(resultsOriginalMine);
-		double threshold = runMBS(command, originalDatasetFolder, k, resultsOriginalMine, writer, bc);
+		double threshold = runMBS(command, originalDatasetFolder, k, resultsOriginalMine, writer, totalNeg, totalPos);
 		
 		if(((Double) resultsOriginalMine[1]) < time){
 			for(int i = 0; i < resultsArrayOriginalMine.length; i++){
 				initializeResultsMine(resultsArrayOriginalMine[i]);
-				runMBS(command, originalDatasetFolder, k, resultsArrayOriginalMine[i], writer, bc);
+				runMBS(command, originalDatasetFolder, k, resultsArrayOriginalMine[i], writer, totalNeg, totalPos);
 			}
 			averageResultsOriginalMine = computeAverageResults(resultsArrayOriginalMine);
 		}
@@ -841,7 +842,7 @@ public class Client {
 		return averageResults;
 	}
 
-	private double runMBS(String command, File datasetFolder, int k, Object[] resultsArray, PrintWriter writer, BoundCalculator bc) {
+	private double runMBS(String command, File datasetFolder, int k, Object[] resultsArray, PrintWriter writer, int totalNeg, int totalPos) {
 		double threshold = 0;
 		double time = 0;
 		long memory = 0;
@@ -858,8 +859,8 @@ public class Client {
 					System.out.println(line);
 					writer.println(line);
 //					threshold = Double.parseDouble(line.substring(line.lastIndexOf("=") + 1));
-					threshold = bc.IG(Integer.parseInt(line.substring(line.lastIndexOf('-') + 1, line.lastIndexOf(')')).trim()), 
-							Integer.parseInt(line.substring(line.lastIndexOf('+') + 1, line.lastIndexOf('/')).trim()));
+					threshold = PruningProcessor.IG(Integer.parseInt(line.substring(line.lastIndexOf('-') + 1, line.lastIndexOf(')')).trim()), 
+							Integer.parseInt(line.substring(line.lastIndexOf('+') + 1, line.lastIndexOf('/')).trim()), totalNeg, totalPos);
 					resultsArray[0] = threshold;
 					System.out.println(threshold);
 				}
@@ -1021,7 +1022,7 @@ public class Client {
 				consoleFolder.mkdirs();
 			}
 			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_correlation.xlsx"));
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_v" + this.startVersion + "-v" + this.endVersion + "_correlation.xlsx"));
 			workbook.write(out);
 			out.close();
 		} catch (Exception e) {
