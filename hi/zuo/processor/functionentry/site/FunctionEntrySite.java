@@ -58,7 +58,7 @@ public class FunctionEntrySite {
 	}
 	
 	public static String getUniqueFunctionName(String function, String file){
-		return function + DELIMITER + file.substring(zuo.processor.functionentry.client.twopass.Client.sirRootDir.getAbsolutePath().length());
+		return function + DELIMITER + file.substring(file.lastIndexOf('/', file.lastIndexOf('/', file.lastIndexOf('/') - 1) - 1));
 	}
 
 }

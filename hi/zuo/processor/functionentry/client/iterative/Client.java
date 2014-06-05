@@ -215,13 +215,13 @@ public class Client {
 				PredicateProfile[] fProfiles = null;
 				
 				if(needRefine(fSites, cSites.getFunctions())){
-					File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
-					File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
-					PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cSites.getFunctions());
+					File refineProfilesFolder = new File(fgProfilesFolder.getParentFile(), "refine");
+					File refineSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'r'));
+					PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, refineSitesFile, refineProfilesFolder, cSites.getFunctions());
 					transformSplit.split();
 					
-					fSites = new InstrumentationSites(transformSitesFile);
-					fProfiles = new PredicateProfileReader(transformProfilesFolder, fSites).readProfiles();
+					fSites = new InstrumentationSites(refineSitesFile);
+					fProfiles = new PredicateProfileReader(refineProfilesFolder, fSites).readProfiles();
 				}
 				else{
 					fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();

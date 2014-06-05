@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import zuo.processor.functionentry.client.twopass.Client;
-import zuo.processor.functionentry.processor.BoundCalculator;
-
 
 public class Test {
 
@@ -53,11 +51,6 @@ public class Test {
 		String line = "TOP-(1) SUP=[  20=(+   0/-  20)] Metric=0.281028";
 		System.out.println(Integer.parseInt(line.substring(line.lastIndexOf('-') + 1, line.lastIndexOf(')')).trim()));
 		System.out.println(Integer.parseInt(line.substring(line.lastIndexOf('+') + 1, line.lastIndexOf('/')).trim()));
-		BoundCalculator bc = new BoundCalculator(22, 341);
-		double threshold = bc.IG(Integer.parseInt(line.substring(line.lastIndexOf('-') + 1, line.lastIndexOf(')')).trim()), 
-				Integer.parseInt(line.substring(line.lastIndexOf('+') + 1, line.lastIndexOf('/')).trim()));
-		System.out.println(threshold);
-		System.out.println(bc.computeIGBound(threshold));
 		
 		
 		Map<String, List<Object>> resultsDS = new LinkedHashMap<String, List<Object>>();

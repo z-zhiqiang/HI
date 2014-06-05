@@ -212,7 +212,7 @@ public class Client_Ranking {
 		this.convergenceResultsMap.put(vi, convergenceResults);
 	}
 	
-	/**sort functions according to H_2 and LESS_FIRST
+	/**sort functions according to C-score and LESS_FIRST
 	 * @param frequencyMap
 	 * @param sInfo
 	 * @return
@@ -228,7 +228,7 @@ public class Client_Ranking {
 					Entry<FunctionEntrySite, FrequencyValue> arg1) {
 				// TODO Auto-generated method stub
 				
-				int r = new Double(arg1.getValue().getH_2()).compareTo(new Double(arg0.getValue().getH_2()));
+				int r = new Double(arg1.getValue().getC_score()).compareTo(new Double(arg0.getValue().getC_score()));
 				if(r == 0){
 					String method0 = arg0.getKey().getFunctionName();
 					String method1 = arg1.getKey().getFunctionName();
@@ -407,11 +407,11 @@ public class Client_Ranking {
 	}
 
 
-	/**construct importance information within each function with H value
+	/**construct importance information within each function with C-score value
 	 * @param ImportanceInfo
 	 * @param list
 	 * @param sInfo 
-	 * @param correlationData: 0:index; 1:H; 2:neg; 3:pos; 4:max_importance; 5:mean_importance; 6:median_importance 
+	 * @param correlationData: 0:index; 1:C; 2:neg; 3:pos; 4:max_importance; 5:mean_importance; 6:median_importance 
 	 */
 	private static void constructData(
 			Map<String, PredicateImportanceInfoWithinFunction> ImportanceInfo,
@@ -424,7 +424,7 @@ public class Client_Ranking {
 			FrequencyValue value = entry.getValue();
 			
 			array.add((double) (list.size() - i - 1));
-			array.add(value.getH_2());
+			array.add(value.getC_score());
 			array.add((double) value.getNegative());
 			array.add((double) value.getPositive());
 			
@@ -628,8 +628,8 @@ public class Client_Ranking {
 		int cellnum1 = 0;
 		
 		String[] ftitles = {"Full", "Partial"};
-		String[] titles = {"Size", "Index-Max", "T", "H-Max", "T", "Index-Mean", "T",
-				"H-Mean", "T", "Index-Median", "T", "H-Median", "T"};
+		String[] titles = {"Size", "Index-Max", "T", "C-Max", "T", "Index-Mean", "T",
+				"C-Mean", "T", "Index-Median", "T", "C-Median", "T"};
 		
 		Cell cell0 = row0.createCell(cellnum0++);
 		cell0.setCellValue(" ");
@@ -687,7 +687,7 @@ public class Client_Ranking {
 		Row row0 = sheet.createRow(rownum++);
 		int cellnum0 = 0;
 		
-		String[] titles = {" ", "Index", "H", "Negative", "Positive","Max_Importance", "Mean_Importance", "Median_Importance", "Sites", "Predicates"};
+		String[] titles = {" ", "Index", "C", "Negative", "Positive","Max_Importance", "Mean_Importance", "Median_Importance", "Sites", "Predicates"};
 		
 		for(int i = 0; i < titles.length; i++){
 			Cell cell0 = row0.createCell(cellnum0++);

@@ -1,13 +1,16 @@
 package zuo.processor.cbi.processor;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import zuo.processor.cbi.profile.PredicateProfile;
+import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.profile.predicatesite.AbstractPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.BranchPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ReturnPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
+import zuo.processor.cbi.site.InstrumentationSites;
 
 public class Processor {
 	private final PredicateProfile[] profiles; // profiles
@@ -349,28 +352,41 @@ public class Processor {
 	}
 
 	/**calculate importance for each predicate
-	 * @param statisticData: {F(p), F(p observed), S(p), S(p observed)}
+	 * @param statisticData: {F(p), F(p observed), S(p), S(p observed)} -> {neg_t, neg, pos_t, pos}
 	 * @return
 	 */
 	private double Importance(int[] statisticData) {
-		if(statisticData[0] <= 1 || (statisticData[2] + statisticData[0] == 0) || (statisticData[3] + statisticData[1] == 0)){
+		return importance(statisticData[0], statisticData[2], statisticData[1], statisticData[3], this.totalNegative, this.totalPositive);
+	}
+
+	/**compute the importance value for each predicate
+	 * @param neg_t
+	 * @param pos_t
+	 * @param neg
+	 * @param pos
+	 * @param totalNeg
+	 * @param totalPos
+	 * @return
+	 */
+	public static double importance(int neg_t, int pos_t, int neg, int pos, int totalNeg, int totalPos){
+		assert(neg_t <= neg && pos_t <= pos);
+		if(neg_t <= 1 || pos_t + neg_t == 0){
 			return 0;
 		}
-		double increase = (double) statisticData[0]/(statisticData[2] + statisticData[0]) - (double) statisticData[1]/(statisticData[3] + statisticData[1]);
+		double increase = (double) neg_t/(pos_t + neg_t) - (double) neg/(pos + neg);
 		if(increase < 0 || Math.abs(increase - 0) < 0.0000001){
 			return 0;
 		}
-		return (double) 2/(1/increase + Math.log(totalNegative)/Math.log(statisticData[0]));
+		return (double) 2/(1/increase + Math.log(totalNeg)/Math.log(neg_t));
 	}
 	
-	
 	public static void main(String[] args) {
-//		InstrumentationSites sites = new InstrumentationSites(new File("/home/sunzzq/Research/Automated_Debugging/Subjects/space/versions/v3/v3_f.sites"));
+		InstrumentationSites sites = new InstrumentationSites(new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects\\space\\versions\\v23\\v23_f.sites"));
 //		SitesInfo sInfo = new SitesInfo(sites);
-//		PredicateProfileReader reader = new PredicateProfileReader(new File("/home/sunzzq/Research/Automated_Debugging/Subjects/space/traces/v3/fine-grained"), sites);
-//		PredicateProfile[] profiles = reader.readProfiles(2717);
-//		Processor p = new Processor(profiles);
-//		p.process();
+		PredicateProfileReader reader = new PredicateProfileReader(new File("E:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects\\space\\traces\\v23\\fine-grained"), sites);
+		PredicateProfile[] profiles = reader.readProfiles();
+		Processor p = new Processor(profiles);
+		p.process();
 	}
 	
 	
@@ -378,17 +394,9 @@ public class Processor {
 		return totalPositive;
 	}
 
-//	public void setTotalPositive(int totalPositive) {
-//		this.totalPositive = totalPositive;
-//	}
-
 	public int getTotalNegative() {
 		return totalNegative;
 	}
-
-//	public void setTotalNegative(int totalNegative) {
-//		this.totalNegative = totalNegative;
-//	}
 
 	public PredicateProfile[] getProfiles() {
 		return profiles;
