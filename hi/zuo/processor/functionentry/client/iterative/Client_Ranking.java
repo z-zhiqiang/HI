@@ -93,13 +93,13 @@ public class Client_Ranking {
 			PredicateProfile[] fProfiles = null;
 			
 			if(Client.needRefine(fSites, cSites.getFunctions())){
-				File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
-				File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
-				PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cSites.getFunctions());
-				transformSplit.split();
+				File refineProfilesFolder = new File(fgProfilesFolder.getParentFile(), "refine");
+				File refineSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'r'));
+				PredicateSplittingSiteProfile refineSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, refineSitesFile, refineProfilesFolder, cSites.getFunctions());
+				refineSplit.split();
 				
-				fSites = new InstrumentationSites(transformSitesFile);
-				fProfiles = new PredicateProfileReader(transformProfilesFolder, fSites).readProfiles();
+				fSites = new InstrumentationSites(refineSitesFile);
+				fProfiles = new PredicateProfileReader(refineProfilesFolder, fSites).readProfiles();
 			}
 			else{
 				fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
@@ -160,13 +160,13 @@ public class Client_Ranking {
 				PredicateProfile[] fProfiles = null;
 				
 				if(Client.needRefine(fSites, cSites.getFunctions())){
-					File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
-					File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
-					PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cSites.getFunctions());
-					transformSplit.split();
+					File refineProfilesFolder = new File(fgProfilesFolder.getParentFile(), "refine");
+					File refineSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'r'));
+					PredicateSplittingSiteProfile refineSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, refineSitesFile, refineProfilesFolder, cSites.getFunctions());
+					refineSplit.split();
 					
-					fSites = new InstrumentationSites(transformSitesFile);
-					fProfiles = new PredicateProfileReader(transformProfilesFolder, fSites).readProfiles();
+					fSites = new InstrumentationSites(refineSitesFile);
+					fProfiles = new PredicateProfileReader(refineProfilesFolder, fSites).readProfiles();
 				}
 				else{
 					fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
@@ -701,6 +701,7 @@ public class Client_Ranking {
 				{"363", "sed", "7"},
 				{"213", "gzip", "5"},
 				{"809", "grep", "5"},
+				{"13585", "space", "38"},
 				{"4130", "printtokens", "7"},
 				{"4115", "printtokens2", "10"},
 				{"5542", "replace", "32"},
@@ -708,7 +709,6 @@ public class Client_Ranking {
 				{"2710", "schedule2", "10"},
 				{"1608", "tcas", "41"},
 				{"1052", "totinfo", "23"},
-				{"13585", "space", "38"}
 		};
 		
 		if(args.length != 6 && args.length != 3){
@@ -732,7 +732,7 @@ public class Client_Ranking {
 		}
 		else if(args.length == 3){
 			assert(Integer.parseInt(args[0]) == 0);
-			for(int i = 3; i < argvs.length - 1; i++){
+			for(int i = 4; i < argvs.length; i++){
 				Client_Ranking c = new Client_Ranking(new File(args[1]), argvs[i][1], new File(args[2]), 1, Integer.parseInt(argvs[i][2]));
 				c.runSiemens();
 			}

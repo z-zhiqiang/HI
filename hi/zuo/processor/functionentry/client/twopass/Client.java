@@ -325,8 +325,8 @@ public class Client {
 			File refineSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'r'));
 			System.out.println(refineSitesFile.getAbsolutePath());
 			System.out.println(refineProfilesFolder.getAbsolutePath());
-			PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, refineSitesFile, refineProfilesFolder, cgSites.getFunctions());
-			transformSplit.split();
+			PredicateSplittingSiteProfile refineSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, refineSitesFile, refineProfilesFolder, cgSites.getFunctions());
+			refineSplit.split();
 			
 			fSites = new InstrumentationSites(refineSitesFile);
 			

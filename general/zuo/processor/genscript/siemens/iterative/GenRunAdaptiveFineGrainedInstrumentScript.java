@@ -1,14 +1,10 @@
 package zuo.processor.genscript.siemens.iterative;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtility;
 
 
@@ -17,7 +13,6 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 	private final List<Integer> failingTests;
 	private final List<Integer> passingTests;
 	private List<String> methods;
-	private String methodsFile;
 	
 	
 	public GenRunAdaptiveFineGrainedInstrumentScript(String sub, String ver, String sD, String eD, String oD, String scD, String tD, String failing, String passing, String methodsF) {
@@ -26,39 +21,9 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
-		this.methods = new ArrayList<String>();
-		this.methodsFile = methodsF;
-		readMethods();
+		this.methods = FileCollection.readMethods(new File(executeDir, methodsF));
 		mkOutDir();
 	}
-	
-	private void readMethods() {
-		// TODO Auto-generated method stub
-		BufferedReader reader = null;
-		try {
-			String line;
-			reader = new BufferedReader(new FileReader(new File(executeDir, methodsFile)));
-			while((line = reader.readLine()) != null){
-				methods.add(line.trim());
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally{
-			if(reader != null){
-				try {
-					reader.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
 
 	@Override
 	public void genRunScript() {

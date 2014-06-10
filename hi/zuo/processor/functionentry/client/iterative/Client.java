@@ -106,13 +106,13 @@ public class Client {
 			PredicateProfile[] fProfiles = null;
 			
 			if(needRefine(fSites, cSites.getFunctions())){
-				File transformProfilesFolder = new File(fgProfilesFolder.getParentFile(), "transform");
-				File transformSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 't'));
-				PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, transformSitesFile, transformProfilesFolder, cSites.getFunctions());
-				transformSplit.split();
+				File refineProfilesFolder = new File(fgProfilesFolder.getParentFile(), "refine");
+				File refineSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'r'));
+				PredicateSplittingSiteProfile refineSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, refineSitesFile, refineProfilesFolder, cSites.getFunctions());
+				refineSplit.split();
 				
-				fSites = new InstrumentationSites(transformSitesFile);
-				fProfiles = new PredicateProfileReader(transformProfilesFolder, fSites).readProfiles();
+				fSites = new InstrumentationSites(refineSitesFile);
+				fProfiles = new PredicateProfileReader(refineProfilesFolder, fSites).readProfiles();
 			}
 			else{
 				fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
@@ -217,8 +217,8 @@ public class Client {
 				if(needRefine(fSites, cSites.getFunctions())){
 					File refineProfilesFolder = new File(fgProfilesFolder.getParentFile(), "refine");
 					File refineSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'r'));
-					PredicateSplittingSiteProfile transformSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, refineSitesFile, refineProfilesFolder, cSites.getFunctions());
-					transformSplit.split();
+					PredicateSplittingSiteProfile refineSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, refineSitesFile, refineProfilesFolder, cSites.getFunctions());
+					refineSplit.split();
 					
 					fSites = new InstrumentationSites(refineSitesFile);
 					fProfiles = new PredicateProfileReader(refineProfilesFolder, fSites).readProfiles();
@@ -868,9 +868,9 @@ public class Client {
 	
 	public static void main(String[] args) {
 		String[][] argvs = {
+				{"363", "sed"},
 				{"809", "grep"},
 				{"213", "gzip"},
-				{"363", "sed"},
 				{"13585", "space"},
 				{"4130", "printtokens"},
 				{"4115", "printtokens2"},
