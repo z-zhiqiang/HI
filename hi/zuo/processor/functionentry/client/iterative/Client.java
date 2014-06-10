@@ -118,7 +118,7 @@ public class Client {
 				fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
 			}
 			SitesInfo sInfo = new SitesInfo(fSites);
-//			printMethodsList(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
+			printMethodsList(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
 			
 			this.cResutlsMap.put(vi, new int[3]);
 			int[] cResult = this.cResutlsMap.get(vi);
@@ -227,7 +227,7 @@ public class Client {
 					fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
 				}
 				SitesInfo sInfo = new SitesInfo(fSites);
-//				printMethodsList(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
+				printMethodsList(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
 				this.cResutlsMap.put(vi, new int[3]);
 				int[] cResult = this.cResutlsMap.get(vi);
