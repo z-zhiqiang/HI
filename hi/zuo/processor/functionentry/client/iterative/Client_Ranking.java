@@ -33,6 +33,7 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
 import zuo.processor.importance.processor.PredicateImportanceInfoWithinFunction;
 import zuo.processor.importance.processor.ProcessorPreImportanceInfoWithinFun;
 import zuo.processor.split.PredicateSplittingSiteProfile;
+import zuo.util.file.FileCollection;
 
 public class Client_Ranking {
 	final File rootDir;
@@ -105,7 +106,7 @@ public class Client_Ranking {
 				fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
 			}
 			SitesInfo sInfo = new SitesInfo(fSites);
-//			printMethodsList(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
+			FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
 			
 			runForRankingInfo(vi, sInfo, fProfiles, cProfiles);
 		}
@@ -172,7 +173,7 @@ public class Client_Ranking {
 					fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
 				}
 				SitesInfo sInfo = new SitesInfo(fSites);
-//				printMethodsList(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
+				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
 				runForRankingInfo(vi, sInfo, fProfiles, cProfiles);
 			}

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +38,7 @@ import zuo.processor.functionentry.profile.FunctionEntryProfile;
 import zuo.processor.functionentry.profile.FunctionEntryProfileReader;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 import zuo.processor.split.PredicateSplittingSiteProfile;
+import zuo.util.file.FileCollection;
 
 public class Client {
 	final File rootDir;
@@ -118,7 +118,7 @@ public class Client {
 				fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
 			}
 			SitesInfo sInfo = new SitesInfo(fSites);
-			printMethodsList(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
+//			FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
 			
 			this.cResutlsMap.put(vi, new int[3]);
 			int[] cResult = this.cResutlsMap.get(vi);
@@ -227,7 +227,7 @@ public class Client {
 					fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
 				}
 				SitesInfo sInfo = new SitesInfo(fSites);
-				printMethodsList(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
+//				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
 				this.cResutlsMap.put(vi, new int[3]);
 				int[] cResult = this.cResutlsMap.get(vi);
@@ -327,20 +327,20 @@ public class Client {
 			for(int i = 0; i < statistics.length; i++){
 				for(int j = 0; j < statistics[i].length; j++){
 					String mode = version + "_" + Score.values()[i] + "_" + Order.values()[j];
-					printMethodsList(statistics[i][j].getlCFlagStatistics().getbMethods(), 
+					FileCollection.writeCollection(statistics[i][j].getlCFlagStatistics().getbMethods(), 
 							new File(new File(this.consoleFolder, "FunctionList"), mode + "_local_best"));
-					printMethodsList(statistics[i][j].getlCFlagStatistics().getaMethods(), 
+					FileCollection.writeCollection(statistics[i][j].getlCFlagStatistics().getaMethods(), 
 							new File(new File(this.consoleFolder, "FunctionList"), mode + "_local_average"));
 					
-					printMethodsList(statistics[i][j].getgCFlagStatistics().getbMethods(), 
+					FileCollection.writeCollection(statistics[i][j].getgCFlagStatistics().getbMethods(), 
 							new File(new File(this.consoleFolder, "FunctionList"), mode + "_global_best"));
-					printMethodsList(statistics[i][j].getgCFlagStatistics().getaMethods(), 
+					FileCollection.writeCollection(statistics[i][j].getgCFlagStatistics().getaMethods(), 
 							new File(new File(this.consoleFolder, "FunctionList"), mode + "_global_average"));
 					
 					for(int k: ks){
-						printMethodsList(statistics[i][j].getpFlagStatisticsMap().get(k).getbMethods(), 
+						FileCollection.writeCollection(statistics[i][j].getpFlagStatisticsMap().get(k).getbMethods(), 
 								new File(new File(this.consoleFolder, "FunctionList"), mode + "_" + k + "_best"));
-						printMethodsList(statistics[i][j].getpFlagStatisticsMap().get(k).getaMethods(), 
+						FileCollection.writeCollection(statistics[i][j].getpFlagStatisticsMap().get(k).getaMethods(), 
 								new File(new File(this.consoleFolder, "FunctionList"), mode + "_" + k + "_average"));
 					}
 				}
@@ -844,27 +844,6 @@ public class Client {
 		}
 	}
 
-	private void printMethodsList(Collection<String> list, File file){
-		PrintWriter out = null;
-		try{
-			if (!file.getParentFile().exists()) {
-				file.getParentFile().mkdirs();
-			}
-			//write the passing inputs
-			out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
-			for(String method: list){
-				out.println(method);
-			}
-			out.close();
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
-		finally{
-			out.close();
-		}
-	}
-	
 	
 	public static void main(String[] args) {
 		String[][] argvs = {
