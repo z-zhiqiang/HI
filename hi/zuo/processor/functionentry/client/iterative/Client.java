@@ -847,26 +847,26 @@ public class Client {
 	
 	public static void main(String[] args) {
 		String[][] argvs = {
-				{"363", "sed"},
-				{"809", "grep"},
-				{"213", "gzip"},
-				{"13585", "space"},
-				{"4130", "printtokens"},
-				{"4115", "printtokens2"},
-				{"5542", "replace"},
-				{"2650", "schedule"},
-				{"2710", "schedule2"},
-				{"1608", "tcas"},
-				{"1052", "totinfo"}
+				{"363", "sed", "7"},
+				{"213", "gzip", "5"},
+				{"809", "grep", "5"},
+				{"13585", "space", "38"},
+				{"4130", "printtokens", "7"},
+				{"4115", "printtokens2", "10"},
+				{"5542", "replace", "31"},
+				{"2650", "schedule", "9"},
+				{"2710", "schedule2", "10"},
+				{"1608", "tcas", "41"},
+				{"1052", "totinfo", "23"}
 		};
 		
-		if(args.length != 8 && args.length != 7){
+		if(args.length != 8 && args.length != 5){
 			System.out.println("The characteristics of subjects are as follows:");
 			for(int i = 0; i < argvs.length; i++){
 				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
 			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir(excluding /) round start([1, 10]) startVersion endVersion" +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir(excluding /) round start([1, 10]) startVersion endVersion");
+			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir round start([1, 10]) startVersion endVersion" +
+					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir round start([1, 10])");
 			return;
 		}
 		int[] ks = {1};
@@ -880,10 +880,10 @@ public class Client {
 				c.runSir();
 			}
 		}
-		else if(args.length == 7){
+		else if(args.length == 5){
 			assert(Integer.parseInt(args[0]) == 0);
 			for(int i = 4; i < argvs.length; i++){
-				Client c = new Client(ks, new File(args[1]), argvs[i][1], new File(new File(args[2]), argvs[i][1] + "_" + args[3] + "_" + args[4] + "_v" + args[5] + "-v" + args[6]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]));
+				Client c = new Client(ks, new File(args[1]), argvs[i][1], new File(new File(args[2]), argvs[i][1] + "_" + args[3] + "_" + args[4] + "_v1-v" + argvs[i][2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), 1, Integer.parseInt(argvs[i][2]));
 				c.runSiemens();
 			}
 		}
