@@ -36,7 +36,9 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 		}
 		
 		String instrumentCommand = compileCommand 
-				+ "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed "
+				+ "sampler-cc "
+				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
+				+ "-fsample -fsampler-random=fixed "
 				+ sourceDir + srcName + ".c" 
 				+ " $COMPILE_PARAMETERS"
 				+ paraC

@@ -22,10 +22,10 @@ public class GenRunAllInstrumentedScript extends AbstractGenRunAllScript {
 		code.append("\techo v$i\n");
 		code.append("\tsh v$i\\_cg.sh > ../outputs/versions/v$i/coarse-grained/execution\n");
 		code.append("\tsh v$i\\_fg.sh > ../outputs/versions/v$i/fine-grained/execution\n");
-		code.append("\tsh v$i\\_cfg.sh > ../outputs/versions/v$i/coarse-fine-grained/execution\n");
-		code.append("\tsh v$i\\_boost.sh > ../outputs/versions/v$i/boost/execution\n");
-		code.append("\tsh v$i\\_pruneMinusBoost.sh > ../outputs/versions/v$i/prune-minus-boost/execution\n");
-		code.append("\tsh v$i\\_prune.sh > ../outputs/versions/v$i/prune/execution\n");
+//		code.append("\tsh v$i\\_cfg.sh > ../outputs/versions/v$i/coarse-fine-grained/execution\n");
+//		code.append("\tsh v$i\\_boost.sh > ../outputs/versions/v$i/boost/execution\n");
+//		code.append("\tsh v$i\\_pruneMinusBoost.sh > ../outputs/versions/v$i/prune-minus-boost/execution\n");
+//		code.append("\tsh v$i\\_prune.sh > ../outputs/versions/v$i/prune/execution\n");
 		code.append("done");
 		
 		System.out.println(code.toString());

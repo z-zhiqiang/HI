@@ -25,7 +25,9 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 
 	@Override
 	public void genRunScript() {
-		String instrumentCommand = "sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed "
+		String instrumentCommand = "sampler-cc "
+				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
+				+ "-fsample -fsampler-random=fixed "
 				+ sourceDir + subject + ".c" 
 				+ " -o " + executeDir + version + "_finst__" + sample + ".exe"
 				+ " -I" + sourceDir
