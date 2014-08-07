@@ -78,15 +78,56 @@ public class PruningProcessor{
 			
 		}
 		
+		//get Cp matrix
+		double Cp[][] = computeCpMatrix(totalNegative, this.actualTotalPositive);
+//		printOutForDebug(Cp);
+				
 		//set the DS
 		for(FunctionEntrySite site: frequencyMap.keySet()){
 			FrequencyValue p = frequencyMap.get(site);
 			frequencyMap.get(site).setC_r(DS(p.getNegative(), p.getPositive(), totalNegative, totalPositive));
-			frequencyMap.get(site).setC_p(IG(p.getNegative(), 0, totalNegative, this.actualTotalPositive));
+			assert(Math.abs(IG(p.getNegative(), 0, totalNegative, this.actualTotalPositive) - Cp[p.getNegative()][p.getPositive()]) <= 0.0001);
+			frequencyMap.get(site).setC_p(Cp[p.getNegative()][p.getPositive()]);
 			if(p.getNegative() >= this.totalNegative){
 				this.numberofTFFunctions++;
 			}
 		}
+	}
+	
+	private void printOutForDebug(double[][] Cp) {
+		// TODO Auto-generated method stub
+		for(int i = 0; i <= totalNegative; i++){
+			for(int j = 0; j <= this.actualTotalPositive; j++){
+				System.out.println(IG(i, 0, totalNegative, this.actualTotalPositive) + "\t\t" + Cp[i][j]);
+				assert(Math.abs(IG(i, 0, totalNegative, this.actualTotalPositive) - Cp[i][j]) <= 0.0001);
+			}
+		}
+	}
+
+	/**compute Cp matrix by dynamic programming
+	 * @param totalNeg
+	 * @param totalPos
+	 * @return
+	 */
+	private static double[][] computeCpMatrix(int totalNeg, int totalPos) {
+		double[][] Cp = new double[totalNeg + 1][totalPos + 1];
+		
+		Cp[0][0] = DS(0, 0, totalNeg, totalPos);
+		for(int i = 1; i <= totalNeg; i++){
+			double max = DS(i, 0, totalNeg, totalPos);
+			Cp[i][0] = max > Cp[i - 1][0] ? max : Cp[i - 1][0];
+		}
+		for(int j = 1; j <= totalPos; j++){
+			double max = DS(0, j, totalNeg, totalPos);
+			Cp[0][j] = max > Cp[0][j - 1] ? max : Cp[0][j - 1];
+		}
+		for(int i = 1; i <= totalNeg; i++){
+			for(int j = 1; j <= totalPos; j++){
+				double max = DS(i, j, totalNeg, totalPos);
+				Cp[i][j] = SelectingProcessor.max(max, Cp[i - 1][j], Cp[i][j - 1]);
+			}
+		}
+		return Cp;
 	}
 	
 	public static double DS(int neg, int pos, int totalNeg, int totalPos){

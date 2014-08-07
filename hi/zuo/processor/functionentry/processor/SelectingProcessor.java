@@ -154,7 +154,7 @@ public class SelectingProcessor{
 	 * @param d3
 	 * @return
 	 */
-	private static double max(double d1, double d2, double d3){
+	public static double max(double d1, double d2, double d3){
 		if(d1 > d2){
 			if(d1 > d3){
 				return d1;
