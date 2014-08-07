@@ -847,17 +847,18 @@ public class Client {
 	
 	public static void main(String[] args) {
 		String[][] argvs = {
+				{"150", "bash", "2"},
 				{"363", "sed", "7"},
 				{"213", "gzip", "5"},
 				{"809", "grep", "5"},
-				{"13585", "space", "38"},
-				{"4130", "printtokens", "7"},
-				{"4115", "printtokens2", "10"},
+				{"1248", "space", "38"},
+//				{"4130", "printtokens", "7"},
+//				{"4115", "printtokens2", "10"},
 				{"5542", "replace", "31"},
-				{"2650", "schedule", "9"},
-				{"2710", "schedule2", "10"},
-				{"1608", "tcas", "41"},
-				{"1052", "totinfo", "23"}
+//				{"2650", "schedule", "9"},
+//				{"2710", "schedule2", "10"},
+//				{"1608", "tcas", "41"},
+//				{"1052", "totinfo", "23"}
 		};
 		
 		if(args.length != 8 && args.length != 5){
@@ -882,7 +883,7 @@ public class Client {
 		}
 		else if(args.length == 5){
 			assert(Integer.parseInt(args[0]) == 0);
-			for(int i = 4; i < argvs.length; i++){
+			for(int i = 5; i < argvs.length; i++){
 				Client c = new Client(ks, new File(args[1]), argvs[i][1], new File(new File(args[2]), argvs[i][1] + "_" + args[3] + "_" + args[4] + "_v1-v" + argvs[i][2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), 1, Integer.parseInt(argvs[i][2]));
 				c.runSiemens();
 			}

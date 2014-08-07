@@ -22,7 +22,11 @@ import zuo.util.file.FileUtility;
 
 
 public class GenSiemensScriptsClient {
-	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative/Subjects/Siemens/";
+	public final String rootDir;
+	
+	public final static String spaceRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative/Subjects/";
+	public final static String siemensRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative/Subjects/Siemens/";
+	
 	public final String subject;
 	public final int vers;
 	public final String version;
@@ -59,7 +63,15 @@ public class GenSiemensScriptsClient {
 		vers = vs;
 		version = ver;
 		
-		inputs = rootDir + subject + "/testplans.alt/" + "universe";
+		if(subject.equals("space")){
+			rootDir = spaceRootDir;
+			inputs = rootDir + subject + "/testplans.alt/" + "universe_1248";
+		}
+		else{
+			rootDir = siemensRootDir;
+			inputs = rootDir + subject + "/testplans.alt/" + "universe";
+		}
+		
 		inputsMapFile = rootDir + subject + "/testplans.alt/" + "inputs.map";
 		
 		ssourceDir = rootDir + subject + "/source.alt/source.orig/";
@@ -111,10 +123,10 @@ public class GenSiemensScriptsClient {
 	
 	public static void main(String[] args) throws IOException {
 		String[][] subjects = {
-//				{"space", "38"},
+				{"space", "38"},
 //				{"tcas", "41"},
 //				{"totinfo", "23"},
-				{"replace", "32"},
+//				{"replace", "32"},
 //				{"printtokens", "7"},
 //				{"printtokens2", "10"},
 //				{"schedule", "9"},
@@ -131,7 +143,6 @@ public class GenSiemensScriptsClient {
 	private void gen() throws IOException {
 		AbstractGenRunScript gs;
 		AbstractGenRunAllScript ga;
-		
 		
 //		FileUtility.constructSiemensInputsMapFile(inputs, inputsMapFile);
 //		gs = new GenRunSubjectScript(subject, compileSubject, ssourceDir, sexecuteDir, soutputDir, scriptDir);

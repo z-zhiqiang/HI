@@ -80,12 +80,13 @@ public class GenSiemensScriptsClient {
 		
 		if(subject.equals("space")){
 			rootDir = spaceRootDir;
+			inputs = rootDir + subject + "/testplans.alt/" + "universe_1248";
 		}
 		else{
 			rootDir = siemensRootDir;
+			inputs = rootDir + subject + "/testplans.alt/" + "universe";
 		}
 		
-		inputs = rootDir + subject + "/testplans.alt/" + "universe";
 		inputsMapFile = rootDir + subject + "/testplans.alt/" + "inputs.map";
 		
 		ssourceDir = rootDir + subject + "/source.alt/source.orig/";
@@ -160,10 +161,10 @@ public class GenSiemensScriptsClient {
 	
 	public static void main(String[] args) throws IOException {
 		String[][] subjects = {
-//				{"space", "38"},
+				{"space", "38"},
 //				{"printtokens", "7"},
 //				{"printtokens2", "10"},
-				{"replace", "32"},
+//				{"replace", "32"},
 //				{"schedule", "9"},
 //				{"schedule2", "10"},
 //				{"tcas", "41"},
@@ -181,7 +182,6 @@ public class GenSiemensScriptsClient {
 	public void gen() throws IOException {
 		AbstractGenRunScript gs;
 		AbstractGenRunAllScript ga;
-		
 		
 //		FileUtility.constructSiemensInputsMapFile(inputs, inputsMapFile);
 //		gs = new GenRunSubjectScript(subject, compileSubject, ssourceDir, sexecuteDir, soutputDir, scriptDir);

@@ -84,10 +84,11 @@ public class Client {
 
 	public static void main(String[] args) {
 		String[][] argvs = {
+				{"150", "bash", "2"},
 				{"363", "sed", "7"},
 				{"213", "gzip", "5"},
 				{"809", "grep", "5"},
-				{"13585", "space", "38"},
+				{"1248", "space", "38"},
 //				{"4130", "printtokens", "7"},
 //				{"4115", "printtokens2", "10"},
 				{"5542", "replace", "31"},
@@ -97,6 +98,10 @@ public class Client {
 //				{"1052", "totinfo", "23"}
 		};
 		if(args.length != 5 && args.length != 3){
+			System.out.println("The characteristics of subjects are as follows:");
+			for(int i = 0; i < argvs.length; i++){
+				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
+			}
 			System.err.println("Usage: subject mode(0->%*f; 1->%*S; 2->%*P) percent startVersion endVersion");
 			System.err.println("or");
 			System.err.println("Usage: subject mode(0->%*f; 1->%*S; 2->%*P) percent");
@@ -104,7 +109,7 @@ public class Client {
 		}
 		Client client;
 		if(args[0].equals("Siemens")){
-			for(int i = 4; i < argvs.length; i++){
+			for(int i = 5; i < argvs.length; i++){
 				client = new Client(argvs[i][1], Byte.parseByte(args[1]), Double.parseDouble(args[2]), 1, Integer.parseInt(argvs[i][2]), 
 						siemensRootDir, siemensConsoleFolder);			
 				client.runClientWithConsole();				
@@ -268,7 +273,7 @@ public class Client {
 					assert(resultsList.size() == 55);
 					this.resultsMap.put(vi, resultsList);
 					this.correlationDataMap.put(vi, correlationData);
-//					assert(correlationResults.size() == 26);
+					assert(correlationResults.size() == 26);
 					this.correlationResultsMap.put(vi, correlationResults);
 				}
 			}

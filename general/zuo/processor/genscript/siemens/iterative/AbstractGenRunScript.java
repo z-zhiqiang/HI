@@ -41,7 +41,14 @@ public abstract class AbstractGenRunScript {
 		this.outputDir = output;
 		this.scriptDir = script;
 		
-		inputsMap = FileUtility.readInputsMap(GenSiemensScriptsClient.rootDir + subject + "/testplans.alt/" + "inputs.map");
+		String rootDir;
+		if(this.subject.equals("space")){
+			rootDir = GenSiemensScriptsClient.spaceRootDir;
+		}
+		else{
+			rootDir = GenSiemensScriptsClient.siemensRootDir;
+		}
+		inputsMap = FileUtility.readInputsMap(rootDir + subject + "/testplans.alt/" + "inputs.map");
 	}
 	
     public abstract void genRunScript() throws IOException;
