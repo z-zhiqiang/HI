@@ -166,7 +166,7 @@ public class TwopassTimeReader extends AbstractTimeReader {
 				{"363", "sed", "7"},
 				{"213", "gzip", "5"},
 				{"809", "grep", "5"},
-				{"13585", "space", "38"},
+				{"1248", "space", "38"},
 //				{"4130", "printtokens", "7"},
 //				{"4115", "printtokens2", "10"},
 				{"5542", "replace", "32"},
@@ -175,20 +175,21 @@ public class TwopassTimeReader extends AbstractTimeReader {
 //				{"1608", "tcas", "41"},
 //				{"1052", "totinfo", "23"}
 		};
+		File rootDir = new File(Client.root + args[0]);
 		for(int i = 0; i < argvs.length; i++){
-			File rootDir, consoleFolder;
+			File subjectsFolder, consoleFolder;
 			String mode;
 			if(i <= 4){
-				rootDir = Client.sirRootDir;
-				consoleFolder = Client.sirConsoleFolder;
+				subjectsFolder = new File(rootDir, "Subjects");
+				consoleFolder = new File(rootDir, "Console");
 				mode = "2_0.05";
 			}
 			else{
-				rootDir = Client.siemensRootDir;
-				consoleFolder = Client.siemensConsoleFolder;
+				subjectsFolder = new File(rootDir, "Subjects/Siemens");
+				consoleFolder = new File(rootDir, "Console/Siemens");
 				mode = "2_0.05";
 			}
-			AbstractTimeReader timeReader = new TwopassTimeReader(rootDir, argvs[i][1]);
+			AbstractTimeReader timeReader = new TwopassTimeReader(subjectsFolder, argvs[i][1]);
 			timeReader.readAndExportTimeResults(consoleFolder, argvs[i][1] + "_" + mode + "_overhead.xlsx");
 			
 		}

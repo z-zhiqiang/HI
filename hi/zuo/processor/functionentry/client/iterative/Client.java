@@ -854,7 +854,7 @@ public class Client {
 				{"1248", "space", "38"},
 //				{"4130", "printtokens", "7"},
 //				{"4115", "printtokens2", "10"},
-				{"5542", "replace", "31"},
+				{"5542", "replace", "32"},
 //				{"2650", "schedule", "9"},
 //				{"2710", "schedule2", "10"},
 //				{"1608", "tcas", "41"},

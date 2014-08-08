@@ -49,11 +49,7 @@ public class Client {
 	private static final String DATASET_FOLDER_NAME = "predicate-dataset";
 	private static final String mbsOutputFile = "mbs.out";
 	
-	public static final File sirRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/");
-	public static final File siemensRootDir = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/Siemens/");	
-	public static final File sirConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/");
-	public static final File siemensConsoleFolder = new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Console/Siemens/");
-	
+	public static final String root = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/";
 	
 	private final String subject;
 	private final byte mode;
@@ -66,10 +62,10 @@ public class Client {
 	private final int startVersion;
 	private final int endVersion;
 	
-	private final File rootDir;
+	private final File subjectsFolder;
 	private final File consoleFolder;
 
-	public Client(String subject, byte mode, double percent, int start, int end, File rootD, File consoleF){
+	public Client(String subject, byte mode, double percent, int start, int end, File subjectsF, File consoleF){
 		this.subject = subject;
 		this.mode = mode;
 		this.percent = percent;
@@ -78,7 +74,7 @@ public class Client {
 		this.correlationResultsMap = new LinkedHashMap<String, List<Object>>();
 		this.startVersion = start;
 		this.endVersion = end;
-		this.rootDir = rootD;
+		this.subjectsFolder = subjectsF;
 		this.consoleFolder = consoleF;
 	}
 
@@ -91,33 +87,33 @@ public class Client {
 				{"1248", "space", "38"},
 //				{"4130", "printtokens", "7"},
 //				{"4115", "printtokens2", "10"},
-				{"5542", "replace", "31"},
+				{"5542", "replace", "32"},
 //				{"2650", "schedule", "9"},
 //				{"2710", "schedule2", "10"},
 //				{"1608", "tcas", "41"},
 //				{"1052", "totinfo", "23"}
 		};
-		if(args.length != 5 && args.length != 3){
+		if(args.length != 6 && args.length != 4){
 			System.out.println("The characteristics of subjects are as follows:");
 			for(int i = 0; i < argvs.length; i++){
 				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
 			}
-			System.err.println("Usage: subject mode(0->%*f; 1->%*S; 2->%*P) percent startVersion endVersion");
+			System.err.println("Usage: rootFile(Twopass_heavy; Twopass_light) subject mode(0->%*f; 1->%*S; 2->%*P) percent startVersion endVersion");
 			System.err.println("or");
-			System.err.println("Usage: subject mode(0->%*f; 1->%*S; 2->%*P) percent");
+			System.err.println("Usage: rootFile(Twopass_heavy; Twopass_light) subject mode(0->%*f; 1->%*S; 2->%*P) percent");
 			return;
 		}
 		Client client;
-		if(args[0].equals("Siemens")){
+		if(args[1].equals("Siemens")){
 			for(int i = 5; i < argvs.length; i++){
-				client = new Client(argvs[i][1], Byte.parseByte(args[1]), Double.parseDouble(args[2]), 1, Integer.parseInt(argvs[i][2]), 
-						siemensRootDir, siemensConsoleFolder);			
+				client = new Client(argvs[i][1], Byte.parseByte(args[2]), Double.parseDouble(args[3]), 1, Integer.parseInt(argvs[i][2]), 
+						new File(root + args[0], "Subjects/Siemens/"), new File(root + args[0], "Console/Siemens/"));			
 				client.runClientWithConsole();				
 			}
 		}
 		else{
-			client = new Client(args[0], Byte.parseByte(args[1]), Double.parseDouble(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), 
-					sirRootDir, sirConsoleFolder);			
+			client = new Client(args[1], Byte.parseByte(args[2]), Double.parseDouble(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), 
+					new File(root + args[0], "Subjects/"), new File(root + args[0], "Console/"));			
 			client.runClientWithConsole();
 		}
 	}
@@ -155,12 +151,12 @@ public class Client {
 		}
 	}
 	public void runClient(PrintWriter writer) throws IOException{
-		File projectRoot = new File(rootDir, this.subject);
+		File projectRoot = new File(subjectsFolder, this.subject);
 		if (!projectRoot.exists()){
 			throw new RuntimeException("Project " + projectRoot + " does not exist!");
 		}
 
-		if (this.rootDir.equals(siemensRootDir) || this.subject.equals("space")) {
+		if (this.subjectsFolder.getAbsolutePath().contains("Siemens") || this.subject.equals("space")) {
 			File[] versions = new File(projectRoot, "versions").listFiles(new FilenameFilter(){
 				@Override
 				public boolean accept(File dir, String name) {
