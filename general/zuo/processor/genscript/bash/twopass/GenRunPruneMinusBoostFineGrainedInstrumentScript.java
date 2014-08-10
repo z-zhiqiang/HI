@@ -29,7 +29,7 @@ public class GenRunPruneMinusBoostFineGrainedInstrumentScript extends AbstractGe
 	@Override
 	public void genRunScript() {
 		String instrumentCommand = compileCommand
-				+ " CC=\"\\\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample "
+				+ " CC=\"\\\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fno-sample "
 				+ functionFiltering() + "\\\"\"";
 		
 		StringBuffer code = new StringBuffer();

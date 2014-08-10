@@ -41,7 +41,7 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 		}
 		String instrumentCommand = compileCommand
 				+ "sampler-cc "
-				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
+				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants "
 				+ "-fno-sample "
 				+ functionFiltering()
 				+ sourceDir + srcName + ".c" 

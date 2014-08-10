@@ -27,8 +27,8 @@ public class GenSiemensScriptsClient {
 	public static final String spaceMode = "2_0.05";
 	public static final String siemensMode = "2_0.05";
 	
-	public final static String spaceRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
-	public final static String siemensRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/Siemens/";
+	public final static String spaceRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass_heavy/Subjects/";
+	public final static String siemensRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass_heavy/Subjects/Siemens/";
 	
 	public final String subject;
 	public final int vers;
@@ -132,7 +132,7 @@ public class GenSiemensScriptsClient {
 				+ " -lm"
 				;
 		compileFGInstrument = "sampler-cc "
-				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
+				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants "
 				+ "-fno-sample "
 				+ vsourceDir + subject + ".c" 
 				+ " -o " + vexecuteDir + version + "_finst.exe"
@@ -149,7 +149,7 @@ public class GenSiemensScriptsClient {
 				;
 		compileCFGInstrument = "sampler-cc " 
 				+ "-fsampler-scheme=function-entries " 
-				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs " 
+				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants " 
 				+ "-fno-sample "
 				+ vsourceDir + subject + ".c" 
 				+ " -o " + vexecuteDir + version + "_cfinst.exe"
@@ -164,7 +164,7 @@ public class GenSiemensScriptsClient {
 				{"space", "38"},
 //				{"printtokens", "7"},
 //				{"printtokens2", "10"},
-//				{"replace", "32"},
+				{"replace", "32"},
 //				{"schedule", "9"},
 //				{"schedule2", "10"},
 //				{"tcas", "41"},

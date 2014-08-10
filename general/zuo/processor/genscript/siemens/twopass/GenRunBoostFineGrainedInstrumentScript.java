@@ -29,7 +29,7 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 	public void genRunScript() {
 		String instrumentCommand = compileCommand
 				+ "sampler-cc "
-				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
+				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants "
 				+ "-fno-sample "
 				+ functionFiltering()
 				+ sourceDir + subject + ".c" 

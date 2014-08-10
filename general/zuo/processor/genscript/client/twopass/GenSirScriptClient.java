@@ -34,7 +34,7 @@ public class GenSirScriptClient {
 	private static final String PRUNE_MINUS_BOOST_FUNCTIONS = "prune_minus_boost_functions_" + mode + ".txt";
 	private static final String PRUNE_FUNCTIONS = "prune_functions_" + mode + ".txt";
 	
-	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass/Subjects/";
+	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass_heavy/Subjects/";
 	
 	public final String subject;
 	public final String sourceName;
@@ -155,7 +155,7 @@ public class GenSirScriptClient {
 				+ includeVC
 				;
 		compileFGInstrument = "sampler-cc "
-				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
+				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants "
 				+ "-fno-sample "
 				+ vsourceDir + sourceName + ".c" 
 				+ " $COMPILE_PARAMETERS"
@@ -174,7 +174,7 @@ public class GenSirScriptClient {
 				;
 		compileCFGInstrument = "sampler-cc " 
 				+ "-fsampler-scheme=function-entries " 
-				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs " 
+				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants " 
 				+ "-fno-sample "
 				+ vsourceDir + sourceName + ".c" 
 				+ " $COMPILE_PARAMETERS"
@@ -215,14 +215,14 @@ public class GenSirScriptClient {
 		
 		
 		//generate test scripts
-		String[] argvs = {"-sf", sf, "-sn", inputScript, "-en", AbstractGenRunScript.EXE, "-ed", rootDir + subject, "-tg", "bsh", "-nesc"};
-		MakeTestScript.main(argvs);
-		FileUtility.constructSIRInputsMapFile(inputScript, inputsMapFile);
-		
-		String[] argvsC = {"-sf", sf, "-sn", inputCompScript, "-en", AbstractGenRunScript.EXE, "-ed", rootDir + subject, "-c", soutputDir, "-tg", "bsh", "-nesc"};
-		MakeTestScript.main(argvsC);
-		FileUtility.constructSIRInputsMapFile(inputCompScript, inputsCompMapFile);//read inputsMap
-		
+//		String[] argvs = {"-sf", sf, "-sn", inputScript, "-en", AbstractGenRunScript.EXE, "-ed", rootDir + subject, "-tg", "bsh", "-nesc"};
+//		MakeTestScript.main(argvs);
+//		FileUtility.constructSIRInputsMapFile(inputScript, inputsMapFile);
+//		
+//		String[] argvsC = {"-sf", sf, "-sn", inputCompScript, "-en", AbstractGenRunScript.EXE, "-ed", rootDir + subject, "-c", soutputDir, "-tg", "bsh", "-nesc"};
+//		MakeTestScript.main(argvsC);
+//		FileUtility.constructSIRInputsMapFile(inputCompScript, inputsCompMapFile);//read inputsMap
+//		
 //		//generate run subject and subversion scripts
 //		gs = new GenRunSubjectScript(subject, version, setEnv + compileSubject, ssourceDir, sexecuteDir, soutputDir, scriptDir);
 //		gs.genRunScript();

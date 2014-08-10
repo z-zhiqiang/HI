@@ -30,7 +30,7 @@ import zuo.processor.genscript.bash.iterative.GenRunVersionsScript;
 import zuo.processor.splitinputs.SplitInputs;
 
 public class GenBashScriptClient {
-	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative/Subjects";
+	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_heavy/Subjects";
 	
 	public final static String setEnv = "export experiment_root=" + rootDir 
 			+ "\nexport TESTS_SRC=" + rootDir + "/bash/testplans.alt/testplans.fine\n"; 
@@ -118,7 +118,7 @@ public class GenBashScriptClient {
 		
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 		
-//		//generate run subject and subversion scripts
+		//generate run subject and subversion scripts
 //		String subjectCompile = setEnv + "./makevers " + version.substring(1);
 //		gs = new GenRunSubjectScript(subject, version, subjectCompile, sexecuteDir, soutputDir, scriptDir);
 //		gs.genRunScript();
@@ -154,7 +154,7 @@ public class GenBashScriptClient {
 				System.out.println("generating run instrument script for subv" + index);
 				
 				String fgCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
-						+ " CC=\"\\\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample \\\"\"";
+						+ " CC=\"\\\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fno-sample \\\"\"";
 				gs = new GenRunFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, fgCompile, gc.vexecuteDir, 
 						gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array");
 				gs.genRunScript();
@@ -167,7 +167,7 @@ public class GenBashScriptClient {
 				
 				
 //				String sampleCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
-//						+ " CC=\"\\\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed \\\"\"";
+//						+ " CC=\"\\\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fsample -fsampler-random=fixed \\\"\"";
 //				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
 //						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", 1);
 //				gs.genRunScript();

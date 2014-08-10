@@ -24,8 +24,8 @@ import zuo.util.file.FileUtility;
 public class GenSiemensScriptsClient {
 	public final String rootDir;
 	
-	public final static String spaceRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative/Subjects/";
-	public final static String siemensRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative/Subjects/Siemens/";
+	public final static String spaceRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_heavy/Subjects/";
+	public final static String siemensRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_heavy/Subjects/Siemens/";
 	
 	public final String subject;
 	public final int vers;
@@ -105,7 +105,7 @@ public class GenSiemensScriptsClient {
 				+ " -I" + vsourceDir
 				+ " -lm";
 		compileFGInstrument = "sampler-cc "
-				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
+				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants "
 				+ "-fno-sample "
 				+ vsourceDir + subject + ".c" 
 				+ " -o " + vexecuteDir + version + "_finst.exe"
@@ -126,7 +126,7 @@ public class GenSiemensScriptsClient {
 				{"space", "38"},
 //				{"tcas", "41"},
 //				{"totinfo", "23"},
-//				{"replace", "32"},
+				{"replace", "32"},
 //				{"printtokens", "7"},
 //				{"printtokens2", "10"},
 //				{"schedule", "9"},
