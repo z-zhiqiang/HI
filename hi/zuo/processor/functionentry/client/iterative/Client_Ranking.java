@@ -136,7 +136,7 @@ public class Client_Ranking {
 			File[] subversions = version.listFiles(new FilenameFilter(){
 				@Override
 				public boolean accept(File dir, String name) {
-					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 11);
+					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 10);
 				}});
 			Arrays.sort(subversions, new Comparator<File>(){
 
