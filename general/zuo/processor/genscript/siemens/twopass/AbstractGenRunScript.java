@@ -11,7 +11,7 @@ import zuo.processor.genscript.client.twopass.GenSiemensScriptsClient;
 import zuo.util.file.FileUtility;
 
 public abstract class AbstractGenRunScript {
-	public static final int ROUNDS = 0;
+	public static final int ROUNDS = 3;
 	final String version;
 	final String subject;
 	final String compileCommand;

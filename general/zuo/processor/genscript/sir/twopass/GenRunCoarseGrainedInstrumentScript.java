@@ -15,7 +15,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 	final List<Integer> failingTests;
 	final List<Integer> passingTests;
 	
-//	private final Set<Integer> indices;
+	private final Set<Integer> indices;
 	
 	public GenRunCoarseGrainedInstrumentScript(String sub, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, File indices) {
 		super(sub, ver, subV, cc, sD, eD, oD, scD);
@@ -24,7 +24,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
-//		this.indices = FileCollection.readIndices(indices);
+		this.indices = FileCollection.readIndices(indices);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 	private void stmts(StringBuffer code) {
 		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
 			int index = it.next();
-//			assert(this.indices.contains(index));
+			assert(this.indices.contains(index));
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
 			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
@@ -61,12 +61,12 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		
 		for (int i = 0; i < passingTests.size(); i++) {
 			int index = passingTests.get(i);
-//			if(this.indices.contains(index)){
+			if(this.indices.contains(index)){
 				code.append(runinfo + index + "\"\n");// running info
 				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
 				code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
 				code.append("\n");
-//			}
+			}
 		}
 	}
 
