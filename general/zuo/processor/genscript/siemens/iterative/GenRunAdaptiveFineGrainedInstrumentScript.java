@@ -34,7 +34,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		for(int i = 0; i < num; i++){
 			String method = methods.get(i);
 			instrumentCommand = "sampler-cc "
-					+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants "
+					+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
 					+ "-fno-sample "
 					+ "-finclude-function=" + method + " -fexclude-function=* "
 					+ sourceDir + subject + ".c" 
