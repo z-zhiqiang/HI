@@ -16,7 +16,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 	final List<Integer> failingTests;
 	final List<Integer> passingTests;
 	
-	final Set<Integer> indices;
+//	final Set<Integer> indices;
 	
 	public GenRunCoarseGrainedInstrumentScript(String sub, String ver, String subV, String cc, String eD, String oD, String scD, String tD, String failing, String passing, File indices) {
 		super(sub, ver, subV, cc, eD, oD, scD);
@@ -25,7 +25,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
-		this.indices = FileCollection.readIndices(indices);
+//		this.indices = FileCollection.readIndices(indices);
 	}
 
 	@Override
@@ -38,6 +38,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		code.append("export INPUTSDIR=" + GenBashScriptClient.inputsDir + "\n");
+		code.append("rm $TRACESDIR/o*profile\n");
 		
 		stmts(code);
 		code.append(startTimeCommand + "\n");
@@ -53,7 +54,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 	private void stmts(StringBuffer code) {
 		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
 			int index = it.next();
-			assert(this.indices.contains(index));
+//			assert(this.indices.contains(index));
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
 			code.append("$VERSIONSDIR/" + subVersion + "_cinst.exe ");//executables
@@ -64,14 +65,14 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		
 		for (int i = 0; i < passingTests.size(); i++) {
 			int index = passingTests.get(i);
-			if(this.indices.contains(index)){
+//			if(this.indices.contains(index)){
 				code.append(runinfo + index + "\"\n");// running info
 				code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
 				code.append("$VERSIONSDIR/" + subVersion + "_cinst.exe ");//executables
 				code.append("$INPUTSDIR/" + inputsMap.get(index));//parameters
 				code.append(" >& $OUTPUTSDIR/o" + index + ".pout\n");//output file
 				code.append("\n");
-			}
+//			}
 		}
 	}
 

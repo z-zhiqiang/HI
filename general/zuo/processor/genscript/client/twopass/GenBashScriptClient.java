@@ -190,6 +190,7 @@ public class GenBashScriptClient {
 						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", new File(gc.cgIndicesDir, CG_INDICES));
 				gs.genRunScript();
 				
+				
 				String cfgCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
 						+ " CC=\"\\\"sampler-cc -fsampler-scheme=function-entries -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fno-sample \\\"\"";
 				gs = new GenRunCoarseFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, cfgCompile, gc.vexecuteDir, 

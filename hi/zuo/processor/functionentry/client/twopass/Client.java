@@ -365,26 +365,43 @@ public class Client {
 		runMultiMBS(command, originalDatasetFolder, rounds, time, writer, resultsList, totalNeg, totalPos);
 		
 		/*=================================================================================================*/
+		//with saving in coarse-grained phase-- running partial passing tests
 		
-		File selectedCGProfilesFolder = new File(cgProfilesFolder.getParentFile(), "cg");
-		Set<Integer> indices = selectCGProfiles(cgProfilesFolder, selectedCGProfilesFolder, totalNeg, totalPos, resultsList);
+//		File selectedCGProfilesFolder = new File(cgProfilesFolder.getParentFile(), "cg");
+//		Set<Integer> indices = selectCGProfiles(cgProfilesFolder, selectedCGProfilesFolder, totalNeg, totalPos, resultsList);
+//		
+//		resultsList.add(FileUtils.sizeOf(cgSitesFile));
+//		resultsList.add(new FunctionEntrySites(cgSitesFile).getNumFunctionEntrySites());
+//		resultsList.add(FileUtils.sizeOf(selectedCGProfilesFolder));
+//		
+//		File cgFolder = new File(resultOutputFolder, "cg");
+//		if(!cgFolder.exists()){
+//			cgFolder.mkdirs();
+//		}
+//		FileCollection.writeCollection(indices, new File(cgFolder, "indices.txt" ));
+//		
+//		TwopassFunctionClient funClient = runMultiCGClient(cgSitesFile, selectedCGProfilesFolder, totalPos, fgSitesFile, rounds, time, writer, resultsList);
+//		
+//		assert(funClient.getList().size() == funClient.getsInfo().getMap().size());
+//		funClient.printEntry(writer);
+//
+//		FileUtility.removeFileOrDirectory(selectedCGProfilesFolder);
+		
+		
+		//-------------------------------------------------------------------------------------------------//
+		//without saving in coarse-grained phase-- running all the passing tests
+		resultsList.add(totalNeg);
+		resultsList.add(totalPos);
 		
 		resultsList.add(FileUtils.sizeOf(cgSitesFile));
 		resultsList.add(new FunctionEntrySites(cgSitesFile).getNumFunctionEntrySites());
-		resultsList.add(FileUtils.sizeOf(selectedCGProfilesFolder));
+		resultsList.add(FileUtils.sizeOf(cgProfilesFolder));
 		
-		File cgFolder = new File(resultOutputFolder, "cg");
-		if(!cgFolder.exists()){
-			cgFolder.mkdirs();
-		}
-		FileCollection.writeCollection(indices, new File(cgFolder, "indices.txt" ));
-		
-		TwopassFunctionClient funClient = runMultiCGClient(cgSitesFile, selectedCGProfilesFolder, totalPos, fgSitesFile, rounds, time, writer, resultsList);
+		TwopassFunctionClient funClient = runMultiCGClient(cgSitesFile, cgProfilesFolder, totalPos, fgSitesFile, rounds, time, writer, resultsList);
 		
 		assert(funClient.getList().size() == funClient.getsInfo().getMap().size());
 		funClient.printEntry(writer);
 
-		FileUtility.removeFileOrDirectory(selectedCGProfilesFolder);
 		
 		//-------------------------------------------------------------------------------------------------//
 		assert(dataset instanceof PredicateDataSet);

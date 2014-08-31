@@ -30,6 +30,7 @@ public class PruningProcessor{
 	
 	public void process(){
 		computeFrequencyPair();
+		assert(this.totalPositive == this.actualTotalPositive); // without saving in coarse-grained
 	}
 	
 	/**compute the frequency pair <F(m), S(m)> of each function m

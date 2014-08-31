@@ -47,15 +47,17 @@ public class TwopassTimeReader extends AbstractTimeReader {
 		results.add(fgProfiles.length);
 		System.out.print(fgProfiles.length + "\t");
 		
-		Set<Integer> indices = FileCollection.readIndices(new File(new File(this.rootDir, subject), "/versions/" + versionFolder.getName() + "/" + subVersionFolder.getName() + "/predicate-dataset/cg/indices.txt"));
-		results.add(indices.size());
-		System.out.print(indices.size() + "\t");
+//		Set<Integer> indices = FileCollection.readIndices(new File(new File(this.rootDir, subject), "/versions/" + versionFolder.getName() + "/" + subVersionFolder.getName() + "/predicate-dataset/cg/indices.txt"));
+//		results.add(indices.size());
+//		System.out.print(indices.size() + "\t");
 		
-//		File cgProfilesFolder = new File(new File(new File(this.rootDir, subject), "traces"), versionFolder.getName() + "/" + subVersionFolder.getName() + "/coarse-grained/");
-//		if (!cgProfilesFolder.exists()) {
-//			throw new RuntimeException("Coarse-grained profiles folder " + cgProfilesFolder + " does not exist.");
-//		}
-//		File[] cgProfiles = cgProfilesFolder.listFiles(FileUtil.createProfileFilter());
+		File cgProfilesFolder = new File(new File(new File(this.rootDir, subject), "traces"), versionFolder.getName() + "/" + subVersionFolder.getName() + "/coarse-grained/");
+		if (!cgProfilesFolder.exists()) {
+			throw new RuntimeException("Coarse-grained profiles folder " + cgProfilesFolder + " does not exist.");
+		}
+		File[] cgProfiles = cgProfilesFolder.listFiles(FileUtil.createProfileFilter());
+		results.add(cgProfiles.length);
+		System.out.print(cgProfiles.length + "\t");
 //		assert(indices.size() == cgProfiles.length);
 		
 		for(int i = 0; i < timeFolders.length; i++){
@@ -118,15 +120,17 @@ public class TwopassTimeReader extends AbstractTimeReader {
 		results.add(fgProfiles.length);
 		System.out.print(fgProfiles.length + "\t");
 		
-		Set<Integer> indices = FileCollection.readIndices(new File(new File(this.rootDir, subject), "/versions/" + versionFolder.getName() + "/predicate-dataset/cg/indices.txt"));
-		results.add(indices.size());
-		System.out.print(indices.size() + "\t");
+//		Set<Integer> indices = FileCollection.readIndices(new File(new File(this.rootDir, subject), "/versions/" + versionFolder.getName() + "/predicate-dataset/cg/indices.txt"));
+//		results.add(indices.size());
+//		System.out.print(indices.size() + "\t");
 		
-//		File cgProfilesFolder = new File(new File(new File(this.rootDir, subject), "traces"), versionFolder.getName() + "/coarse-grained/");
-//		if (!cgProfilesFolder.exists()) {
-//			throw new RuntimeException("Coarse-grained profiles folder " + cgProfilesFolder + " does not exist.");
-//		}
-//		File[] cgProfiles = cgProfilesFolder.listFiles(FileUtil.createProfileFilter());
+		File cgProfilesFolder = new File(new File(new File(this.rootDir, subject), "traces"), versionFolder.getName() + "/coarse-grained/");
+		if (!cgProfilesFolder.exists()) {
+			throw new RuntimeException("Coarse-grained profiles folder " + cgProfilesFolder + " does not exist.");
+		}
+		File[] cgProfiles = cgProfilesFolder.listFiles(FileUtil.createProfileFilter());
+		results.add(cgProfiles.length);
+		System.out.print(cgProfiles.length + "\t");
 //		assert(indices.size() == cgProfiles.length);
 		
 		for(int i = 0; i < timeFolders.length; i++){
