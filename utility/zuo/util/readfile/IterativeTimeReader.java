@@ -151,8 +151,8 @@ public class IterativeTimeReader extends AbstractTimeReader {
 	}
 	
 	public static void main(String[] args) {
-		AbstractTimeReader timeReader = new IterativeTimeReader(new File("H:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative\\Subjects"), "grep");
-		timeReader.readAndExportTimeResults(new File("H:\\Research\\IResearch\\Automated_Bug_Isolation\\Iterative"), "grep.xlsx");
+		AbstractTimeReader timeReader = new IterativeTimeReader(new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_light/Subjects/Siemens/"), "replace");
+		timeReader.readAndExportTimeResults(new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_light/Console/Siemens/"), "replace_overhead.xlsx");
 		
 	}
 
