@@ -22,19 +22,21 @@ public final class Statistic{
 	public void solveOneResult(Result result, int round){
 		if(result.islCFlag()){
 			assert(result.getiResult()[5] != 0);
-			this.lCFlagStatistics.solveOneResult(result.getiResult(), result.getMethods(), round);
 		}
+		this.lCFlagStatistics.solveOneResult(result.getiResult(), result.getMethods(), round, result.islCFlag());
+	
 		if(result.isgCFlag()){
 			assert(result.islCFlag());
-			this.gCFlagStatistics.solveOneResult(result.getiResult(), result.getMethods(), round);
 		}
+		this.gCFlagStatistics.solveOneResult(result.getiResult(), result.getMethods(), round, result.isgCFlag());
+
 		for(int k: result.getpFlagMap().keySet()){
 			PruneResult pruneResult = result.getpFlagMap().get(k);
 			if(pruneResult.ispFlag()){
 				assert(k != 1 || result.isgCFlag());
 				assert(pruneResult.ispFlagCI0() && pruneResult.ispFlagCI2());
-				this.pFlagStatisticsMap.get(k).solveOneResult(pruneResult.getpResult(), pruneResult.getPruneMethods(), round);
 			}
+			this.pFlagStatisticsMap.get(k).solveOneResult(pruneResult.getpResult(), pruneResult.getPruneMethods(), round, pruneResult.ispFlag());
 			
 			if(pruneResult.ispFlagCI0()){
 				this.pFlagStatisticsMap.get(k).increaseNumberOfRoundsCI0();

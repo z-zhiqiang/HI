@@ -33,23 +33,56 @@ public class FlagStatistic{
 		this.aMethods = new HashSet<String>();
 	}
 	
-	public void solveOneResult(double[] result, Set<String> methods, int round){
-		if(this.numberOfRounds == 0 || result[0] < this.bestResult[0]){
-			this.best = String.valueOf(round);
-			this.bestResult = result;
-			this.bMethods = methods;
+	/**include failed rounds when counting average number of tests used at each iteration
+	 * @param result
+	 * @param methods
+	 * @param round
+	 * @param flag
+	 */
+	public void solveOneResult(double[] result, Set<String> methods, int round, boolean flag){
+		if(flag){
+			if(this.numberOfRounds == 0 || result[1] < this.bestResult[1]){
+				this.best = String.valueOf(round);
+				this.bestResult = result;
+				this.bMethods = methods;
+			}
+			
+			assert(result.length == this.averageResult.length);
+			for(int i = 0; i < this.averageResult.length - 1; i++){
+				this.averageResult[i] = (this.averageResult[i] * this.numberOfRounds + result[i]) / (this.numberOfRounds + 1);
+			}
+			this.aMethods.addAll(methods);
+			
+			this.numberOfRounds++;
+			assert(!this.rounds.contains(round));
+			this.rounds.add(round);			
 		}
 		
-		assert(result.length == this.averageResult.length);
-		for(int i = 0; i < this.averageResult.length; i++){
-			this.averageResult[i] = (this.averageResult[i] * this.numberOfRounds + result[i]) / (this.numberOfRounds + 1);
-		}
-		this.aMethods.addAll(methods);
-		
-		this.numberOfRounds++;
-		assert(!this.rounds.contains(round));
-		this.rounds.add(round);
+		this.averageResult[this.averageResult.length - 1] = (this.averageResult[this.averageResult.length - 1] * round + result[this.averageResult.length - 1]) / (round + 1);
 	}
+	
+	/**exclude failed rounds when counting average number of tests used at each iteration
+	 * @param result
+	 * @param methods
+	 * @param round
+	 */
+//	public void solveOneResult(double[] result, Set<String> methods, int round){
+//		if(this.numberOfRounds == 0 || result[1] < this.bestResult[1]){
+//			this.best = String.valueOf(round);
+//			this.bestResult = result;
+//			this.bMethods = methods;
+//		}
+//		
+//		assert(result.length == this.averageResult.length);
+//		for(int i = 0; i < this.averageResult.length; i++){
+//			this.averageResult[i] = (this.averageResult[i] * this.numberOfRounds + result[i]) / (this.numberOfRounds + 1);
+//		}
+//		this.aMethods.addAll(methods);
+//		
+//		this.numberOfRounds++;
+//		assert(!this.rounds.contains(round));
+//		this.rounds.add(round);
+//	}
 	
 	public String toString(){
 		StringBuilder builder = new StringBuilder();
@@ -98,10 +131,12 @@ public class FlagStatistic{
 			}
 		}
 		else{
-			for(int index = 0; index < bestResult.length + averageResult.length; index++){
+			for(int index = 0; index < bestResult.length + averageResult.length - 1; index++){
 				cell = row.createCell(cellnum++);
 				cell.setCellValue(" ");
 			}
+			cell = row.createCell(cellnum++);
+			cell.setCellValue(doubleFormat(averageResult[averageResult.length - 1]));
 		}
 	}
 	
