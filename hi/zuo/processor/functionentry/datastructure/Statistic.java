@@ -58,11 +58,11 @@ public final class Statistic{
 		return builder.toString();
 	}
 
-	public void incertOneStatisticToExcel(Row row){
-		this.lCFlagStatistics.incertOneFlagStatisticToExcel(row);
-		this.gCFlagStatistics.incertOneFlagStatisticToExcel(row);
+	public void incertOneStatisticToExcel(Row row, int round){
+		this.lCFlagStatistics.incertOneFlagStatisticToExcel(row, round);
+		this.gCFlagStatistics.incertOneFlagStatisticToExcel(row, round);
 		for(int k: this.pFlagStatisticsMap.keySet()){
-			this.pFlagStatisticsMap.get(k).incertOneFlagStatisticToExcel(row);
+			this.pFlagStatisticsMap.get(k).incertOneFlagStatisticToExcel(row, round);
 		}
 	}
 	

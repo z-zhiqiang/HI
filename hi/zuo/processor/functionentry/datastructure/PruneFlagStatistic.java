@@ -22,14 +22,14 @@ public class PruneFlagStatistic extends FlagStatistic {
 		return builder.toString();
 	}
 
-	public void incertOneFlagStatisticToExcel(Row row){
+	public void incertOneFlagStatisticToExcel(Row row, int round){
 		int cellnum = row.getPhysicalNumberOfCells();
 		Cell cell = row.createCell(cellnum++);
-		cell.setCellValue(numberOfRoundsCI2);
+		cell.setCellValue(numberOfRoundsCI2 * 100 / round);
 		cell = row.createCell(cellnum++);
-		cell.setCellValue(numberOfRoundsCI0);
+		cell.setCellValue(numberOfRoundsCI0 * 100 / round);
 		
-		super.incertOneFlagStatisticToExcel(row);
+		super.incertOneFlagStatisticToExcel(row, round);
 	}
 
 	public void increaseNumberOfRoundsCI0(){

@@ -386,18 +386,18 @@ public class Client {
 			Statistic[][] statistics = this.statisticsMap.get(version);
 			for(int i = 0; i < statistics.length; i++){
 				for(int j = 0; j < statistics[i].length; j++){
-					statistics[i][j].getlCFlagStatistics().incertOneFlagStatisticToExcel(row);
+					statistics[i][j].getlCFlagStatistics().incertOneFlagStatisticToExcel(row, this.round);
 				}
 			}
 			for(int i = 0; i < statistics.length; i++){
 				for(int j = 0; j < statistics[i].length; j++){
-					statistics[i][j].getgCFlagStatistics().incertOneFlagStatisticToExcel(row);
+					statistics[i][j].getgCFlagStatistics().incertOneFlagStatisticToExcel(row, this.round);
 				}
 			}
 			for(int k: ks){
 				for(int i = 0; i < statistics.length; i++){
 					for(int j = 0; j < statistics[i].length; j++){
-						statistics[i][j].getpFlagStatisticsMap().get(k).incertOneFlagStatisticToExcel(row);
+						statistics[i][j].getpFlagStatisticsMap().get(k).incertOneFlagStatisticToExcel(row, this.round);
 					}
 				}
 			}
@@ -586,7 +586,7 @@ public class Client {
 			Statistic[][] statistics = this.statisticsMap.get(version);
 			for(int i = 0; i < statistics.length; i++){
 				for(int j = 0; j < statistics[i].length; j++){
-					statistics[i][j].incertOneStatisticToExcel(row);
+					statistics[i][j].incertOneStatisticToExcel(row, this.round);
 				}
 			}
 		}

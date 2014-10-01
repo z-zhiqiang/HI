@@ -113,10 +113,14 @@ public class FlagStatistic{
 		return builder.toString();
 	}
 
-	public void incertOneFlagStatisticToExcel(Row row){
+	/**
+	 * @param row
+	 * @param round: the number of rounds ran
+	 */
+	public void incertOneFlagStatisticToExcel(Row row, int round){
 		int cellnum = row.getPhysicalNumberOfCells();
 		Cell cell = row.createCell(cellnum++);
-		cell.setCellValue(numberOfRounds);
+		cell.setCellValue(numberOfRounds * 100 / round);
 		cell = row.createCell(cellnum++);
 		cell.setCellValue(best);
 		
@@ -144,29 +148,29 @@ public class FlagStatistic{
 		return Double.parseDouble(new DecimalFormat("##.##").format(value));
 	}
 	
-	public int getNumberOfRounds() {
-		return numberOfRounds;
-	}
-
-	public Set<Integer> getRounds() {
-		return rounds;
-	}
-
-	public String getBest() {
-		return best;
-	}
-
-	public double[] getBestResult() {
-		return bestResult;
-	}
+//	public int getNumberOfRounds() {
+//		return numberOfRounds;
+//	}
+//
+//	public Set<Integer> getRounds() {
+//		return rounds;
+//	}
+//
+//	public String getBest() {
+//		return best;
+//	}
+//
+//	public double[] getBestResult() {
+//		return bestResult;
+//	}
 
 	public Set<String> getbMethods() {
 		return bMethods;
 	}
-
-	public double[] getAverageResult() {
-		return averageResult;
-	}
+//
+//	public double[] getAverageResult() {
+//		return averageResult;
+//	}
 
 	public Set<String> getaMethods() {
 		return aMethods;
