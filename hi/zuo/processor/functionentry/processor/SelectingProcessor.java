@@ -20,9 +20,13 @@ public class SelectingProcessor{
 	private int totalPositive;
 	private Map<FunctionEntrySite, FrequencyValue> frequencyMap;
 	
-	public SelectingProcessor(FunctionEntryProfile[] profiles){
+	private final double[][] C_matrix;
+	
+	public SelectingProcessor(FunctionEntryProfile[] profiles, double[][] C){
 		this.profiles = profiles;
 		this.frequencyMap = new HashMap<FunctionEntrySite, FrequencyValue>();
+		
+		this.C_matrix = C;
 	}
 	
 	public void process(){
@@ -75,21 +79,22 @@ public class SelectingProcessor{
 		}
 		
 		//get C-score matrix
-		double C[][] = computeCMatrix(totalNegative, totalPositive);
+//		double C[][] = computeCMatrix(totalNegative, totalPositive);
 		//just for debugging
-		printout(C);
+		printout(this.C_matrix);
 		//set the f-score and C-score
 		for(FunctionEntrySite site: frequencyMap.keySet()){
 			FrequencyValue p = frequencyMap.get(site);
 			frequencyMap.get(site).setH_1(H_1(p.getNegative(), totalPositive, totalNegative));
 			frequencyMap.get(site).setH_2(H_2(p.getNegative(), p.getPositive(), totalNegative));
 			frequencyMap.get(site).setF_score(F_score(p.getNegative(), p.getPositive(), totalNegative));
-			frequencyMap.get(site).setC_score(C[p.getNegative()][p.getPositive()]);
+			frequencyMap.get(site).setC_score(this.C_matrix[p.getNegative()][p.getPositive()]);
 		}
 	}
 	
 	private void printout(double[][] c) {
 		// TODO Auto-generated method stub
+		assert(c.length == this.totalNegative + 1 && c[0].length == this.totalPositive + 1);
 		System.out.println(totalNegative);
 		System.out.println(totalPositive);
 	}
@@ -127,7 +132,7 @@ public class SelectingProcessor{
 	 * @param totalPos
 	 * @return
 	 */
-	private static double[][] computeCMatrix(int totalNeg, int totalPos) {
+	public static double[][] computeCMatrix(int totalNeg, int totalPos) {
 		double[][] C = new double[totalNeg + 1][totalPos + 1];
 		
 		C[0][0] = getMaximum(0, 0, totalNeg, totalPos);

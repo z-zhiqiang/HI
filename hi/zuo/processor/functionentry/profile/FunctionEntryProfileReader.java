@@ -92,6 +92,10 @@ public class FunctionEntryProfileReader {
 		System.out.println();
 		return FFEProfiles;
 	}
+
+	public File getProfileFolder() {
+		return profileFolder;
+	}
 	
 
 }

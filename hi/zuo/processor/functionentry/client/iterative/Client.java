@@ -34,11 +34,13 @@ import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Orde
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
 import zuo.processor.functionentry.datastructure.Result;
 import zuo.processor.functionentry.datastructure.Statistic;
+import zuo.processor.functionentry.processor.SelectingProcessor;
 import zuo.processor.functionentry.profile.FunctionEntryProfile;
 import zuo.processor.functionentry.profile.FunctionEntryProfileReader;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 import zuo.processor.split.PredicateSplittingSiteProfile;
 import zuo.util.file.FileCollection;
+import zuo.util.file.FileUtil;
 
 public class Client {
 	final File rootDir;
@@ -98,12 +100,13 @@ public class Client {
 			System.out.println(vi);
 			
 			FunctionEntrySites cSites = new FunctionEntrySites(new File(version, vi + "_c.sites"));
-			FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), cSites).readFunctionEntryProfiles();
+			FunctionEntryProfileReader functionEntryProfileReader = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), cSites);
+			FunctionEntryProfile[] cProfiles = functionEntryProfileReader.readFunctionEntryProfiles();
 			
 			File fgSitesFile = new File(version, vi + "_f.sites");
 			InstrumentationSites fSites = new InstrumentationSites(fgSitesFile);
 			File fgProfilesFolder = new File(rootDir, subject + "/traces/" + vi + "/fine-grained");
-			PredicateProfile[] fProfiles = null;
+			PredicateProfileReader predicateProfileReader = null;
 			
 			if(needRefine(fSites, cSites.getFunctions())){
 				File refineProfilesFolder = new File(fgProfilesFolder.getParentFile(), "refine");
@@ -112,11 +115,12 @@ public class Client {
 				refineSplit.split();
 				
 				fSites = new InstrumentationSites(refineSitesFile);
-				fProfiles = new PredicateProfileReader(refineProfilesFolder, fSites).readProfiles();
+				predicateProfileReader = new PredicateProfileReader(refineProfilesFolder, fSites);
 			}
 			else{
-				fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
+				predicateProfileReader = new PredicateProfileReader(fgProfilesFolder, fSites);
 			}
+			PredicateProfile[] fProfiles = predicateProfileReader.readProfiles();
 			SitesInfo sInfo = new SitesInfo(fSites);
 //			FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
 			
@@ -134,6 +138,51 @@ public class Client {
 				}
 			}
 			
+			//check profiles consistency and compute totalPositive & totalNegative
+			//-------------------------------------------------------------------------------------------------------------
+			int totalNeg = 0;
+			int totalPos = 0;
+			
+			File[] fgProfiles = predicateProfileReader.getProfileFolder().listFiles(FileUtil.createProfileFilter());
+			Arrays.sort(fgProfiles, new FileUtil.FileComparator());
+			File[] cgProfiles = functionEntryProfileReader.getProfileFolder().listFiles(FileUtil.createProfileFilter());
+			Arrays.sort(cgProfiles, new FileUtil.FileComparator());
+			if(fgProfiles.length != cgProfiles.length){
+				throw new RuntimeException("unequal number of profiles: " + fgProfiles.length + " vs " + cgProfiles.length);
+			}
+			for(int i = 0; i < fgProfiles.length; i++){
+				String fgName = fgProfiles[i].getName();
+				String cgName = cgProfiles[i].getName();
+				if(!fgName.equals(cgName)){
+					throw new RuntimeException("wrong file mapping: " + fgName + " vs " + cgName);
+				}
+				if(fgName.matches(FileUtil.failingProfileFilterPattern())){
+					totalNeg++;
+				}
+				else{
+					totalPos++;
+				}
+			}
+			
+			int totalPositive = 0;
+			int totalNegative = 0;
+			
+			for(PredicateProfile fgProfile: fProfiles){
+				if(fgProfile.isCorrect()){
+					totalPositive++;
+				}
+				else{
+					totalNegative++;
+				}
+			}
+			assert(totalPositive == totalPos && totalNegative == totalNeg);
+			
+			//-------------------------------------------------------------------------------------------------------------
+			
+			//compute matrix of Cp and Cr
+			double C_matrix[][] = SelectingProcessor.computeCMatrix(totalNegative, totalPositive);
+			
+			//simulate for multiple rounds
 			CBIClients cs = null;
 			IterativeFunctionClient client = null;
 			for(int i = 0; i < round; i++){
@@ -151,7 +200,8 @@ public class Client {
 						sInfo, 
 						cs.getFullInstrumentedCBIClient(), 
 						cs.getClientsMap(),
-						this.ks);
+						this.ks,
+						C_matrix);
 				
 				solveOneRoundResults(statistics, client.getResults(), i);
 			}
@@ -207,12 +257,13 @@ public class Client {
 				System.out.println(vi);
 				
 				FunctionEntrySites cSites = new FunctionEntrySites(new File(subversion, vi + "_c.sites"));
-				FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), cSites).readFunctionEntryProfiles();
+				FunctionEntryProfileReader functionEntryProfileReader = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), cSites);
+				FunctionEntryProfile[] cProfiles = functionEntryProfileReader.readFunctionEntryProfiles();
 				
 				File fgSitesFile = new File(subversion, vi + "_f.sites");
 				InstrumentationSites fSites = new InstrumentationSites(fgSitesFile);
 				File fgProfilesFolder = new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained");
-				PredicateProfile[] fProfiles = null;
+				PredicateProfileReader predicateProfileReader = null;
 				
 				if(needRefine(fSites, cSites.getFunctions())){
 					File refineProfilesFolder = new File(fgProfilesFolder.getParentFile(), "refine");
@@ -221,11 +272,12 @@ public class Client {
 					refineSplit.split();
 					
 					fSites = new InstrumentationSites(refineSitesFile);
-					fProfiles = new PredicateProfileReader(refineProfilesFolder, fSites).readProfiles();
+					predicateProfileReader = new PredicateProfileReader(refineProfilesFolder, fSites);
 				}
 				else{
-					fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
+					predicateProfileReader = new PredicateProfileReader(fgProfilesFolder, fSites);
 				}
+				PredicateProfile[] fProfiles = predicateProfileReader.readProfiles();
 				SitesInfo sInfo = new SitesInfo(fSites);
 //				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
@@ -243,6 +295,51 @@ public class Client {
 					}
 				}
 				
+				//check profiles consistency and compute totalPositive & totalNegative
+				//-------------------------------------------------------------------------------------------------------------
+				int totalNeg = 0;
+				int totalPos = 0;
+				
+				File[] fgProfiles = predicateProfileReader.getProfileFolder().listFiles(FileUtil.createProfileFilter());
+				Arrays.sort(fgProfiles, new FileUtil.FileComparator());
+				File[] cgProfiles = functionEntryProfileReader.getProfileFolder().listFiles(FileUtil.createProfileFilter());
+				Arrays.sort(cgProfiles, new FileUtil.FileComparator());
+				if(fgProfiles.length != cgProfiles.length){
+					throw new RuntimeException("unequal number of profiles: " + fgProfiles.length + " vs " + cgProfiles.length);
+				}
+				for(int i = 0; i < fgProfiles.length; i++){
+					String fgName = fgProfiles[i].getName();
+					String cgName = cgProfiles[i].getName();
+					if(!fgName.equals(cgName)){
+						throw new RuntimeException("wrong file mapping: " + fgName + " vs " + cgName);
+					}
+					if(fgName.matches(FileUtil.failingProfileFilterPattern())){
+						totalNeg++;
+					}
+					else{
+						totalPos++;
+					}
+				}
+				
+				int totalPositive = 0;
+				int totalNegative = 0;
+				
+				for(PredicateProfile fgProfile: fProfiles){
+					if(fgProfile.isCorrect()){
+						totalPositive++;
+					}
+					else{
+						totalNegative++;
+					}
+				}
+				assert(totalPositive == totalPos && totalNegative == totalNeg);
+				
+				//-------------------------------------------------------------------------------------------------------------
+				
+				//compute matrix of Cp and Cr
+				double C_matrix[][] = SelectingProcessor.computeCMatrix(totalNegative, totalPositive);
+				
+				//simulate for multiple rounds
 				CBIClients cs = null;
 				IterativeFunctionClient client = null;
 				for(int i = 0; i < round; i++){
@@ -263,7 +360,8 @@ public class Client {
 							sInfo, 
 							cs.getFullInstrumentedCBIClient(), 
 							cs.getClientsMap(), 
-							this.ks);
+							this.ks,
+							C_matrix);
 //					long time2 = System.currentTimeMillis();
 //					System.out.println("IterativeFunctionClient:\t" + (time2 - time1));
 					

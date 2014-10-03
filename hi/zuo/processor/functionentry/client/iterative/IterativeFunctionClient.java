@@ -59,7 +59,9 @@ public class IterativeFunctionClient {
 	
 	final Result[][] results;
 	
-	public IterativeFunctionClient(FunctionEntrySites sites, FunctionEntryProfile[] profiles, File cbiconsoleFile, File functionconsoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map, int[] ks) {
+	final double[][] C_matrix;
+	
+	public IterativeFunctionClient(FunctionEntrySites sites, FunctionEntryProfile[] profiles, File cbiconsoleFile, File functionconsoleFile, SitesInfo sInfo, CBIClient fullICBIClient, Map<String, CBIClient> map, int[] ks, final double[][] C_matrix) {
 		this.sites = sites;
 		this.sInfo = sInfo;
 		this.targetFunction = getTargetFunction(fullICBIClient);
@@ -75,6 +77,8 @@ public class IterativeFunctionClient {
 				this.results[i][j] = new Result(ks);
 			}
 		}
+		
+		this.C_matrix = C_matrix;
 		
 		PrintWriter cbiWriter = null, functionWriter = null;
 		try {
@@ -156,7 +160,7 @@ public class IterativeFunctionClient {
 
 
 	private void run(PrintWriter cbiWriter, PrintWriter functionWriter, int[] ks){
-		SelectingProcessor processor = new SelectingProcessor(selectedFunctionEntryProfiles);
+		SelectingProcessor processor = new SelectingProcessor(selectedFunctionEntryProfiles, this.C_matrix);
 		processor.process();
 		
 		//print out the general runs information

@@ -108,7 +108,25 @@ public class Client_Ranking {
 			SitesInfo sInfo = new SitesInfo(fSites);
 			FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
 			
-			runForRankingInfo(vi, sInfo, fProfiles, cProfiles);
+			//-------------------------------------------------------------------------------------------------------------
+			int totalPositive = 0;
+			int totalNegative = 0;
+			
+			for(PredicateProfile fgProfile: fProfiles){
+				if(fgProfile.isCorrect()){
+					totalPositive++;
+				}
+				else{
+					totalNegative++;
+				}
+			}
+
+			//compute matrix of Cp and Cr
+			double C_matrix[][] = SelectingProcessor.computeCMatrix(totalNegative, totalPositive);
+			
+			//-------------------------------------------------------------------------------------------------------------
+			
+			runForRankingInfo(vi, sInfo, fProfiles, cProfiles, C_matrix);
 		}
 		
 		printCorrelationToExcel();
@@ -175,7 +193,25 @@ public class Client_Ranking {
 				SitesInfo sInfo = new SitesInfo(fSites);
 				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
-				runForRankingInfo(vi, sInfo, fProfiles, cProfiles);
+				//-------------------------------------------------------------------------------------------------------------
+				int totalPositive = 0;
+				int totalNegative = 0;
+				
+				for(PredicateProfile fgProfile: fProfiles){
+					if(fgProfile.isCorrect()){
+						totalPositive++;
+					}
+					else{
+						totalNegative++;
+					}
+				}
+
+				//compute matrix of Cp and Cr
+				double C_matrix[][] = SelectingProcessor.computeCMatrix(totalNegative, totalPositive);
+				
+				//-------------------------------------------------------------------------------------------------------------
+				
+				runForRankingInfo(vi, sInfo, fProfiles, cProfiles, C_matrix);
 			}
 		}
 		
@@ -184,7 +220,7 @@ public class Client_Ranking {
 
 	
 	private void runForRankingInfo(String vi, SitesInfo sInfo,
-			PredicateProfile[] fProfiles, FunctionEntryProfile[] cProfiles) {
+			PredicateProfile[] fProfiles, FunctionEntryProfile[] cProfiles, final double[][] C_matrix) {
 		
 		//fine-grained analysis
 		Processor fgProcessor = new Processor(fProfiles);
@@ -194,7 +230,7 @@ public class Client_Ranking {
 		Map<String, PredicateImportanceInfoWithinFunction> ImportanceInfo = imProcessor.getImportanceInfoMap();
 		
 		//coarse-grained analysis
-		SelectingProcessor cgProcessor = new SelectingProcessor(cProfiles);
+		SelectingProcessor cgProcessor = new SelectingProcessor(cProfiles, C_matrix);
 		cgProcessor.process();
 		
 		//filter out methods within which no predicates are instrumented
