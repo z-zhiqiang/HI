@@ -30,12 +30,12 @@ import zuo.processor.genscript.bash.iterative.GenRunVersionsScript;
 import zuo.processor.splitinputs.SplitInputs;
 
 public class GenBashScriptClient {
-	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_light/Subjects";
+	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_light/Subjects/";
 	
 	public final static String setEnv = "export experiment_root=" + rootDir 
 			+ "\nexport TESTS_SRC=" + rootDir + "/bash/testplans.alt/testplans.fine\n"; 
 	public final static String exeFile = rootDir + "/bash/source/bin/" + "bash ";
-	public final static String inputsDir = rootDir + "/bash/testplans.alt/testplans.selected_150";
+	public final static String inputsDir = rootDir + "/bash/testplans.alt/testplans.selected_150/";
 	public final static String inputsMapFile = rootDir + "/bash/testplans.alt/" + "inputs.map";
 	
 	public final String subject;
@@ -74,25 +74,25 @@ public class GenBashScriptClient {
 		version = ver;
 		subVersion = subVer;
 		
-		sexecuteDir = rootDir + "/" + subject + "/source.alt/" + version;
-		soutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/" + subject;
+		sexecuteDir = rootDir + subject + "/source.alt/" + version + "/";;
+		soutputDir = rootDir + subject + "/outputs.alt/" + version + "/" + subject + "/";;
 		
-		vsourceDir = rootDir + "/" + subject + "/versions.alt/versions.seeded/" + version;
+		vsourceDir = rootDir + subject + "/versions.alt/versions.seeded/" + version + "/";;
 		
-		vexecuteDir = rootDir + "/" + subject + "/versions/" + version + "/" + subVersion;
-		vsexecuteDir = rootDir + "/" + subject + "/versions/" + version + "/" + subVersion + "/sampled";
-		vaexecuteDir = rootDir + "/" + subject + "/versions/" + version + "/" + subVersion + "/adaptive";
-		voutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/outputs";
-		vfoutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained";
-		vsfoutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained-sampled-";
-		vafoutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained-adaptive";
-		vcoutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/coarse-grained";
-		vftraceDir = rootDir + "/" + subject + "/traces/" + version + "/" + subVersion + "/fine-grained";
-		vsftraceDir = rootDir + "/" + subject + "/traces/" + version + "/" + subVersion + "/fine-grained-sampled-";
-		vaftraceDir = rootDir + "/" + subject + "/traces/" + version + "/" + subVersion + "/fine-grained-adaptive";
-		vctraceDir = rootDir + "/" + subject + "/traces/" + version + "/" + subVersion + "/coarse-grained";
+		vexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/";;
+		vsexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/sampled/";
+		vaexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/adaptive/";
+		voutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/outputs/";
+		vfoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained/";
+		vsfoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained-sampled-";
+		vafoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained-adaptive/";
+		vcoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/coarse-grained/";
+		vftraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/fine-grained/";
+		vsftraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/fine-grained-sampled-";
+		vaftraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/fine-grained-adaptive/";
+		vctraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/coarse-grained/";
 		
-		scriptDir = rootDir + "/" + subject + "/scripts";
+		scriptDir = rootDir + subject + "/scripts/";
 		
 	}
 
@@ -156,32 +156,32 @@ public class GenBashScriptClient {
 				String fgCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
 						+ " CC=\"\\\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fno-sample \\\"\"";
 				gs = new GenRunFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, fgCompile, gc.vexecuteDir, 
-						gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array");
+						gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 				gs.genRunScript();
 				
 				String cgCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
 						+ " CC=\"\\\"sampler-cc -fsampler-scheme=function-entries -fno-sample \\\"\"";
 				gs = new GenRunCoarseGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, cgCompile, gc.vexecuteDir, 
-						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array");
+						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 				gs.genRunScript();
 				
 				
 				String sampleCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
 						+ " CC=\"\\\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fsample -fsampler-random=fixed \\\"\"";
 				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
-						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", 1);
+						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
 				gs.genRunScript();
 				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
-						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", 100);
+						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
 				gs.genRunScript();
 				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, sampleCompile, gc.vsexecuteDir, gc.vsfoutputDir, 
-						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", 10000);
+						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
 				gs.genRunScript();
 
 				
 				String adaptiveCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index);
 				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, adaptiveCompile, gc.vaexecuteDir, 
-						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", "full");
+						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
 				gs.genRunScript();
 			}
 			

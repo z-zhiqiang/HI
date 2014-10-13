@@ -17,7 +17,8 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 	public void genRunScript() {
 		StringBuffer code = new StringBuffer();
 		code.append(compileCommand + "\n");// compiling
-		code.append("mv " + GenBashScriptClient.exeFile + executeDir + "/" + version + ".exe\n");
+		code.append("cp " + GenBashScriptClient.exeFile + executeDir + version + ".exe\n");
+		code.append("./clean " + version.substring(1) + "\n");
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
@@ -28,7 +29,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		for (int j = 0; j < ROUNDS; j++) {
 			stmts(code);
 		}
-		code.append(endTimeCommand + " >& " + outputDir + "/time\n");
+		code.append(endTimeCommand + " >& $OUTPUTSDIR/time\n");
 		
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + ".sh");
 		

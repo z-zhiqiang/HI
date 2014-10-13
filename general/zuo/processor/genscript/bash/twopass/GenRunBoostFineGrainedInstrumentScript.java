@@ -34,7 +34,8 @@ public class GenRunBoostFineGrainedInstrumentScript extends AbstractGenRunScript
 		
 		StringBuffer code = new StringBuffer();
 		code.append(instrumentCommand + "\n");
-		code.append("mv " + GenBashScriptClient.exeFile + executeDir + "/" + subVersion + "_binst.exe\n");
+		code.append("cp " + GenBashScriptClient.exeFile + executeDir + subVersion + "_binst.exe\n");
+		code.append("./clean " + version.substring(1) + "\n");
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");

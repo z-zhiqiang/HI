@@ -37,12 +37,12 @@ public class GenBashScriptClient {
 	private static final String PRUNE_MINUS_BOOST_FUNCTIONS = "prune_minus_boost_functions_" + mode + ".txt";
 	private static final String PRUNE_FUNCTIONS = "prune_functions_" + mode + ".txt";
 	
-	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass_heavy/Subjects";
+	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Twopass_heavy/Subjects/";
 	
 	public final static String setEnv = "export experiment_root=" + rootDir 
 			+ "\nexport TESTS_SRC=" + rootDir + "/bash/testplans.alt/testplans.fine\n"; 
 	public final static String exeFile = rootDir + "/bash/source/bin/" + "bash ";
-	public final static String inputsDir = rootDir + "/bash/testplans.alt/testplans.selected_150";
+	public final static String inputsDir = rootDir + "/bash/testplans.alt/testplans.selected_150/";
 	public final static String inputsMapFile = rootDir + "/bash/testplans.alt/" + "inputs.map";
 	
 	public final String subject;
@@ -91,34 +91,34 @@ public class GenBashScriptClient {
 		version = ver;
 		subVersion = subVer;
 		
-		sexecuteDir = rootDir + "/" + subject + "/source.alt/" + version;
-		soutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/" + subject;
+		sexecuteDir = rootDir + subject + "/source.alt/" + version + "/";
+		soutputDir = rootDir + subject + "/outputs.alt/" + version + "/" + subject + "/";
 		
-		vsourceDir = rootDir + "/" + subject + "/versions.alt/versions.seeded/" + version;
+		vsourceDir = rootDir + subject + "/versions.alt/versions.seeded/" + version + "/";
 		
-		vexecuteDir = rootDir + "/" + subject + "/versions/" + version + "/" + subVersion;
+		vexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/";
 		
-		voutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/outputs";
-		vfoutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained";
-		vcoutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/coarse-grained";
-		vcfoutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/coarse-fine-grained";
-		vboostoutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/boost";
-		vpruneminusboostoutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/prune-minus-boost";
-		vpruneoutputDir = rootDir + "/" + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/prune";
+		voutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/outputs/";
+		vfoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained/";
+		vcoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/coarse-grained/";
+		vcfoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/coarse-fine-grained/";
+		vboostoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/boost/";
+		vpruneminusboostoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/prune-minus-boost/";
+		vpruneoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/prune/";
 		
-		vftraceDir = rootDir + "/" + subject + "/traces/" + version + "/" + subVersion + "/fine-grained";
-		vctraceDir = rootDir + "/" + subject + "/traces/" + version + "/" + subVersion + "/coarse-grained";
-		vcftraceDir = rootDir + "/" + subject + "/traces/" + version + "/" + subVersion + "/coarse-fine-grained";
-		vboosttraceDir = rootDir + "/" + subject + "/traces/" + version + "/" + subVersion + "/boost";
-		vpruneminusboosttraceDir = rootDir + "/" + subject + "/traces/" + version + "/" + subVersion + "/prune-minus-boost";
-		vprunetraceDir = rootDir + "/" + subject + "/traces/" + version + "/" + subVersion + "/prune";
+		vftraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/fine-grained/";
+		vctraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/coarse-grained/";
+		vcftraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/coarse-fine-grained/";
+		vboosttraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/boost/";
+		vpruneminusboosttraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/prune-minus-boost/";
+		vprunetraceDir = rootDir + subject + "/traces/" + version + "/" + subVersion + "/prune/";
 		
-		cgIndicesDir = rootDir + "/" + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/cg";
-		boostFunctionsDir = rootDir + "/" + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/boost";
-		pruneMinusBoostFunctionsDir = rootDir + "/" + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/pruneMinusBoost";
-		pruneFunctionsDir = rootDir + "/" + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/prune";
+		cgIndicesDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/cg/";
+		boostFunctionsDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/boost/";
+		pruneMinusBoostFunctionsDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/pruneMinusBoost/";
+		pruneFunctionsDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/predicate-dataset/prune/";
 		
-		scriptDir = rootDir + "/" + subject + "/scripts";
+		scriptDir = rootDir + subject + "/scripts/";
 		
 	}
 
@@ -181,33 +181,33 @@ public class GenBashScriptClient {
 				String fgCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
 						+ " CC=\"\\\"sampler-cc -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fno-sample \\\"\"";
 				gs = new GenRunFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, fgCompile, gc.vexecuteDir, 
-						gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array");
+						gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 				gs.genRunScript();
 				
 				String cgCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
 						+ " CC=\"\\\"sampler-cc -fsampler-scheme=function-entries -fno-sample \\\"\"";
 				gs = new GenRunCoarseGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, cgCompile, gc.vexecuteDir, 
-						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", new File(gc.cgIndicesDir, CG_INDICES));
+						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", new File(gc.cgIndicesDir, CG_INDICES));
 				gs.genRunScript();
 				
 				
 				String cfgCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index) 
 						+ " CC=\"\\\"sampler-cc -fsampler-scheme=function-entries -fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs -fcompare-constants -fno-sample \\\"\"";
 				gs = new GenRunCoarseFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, cfgCompile, gc.vexecuteDir, 
-						gc.vcfoutputDir, gc.scriptDir, gc.vcftraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array");
+						gc.vcfoutputDir, gc.scriptDir, gc.vcftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 				gs.genRunScript();
 				
 				//=================================================================================================//
 				String compile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index);
 				
 				gs = new GenRunBoostFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, compile, gc.vexecuteDir, 
-						gc.vboostoutputDir, gc.scriptDir, gc.vboosttraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", new File(gc.boostFunctionsDir, BOOST_FUNCTIONS));
+						gc.vboostoutputDir, gc.scriptDir, gc.vboosttraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", new File(gc.boostFunctionsDir, BOOST_FUNCTIONS));
 				gs.genRunScript();
 				gs = new GenRunPruneMinusBoostFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, compile, gc.vexecuteDir, 
-						gc.vpruneminusboostoutputDir, gc.scriptDir, gc.vpruneminusboosttraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", new File(gc.pruneMinusBoostFunctionsDir, PRUNE_MINUS_BOOST_FUNCTIONS));
+						gc.vpruneminusboostoutputDir, gc.scriptDir, gc.vpruneminusboosttraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", new File(gc.pruneMinusBoostFunctionsDir, PRUNE_MINUS_BOOST_FUNCTIONS));
 				gs.genRunScript();
 				gs = new GenRunPruneFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, compile, gc.vexecuteDir, 
-						gc.vpruneoutputDir, gc.scriptDir, gc.vprunetraceDir, gc.vexecuteDir + "/failingInputs.array", gc.vexecuteDir + "/passingInputs.array", new File(gc.pruneFunctionsDir, PRUNE_FUNCTIONS));
+						gc.vpruneoutputDir, gc.scriptDir, gc.vprunetraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", new File(gc.pruneFunctionsDir, PRUNE_FUNCTIONS));
 				gs.genRunScript();
 			}
 			

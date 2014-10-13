@@ -27,7 +27,8 @@ public class GenRunCoarseFineGrainedInstrumentScript extends AbstractGenRunScrip
 	public void genRunScript() {
 		StringBuffer code = new StringBuffer();
 		code.append(compileCommand + "\n");
-		code.append("mv " + GenBashScriptClient.exeFile + executeDir + "/" + subVersion + "_cfinst.exe\n");
+		code.append("cp " + GenBashScriptClient.exeFile + executeDir + subVersion + "_cfinst.exe\n");
+		code.append("./clean " + version.substring(1) + "\n");
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export OUTPUTSDIR=" + outputDir + "\n");
