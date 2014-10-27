@@ -35,7 +35,7 @@ public class GenBashScriptClient {
 	public final static String setEnv = "export experiment_root=" + rootDir 
 			+ "\nexport TESTS_SRC=" + rootDir + "/bash/testplans.alt/testplans.fine\n"; 
 	public final static String exeFile = rootDir + "/bash/source/bin/" + "bash ";
-	public final static String inputsDir = rootDir + "/bash/testplans.alt/testplans.selected_150/";
+	public final static String inputsDir = rootDir + "/bash/testplans.alt/testplans.selected_300/";
 	public final static String inputsMapFile = rootDir + "/bash/testplans.alt/" + "inputs.map";
 	
 	public final String subject;
