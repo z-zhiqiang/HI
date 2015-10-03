@@ -88,7 +88,7 @@ public class FileUtility {
 						}
 						builder.append(line).append("\n");
 					}
-					System.out.println(builder.toString());
+//					System.out.println(builder.toString());
 					inputsmap.put(++count, builder.toString());
 				}
 			}
@@ -285,11 +285,13 @@ public class FileUtility {
 			ee.printStackTrace();
 		}
 		finally{
-			try {
-				in.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(in != null){
+				try {
+					in.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		return Collections.unmodifiableMap(inputsMap);
