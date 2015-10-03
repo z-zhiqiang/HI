@@ -26,15 +26,6 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 
 	@Override
 	public void genRunScript() {
-		String includeC = "";
-		String paraC = "";
-		if(subject.equals("gzip")){
-			paraC = " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1";
-		}
-		if(subject.equals("grep")){
-			includeC = " -I" + sourceDir;
-		}
-		
 		int num = methods.size();
 		StringBuffer code = new StringBuffer();
 		code.append("tTime=0\n");
@@ -42,18 +33,16 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		for(int i = 0; i < num; i++){
 			String method = methods.get(i);
 			instrumentCommand = compileCommand 
-					+ "sampler-cc "
-					+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
-					+ "-fno-sample "
-					+ "-finclude-function=" + method + " -fexclude-function=* "
-					+ sourceDir + srcName + ".c" 
-					+ " $COMPILE_PARAMETERS"
-					+ paraC
-					+ " -o " + executeDir + subVersion + "_finst__" + method + ".exe"
-					+ includeC//for grep
-					;
+					+ "java -jar JSample"
+					+ " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
+					+ " -sampler-include-method=" + method
+					+ " -sampler-out-sites=" + executeDir + method + "/output.sites"
+					+ " -cp " + executeDir + " -process-dir " + executeDir 
+					+ " -d " + executeDir + method + "/"
+					+ "\n";
+			String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + method + "/\n";
 			
-			code.append(instrumentCommand + "\n");
+			code.append(instrumentCommand + set_classpath + "\n");
 			code.append("echo script: " + subVersion + "\n");
 			code.append("export VERSIONSDIR=" + executeDir + "\n");
 			code.append("export TRACESDIR=" + traceDir + method + "/\n");
@@ -82,7 +71,8 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + method + ".exe "));
+//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + method + ".exe "));
+			code.append(inputsMap.get(index));
 			code.append("\n");
 		}
 		
@@ -90,7 +80,8 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + method + ".exe "));
+//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + method + ".exe "));
+			code.append(inputsMap.get(index));
 			code.append("\n");
 		}
 	}
@@ -122,6 +113,11 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 //		}
 		
 		for(String method: methods){
+			File fe = new File(executeDir + method + "/");
+			if(!fe.exists()){
+				fe.mkdirs();
+			}
+			
 			//make directory for outputs
 			File fo = new File(outputDir + method + "/");
 			if(!fo.exists()){

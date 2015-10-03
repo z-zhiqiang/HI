@@ -132,16 +132,20 @@ public class JavaGenSirScriptClient {
 				;
 	}
 	
-	private String genCompileSubjectCommand(String executeDir, int index){
+	private String genCompileCommand(String executeDir, int index){
+		String setEnv = "export experiment_root=" + rootDir + "\n";
 		String mkdir = "mkdir " + executeDir + "siena/\n";
 		String siena_app = "cp -r " + rootDir + subject + "/versions.alt/application/*" + " " + executeDir + "siena/\n";
 		String siena_subject = "cp -r " + vsourceDir + "* " + executeDir + "siena/\n";
+		String siena_testdriver = "cp -r " + rootDir + subject + "/testdrivers/siena/* " + executeDir + "siena/\n";
 		String seedNoFaults = seedFaultsCommand(executeDir, index);
 		String compileCd = "cd " + executeDir + "\n";
 		String compileCC = "find siena/ -name *.java | javac @/dev/stdin/\n";
-		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + ":" + rootDir + subject + "/testdrivers/\n";
+		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir
+//				+ ":" + rootDir + subject + "/testdrivers/"
+				+ "\n";
 		
-		return mkdir + siena_app + siena_subject + seedNoFaults + compileCd + compileCC + set_classpath;
+		return setEnv + mkdir + siena_app + siena_subject + siena_testdriver + seedNoFaults + compileCd + compileCC + set_classpath;
 	}
 	
 	private String seedFaultsCommand(String executeDir, int index) {
@@ -182,7 +186,7 @@ public class JavaGenSirScriptClient {
 	private void gen() throws IOException {
 		AbstractGenRunScript gs;
 		AbstractGenRunAllScript ga;
-		String setEnv = "export experiment_root=" + rootDir + "\n";
+//		String setEnv = "export experiment_root=" + rootDir + "\n";
 		String sf = rootDir + subject + "/testplans.alt/universe";
 		
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -197,14 +201,15 @@ public class JavaGenSirScriptClient {
 		FileUtility.constructSIRInputsMapFile(inputCompScript, inputsCompMapFile);//read inputsMap
 		
 		//generate run subject and subversion scripts
-		gs = new GenRunSubjectScript(subject, sourceName, version, setEnv + genCompileSubjectCommand(sexecuteDir, 0), ssourceDir, sexecuteDir, soutputDir, scriptDir);
+		gs = new GenRunSubjectScript(subject, sourceName, version, genCompileCommand(sexecuteDir, 0), ssourceDir, sexecuteDir, soutputDir, scriptDir);
 		gs.genRunScript();
 		
 		for(int index: faults.keySet()){
 			JavaGenSirScriptClient gc = new JavaGenSirScriptClient(subject, sourceName, version, "subv" + index);
 			
 			System.out.println("generating run script for subVersion" + index);
-			new GenRunVersionsScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + gc.genCompileSubjectCommand(gc.vexecuteDir, index), gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
+			String vexecuteDir_version = gc.vexecuteDir + "version/";
+			new GenRunVersionsScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(vexecuteDir_version, index), gc.vsourceDir, vexecuteDir_version, gc.voutputDir, gc.scriptDir).genRunScript();
 		}
 		
 		//generate run all scripts  
@@ -232,26 +237,32 @@ public class JavaGenSirScriptClient {
 //				String export = "export COMPILE_PARAMETERS=-D" + faults.get(index) + "\n";
 				System.out.println("generating run instrument script for subv" + index);
 				
-				gs = new GenRunFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + gc.compileFGInstrument, gc.vsourceDir, gc.vexecuteDir, 
+				String vexecuteDir_fg = gc.vexecuteDir + "fine-grained/";
+				gs = new GenRunFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_fg, index, "fg"), gc.vsourceDir, vexecuteDir_fg, 
 						gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 				gs.genRunScript();
-				gs = new GenRunCoarseGrainedInstrumentScript(gc.subject,gc.sourceName, gc.version, gc.subVersion, setEnv + export + gc.compileCGInstrument, gc.vsourceDir, gc.vexecuteDir, 
+				
+				String vexecuteDir_cg = gc.vexecuteDir + "coarse-grained/";
+				gs = new GenRunCoarseGrainedInstrumentScript(gc.subject,gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_cg, index, "cg"), gc.vsourceDir, vexecuteDir_cg, 
 						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
 				gs.genRunScript();
 				
 				
-				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vsexecuteDir, gc.vsfoutputDir, 
+				String vexecuteDir_s1 = gc.vexecuteDir + "sample_1/";
+				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s1, index, "sample"), gc.vsourceDir, vexecuteDir_s1, gc.vsfoutputDir, 
 						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
 				gs.genRunScript();
-				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vsexecuteDir, gc.vsfoutputDir, 
+				String vexecuteDir_s100 = gc.vexecuteDir + "sample_100/";
+				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s100, index, "sample"), gc.vsourceDir, vexecuteDir_s100, gc.vsfoutputDir, 
 						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
 				gs.genRunScript();
-				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vsexecuteDir, gc.vsfoutputDir, 
+				String vexecuteDir_s10000 = gc.vexecuteDir + "sample_10000/";
+				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s10000, index, "sample"), gc.vsourceDir, vexecuteDir_s10000, gc.vsfoutputDir, 
 						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
 				gs.genRunScript();
 				
 				
-				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vaexecuteDir, 
+				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(gc.vaexecuteDir, index, "adaptive"), gc.vsourceDir, gc.vaexecuteDir, 
 						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
 				gs.genRunScript();
 			}
@@ -276,6 +287,39 @@ public class JavaGenSirScriptClient {
 	}
 	
 	
+	private String genInstrumentCommand(String executeDir, int index, String string) {
+		String instrumentCommand = "";
+		
+		if(string.equals("fg")){
+			instrumentCommand = "java -jar JSample"
+					+ " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
+					+ " -sampler-out-sites=" + executeDir + "output.sites"
+					+ " -cp " + executeDir + " -process-dir " + executeDir 
+//					+ " -d " + executeDir + "instrument/"
+					+ "\n";
+		}
+		else if(string.equals("cg")){
+			instrumentCommand = "java -jar JSample"
+					+ " -sampler-scheme=method-entries"
+					+ " -sampler-out-sites=" + executeDir + "output.sites"
+					+ " -cp " + executeDir + " -process-dir " + executeDir + "\n";
+		}
+		else if(string.equals("sample")){
+			instrumentCommand = "java -jar JSample"
+					+ " -sampler"
+					+ " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
+					+ " -sampler-out-sites=" + executeDir + "output.sites"
+					+ " -cp " + executeDir + " -process-dir " + executeDir + "\n";
+		}
+		else if(string.equals("adaptive")){
+			
+		}
+		
+		return genCompileCommand(executeDir, index) + instrumentCommand;
+	}
+
+
+
 	private void readFaults(){
 		BufferedReader reader = null;
 		try {

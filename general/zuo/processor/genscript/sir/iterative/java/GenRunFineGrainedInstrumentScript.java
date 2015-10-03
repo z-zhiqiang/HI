@@ -47,7 +47,8 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst.exe "));
+//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst.exe "));
+			code.append(inputsMap.get(index));
 			code.append("\n");
 		}
 		
@@ -55,7 +56,8 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst.exe "));
+//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst.exe "));
+			code.append(inputsMap.get(index));
 			code.append("\n");
 		}
 	}

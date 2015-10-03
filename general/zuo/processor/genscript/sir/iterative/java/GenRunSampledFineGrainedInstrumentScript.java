@@ -26,28 +26,28 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 
 	@Override
 	public void genRunScript() {
-		String includeC = "";
-		String paraC = "";
-		if(subject.equals("gzip")){
-			paraC = " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1";
-		}
-		if(subject.equals("grep")){
-			includeC = " -I" + sourceDir;
-		}
-		
-		String instrumentCommand = compileCommand 
-				+ "sampler-cc "
-				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
-				+ "-fsample -fsampler-random=fixed "
-				+ sourceDir + srcName + ".c" 
-				+ " $COMPILE_PARAMETERS"
-				+ paraC
-				+ " -o " + executeDir + subVersion + "_finst__" + sample + ".exe"
-				+ includeC
-				;
+//		String includeC = "";
+//		String paraC = "";
+//		if(subject.equals("gzip")){
+//			paraC = " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1";
+//		}
+//		if(subject.equals("grep")){
+//			includeC = " -I" + sourceDir;
+//		}
+//		
+//		String instrumentCommand = compileCommand 
+//				+ "sampler-cc "
+//				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
+//				+ "-fsample -fsampler-random=fixed "
+//				+ sourceDir + srcName + ".c" 
+//				+ " $COMPILE_PARAMETERS"
+//				+ paraC
+//				+ " -o " + executeDir + subVersion + "_finst__" + sample + ".exe"
+//				+ includeC
+//				;
 		
 		StringBuffer code = new StringBuffer();
-		code.append(instrumentCommand + "\n");
+		code.append(compileCommand + "\n");
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
@@ -72,7 +72,8 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + sample + ".exe "));
+//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + sample + ".exe "));
+			code.append(inputsMap.get(index));
 			code.append("\n");
 		}
 		
@@ -81,7 +82,8 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + sample + ".exe "));
+//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst__" + sample + ".exe "));
+			code.append(inputsMap.get(index));
 			code.append("\n");
 		}
 	}
