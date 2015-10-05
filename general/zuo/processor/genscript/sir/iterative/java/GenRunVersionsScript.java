@@ -29,6 +29,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		}
 		code.append(endTimeCommand + " >& " + outputDir + "time\n");
 		
+		code.append("cd " + scriptDir + "\n");
 		code.append("rm ../outputs/*\n");
 		code.append("\n\n");
 		
@@ -41,6 +42,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 			code.append(inputsCompMap.get(index));//executables
 			code.append("\n");
 		}
+		code.append("cd " + scriptDir + "\n");
 		code.append("mv ../outputs/* " + outputDir + "\n");
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + ".sh");
 		

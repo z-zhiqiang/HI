@@ -22,9 +22,11 @@ public class GenRunSubjectScript extends AbstractGenRunScript {
 		for (Iterator<Integer> it = inputsMap.keySet().iterator(); it.hasNext();) {
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
-			code.append(inputsMap.get(index).replace(EXE, "$SUBJECTDIR/" + version + ".exe "));
+//			code.append(inputsMap.get(index).replace(EXE, "$SUBJECTDIR/" + version + ".exe "));
+			code.append(inputsMap.get(index));
 			code.append("\n");
 		}
+		code.append("cd " + scriptDir + "\n");
 		code.append("mv ../outputs/* " + outputDir + "\n");
 		printToFile(code.toString(), scriptDir, version + ".sh");
 		
