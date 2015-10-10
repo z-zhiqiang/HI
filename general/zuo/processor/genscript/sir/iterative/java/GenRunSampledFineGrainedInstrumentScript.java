@@ -26,26 +26,6 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 
 	@Override
 	public void genRunScript() {
-//		String includeC = "";
-//		String paraC = "";
-//		if(subject.equals("gzip")){
-//			paraC = " -DSTDC_HEADERS=1 -DHAVE_UNISTD_H=1 -DDIRENT=1 -DHAVE_ALLOCA_H=1";
-//		}
-//		if(subject.equals("grep")){
-//			includeC = " -I" + sourceDir;
-//		}
-//		
-//		String instrumentCommand = compileCommand 
-//				+ "sampler-cc "
-//				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
-//				+ "-fsample -fsampler-random=fixed "
-//				+ sourceDir + srcName + ".c" 
-//				+ " $COMPILE_PARAMETERS"
-//				+ paraC
-//				+ " -o " + executeDir + subVersion + "_finst__" + sample + ".exe"
-//				+ includeC
-//				;
-		
 		StringBuffer code = new StringBuffer();
 		code.append(compileCommand + "\n");
 		code.append("echo script: " + subVersion + "\n");
@@ -57,7 +37,7 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 		for(int j = 0; j < ROUNDS; j++){
 			stmts(code);
 		}
-		code.append(endTimeCommand + " >& " + outputDir + "time\n");
+		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
 		
 		code.append("cd " + scriptDir + "\n");
 		code.append("rm ../outputs/*\n");

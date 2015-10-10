@@ -111,44 +111,20 @@ public class JavaGenSirScriptClient {
 //		//read faults (subversion)
 		readFaults();
 		System.out.println(faults.toString());
-		
-//		compileSubject = genCompileSubjectCommand(sexecuteDir, 0);
-//		
-//		compileVersion = "gcc " 
-//				+ vsourceDir + sourceName + ".c"
-//				+ " $COMPILE_PARAMETERS"
-//				+ " -o " + vexecuteDir + version + ".exe"
-//				;
-//		compileFGInstrument = "sampler-cc "
-//				+ "-fsampler-scheme=branches -fsampler-scheme=returns -fsampler-scheme=scalar-pairs "
-//				+ "-fno-sample "
-//				+ vsourceDir + sourceName + ".c" 
-//				+ " $COMPILE_PARAMETERS"
-//				+ " -o " + vexecuteDir + subVersion + "_finst.exe"
-//				;
-//		compileCGInstrument = "sampler-cc "
-//				+ "-fsampler-scheme=function-entries "
-//				+ "-fno-sample "
-//				+ vsourceDir + sourceName + ".c" 
-//				+ " $COMPILE_PARAMETERS"
-//				+ " -o " + vexecuteDir + subVersion + "_cinst.exe"
-//				;
 	}
 	
 	private String genCompileCommand(String executeDir, int index){
 		String setEnv = "export experiment_root=" + rootDir + "\n";
-		String mkdir = "mkdir " + executeDir + "siena/\n";
+		String mkdir = "mkdir -p " + executeDir + "siena/\n";
 		String siena_app = "cp -r " + rootDir + subject + "/versions.alt/application/*" + " " + executeDir + "siena/\n";
 		String siena_subject = "cp -r " + vsourceDir + "* " + executeDir + "siena/\n";
+		String siena_testdriver = "cp " + rootDir + subject + "/testdrivers/*.java " + executeDir + "siena/\n";
 		String seedNoFaults = seedFaultsCommand(executeDir, index);
 		String compileCd = "cd " + executeDir + "\n";
 		String compileCC = "find siena/ -name *.java | javac @/dev/stdin/\n";
-		String siena_testdriver = "cp -r " + rootDir + subject + "/testdrivers/siena/* " + executeDir + "siena/\n";
-		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir
-//				+ ":" + rootDir + subject + "/testdrivers/"
-				+ "\n";
+		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + "\n";
 		
-		return setEnv + mkdir + siena_app + siena_subject + seedNoFaults + compileCd + compileCC + siena_testdriver + set_classpath;
+		return setEnv + mkdir + siena_app + siena_subject + siena_testdriver + seedNoFaults + compileCd + compileCC + set_classpath;
 	}
 	
 	private String seedFaultsCommand(String executeDir, int index) {
@@ -189,7 +165,6 @@ public class JavaGenSirScriptClient {
 	private void gen() throws IOException {
 		AbstractGenRunScript gs;
 		AbstractGenRunAllScript ga;
-//		String setEnv = "export experiment_root=" + rootDir + "\n";
 		String sf = rootDir + subject + "/testplans.alt/universe";
 		
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -264,9 +239,9 @@ public class JavaGenSirScriptClient {
 //				gs.genRunScript();
 //				
 //				
-//				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(gc.vaexecuteDir, index, "adaptive"), gc.vsourceDir, gc.vaexecuteDir, 
-//						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
-//				gs.genRunScript();
+////				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(gc.vaexecuteDir, index, "adaptive"), gc.vsourceDir, gc.vaexecuteDir, 
+////						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
+////				gs.genRunScript();
 //			}
 //			
 //		}
@@ -283,41 +258,48 @@ public class JavaGenSirScriptClient {
 //		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
 //		ga.genRunAllScript();
 //		
-//		//generate run all adaptive instrumented triggered subversion scripts
-//		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
-//		ga.genRunAllScript();
+////		//generate run all adaptive instrumented triggered subversion scripts
+////		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
+////		ga.genRunAllScript();
 	}
 	
 	
 	private String genInstrumentCommand(String executeDir, int index, String string) {
+		String jsampler = "/home/icuzzq/bin/JSampler.jar";
 		String instrumentCommand = "";
 		
 		if(string.equals("fg")){
-			instrumentCommand = "java -jar JSample"
+			instrumentCommand = "java -jar " + jsampler
 					+ " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
 					+ " -sampler-out-sites=" + executeDir + "output.sites"
 					+ " -cp " + executeDir + " -process-dir " + executeDir 
-//					+ " -d " + executeDir + "instrument/"
+					+ " -d " + executeDir + "instrumented/"
 					+ "\n";
 		}
 		else if(string.equals("cg")){
-			instrumentCommand = "java -jar JSample"
+			instrumentCommand = "java -jar " + jsampler
 					+ " -sampler-scheme=method-entries"
 					+ " -sampler-out-sites=" + executeDir + "output.sites"
-					+ " -cp " + executeDir + " -process-dir " + executeDir + "\n";
+					+ " -cp " + executeDir + " -process-dir " + executeDir 
+					+ " -d " + executeDir + "instrumented/"
+					+ "\n";
 		}
 		else if(string.equals("sample")){
-			instrumentCommand = "java -jar JSample"
+			instrumentCommand = "java -jar " + jsampler
 					+ " -sampler"
 					+ " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
 					+ " -sampler-out-sites=" + executeDir + "output.sites"
-					+ " -cp " + executeDir + " -process-dir " + executeDir + "\n";
+					+ " -cp " + executeDir + " -process-dir " + executeDir 
+					+ " -d " + executeDir + "instrumented/"
+					+ "\n";
 		}
 		else if(string.equals("adaptive")){
 			
 		}
 		
-		return genCompileCommand(executeDir, index) + instrumentCommand;
+		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + "instrumented/:" + jsampler + "\n";
+		
+		return genCompileCommand(executeDir, index) + instrumentCommand + set_classpath;
 	}
 
 

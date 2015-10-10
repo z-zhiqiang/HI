@@ -22,12 +22,12 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		
-		stmts(code);
+//		stmts(code);
 		code.append(startTimeCommand + "\n");
 		for (int j = 0; j < ROUNDS; j++) {
 			stmts(code);
 		}
-		code.append(endTimeCommand + " >& " + outputDir + "time\n");
+		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
 		
 		code.append("cd " + scriptDir + "\n");
 		code.append("rm ../outputs/*\n");
@@ -39,7 +39,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 //			code.append(inputsCompMap.get(index).replace(EXE, "$VERSIONSDIR/" + version + ".exe ").replace(SUBV, version + "/" + subVersion));//executables
-			code.append(inputsCompMap.get(index));//executables
+			code.append(inputsCompMap.get(index).replace(SUBV, version + "/" + subVersion));//executables
 			code.append("\n");
 		}
 		code.append("cd " + scriptDir + "\n");

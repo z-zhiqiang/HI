@@ -72,30 +72,48 @@ public class FileUtility {
 	
 	public static Map<Integer, String> constructSIRInputsMapFile(String inputScript, String mapFile) {
 		final String echo = "echo \">>>>>>>>running test ";
+		final String echo_1 = "echo \">>>>>>>>running test 1\"";
 		Map<Integer, String> inputsmap = new LinkedHashMap<Integer, String>();
 		int count = 0;
 		BufferedReader in = null;
 		try{
 			String line;
 			in = new BufferedReader(new FileReader(new File(inputScript)));
-			StringBuilder builder = null;
+			StringBuilder builder = new StringBuilder();
+			
+			while(!(line = in.readLine()).equals(echo_1)){
+//				System.out.println(line);
+//				Thread.sleep(1000);
+			}
+//			builder.append(line).append("\n");
+			
 			while ((line = in.readLine()) != null) {
 				if(line.startsWith(echo)){
-					builder = new StringBuilder();
-					while ((line = in.readLine()) != null) {
-						if(line.equals("")){
-							break;
-						}
-						builder.append(line).append("\n");
-					}
-//					System.out.println(builder.toString());
 					inputsmap.put(++count, builder.toString());
+					builder = new StringBuilder();
 				}
+				else{
+					builder.append(line).append("\n");
+				}
+				
+//				if(line.startsWith(echo)){
+//					builder = new StringBuilder();
+//					while ((line = in.readLine()) != null) {
+//						if(line.equals("")){
+//							break;
+//						}
+//						builder.append(line).append("\n");
+//					}
+////					System.out.println(builder.toString());
+//					inputsmap.put(++count, builder.toString());
+//				}
 			}
+			
+			inputsmap.put(++count, builder.toString());
 		}
 		catch(IOException e){
 			e.printStackTrace();
-		}
+		} 
 		finally{
 			try {
 				in.close();

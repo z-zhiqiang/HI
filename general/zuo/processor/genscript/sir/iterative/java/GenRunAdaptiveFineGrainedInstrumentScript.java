@@ -52,7 +52,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			for(int j = 0; j < ROUNDS; j++){
 				stmts(code, method);
 			}
-			code.append(endTimeCommand + " >& " + outputDir + method + "/time\n");
+			code.append(endTimeCommand + " > " + outputDir + method + "/time 2>&1\n");
 			
 			code.append("tTime=$((tTime+time))\n");
 			code.append("rm ../outputs/*\n");
@@ -61,7 +61,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		}
 		
 		code.append("echo \"Average time in seconds: $((tTime/1000000000/" + num + ")) \nTime in milliseconds: $((tTime/1000000/" + num + "))\"" +
-				" >& " + outputDir + "time\n");
+				" > " + outputDir + "time 2>&1\n");
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_fg_a.sh");
 	}
 
