@@ -198,108 +198,111 @@ public class JavaGenSirScriptClient {
 		
 		//=========================================================================================================================================================================//
 		
-//		Set<Integer> subs = new HashSet<Integer>();
-//		//split inputs and generate run instrumented subversion scripts 
-//		for(int index: faults.keySet()){
-//			JavaGenSirScriptClient gc = new JavaGenSirScriptClient(subject, sourceName, version, "subv" + index);
-//			
-//			SirSplitInputs split = new SirSplitInputs(gc.inputsMapFile, gc.vexecuteDir, outCompFile);
-//			split.split();
-//			//collect the triggered faults
-//			if(split.getFailingTests().size() > 1 
-////					&& !(gc.subject.equals("grep") && gc.version.equals("v1") && gc.subVersion.equals("subv14"))
-//			){
-//				subs.add(index);
-////				assert(new File(gc.vexecuteDir).listFiles().length == 13);
-//				
-//				System.out.println("generating run instrument script for subv" + index);
-//				
-//				String vexecuteDir_fg = gc.vexecuteDir + "fine-grained/";
-//				gs = new GenRunFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_fg, index, "fg"), gc.vsourceDir, vexecuteDir_fg, 
-//						gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+		Set<Integer> subs = new HashSet<Integer>();
+		//split inputs and generate run instrumented subversion scripts 
+		for(int index: faults.keySet()){
+			JavaGenSirScriptClient gc = new JavaGenSirScriptClient(subject, sourceName, version, "subv" + index);
+			
+			SirSplitInputs split = new SirSplitInputs(gc.inputsMapFile, gc.vexecuteDir, outCompFile);
+			split.split();
+			//collect the triggered faults
+			if(split.getFailingTests().size() > 1 && split.getPassingTests().size() > 0
+//					&& !(gc.subject.equals("grep") && gc.version.equals("v1") && gc.subVersion.equals("subv14"))
+			){
+				subs.add(index);
+//				assert(new File(gc.vexecuteDir).listFiles().length == 13);
+				
+				System.out.println("generating run instrument script for subv" + index);
+				
+				String vexecuteDir_fg = gc.vexecuteDir + "fine-grained/";
+				gs = new GenRunFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_fg, index, "fg"), gc.vsourceDir, vexecuteDir_fg, 
+						gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+				gs.genRunScript();
+				
+				String vexecuteDir_cg = gc.vexecuteDir + "coarse-grained/";
+				gs = new GenRunCoarseGrainedInstrumentScript(gc.subject,gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_cg, index, "cg"), gc.vsourceDir, vexecuteDir_cg, 
+						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+				gs.genRunScript();
+				
+				
+				String vexecuteDir_s1 = gc.vexecuteDir + "sample_1/";
+				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s1, index, "sample"), gc.vsourceDir, vexecuteDir_s1, gc.vsfoutputDir, 
+						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
+				gs.genRunScript();
+				String vexecuteDir_s100 = gc.vexecuteDir + "sample_100/";
+				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s100, index, "sample"), gc.vsourceDir, vexecuteDir_s100, gc.vsfoutputDir, 
+						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
+				gs.genRunScript();
+				String vexecuteDir_s10000 = gc.vexecuteDir + "sample_10000/";
+				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s10000, index, "sample"), gc.vsourceDir, vexecuteDir_s10000, gc.vsfoutputDir, 
+						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
+				gs.genRunScript();
+				
+				
+//				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(gc.vaexecuteDir, index, "adaptive"), gc.vsourceDir, gc.vaexecuteDir, 
+//						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
 //				gs.genRunScript();
-//				
-//				String vexecuteDir_cg = gc.vexecuteDir + "coarse-grained/";
-//				gs = new GenRunCoarseGrainedInstrumentScript(gc.subject,gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_cg, index, "cg"), gc.vsourceDir, vexecuteDir_cg, 
-//						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
-//				gs.genRunScript();
-//				
-//				
-//				String vexecuteDir_s1 = gc.vexecuteDir + "sample_1/";
-//				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s1, index, "sample"), gc.vsourceDir, vexecuteDir_s1, gc.vsfoutputDir, 
-//						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
-//				gs.genRunScript();
-//				String vexecuteDir_s100 = gc.vexecuteDir + "sample_100/";
-//				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s100, index, "sample"), gc.vsourceDir, vexecuteDir_s100, gc.vsfoutputDir, 
-//						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
-//				gs.genRunScript();
-//				String vexecuteDir_s10000 = gc.vexecuteDir + "sample_10000/";
-//				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s10000, index, "sample"), gc.vsourceDir, vexecuteDir_s10000, gc.vsfoutputDir, 
-//						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
-//				gs.genRunScript();
-//				
-//				
-////				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(gc.vaexecuteDir, index, "adaptive"), gc.vsourceDir, gc.vaexecuteDir, 
-////						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
-////				gs.genRunScript();
-//			}
-//			
-//		}
-//		
-//		//generate run all instrumented triggered subversion scripts
-//		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
+			}
+			
+		}
+		
+		//generate run all instrumented triggered subversion scripts
+		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
+		ga.genRunAllScript();
+
+		//generate run all sampled instrumented triggered subversion scripts
+		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 1);
+		ga.genRunAllScript();
+		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 100);
+		ga.genRunAllScript();
+		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
+		ga.genRunAllScript();
+		
+//		//generate run all adaptive instrumented triggered subversion scripts
+//		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
 //		ga.genRunAllScript();
-//
-//		//generate run all sampled instrumented triggered subversion scripts
-//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 1);
-//		ga.genRunAllScript();
-//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 100);
-//		ga.genRunAllScript();
-//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
-//		ga.genRunAllScript();
-//		
-////		//generate run all adaptive instrumented triggered subversion scripts
-////		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
-////		ga.genRunAllScript();
 	}
 	
 	
 	private String genInstrumentCommand(String executeDir, int index, String string) {
 		String jsampler = "/home/icuzzq/bin/JSampler.jar";
-		String instrumentCommand = "";
+		String paras = null;
 		
 		if(string.equals("fg")){
-			instrumentCommand = "java -jar " + jsampler
-					+ " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
+			paras = " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
 					+ " -sampler-out-sites=" + executeDir + "output.sites"
-					+ " -cp " + executeDir + " -process-dir " + executeDir 
+//					+ " -cp " + executeDir 
+					+ " -process-dir " + executeDir 
 					+ " -d " + executeDir + "instrumented/"
 					+ "\n";
 		}
 		else if(string.equals("cg")){
-			instrumentCommand = "java -jar " + jsampler
-					+ " -sampler-scheme=method-entries"
+			paras = " -sampler-scheme=method-entries"
 					+ " -sampler-out-sites=" + executeDir + "output.sites"
-					+ " -cp " + executeDir + " -process-dir " + executeDir 
+//					+ " -cp " + executeDir 
+					+ " -process-dir " + executeDir 
 					+ " -d " + executeDir + "instrumented/"
 					+ "\n";
 		}
 		else if(string.equals("sample")){
-			instrumentCommand = "java -jar " + jsampler
-					+ " -sampler"
+			paras = " -sampler"
 					+ " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
 					+ " -sampler-out-sites=" + executeDir + "output.sites"
-					+ " -cp " + executeDir + " -process-dir " + executeDir 
+//					+ " -cp " + executeDir 
+					+ " -process-dir " + executeDir 
 					+ " -d " + executeDir + "instrumented/"
 					+ "\n";
 		}
 		else if(string.equals("adaptive")){
-			
 		}
 		
+		String compileCommand = genCompileCommand(executeDir, index);
+		String counterCommand = "java -ea -cp " + jsampler + ":" + executeDir + " edu.uci.jsampler.client.JCounter" + paras; 
+		String rmCommand = "rm -rf " + executeDir + "instrumented/\n";
+		String samplerCommand = "java -ea -cp " + jsampler + ":" + executeDir + " edu.uci.jsampler.client.JSampler" + paras;
 		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + "instrumented/:" + jsampler + "\n";
 		
-		return genCompileCommand(executeDir, index) + instrumentCommand + set_classpath;
+		return compileCommand + counterCommand + rmCommand + samplerCommand + set_classpath;
 	}
 
 
