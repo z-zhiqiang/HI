@@ -39,6 +39,35 @@ public class FileCollection {
 		}
 	}
 	
+	public static Collection<String> readCollection(File file){ 
+		Collection<String> lines = new ArrayList<String>();
+		BufferedReader reader = null;
+		try {
+			String line;
+			reader = new BufferedReader(new FileReader(file));
+			while((line = reader.readLine()) != null){
+				lines.add(line);
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			if(reader != null){
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return lines;
+	}
 	public static List<String> readMethods(File file) {
 		// TODO Auto-generated method stub
 		List<String> methods = new ArrayList<String>();

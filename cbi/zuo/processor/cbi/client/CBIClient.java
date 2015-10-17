@@ -139,9 +139,11 @@ public class CBIClient {
 		FixPointStructure previous2ndElement = cList.getPreviousKthElement(2);
 		
 		if(currentElement.getPercent() == 0.1 * 10){
-			writer.println(functions.toString());
-			writer.println("==============================================================");
-			printElement(currentElement, writer);
+			if(writer != null){
+				writer.println(functions.toString());
+				writer.println("==============================================================");
+				printElement(currentElement, writer);
+			}
 			return true;
 		}
 		if(currentElement.getSortedPredictors().isEmpty() || previous1stElement.getSortedPredictors().isEmpty() || previous2ndElement.getSortedPredictors().isEmpty()){
@@ -149,11 +151,13 @@ public class CBIClient {
 		}
 		if(currentElement.getSortedPredictors().lastEntry().getValue().equals(previous1stElement.getSortedPredictors().lastEntry().getValue()) 
 				&& currentElement.getSortedPredictors().lastEntry().getValue().equals(previous2ndElement.getSortedPredictors().lastEntry().getValue())){
-			writer.println(functions.toString());
-			writer.println("==============================================================");
-			printElement(currentElement, writer);
-			printElement(previous1stElement, writer);
-			printElement(previous2ndElement, writer);
+			if(writer != null){
+				writer.println(functions.toString());
+				writer.println("==============================================================");
+				printElement(currentElement, writer);
+				printElement(previous1stElement, writer);
+				printElement(previous2ndElement, writer);
+			}
 			return true;
 		}
 		return false;
@@ -346,7 +350,8 @@ public class CBIClient {
 
 	public FixPointStructure getFullFixElement(){
 		if(fixElement == null){
-			runFull();
+//			runFull();
+			runIterative(null);
 		}
 		return fixElement;
 	}

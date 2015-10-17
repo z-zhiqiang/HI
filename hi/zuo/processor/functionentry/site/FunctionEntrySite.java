@@ -58,7 +58,12 @@ public class FunctionEntrySite {
 	}
 	
 	public static String getUniqueFunctionName(String function, String file){
-		return function + DELIMITER + file.substring(file.lastIndexOf('/', file.lastIndexOf('/', file.lastIndexOf('/') - 1) - 1));
+		if(file.contains("/")){
+			return function + DELIMITER + file.substring(file.lastIndexOf('/', file.lastIndexOf('/', file.lastIndexOf('/') - 1) - 1));
+		}
+		else{
+			return function + DELIMITER + file;
+		}
 	}
 
 }

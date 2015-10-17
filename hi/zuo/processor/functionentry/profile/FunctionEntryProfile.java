@@ -34,7 +34,7 @@ public class FunctionEntryProfile {
 					int index = -1;
 					while ((line = in.readLine()) != null && !line.contains("</report>")) {
 						if(line.startsWith("<samples")){
-							if(!line.contains("scheme=\"function-entries\"")){
+							if(!line.contains("scheme=\"function-entries\"") && !line.contains("scheme=\"method-entries\"")){
 								throw new RuntimeException();
 							}
 							

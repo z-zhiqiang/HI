@@ -27,7 +27,11 @@ import zuo.processor.splitinputs.SirSplitInputs;
 import zuo.util.file.FileUtility;
 
 public class JavaGenSirScriptClient {
-	public final static String rootDir = "/home/icuzzq/Research/Automated_Debugging/Subjects/";
+	public final static String rootPath = "/home/zzuo2/";
+	public final static String rootDir = rootPath + "Research/Automated_Debugging/Subjects/";
+	
+	public final static String jsampler = rootPath + "bin/JSampler.jar";
+	public final static String seeder = "java -cp " + rootPath + "bin/ EqualizeLineNumbers ";
 	
 	public final String subject;
 	public final String sourceName;
@@ -54,8 +58,8 @@ public class JavaGenSirScriptClient {
 	final String vaftraceDir;
 	final String vsfoutputDir;
 	final String vsftraceDir;
-	final String vsexecuteDir;
-	final String vaexecuteDir;
+//	final String vsexecuteDir;
+//	final String vaexecuteDir;
 	
 	final String scriptDir;
 	
@@ -88,8 +92,8 @@ public class JavaGenSirScriptClient {
 		vsourceDir = rootDir + subject + "/versions.alt/component/seeded/" + version + "/";
 		
 		vexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/";
-		vsexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/sampled/";
-		vaexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/adaptive/";
+//		vsexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/sampled/";
+//		vaexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/adaptive/";
 		voutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/outputs/";
 		vfoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained/";
 		vsfoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained-sampled-";
@@ -129,15 +133,14 @@ public class JavaGenSirScriptClient {
 	
 	private String seedFaultsCommand(String executeDir, int index) {
 		StringBuilder builder = new StringBuilder();
-		String command = "java -cp /home/icuzzq/bin/ EqualizeLineNumbers ";
 		builder.append("cd " + executeDir + "siena/\n");
 		for(int i: faults.keySet()){
 			String fault_file = faults.get(i).getFault_file();
-			builder.append(command).append(fault_file).append(" ").append(0).append(" ").append(fault_file.replaceAll("cpp", "java")).append("\n");
+			builder.append(seeder).append(fault_file).append(" ").append(0).append(" ").append(fault_file.replaceAll("cpp", "java")).append("\n");
 		}
 		if(index != 0){
 			Fault fault = faults.get(index);
-			builder.append(command).append(fault.getFault_file()).append(" ").append(fault.getFault_order()).append(" ").append(fault.getFault_file().replaceAll("cpp", "java")).append("\n");
+			builder.append(seeder).append(fault.getFault_file()).append(" ").append(fault.getFault_order()).append(" ").append(fault.getFault_file().replaceAll("cpp", "java")).append("\n");
 		}
 		builder.append("echo seeding faults done!\n");
 		
@@ -148,7 +151,7 @@ public class JavaGenSirScriptClient {
 
 	public static void main(String[] args) throws IOException {
 		String[][] subjects = {
-				{"siena", "all", "7"}, // grep v1_subv14
+				{"siena", null, "7"}, // grep v1_subv14
 		};
 		for (int i = 0; i < subjects.length; i++) {
 			for(int j = 1; j <= Integer.parseInt(subjects[i][2]); j++){
@@ -210,7 +213,6 @@ public class JavaGenSirScriptClient {
 //					&& !(gc.subject.equals("grep") && gc.version.equals("v1") && gc.subVersion.equals("subv14"))
 			){
 				subs.add(index);
-//				assert(new File(gc.vexecuteDir).listFiles().length == 13);
 				
 				System.out.println("generating run instrument script for subv" + index);
 				
@@ -239,9 +241,10 @@ public class JavaGenSirScriptClient {
 				gs.genRunScript();
 				
 				
-//				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(gc.vaexecuteDir, index, "adaptive"), gc.vsourceDir, gc.vaexecuteDir, 
-//						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
-//				gs.genRunScript();
+				String vexecuteDir_adaptive = gc.vexecuteDir + "adaptive/";
+				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(vexecuteDir_adaptive, index), gc.vsourceDir, vexecuteDir_adaptive, 
+						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
+				gs.genRunScript();
 			}
 			
 		}
@@ -258,14 +261,13 @@ public class JavaGenSirScriptClient {
 		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
 		ga.genRunAllScript();
 		
-//		//generate run all adaptive instrumented triggered subversion scripts
-//		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
-//		ga.genRunAllScript();
+		//generate run all adaptive instrumented triggered subversion scripts
+		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
+		ga.genRunAllScript();
 	}
 	
 	
 	private String genInstrumentCommand(String executeDir, int index, String string) {
-		String jsampler = "/home/icuzzq/bin/JSampler.jar";
 		String paras = null;
 		
 		if(string.equals("fg")){
@@ -293,7 +295,8 @@ public class JavaGenSirScriptClient {
 					+ " -d " + executeDir + "instrumented/"
 					+ "\n";
 		}
-		else if(string.equals("adaptive")){
+		else{
+			System.err.println("Wrong para!");
 		}
 		
 		String compileCommand = genCompileCommand(executeDir, index);

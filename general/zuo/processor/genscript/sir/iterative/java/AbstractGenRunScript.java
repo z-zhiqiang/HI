@@ -11,7 +11,7 @@ import zuo.processor.genscript.client.iterative.java.JavaGenSirScriptClient;
 import zuo.util.file.FileUtility;
 
 public abstract class AbstractGenRunScript {
-	public static final int ROUNDS = 0;
+	public static final int ROUNDS = 3;
 	
 	final String subVersion;
 	final String version;
@@ -49,6 +49,23 @@ public abstract class AbstractGenRunScript {
 		
 		inputsMap = FileUtility.readInputsMap(JavaGenSirScriptClient.rootDir + subject + "/testplans.alt/" + "inputs.map");
 		inputsCompMap = FileUtility.readInputsMap(JavaGenSirScriptClient.rootDir + subject + "/testplans.alt/" + "inputsComp.map");
+	}
+	
+	public String addTimingCode(String command){
+		StringBuilder builder = new StringBuilder();
+		String[] lines = command.split("\n");
+		for(String line: lines){
+			if(line.startsWith("java")){
+				builder.append("stime=\"$(date +%s%N)\"").append("\n");
+				builder.append(line).append("\n");
+				builder.append("time=\"$(($(date +%s%N)-stime))\"").append("\n");
+				builder.append("tTime=$((tTime+time))").append("\n");
+			}
+			else{
+				builder.append(line).append("\n");
+			}
+		}
+		return builder.toString();
 	}
 	
     public abstract void genRunScript() throws IOException;

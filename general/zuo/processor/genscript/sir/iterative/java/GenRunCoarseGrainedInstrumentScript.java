@@ -12,7 +12,6 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 	
 	final List<Integer> failingTests;
 	final List<Integer> passingTests;
-//	final int pNum;
 	
 	
 	public GenRunCoarseGrainedInstrumentScript(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing) {
@@ -31,12 +30,14 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		
-		stmts(code);
-		code.append(startTimeCommand + "\n");
+//		stmts(code);
+//		code.append(startTimeCommand + "\n");
+		code.append("tTime=0\n");
 		for(int j = 0; j < ROUNDS; j++){
 			stmts(code);
 		}
-		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
+//		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
+		code.append("echo \"Time in seconds: $((tTime/1000000000)) \nTime in milliseconds: $((tTime/1000000))\""  + " > " + outputDir + "time 2>&1\n");
 		
 		code.append("cd " + scriptDir + "\n");
 		code.append("rm ../outputs/*\n");
@@ -48,8 +49,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
-			code.append(inputsMap.get(index));
+			code.append(addTimingCode(inputsMap.get(index)));
 			code.append("\n");
 		}
 		
@@ -57,8 +57,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 			int index = passingTests.get(i);
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_cinst.exe "));
-			code.append(inputsMap.get(index));
+			code.append(addTimingCode(inputsMap.get(index)));
 			code.append("\n");
 		}
 	}

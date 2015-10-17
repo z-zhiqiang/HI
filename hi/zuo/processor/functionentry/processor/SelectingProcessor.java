@@ -94,7 +94,7 @@ public class SelectingProcessor{
 	
 	private void printout(double[][] c) {
 		// TODO Auto-generated method stub
-		assert(c.length == this.totalNegative + 1 && c[0].length == this.totalPositive + 1);
+//		assert(c.length == this.totalNegative + 1 && c[0].length == this.totalPositive + 1);
 		System.out.println(totalNegative);
 		System.out.println(totalPositive);
 	}

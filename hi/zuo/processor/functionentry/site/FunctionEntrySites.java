@@ -31,7 +31,7 @@ public class FunctionEntrySites {
 			String rLine;
 			while ((rLine = in.readLine()) != null) {
 				if(rLine.startsWith("<sites")){
-					if(!rLine.contains("scheme=\"function-entries\"")){
+					if(!rLine.contains("scheme=\"function-entries\"") && !rLine.contains("scheme=\"method-entries\"")){
 						throw new RuntimeException();
 					}
 					

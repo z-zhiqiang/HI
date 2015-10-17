@@ -16,64 +16,64 @@ public class Test {
 	
 	
 	public static void main(String[] args) throws IOException {
-		System.out.println(Client.computeTValueOfCC(0.3539878994, 90));
-		List<Object> olist = new ArrayList<Object>();
-		olist.add((double) 0);
-		
-		olist.add(2 / 0);
-		System.out.println(olist.toString());
-		System.out.println(olist.get(0));
-		System.out.println((Double) olist.get(0) == 0.0D);
-		System.out.println(Math.abs((Double) olist.get(0) - 0) < 0.00000001);
-		
-		
-		System.out.println(4 * 0.2D);
-		List<Double> dlist = new ArrayList<Double>();
-		dlist.add(2 * 1.0D);
-		int a = 20, b = 3;
-		System.out.println(a / b * b);
-		
-		System.out.println(2 * Math.log(3));
-		
-		Set<String> set0 = new LinkedHashSet<String>();
-		set0.add("a");
-		set0.add("b");
-		System.out.println(set0);
-		Set<String> set1 = new LinkedHashSet<String>(set0);
-		System.out.println(set1);
-		set0.add("c");
-		set1.add("d");
-		System.out.println(set0);
-		System.out.println(set1);
-		set0.removeAll(set1);
-		System.out.println(set0);
-		
-		String line = "TOP-(1) SUP=[  20=(+   0/-  20)] Metric=0.281028";
-		System.out.println(Integer.parseInt(line.substring(line.lastIndexOf('-') + 1, line.lastIndexOf(')')).trim()));
-		System.out.println(Integer.parseInt(line.substring(line.lastIndexOf('+') + 1, line.lastIndexOf('/')).trim()));
-		
-		
-		Map<String, List<Object>> resultsDS = new LinkedHashMap<String, List<Object>>();
-		List<Object> arrayA = new ArrayList<Object>();
-		arrayA.add(3.8D);
-		arrayA.add(2.8D);
-		resultsDS.put("A", arrayA);
-		List<Object> arrayB = new ArrayList<Object>();
-		arrayB.add(0D);
-		arrayB.add(0D);
-		resultsDS.put("B", arrayB);
-		List<Object> arrayC = new ArrayList<Object>();
-		arrayC.add(4.0D);
-		arrayC.add(3.5D);
-		resultsDS.put("C", arrayC);
-		List<Object> arrayD = new ArrayList<Object>();
-		arrayD.add(0D);
-		arrayD.add(0D);
-		resultsDS.put("D", arrayD);
-		List<Object> arrayE = new ArrayList<Object>();
-		arrayE.add(3.3D);
-		arrayE.add(2.5D);
-		resultsDS.put("E", arrayE);
+//		System.out.println(Client.computeTValueOfCC(0.3539878994, 90));
+//		List<Object> olist = new ArrayList<Object>();
+//		olist.add((double) 0);
+//		
+//		olist.add(2 / 0);
+//		System.out.println(olist.toString());
+//		System.out.println(olist.get(0));
+//		System.out.println((Double) olist.get(0) == 0.0D);
+//		System.out.println(Math.abs((Double) olist.get(0) - 0) < 0.00000001);
+//		
+//		
+//		System.out.println(4 * 0.2D);
+//		List<Double> dlist = new ArrayList<Double>();
+//		dlist.add(2 * 1.0D);
+//		int a = 20, b = 3;
+//		System.out.println(a / b * b);
+//		
+//		System.out.println(2 * Math.log(3));
+//		
+//		Set<String> set0 = new LinkedHashSet<String>();
+//		set0.add("a");
+//		set0.add("b");
+//		System.out.println(set0);
+//		Set<String> set1 = new LinkedHashSet<String>(set0);
+//		System.out.println(set1);
+//		set0.add("c");
+//		set1.add("d");
+//		System.out.println(set0);
+//		System.out.println(set1);
+//		set0.removeAll(set1);
+//		System.out.println(set0);
+//		
+//		String line = "TOP-(1) SUP=[  20=(+   0/-  20)] Metric=0.281028";
+//		System.out.println(Integer.parseInt(line.substring(line.lastIndexOf('-') + 1, line.lastIndexOf(')')).trim()));
+//		System.out.println(Integer.parseInt(line.substring(line.lastIndexOf('+') + 1, line.lastIndexOf('/')).trim()));
+//		
+//		
+//		Map<String, List<Object>> resultsDS = new LinkedHashMap<String, List<Object>>();
+//		List<Object> arrayA = new ArrayList<Object>();
+//		arrayA.add(3.8D);
+//		arrayA.add(2.8D);
+//		resultsDS.put("A", arrayA);
+//		List<Object> arrayB = new ArrayList<Object>();
+//		arrayB.add(0D);
+//		arrayB.add(0D);
+//		resultsDS.put("B", arrayB);
+//		List<Object> arrayC = new ArrayList<Object>();
+//		arrayC.add(4.0D);
+//		arrayC.add(3.5D);
+//		resultsDS.put("C", arrayC);
+//		List<Object> arrayD = new ArrayList<Object>();
+//		arrayD.add(0D);
+//		arrayD.add(0D);
+//		resultsDS.put("D", arrayD);
+//		List<Object> arrayE = new ArrayList<Object>();
+//		arrayE.add(3.3D);
+//		arrayE.add(2.5D);
+//		resultsDS.put("E", arrayE);
 		
 //		System.out.println(Client.computeCorrelationCoefficient(resultsDS, 0, 1));
 		
@@ -181,5 +181,19 @@ public class Test {
 //		listO.add(0.3f);
 //		mapO.put("D", listO);
 //		System.out.println(mapO.toString());
+		
+		String site = "siena.AttributeValue	55	\"<siena.AttributeValue: void <init>()>	1\naaaaaaaaaaaaaaaa\"";
+		String[] sites = site.split("\n");
+		for(String s: sites){
+			System.out.println(s);
+		}
+		
+		for(String para: args){
+			System.out.println(para);
+		}
+		
+		String methoddd = "<InterTest:-void-invoke1(int,int)>";
+		System.out.println(methoddd.replaceAll("\\(", "-").replaceAll("\\)", "-").replaceAll(":", "-"));
+		
 	}
 }

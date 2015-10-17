@@ -30,12 +30,14 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		
-		stmts(code);
-		code.append(startTimeCommand + "\n");
+//		stmts(code);
+//		code.append(startTimeCommand + "\n");
+		code.append("tTime=0\n");
 		for(int j = 0; j < ROUNDS; j++){
 			stmts(code);
 		}
-		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
+//		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
+		code.append("echo \"Time in seconds: $((tTime/1000000000)) \nTime in milliseconds: $((tTime/1000000))\""  + " > " + outputDir + "time 2>&1\n");
 		
 		code.append("cd " + scriptDir + "\n");
 		code.append("rm ../outputs/*\n");
@@ -48,8 +50,7 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst.exe "));
-			code.append(inputsMap.get(index));
+			code.append(addTimingCode(inputsMap.get(index)));
 			code.append("\n");
 		}
 		
@@ -57,8 +58,7 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-//			code.append(inputsMap.get(index).replace(EXE, "$VERSIONSDIR/" + subVersion + "_finst.exe "));
-			code.append(inputsMap.get(index));
+			code.append(addTimingCode(inputsMap.get(index)));
 			code.append("\n");
 		}
 	}
