@@ -33,9 +33,8 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
 import zuo.processor.importance.processor.PredicateImportanceInfoWithinFunction;
 import zuo.processor.importance.processor.ProcessorPreImportanceInfoWithinFun;
 import zuo.processor.split.PredicateSplittingSiteProfile;
-import zuo.util.file.FileCollection;
 
-public class Client_Ranking {
+public class JavaClient_Ranking {
 	final File rootDir;
 	final String subject;
 	final File consoleFolder;
@@ -48,7 +47,7 @@ public class Client_Ranking {
 	private final Map<String, List<Object>> convergenceResultsMap;
 	
 	
-	public Client_Ranking(File rootDir, String subject, File consoleFolder, int startV, int endV) {
+	public JavaClient_Ranking(File rootDir, String subject, File consoleFolder, int startV, int endV) {
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
@@ -122,7 +121,7 @@ public class Client_Ranking {
 				SitesInfo sInfo = new SitesInfo(fSites);
 				
 				//write out methods list
-				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
+//				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
 				//-------------------------------------------------------------------------------------------------------------
 				int totalPositive = 0;
@@ -679,7 +678,7 @@ public class Client_Ranking {
 		}
 		long time0 = System.currentTimeMillis();
 		
-		Client_Ranking c = new Client_Ranking(new File(args[1]), args[2], new File(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
+		JavaClient_Ranking c = new JavaClient_Ranking(new File(args[1]), args[2], new File(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
 		c.runSir();
 		
 		long time1 = System.currentTimeMillis();
