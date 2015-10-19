@@ -119,6 +119,7 @@ public class JavaGenSirScriptClient {
 	
 	private String genCompileCommand(String executeDir, int index){
 		String setEnv = "export experiment_root=" + rootDir + "\n";
+		String rmdir = "rm -rf " + executeDir + "*\n";
 		String mkdir = "mkdir -p " + executeDir + "siena/\n";
 		String siena_app = "cp -r " + rootDir + subject + "/versions.alt/application/*" + " " + executeDir + "siena/\n";
 		String siena_subject = "cp -r " + vsourceDir + "* " + executeDir + "siena/\n";
@@ -128,7 +129,7 @@ public class JavaGenSirScriptClient {
 		String compileCC = "find siena/ -name *.java | javac @/dev/stdin/\n";
 		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + "\n";
 		
-		return setEnv + mkdir + siena_app + siena_subject + siena_testdriver + seedNoFaults + compileCd + compileCC + set_classpath;
+		return setEnv + rmdir + mkdir + siena_app + siena_subject + siena_testdriver + seedNoFaults + compileCd + compileCC + set_classpath;
 	}
 	
 	private String seedFaultsCommand(String executeDir, int index) {

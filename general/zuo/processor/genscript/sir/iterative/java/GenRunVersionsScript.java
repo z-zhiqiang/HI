@@ -23,13 +23,13 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		
 //		stmts(code);
-//		code.append(startTimeCommand + "\n");
-		code.append("tTime=0\n");
+		code.append(startTimeCommand + "\n");
+//		code.append("tTime=0\n");
 		for (int j = 0; j < ROUNDS; j++) {
 			stmts(code);
 		}
-//		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
-		code.append("echo \"Time in seconds: $((tTime/1000000000)) \nTime in milliseconds: $((tTime/1000000))\""  + " > " + outputDir + "time 2>&1\n");
+		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
+//		code.append("echo \"Time in seconds: $((tTime/1000000000)) \nTime in milliseconds: $((tTime/1000000))\""  + " > " + outputDir + "time 2>&1\n");
 		
 		code.append("cd " + scriptDir + "\n");
 		code.append("rm ../outputs/*\n");
@@ -53,7 +53,7 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		for (Iterator<Integer> it = inputsMap.keySet().iterator(); it.hasNext();) {
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
-			code.append(addTimingCode(inputsMap.get(index)));//executables
+			code.append(inputsMap.get(index));//executables
 			code.append("\n");
 		}
 	}

@@ -33,13 +33,13 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		
 //		stmts(code);
-//		code.append(startTimeCommand + "\n");
-		code.append("tTime=0\n");
+		code.append(startTimeCommand + "\n");
+//		code.append("tTime=0\n");
 		for(int j = 0; j < ROUNDS; j++){
 			stmts(code);
 		}
-//		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
-		code.append("echo \"Time in seconds: $((tTime/1000000000)) \nTime in milliseconds: $((tTime/1000000))\""  + " > " + outputDir + "time 2>&1\n");
+		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
+//		code.append("echo \"Time in seconds: $((tTime/1000000000)) \nTime in milliseconds: $((tTime/1000000))\""  + " > " + outputDir + "time 2>&1\n");
 		
 		code.append("cd " + scriptDir + "\n");
 		code.append("rm ../outputs/*\n");
@@ -55,7 +55,7 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append(addTimingCode(inputsMap.get(index)));
+			code.append(inputsMap.get(index));
 			code.append("\n");
 		}
 		
@@ -64,7 +64,7 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append(addTimingCode(inputsMap.get(index)));
+			code.append(inputsMap.get(index));
 			code.append("\n");
 		}
 	}

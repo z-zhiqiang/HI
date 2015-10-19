@@ -31,7 +31,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 	public void genRunScript() {
 		int num = methods.size();
 		StringBuffer code = new StringBuffer();
-		code.append("ttTime=0\n");
+		code.append("tTime=0\n");
 		for(int i = 0; i < num; i++){
 			String method = transform(methods.get(i));
 //			System.out.println(method);
@@ -55,15 +55,15 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			code.append("export TRACESDIR=" + traceDir + method + "/\n");
 			
 //			stmts(code, method);
-//			code.append(startTimeCommand + "\n");
-			code.append("tTime=0\n");
+			code.append(startTimeCommand + "\n");
+//			code.append("tTime=0\n");
 			for(int j = 0; j < ROUNDS; j++){
 				stmts(code, method);
 			}
-//			code.append(endTimeCommand + " > " + outputDir + method + "/time 2>&1\n");
-			code.append("echo \"Time in seconds: $((tTime/1000000000)) \nTime in milliseconds: $((tTime/1000000))\""  + " > " + outputDir + method + "/time 2>&1\n");
+			code.append(endTimeCommand + " > " + outputDir + method + "/time 2>&1\n");
+//			code.append("echo \"Time in seconds: $((tTime/1000000000)) \nTime in milliseconds: $((tTime/1000000))\""  + " > " + outputDir + method + "/time 2>&1\n");
 			
-			code.append("ttTime=$((ttTime+tTime))\n");
+			code.append("tTime=$((tTime+time))\n");
 			code.append("cd " + scriptDir + "\n");
 			code.append("rm ../outputs/*\n");
 			code.append("rm -rf $TRACESDIR/\n");
@@ -72,7 +72,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			code.append("\n\n");
 		}
 		
-		code.append("echo \"Average time in seconds: $((ttTime/1000000000/" + num + ")) \nTime in milliseconds: $((ttTime/1000000/" + num + "))\"" +
+		code.append("echo \"Average time in seconds: $((tTime/1000000000/" + num + ")) \nTime in milliseconds: $((tTime/1000000/" + num + "))\"" +
 				" > " + outputDir + "time 2>&1\n");
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_fg_a.sh");
 	}
@@ -91,7 +91,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append(addTimingCode(inputsMap.get(index)));
+			code.append(inputsMap.get(index));
 			code.append("\n");
 		}
 		
@@ -99,7 +99,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append(addTimingCode(inputsMap.get(index)));
+			code.append(inputsMap.get(index));
 			code.append("\n");
 		}
 	}

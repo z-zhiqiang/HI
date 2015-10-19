@@ -5,13 +5,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.Map;
 
 import zuo.processor.genscript.client.iterative.java.JavaGenSirScriptClient;
 import zuo.util.file.FileUtility;
 
 public abstract class AbstractGenRunScript {
-	public static final int ROUNDS = 3;
+	public static final int ROUNDS = 1;
 	
 	final String subVersion;
 	final String version;
@@ -32,8 +33,9 @@ public abstract class AbstractGenRunScript {
 	protected final Map<Integer, String> inputsCompMap;
 	
 	protected final String startTimeCommand = "stime=\"$(date +%s%N)\"";
-	protected final String endTimeCommand = "time=\"$(($(date +%s%N)-stime))\"\n" +
-			"echo \"Time in seconds: $((time/1000000000)) \nTime in milliseconds: $((time/1000000))\"";
+	protected final String endTimeCommand;
+	
+	protected final long sleepTime;
 	
 	
 	public AbstractGenRunScript(String sub, String srcN, String ver, String subV, String cc, String source, String execute, String output, String script){
@@ -49,6 +51,28 @@ public abstract class AbstractGenRunScript {
 		
 		inputsMap = FileUtility.readInputsMap(JavaGenSirScriptClient.rootDir + subject + "/testplans.alt/" + "inputs.map");
 		inputsCompMap = FileUtility.readInputsMap(JavaGenSirScriptClient.rootDir + subject + "/testplans.alt/" + "inputsComp.map");
+		
+		this.sleepTime = sleepTime();
+		
+		endTimeCommand = "time=\"$(($(date +%s%N)-stime-" + sleepTime * ROUNDS * 1000000000 + "))\"\n" +
+				"echo \"Time in seconds: $((time/1000000000)) \nTime in milliseconds: $((time/1000000))\"";
+	}
+	
+	private long sleepTime(){
+		long time = 0;
+		for (Iterator<Integer> it = inputsMap.keySet().iterator(); it.hasNext();) {
+			int index = it.next();
+			String input = inputsMap.get(index);
+			String[] lines = input.split("\n");
+			for(String line: lines){
+				if(line.startsWith("sleep")){
+					System.out.println(line);
+					time += Long.parseLong(line.split(" ")[1].trim());
+				}
+			}
+		}
+			
+		return time;
 	}
 	
 	public String addTimingCode(String command){
