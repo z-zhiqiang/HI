@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import zuo.processor.genscript.client.iterative.java.JavaGenSirScriptClient;
+import zuo.processor.genscript.client.iterative.java.NanoxmlGenSirScriptClient;
 import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtility;
 
@@ -23,7 +23,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
-		this.methods = FileCollection.readMethods(new File(executeDir, methodsF));
+		this.methods = FileCollection.readMethods(new File(NanoxmlGenSirScriptClient.rootDir + subject + "/FunctionList/", methodsF));
 		mkOutDir();
 	}
 
@@ -31,6 +31,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 	public void genRunScript() {
 		int num = methods.size();
 		StringBuffer code = new StringBuffer();
+		code.append(compileCommand);
 		code.append("tTime=0\n");
 		for(int i = 0; i < num; i++){
 			String method = transform(methods.get(i));
@@ -39,36 +40,38 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			String paras = " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
 					+ " -sampler-include-method=" + method
 					+ " -sampler-out-sites=" + executeDir + method +  "/output.sites"
-//						+ " -cp " + executeDir 
+					+ " -cp " + executeDir 
 					+ " -process-dir " + executeDir 
 					+ " -d " + executeDir + method + "/"
 					+ "\n";
 			
-			String counterCommand = "java -ea -cp " + JavaGenSirScriptClient.jsampler + ":" + executeDir + " edu.uci.jsampler.client.JCounter" + paras; 
-			String rmCommand = "rm -rf " + executeDir + method + "/\n";
-			String samplerCommand = "java -ea -cp " + JavaGenSirScriptClient.jsampler + ":" + executeDir + " edu.uci.jsampler.client.JSampler" + paras;
-			String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + method + "/:" + JavaGenSirScriptClient.jsampler + "\n";
+			String counterCommand = "" 
+//					+ "java -ea -cp " + SienaGenSirScriptClient.jsampler + ":" + executeDir + " edu.uci.jsampler.client.JCounter" + paras
+					; 
+			String rmCommand = "" 
+//					+ "rm -rf " + executeDir + method + "/\n"
+					;
+			String samplerCommand = "java -ea -cp " + NanoxmlGenSirScriptClient.jsampler + " edu.uci.jsampler.client.JSampler" + paras;
+			String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + method + "/:" + NanoxmlGenSirScriptClient.jsampler + "\n";
 			
-			code.append(compileCommand + counterCommand + rmCommand + samplerCommand + set_classpath + "\n");
+			code.append(counterCommand + rmCommand + samplerCommand + set_classpath + "\n");
 			code.append("echo script: " + subVersion + "\n");
 			code.append("export VERSIONSDIR=" + executeDir + "\n");
 			code.append("export TRACESDIR=" + traceDir + method + "/\n");
 			
 //			stmts(code, method);
 			code.append(startTimeCommand + "\n");
-//			code.append("tTime=0\n");
 			for(int j = 0; j < ROUNDS; j++){
 				stmts(code, method);
 			}
 			code.append(endTimeCommand + " > " + outputDir + method + "/time 2>&1\n");
-//			code.append("echo \"Time in seconds: $((tTime/1000000000)) \nTime in milliseconds: $((tTime/1000000))\""  + " > " + outputDir + method + "/time 2>&1\n");
 			
 			code.append("tTime=$((tTime+time))\n");
 			code.append("cd " + scriptDir + "\n");
 			code.append("rm ../outputs/*\n");
 			code.append("rm -rf $TRACESDIR/\n");
 			
-			code.append(rmCommand);
+			code.append("rm -rf " + executeDir + method + "/\n");
 			code.append("\n\n");
 		}
 		

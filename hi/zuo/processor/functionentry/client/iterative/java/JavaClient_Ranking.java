@@ -33,6 +33,7 @@ import zuo.processor.functionentry.site.FunctionEntrySites;
 import zuo.processor.importance.processor.PredicateImportanceInfoWithinFunction;
 import zuo.processor.importance.processor.ProcessorPreImportanceInfoWithinFun;
 import zuo.processor.split.PredicateSplittingSiteProfile;
+import zuo.util.file.FileCollection;
 
 public class JavaClient_Ranking {
 	final File rootDir;
@@ -121,7 +122,7 @@ public class JavaClient_Ranking {
 				SitesInfo sInfo = new SitesInfo(fSites);
 				
 				//write out methods list
-//				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
+				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
 				//-------------------------------------------------------------------------------------------------------------
 				int totalPositive = 0;

@@ -26,7 +26,7 @@ import zuo.processor.genscript.sir.iterative.java.GenRunVersionsScript;
 import zuo.processor.splitinputs.SirSplitInputs;
 import zuo.util.file.FileUtility;
 
-public class JavaGenSirScriptClient {
+public class NanoxmlGenSirScriptClient {
 	public final static String rootPath = "/home/zzuo2/";
 	public final static String rootDir = rootPath + "Research/Automated_Debugging/Subjects/";
 	
@@ -60,6 +60,7 @@ public class JavaGenSirScriptClient {
 	final String vsftraceDir;
 //	final String vsexecuteDir;
 //	final String vaexecuteDir;
+//	final String vfaultsDir;
 	
 	final String scriptDir;
 	
@@ -71,7 +72,7 @@ public class JavaGenSirScriptClient {
 	public final static String outCompFile = "comp.out";
     final static Map<Integer, Fault> faults = new HashMap<Integer, Fault>();
 	
-	public JavaGenSirScriptClient(String sub, String srcName, String ver, String subVer){
+	public NanoxmlGenSirScriptClient(String sub, String srcName, String ver, String subVer){
 		subject = sub;
 		sourceName = srcName;
 		version = ver;
@@ -90,6 +91,7 @@ public class JavaGenSirScriptClient {
 		soutputDir = rootDir + subject + "/outputs.alt/" + version + "/" + subject + "/";
 		
 		vsourceDir = rootDir + subject + "/versions.alt/component/seeded/" + version + "/";
+//		vfaultsDir = rootDir + subject + "/versions.alt/component/seeded/" + version + "/net/n3/nanoxml/";
 		
 		vexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/";
 //		vsexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/sampled/";
@@ -120,21 +122,23 @@ public class JavaGenSirScriptClient {
 	private String genCompileCommand(String executeDir, int index){
 		String setEnv = "export experiment_root=" + rootDir + "\n";
 		String rmdir = "rm -rf " + executeDir + "*\n";
-		String mkdir = "mkdir -p " + executeDir + "siena/\n";
-		String siena_app = "cp -r " + rootDir + subject + "/versions.alt/application/*" + " " + executeDir + "siena/\n";
-		String siena_subject = "cp -r " + vsourceDir + "* " + executeDir + "siena/\n";
-		String siena_testdriver = "cp " + rootDir + subject + "/testdrivers/*.java " + executeDir + "siena/\n";
+		String mkdir = "mkdir -p " + executeDir + "\n";
+		String siena_app = "cp -r " + rootDir + subject + "/versions.alt/application3/v0/*" + " " + executeDir + "\n";
+		String siena_subject = "cp -r " + vsourceDir + "* " + executeDir + "\n";
+		String siena_testdriver = "cp " + rootDir + subject + "/testdrivers/" + version + "/*.java " + executeDir + "\n";
 		String seedNoFaults = seedFaultsCommand(executeDir, index);
 		String compileCd = "cd " + executeDir + "\n";
-		String compileCC = "find siena/ -name *.java | javac @/dev/stdin/\n";
+		String compileCC = "find . -name \"*.java\" | javac -source 1.4 -deprecation @/dev/stdin/\n";
 		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + "\n";
+		String cdCm = "cd " + scriptDir + "\n";
+		String cpCm = "cp ../inputs/*.dtd .\n";
 		
-		return setEnv + rmdir + mkdir + siena_app + siena_subject + siena_testdriver + seedNoFaults + compileCd + compileCC + set_classpath;
+		return setEnv + rmdir + mkdir + siena_app + siena_subject + siena_testdriver + seedNoFaults + compileCd + compileCC + set_classpath + cdCm + cpCm;
 	}
 	
 	private String seedFaultsCommand(String executeDir, int index) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("cd " + executeDir + "siena/\n");
+		builder.append("cd " + executeDir + "net/n3/nanoxml/\n");
 		for(int i: faults.keySet()){
 			String fault_file = faults.get(i).getFault_file();
 			builder.append(seeder).append(fault_file).append(" ").append(0).append(" ").append(fault_file.replaceAll("cpp", "java")).append("\n");
@@ -152,11 +156,11 @@ public class JavaGenSirScriptClient {
 
 	public static void main(String[] args) throws IOException {
 		String[][] subjects = {
-				{"siena", null, "7"}, // grep v1_subv14
+				{"nanoxml", null, "4"}, // grep v1_subv14
 		};
 		for (int i = 0; i < subjects.length; i++) {
 			for(int j = 1; j <= Integer.parseInt(subjects[i][2]); j++){
-				JavaGenSirScriptClient gc = new JavaGenSirScriptClient(subjects[i][0], subjects[i][1], "v" + j, null);
+				NanoxmlGenSirScriptClient gc = new NanoxmlGenSirScriptClient(subjects[i][0], subjects[i][1], "v" + j, null);
 				gc.gen();
 				faults.clear();
 			}
@@ -169,7 +173,7 @@ public class JavaGenSirScriptClient {
 	private void gen() throws IOException {
 		AbstractGenRunScript gs;
 		AbstractGenRunAllScript ga;
-		String sf = rootDir + subject + "/testplans.alt/universe";
+		String sf = rootDir + subject + "/testplans.alt/component/" + version + "/universe.extended.tsl_wrapper";
 		
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 		
@@ -187,7 +191,7 @@ public class JavaGenSirScriptClient {
 		gs.genRunScript();
 		
 		for(int index: faults.keySet()){
-			JavaGenSirScriptClient gc = new JavaGenSirScriptClient(subject, sourceName, version, "subv" + index);
+			NanoxmlGenSirScriptClient gc = new NanoxmlGenSirScriptClient(subject, sourceName, version, "subv" + index);
 			
 			System.out.println("generating run script for subVersion" + index);
 			String vexecuteDir_version = gc.vexecuteDir + "version/";
@@ -205,7 +209,7 @@ public class JavaGenSirScriptClient {
 		Set<Integer> subs = new HashSet<Integer>();
 		//split inputs and generate run instrumented subversion scripts 
 		for(int index: faults.keySet()){
-			JavaGenSirScriptClient gc = new JavaGenSirScriptClient(subject, sourceName, version, "subv" + index);
+			NanoxmlGenSirScriptClient gc = new NanoxmlGenSirScriptClient(subject, sourceName, version, "subv" + index);
 			
 			SirSplitInputs split = new SirSplitInputs(gc.inputsMapFile, gc.vexecuteDir, outCompFile);
 			split.split();
@@ -244,7 +248,7 @@ public class JavaGenSirScriptClient {
 				
 				String vexecuteDir_adaptive = gc.vexecuteDir + "adaptive/";
 				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(vexecuteDir_adaptive, index), gc.vsourceDir, vexecuteDir_adaptive, 
-						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
+						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.version + "_" + gc.subVersion + "_C_LESS_FIRST_1_average");
 				gs.genRunScript();
 			}
 			
@@ -274,7 +278,7 @@ public class JavaGenSirScriptClient {
 		if(string.equals("fg")){
 			paras = " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
 					+ " -sampler-out-sites=" + executeDir + "output.sites"
-//					+ " -cp " + executeDir 
+					+ " -cp " + executeDir 
 					+ " -process-dir " + executeDir 
 					+ " -d " + executeDir + "instrumented/"
 					+ "\n";
@@ -282,7 +286,7 @@ public class JavaGenSirScriptClient {
 		else if(string.equals("cg")){
 			paras = " -sampler-scheme=method-entries"
 					+ " -sampler-out-sites=" + executeDir + "output.sites"
-//					+ " -cp " + executeDir 
+					+ " -cp " + executeDir 
 					+ " -process-dir " + executeDir 
 					+ " -d " + executeDir + "instrumented/"
 					+ "\n";
@@ -291,7 +295,7 @@ public class JavaGenSirScriptClient {
 			paras = " -sampler"
 					+ " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
 					+ " -sampler-out-sites=" + executeDir + "output.sites"
-//					+ " -cp " + executeDir 
+					+ " -cp " + executeDir 
 					+ " -process-dir " + executeDir 
 					+ " -d " + executeDir + "instrumented/"
 					+ "\n";
@@ -301,9 +305,13 @@ public class JavaGenSirScriptClient {
 		}
 		
 		String compileCommand = genCompileCommand(executeDir, index);
-		String counterCommand = "java -ea -cp " + jsampler + ":" + executeDir + " edu.uci.jsampler.client.JCounter" + paras; 
-		String rmCommand = "rm -rf " + executeDir + "instrumented/\n";
-		String samplerCommand = "java -ea -cp " + jsampler + ":" + executeDir + " edu.uci.jsampler.client.JSampler" + paras;
+		String counterCommand = "" 
+//				+ "java -ea -cp " + jsampler + ":" + executeDir + " edu.uci.jsampler.client.JCounter" + paras
+				; 
+		String rmCommand = "" 
+//				+ "rm -rf " + executeDir + "instrumented/\n"
+				;
+		String samplerCommand = "java -ea -cp " + jsampler + " edu.uci.jsampler.client.JSampler" + paras;
 		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + "instrumented/:" + jsampler + "\n";
 		
 		return compileCommand + counterCommand + rmCommand + samplerCommand + set_classpath;
@@ -314,7 +322,7 @@ public class JavaGenSirScriptClient {
 	private void readFaults(){
 		BufferedReader reader = null;
 		try {
-			reader = new BufferedReader(new FileReader(new File(vsourceDir, "FaultSeeds.h")));
+			reader = new BufferedReader(new FileReader(new File(vsourceDir + "net/n3/nanoxml/", "FaultSeeds.h")));
 			String line;
 			int index = 0;
 			while((line = reader.readLine()) != null){
