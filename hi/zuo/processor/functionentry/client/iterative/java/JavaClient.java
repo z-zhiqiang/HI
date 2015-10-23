@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import zuo.processor.cbi.client.CBIClient;
 import zuo.processor.cbi.client.CBIClients;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.PredicateProfileReader;
@@ -236,6 +237,8 @@ public class JavaClient {
 					System.out.println("IterativeFunctionClient:\t" + (time2 - time1));
 					
 					solveOneRoundResults(statistics, client.getResults(), i);
+					
+					exportPruneInfoEachRound(cs.getFullInstrumentedCBIClient(), cs.getClientsMap(), client.getResults(), this.ks);
 				}
 				
 				System.gc();
@@ -249,6 +252,23 @@ public class JavaClient {
 		printResultsByFlagToExcel();
 		printOutMethodsListByMode();
 	}
+
+	/**
+	 * export the tests and methods for prune case in each round, which will be used to simulate reality in our experiments;
+	 * here we only consider <C, LESS_FIRST> for Top-1
+	 * 
+	 * @param fullInstrumentedCBIClient
+	 * @param clientsMap
+	 * @param results
+	 * @param ks
+	 */
+	private void exportPruneInfoEachRound(CBIClient fullInstrumentedCBIClient, Map<String, CBIClient> clientsMap,
+			Result[][] results, int[] ks) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 
 	private void addAttributes(File profilesFolder) {
 		// TODO Auto-generated method stub

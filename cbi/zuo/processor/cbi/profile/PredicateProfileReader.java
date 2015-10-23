@@ -34,7 +34,7 @@ public class PredicateProfileReader {
 				if ((j + 1) % (600) == 0)
 					System.out.println();
 				
-				PProfiles[j++] = this.createProfile(profiles[i]);
+				PProfiles[j++] = this.createProfile(profiles[i], i);
 			}
 		}
 		System.out.println();
@@ -57,14 +57,15 @@ public class PredicateProfileReader {
 			if ((j + 1) % (600) == 0)
 				System.out.println();
 			
-			PProfiles[j] = this.createProfile(profiles[j]);
+			PProfiles[j] = this.createProfile(profiles[j], j);
 		}
 		System.out.println();
 		return PProfiles;
 	}
 
-	private PredicateProfile createProfile(File profileFile) {
+	private PredicateProfile createProfile(File profileFile, int j) {
 		String filename = profileFile.getName();
+		debug(j, filename);
 		if(!filename.matches(FileUtil.profileFilterPattern())){
 			throw new RuntimeException("wrong profile name");
 		}
@@ -73,6 +74,12 @@ public class PredicateProfileReader {
 			isCorrect = false;
 		}
 		return new PredicateProfile(profileFile, sites, isCorrect);
+	}
+
+	public static void debug(int j, String filename) {
+		System.out.println(j);
+		System.out.println(filename);
+		assert(j == Integer.parseInt(FileUtil.canonicalizeProfileName(filename.substring(1))));
 	}
 	
 

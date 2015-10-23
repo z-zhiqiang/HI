@@ -3,6 +3,7 @@ package zuo.processor.functionentry.profile;
 import java.io.File;
 import java.util.Arrays;
 
+import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.functionentry.site.FunctionEntrySites;
 import zuo.util.file.FileUtil;
 
@@ -63,6 +64,9 @@ public class FunctionEntryProfileReader {
 			if (profiles[i].getName().endsWith(".fprofile")) {
 				isCorrect = false;
 			}
+			//for debugging
+			PredicateProfileReader.debug(i, profiles[i].getName());
+			
 			FEProfiles[i] = new FunctionEntryProfile(profiles[i], sites, isCorrect);
 		}
 		System.out.println();

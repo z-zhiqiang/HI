@@ -21,7 +21,7 @@ public class FileUtil {
 		}
 	}
 	
-	private static String canonicalizeProfileName(String profileName) {
+	public static String canonicalizeProfileName(String profileName) {
 		return profileName.substring(0, profileName.lastIndexOf('.'));
 	}
 

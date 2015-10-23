@@ -29,8 +29,8 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		}
 		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
 		
-		code.append("cd " + scriptDir + "\n");
-		code.append("rm ../outputs/*\n");
+//		code.append("cd " + scriptDir + "\n");
+		code.append("rm " + scriptDir + "../outputs/*\n");
 		code.append("\n\n");
 		
 		code.append("rm $VERSIONSDIR/" + NanoxmlGenSirScriptClient.outCompFile + "\n");
@@ -41,8 +41,8 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 			code.append(inputsCompMap.get(index).replace(SUBV, version + "/" + subVersion));//executables
 			code.append("\n");
 		}
-		code.append("cd " + scriptDir + "\n");
-		code.append("mv ../outputs/* " + outputDir + "\n");
+//		code.append("cd " + scriptDir + "\n");
+		code.append("mv " + scriptDir + "../outputs/* " + outputDir + "\n");
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + ".sh");
 		
 	}
