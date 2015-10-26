@@ -37,8 +37,7 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 		}
 		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
 		
-		code.append("cd " + scriptDir + "\n");
-		code.append("rm ../outputs/*\n");
+		code.append("rm " + scriptDir + "../outputs/*\n");
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_cg.sh");
 	}
 

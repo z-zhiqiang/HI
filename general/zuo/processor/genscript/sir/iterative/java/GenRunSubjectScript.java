@@ -25,7 +25,6 @@ public class GenRunSubjectScript extends AbstractGenRunScript {
 			code.append(inputsMap.get(index));
 			code.append("\n");
 		}
-//		code.append("cd " + scriptDir + "\n");
 		code.append("mv " + scriptDir + "../outputs/* " + outputDir + "\n");
 		printToFile(code.toString(), scriptDir, version + ".sh");
 		

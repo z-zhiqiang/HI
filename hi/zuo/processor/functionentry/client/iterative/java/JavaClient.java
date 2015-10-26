@@ -23,6 +23,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import zuo.processor.cbi.client.CBIClient;
 import zuo.processor.cbi.client.CBIClients;
+import zuo.processor.cbi.datastructure.FixPointStructure;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.PredicateProfileReader;
 import zuo.processor.cbi.site.InstrumentationSites;
@@ -34,6 +35,7 @@ import zuo.processor.cbi.site.InstrumentationSites.ScalarSite;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Order;
 import zuo.processor.functionentry.client.iterative.IterativeFunctionClient.Score;
+import zuo.processor.functionentry.datastructure.PruneResult;
 import zuo.processor.functionentry.datastructure.Result;
 import zuo.processor.functionentry.datastructure.Statistic;
 import zuo.processor.functionentry.processor.SelectingProcessor;
@@ -45,6 +47,7 @@ import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtil;
 
 public class JavaClient {
+	private static final String D_Simu = "<<<";
 	final File rootDir;
 	final String subject;
 	final File consoleFolder;
@@ -238,7 +241,7 @@ public class JavaClient {
 					
 					solveOneRoundResults(statistics, client.getResults(), i);
 					
-					exportPruneInfoEachRound(cs.getFullInstrumentedCBIClient(), cs.getClientsMap(), client.getResults(), this.ks);
+					exportPruneInfoEachRound(cs.getFullInstrumentedCBIClient(), cs.getClientsMap(), client.getResults(), this.ks, vi, i);
 				}
 				
 				System.gc();
@@ -263,11 +266,41 @@ public class JavaClient {
 	 * @param ks
 	 */
 	private void exportPruneInfoEachRound(CBIClient fullInstrumentedCBIClient, Map<String, CBIClient> clientsMap,
-			Result[][] results, int[] ks) {
-		// TODO Auto-generated method stub
-		
+			Result[][] results, int[] ks, String versionName, int roundNum) {
+		//get full CBIClient
+		FixPointStructure fixFullElement = fullInstrumentedCBIClient.getFullFixElement();
+		//get prune result for <C, LESS_FIRST>
+		for(int k: ks){
+			PrintWriter out = null;
+			try{
+				File file = new File(new File(new File(this.consoleFolder, "SimuInfo"), versionName), "R" + roundNum + "T" + k); 
+				if (!file.getParentFile().exists()) {
+					file.getParentFile().mkdirs();
+				}
+				//write the passing inputs
+				out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+				
+				out.println("Full" + D_Simu + fixFullElement.getPassingSet().toString() + D_Simu + fixFullElement.getFailingSet().toString());
+				
+				PruneResult result = results[Score.C.ordinal()][Order.LESS_FIRST.ordinal()].getpFlagMap().get(k);
+				Set<String> methods = result.getPruneMethods();
+				for(String method: methods){
+					CBIClient cbiClient = clientsMap.get(method);
+					FixPointStructure fixElement = cbiClient.getFixElement(null);
+					
+					out.println(method + D_Simu + fixElement.getPassingSet().toString() + D_Simu + fixElement.getFailingSet().toString());
+				}
+				
+				out.close();
+			}
+			catch(IOException e){
+				e.printStackTrace();
+			}
+			finally{
+				out.close();
+			}
+		}
 	}
-
 
 
 	private void addAttributes(File profilesFolder) {

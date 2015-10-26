@@ -9,7 +9,7 @@ import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtility;
 
 
-public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScript implements GenRunInstrumentScript {
+public class GenRunAdaptiveFineGrainedInstrumentScriptAnt extends AbstractGenRunScript implements GenRunInstrumentScript {
 	public final static String Delimiter = "-";
 	
 	final String traceDir;
@@ -17,7 +17,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 	private final List<Integer> passingTests;
 	private List<String> methods;
 	
-	public GenRunAdaptiveFineGrainedInstrumentScript(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, String methodsF) {
+	public GenRunAdaptiveFineGrainedInstrumentScriptAnt(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, String methodsF) {
 		super(sub, srcN, ver, subV, cc, sD, eD, oD, scD);
 		this.traceDir = tD;
 		this.failingTests = FileUtility.readInputsArray(failing);

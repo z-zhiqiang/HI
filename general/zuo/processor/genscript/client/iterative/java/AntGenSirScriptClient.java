@@ -13,7 +13,6 @@ import java.util.Set;
 import sir.mts.MakeTestScript;
 import zuo.processor.genscript.sir.iterative.java.AbstractGenRunAllScript;
 import zuo.processor.genscript.sir.iterative.java.AbstractGenRunScript;
-import zuo.processor.genscript.sir.iterative.java.GenRunAdaptiveFineGrainedInstrumentScript;
 import zuo.processor.genscript.sir.iterative.java.GenRunAllAdaptiveInstrumentedScript;
 import zuo.processor.genscript.sir.iterative.java.GenRunAllInstrumentedScript;
 import zuo.processor.genscript.sir.iterative.java.GenRunAllSampledInstrumentedScript;
@@ -27,8 +26,8 @@ import zuo.processor.splitinputs.SirSplitInputs;
 import zuo.util.file.FileUtility;
 
 public class AntGenSirScriptClient {
-	public final static String WRAPPER = "-mx256m -classpath ${CLASSPATH} "
-			+ "-Dant.home=bootstrap -Dbuild.tests=build/testcases -Dtests-classpath.value=${CLASSPATH} AntWrapper";
+	public final static String RUNNER = "-mx256m -classpath ${CLASSPATH} "
+			+ "-Dant.home=bootstrap -Dbuild.tests=build/classes -Dtests-classpath.value=${CLASSPATH} junit.textui.TestRunner";
 	
 	public final static String rootPath = "/home/icuzzq/";
 	public final static String rootDir = rootPath + "Research/Automated_Debugging/Subjects/";
@@ -61,9 +60,6 @@ public class AntGenSirScriptClient {
 	final String vaftraceDir;
 	final String vsfoutputDir;
 	final String vsftraceDir;
-//	final String vsexecuteDir;
-//	final String vaexecuteDir;
-//	final String vfaultsDir;
 	
 	final String scriptDir;
 	
@@ -96,8 +92,6 @@ public class AntGenSirScriptClient {
 		vsourceDir = rootDir + subject + "/versions.alt/seeded/" + version + "/";
 		
 		vexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/";
-//		vsexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/sampled/";
-//		vaexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/adaptive/";
 		voutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/outputs/";
 		vfoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained/";
 		vsfoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained-sampled-";
@@ -125,10 +119,14 @@ public class AntGenSirScriptClient {
 		String setEnv = "export experiment_root=" + rootDir + "\n";
 		String rmdir = "rm -rf " + executeDir + "*\n";
 		String mkdir = "mkdir -p " + executeDir + "\n";
-		String siena_subject = "cp -r " + vsource + "/* " + executeDir + "\n";
-		String test_wrapper = "cp " + rootDir + subject + "/ant-bin/AntWrapper.class " + executeDir + "build/classes/\n";
+		String siena_subject = "cp -r " + vsource + "/* " + executeDir + "\n"
+				+ "cp -rf " + executeDir + "build/testcases/* " + executeDir + "build/classes/\n"
+				+ "rm -rf " + executeDir + "build/testcases/*\n";
+		String test_wrapper = ""
+				+ "cp -rf " + rootDir + subject + "/junit/ " + executeDir + "build/classes/\n"
+				+ "zip -d " + executeDir + "lib/junit3.8.1.jar junit/textui/TestRunner.class\n";
 		String cdCm = "cd " + executeDir + "\n";
-		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=build/classes:build/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar\n";
+		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=build/classes:build/testcases:src/testcases:src/etc/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar\n";
 		String cpCm = executeDir.equals(targetExecuteDir) ? "" : "rm -rf " + targetExecuteDir + "\nmkdir -p " + targetExecuteDir + "\ncp -r " + executeDir + "* " + targetExecuteDir + "\n";
 		
 		return setEnv + rmdir + mkdir + siena_subject + test_wrapper + cdCm + set_classpath + cpCm;
@@ -159,11 +157,11 @@ public class AntGenSirScriptClient {
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 		
 		//generate test scripts
-		String[] argvs = {"-sf", sf, "-sn", inputScript, "-en", WRAPPER, "-ed", rootDir + subject, "-tg", "bsh", "-nesc", "-j"};
+		String[] argvs = {"-sf", sf, "-sn", inputScript, "-en", RUNNER, "-ed", rootDir + subject, "-tg", "bsh", "-nesc", "-j"};
 		MakeTestScript.main(argvs);
 		FileUtility.constructSIRInputsMapFile(inputScript, inputsMapFile);
 		
-		String[] argvsC = {"-sf", sf, "-sn", inputCompScript, "-en", WRAPPER, "-ed", rootDir + subject, "-c", soutputDir, "-tg", "bsh", "-nesc", "-j"};
+		String[] argvsC = {"-sf", sf, "-sn", inputCompScript, "-en", RUNNER, "-ed", rootDir + subject, "-c", soutputDir, "-tg", "bsh", "-nesc", "-j"};
 		MakeTestScript.main(argvsC);
 		FileUtility.constructSIRInputsMapFile(inputCompScript, inputsCompMapFile);//read inputsMap
 		
@@ -187,69 +185,69 @@ public class AntGenSirScriptClient {
 		
 		//=========================================================================================================================================================================//
 		
-//		Set<Integer> subs = new HashSet<Integer>();
-//		//split inputs and generate run instrumented subversion scripts 
-//		for(int index: faults.keySet()){
-//			AntGenSirScriptClient gc = new AntGenSirScriptClient(subject, sourceName, version, "subv" + index);
-//			
-//			SirSplitInputs split = new SirSplitInputs(gc.inputsMapFile, gc.vexecuteDir, outCompFile);
-//			split.split();
-//			//collect the triggered faults
-//			if(split.getFailingTests().size() > 1 && split.getPassingTests().size() > 0
-////					&& !(gc.subject.equals("grep") && gc.version.equals("v1") && gc.subVersion.equals("subv14"))
-//			){
-//				subs.add(index);
-//				
-//				System.out.println("generating run instrument script for subv" + index);
-//				
-//				String vexecuteDir_fg = gc.vexecuteDir + "fine-grained/";
-//				gs = new GenRunFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_fg, index, "fg"), gc.vsourceDir, vexecuteDir_fg, 
-//						gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+		Set<Integer> subs = new HashSet<Integer>();
+		//split inputs and generate run instrumented subversion scripts 
+		for(int index: faults.keySet()){
+			AntGenSirScriptClient gc = new AntGenSirScriptClient(subject, sourceName, version, "subv" + index);
+			
+			SirSplitInputs split = new SirSplitInputs(gc.inputsMapFile, gc.vexecuteDir, outCompFile);
+			split.split();
+			//collect the triggered faults
+			if(split.getFailingTests().size() > 1 && split.getPassingTests().size() > 0
+//					&& !(gc.subject.equals("grep") && gc.version.equals("v1") && gc.subVersion.equals("subv14"))
+			){
+				subs.add(index);
+				
+				System.out.println("generating run instrument script for subv" + index);
+				
+				String vexecuteDir_fg = gc.vexecuteDir + "fine-grained/";
+				gs = new GenRunFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_fg, index, "fg"), gc.vsourceDir, vexecuteDir_fg, 
+						gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+				gs.genRunScript();
+				
+				String vexecuteDir_cg = gc.vexecuteDir + "coarse-grained/";
+				gs = new GenRunCoarseGrainedInstrumentScript(gc.subject,gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_cg, index, "cg"), gc.vsourceDir, vexecuteDir_cg, 
+						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+				gs.genRunScript();
+				
+				
+				String vexecuteDir_s1 = gc.vexecuteDir + "sample_1/";
+				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s1, index, "sample"), gc.vsourceDir, vexecuteDir_s1, gc.vsfoutputDir, 
+						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
+				gs.genRunScript();
+				String vexecuteDir_s100 = gc.vexecuteDir + "sample_100/";
+				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s100, index, "sample"), gc.vsourceDir, vexecuteDir_s100, gc.vsfoutputDir, 
+						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
+				gs.genRunScript();
+				String vexecuteDir_s10000 = gc.vexecuteDir + "sample_10000/";
+				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s10000, index, "sample"), gc.vsourceDir, vexecuteDir_s10000, gc.vsfoutputDir, 
+						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
+				gs.genRunScript();
+				
+				
+//				String vexecuteDir_adaptive = gc.vexecuteDir + "adaptive/";
+//				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(vexecuteDir_adaptive, index), gc.vsourceDir, vexecuteDir_adaptive, 
+//						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.version + "_" + gc.subVersion + "_C_LESS_FIRST_1_average");
 //				gs.genRunScript();
-//				
-//				String vexecuteDir_cg = gc.vexecuteDir + "coarse-grained/";
-//				gs = new GenRunCoarseGrainedInstrumentScript(gc.subject,gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_cg, index, "cg"), gc.vsourceDir, vexecuteDir_cg, 
-//						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
-//				gs.genRunScript();
-//				
-//				
-//				String vexecuteDir_s1 = gc.vexecuteDir + "sample_1/";
-//				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s1, index, "sample"), gc.vsourceDir, vexecuteDir_s1, gc.vsfoutputDir, 
-//						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
-//				gs.genRunScript();
-//				String vexecuteDir_s100 = gc.vexecuteDir + "sample_100/";
-//				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s100, index, "sample"), gc.vsourceDir, vexecuteDir_s100, gc.vsfoutputDir, 
-//						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
-//				gs.genRunScript();
-//				String vexecuteDir_s10000 = gc.vexecuteDir + "sample_10000/";
-//				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s10000, index, "sample"), gc.vsourceDir, vexecuteDir_s10000, gc.vsfoutputDir, 
-//						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
-//				gs.genRunScript();
-//				
-//				
-////				String vexecuteDir_adaptive = gc.vexecuteDir + "adaptive/";
-////				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(vexecuteDir_adaptive, index), gc.vsourceDir, vexecuteDir_adaptive, 
-////						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.version + "_" + gc.subVersion + "_C_LESS_FIRST_1_average");
-////				gs.genRunScript();
-//			}
-//			
-//		}
-//		
-//		//generate run all instrumented triggered subversion scripts
-//		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
+			}
+			
+		}
+		
+		//generate run all instrumented triggered subversion scripts
+		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
+		ga.genRunAllScript();
+
+		//generate run all sampled instrumented triggered subversion scripts
+		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 1);
+		ga.genRunAllScript();
+		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 100);
+		ga.genRunAllScript();
+		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
+		ga.genRunAllScript();
+		
+//		//generate run all adaptive instrumented triggered subversion scripts
+//		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
 //		ga.genRunAllScript();
-//
-//		//generate run all sampled instrumented triggered subversion scripts
-//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 1);
-//		ga.genRunAllScript();
-//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 100);
-//		ga.genRunAllScript();
-//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
-//		ga.genRunAllScript();
-//		
-////		//generate run all adaptive instrumented triggered subversion scripts
-////		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
-////		ga.genRunAllScript();
 	}
 	
 	
@@ -259,16 +257,16 @@ public class AntGenSirScriptClient {
 		if(string.equals("fg")){
 			paras = " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
 					+ " -sampler-out-sites=" + executeDir + "output.sites"
-					+ " -cp build/classes:build/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar"
-					+ " -process-dir " + executeDir + "build/classes/ " + executeDir + "build/testcases/"
+					+ " -cp build/classes:src/testcases:src/etc/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar"
+					+ " -process-dir " + executeDir + "build/classes/ "
 					+ " -d " + executeDir + "instrumented/"
 					+ "\n";
 		}
 		else if(string.equals("cg")){
 			paras = " -sampler-scheme=method-entries"
 					+ " -sampler-out-sites=" + executeDir + "output.sites"
-					+ " -cp build/classes:build/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar"
-					+ " -process-dir " + executeDir + "build/classes/ " + executeDir + "build/testcases/"
+					+ " -cp build/classes:src/testcases:src/etc/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar"
+					+ " -process-dir " + executeDir + "build/classes/ " 
 					+ " -d " + executeDir + "instrumented/"
 					+ "\n";
 		}
@@ -276,8 +274,8 @@ public class AntGenSirScriptClient {
 			paras = " -sampler"
 					+ " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
 					+ " -sampler-out-sites=" + executeDir + "output.sites"
-					+ " -cp build/classes:build/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar"
-					+ " -process-dir " + executeDir + "build/classes/ " + executeDir + "build/testcases/"
+					+ " -cp build/classes:src/testcases:src/etc/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar"
+					+ " -process-dir " + executeDir + "build/classes/ " 
 					+ " -d " + executeDir + "instrumented/"
 					+ "\n";
 		}
@@ -286,15 +284,13 @@ public class AntGenSirScriptClient {
 		}
 		
 		String compileCommand = genCompileCommand(executeDir, executeDir, index, rootDir + subject + "/ant-bin/seeded_" + version + "_" + index);
-		String cpCommand = "unset CLASSPATH\n"
-				+ "mkdir -p " + executeDir + "instrumented/\n"
-//				+ "cp -r " + executeDir + "build/classes/* " + executeDir + "instrumented/\n"
-//				+ "cp -r " + executeDir + "build/testcases/* " + executeDir + "instrumented/\n"
-				+ "cp -r " + executeDir + "build/* " + executeDir + "instrumented/\n";
-		String samplerCommand = "java -ea -cp " + jsampler + " edu.uci.jsampler.client.JSampler" + paras;
-		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + "instrumented/:" + jsampler + ":lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar\n";
+		String samplerCommand = "java -ea -cp " + jsampler + " edu.uci.jsampler.client.JSampler" + " -validate" + paras;
+		String cpCommand = "rm -f " + executeDir + "instrumented/*.jimple\n"
+				+ "cp -rf " + executeDir + "instrumented/* " + executeDir + "build/classes/\n"
+				+ "rm -rf " + executeDir + "instrumented/\n";
+		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + jsampler + ":" + executeDir + "build/classes:src/testcases:src/etc/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar\n";
 		
-		return compileCommand + cpCommand + samplerCommand + set_classpath;
+		return compileCommand + samplerCommand + cpCommand + set_classpath;
 	}
 
 
