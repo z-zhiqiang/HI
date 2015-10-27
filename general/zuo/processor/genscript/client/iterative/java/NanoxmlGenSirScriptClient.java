@@ -58,9 +58,6 @@ public class NanoxmlGenSirScriptClient {
 	final String vaftraceDir;
 	final String vsfoutputDir;
 	final String vsftraceDir;
-//	final String vsexecuteDir;
-//	final String vaexecuteDir;
-//	final String vfaultsDir;
 	
 	final String scriptDir;
 	
@@ -91,11 +88,8 @@ public class NanoxmlGenSirScriptClient {
 		soutputDir = rootDir + subject + "/outputs.alt/" + version + "/" + subject + "/";
 		
 		vsourceDir = rootDir + subject + "/versions.alt/component/seeded/" + version + "/";
-//		vfaultsDir = rootDir + subject + "/versions.alt/component/seeded/" + version + "/net/n3/nanoxml/";
 		
 		vexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/";
-//		vsexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/sampled/";
-//		vaexecuteDir = rootDir + subject + "/versions/" + version + "/" + subVersion + "/adaptive/";
 		voutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/outputs/";
 		vfoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained/";
 		vsfoutputDir = rootDir + subject + "/outputs.alt/" + version + "/versions/" + subVersion + "/fine-grained-sampled-";
@@ -186,22 +180,22 @@ public class NanoxmlGenSirScriptClient {
 		MakeTestScript.main(argvsC);
 		FileUtility.constructSIRInputsMapFile(inputCompScript, inputsCompMapFile);//read inputsMap
 		
-		//generate run subject and subversion scripts
-		gs = new GenRunSubjectScript(subject, sourceName, version, genCompileCommand(sexecuteDir, 0), ssourceDir, sexecuteDir, soutputDir, scriptDir);
-		gs.genRunScript();
-		
-		for(int index: faults.keySet()){
-			NanoxmlGenSirScriptClient gc = new NanoxmlGenSirScriptClient(subject, sourceName, version, "subv" + index);
-			
-			System.out.println("generating run script for subVersion" + index);
-			String vexecuteDir_version = gc.vexecuteDir + "version/";
-			new GenRunVersionsScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(vexecuteDir_version, index), gc.vsourceDir, vexecuteDir_version, gc.voutputDir, gc.scriptDir).genRunScript();
-		}
-		
-		//generate run all scripts  
-		assert(FileUtility.readInputsMap(inputsMapFile).size() == FileUtility.readInputsMap(inputsCompMapFile).size());
-		ga = new GenRunAllScript(version, subject, scriptDir, faults.size());
-		ga.genRunAllScript();
+//		//generate run subject and subversion scripts
+//		gs = new GenRunSubjectScript(subject, sourceName, version, genCompileCommand(sexecuteDir, 0), ssourceDir, sexecuteDir, soutputDir, scriptDir);
+//		gs.genRunScript();
+//		
+//		for(int index: faults.keySet()){
+//			NanoxmlGenSirScriptClient gc = new NanoxmlGenSirScriptClient(subject, sourceName, version, "subv" + index);
+//			
+//			System.out.println("generating run script for subVersion" + index);
+//			String vexecuteDir_version = gc.vexecuteDir + "version/";
+//			new GenRunVersionsScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(vexecuteDir_version, index), gc.vsourceDir, vexecuteDir_version, gc.voutputDir, gc.scriptDir).genRunScript();
+//		}
+//		
+//		//generate run all scripts  
+//		assert(FileUtility.readInputsMap(inputsMapFile).size() == FileUtility.readInputsMap(inputsCompMapFile).size());
+//		ga = new GenRunAllScript(version, subject, scriptDir, faults.size());
+//		ga.genRunAllScript();
 		
 		
 		//=========================================================================================================================================================================//
@@ -214,9 +208,7 @@ public class NanoxmlGenSirScriptClient {
 			SirSplitInputs split = new SirSplitInputs(gc.inputsMapFile, gc.vexecuteDir, outCompFile);
 			split.split();
 			//collect the triggered faults
-			if(split.getFailingTests().size() > 1 && split.getPassingTests().size() > 0
-//					&& !(gc.subject.equals("grep") && gc.version.equals("v1") && gc.subVersion.equals("subv14"))
-			){
+			if(split.getFailingTests().size() > 1 && split.getPassingTests().size() > 0){
 				subs.add(index);
 				
 				System.out.println("generating run instrument script for subv" + index);
@@ -232,24 +224,24 @@ public class NanoxmlGenSirScriptClient {
 				gs.genRunScript();
 				
 				
-				String vexecuteDir_s1 = gc.vexecuteDir + "sample_1/";
-				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s1, index, "sample"), gc.vsourceDir, vexecuteDir_s1, gc.vsfoutputDir, 
-						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
-				gs.genRunScript();
-				String vexecuteDir_s100 = gc.vexecuteDir + "sample_100/";
-				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s100, index, "sample"), gc.vsourceDir, vexecuteDir_s100, gc.vsfoutputDir, 
-						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
-				gs.genRunScript();
-				String vexecuteDir_s10000 = gc.vexecuteDir + "sample_10000/";
-				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s10000, index, "sample"), gc.vsourceDir, vexecuteDir_s10000, gc.vsfoutputDir, 
-						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
-				gs.genRunScript();
-				
-				
-				String vexecuteDir_adaptive = gc.vexecuteDir + "adaptive/";
-				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(vexecuteDir_adaptive, index), gc.vsourceDir, vexecuteDir_adaptive, 
-						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.version + "_" + gc.subVersion + "_C_LESS_FIRST_1_average");
-				gs.genRunScript();
+//				String vexecuteDir_s1 = gc.vexecuteDir + "sample_1/";
+//				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s1, index, "sample"), gc.vsourceDir, vexecuteDir_s1, gc.vsfoutputDir, 
+//						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
+//				gs.genRunScript();
+//				String vexecuteDir_s100 = gc.vexecuteDir + "sample_100/";
+//				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s100, index, "sample"), gc.vsourceDir, vexecuteDir_s100, gc.vsfoutputDir, 
+//						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
+//				gs.genRunScript();
+//				String vexecuteDir_s10000 = gc.vexecuteDir + "sample_10000/";
+//				gs = new GenRunSampledFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s10000, index, "sample"), gc.vsourceDir, vexecuteDir_s10000, gc.vsfoutputDir, 
+//						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
+//				gs.genRunScript();
+//				
+//				
+//				String vexecuteDir_adaptive = gc.vexecuteDir + "adaptive/";
+//				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(vexecuteDir_adaptive, index), gc.vsourceDir, vexecuteDir_adaptive, 
+//						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.version + "_" + gc.subVersion + "_C_LESS_FIRST_1_average");
+//				gs.genRunScript();
 			}
 			
 		}
@@ -258,17 +250,17 @@ public class NanoxmlGenSirScriptClient {
 		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
 		ga.genRunAllScript();
 
-		//generate run all sampled instrumented triggered subversion scripts
-		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 1);
-		ga.genRunAllScript();
-		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 100);
-		ga.genRunAllScript();
-		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
-		ga.genRunAllScript();
-		
-		//generate run all adaptive instrumented triggered subversion scripts
-		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
-		ga.genRunAllScript();
+//		//generate run all sampled instrumented triggered subversion scripts
+//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 1);
+//		ga.genRunAllScript();
+//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 100);
+//		ga.genRunAllScript();
+//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
+//		ga.genRunAllScript();
+//		
+//		//generate run all adaptive instrumented triggered subversion scripts
+//		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
+//		ga.genRunAllScript();
 	}
 	
 	
@@ -305,16 +297,10 @@ public class NanoxmlGenSirScriptClient {
 		}
 		
 		String compileCommand = genCompileCommand(executeDir, index);
-		String counterCommand = "" 
-//				+ "java -ea -cp " + jsampler + ":" + executeDir + " edu.uci.jsampler.client.JCounter" + paras
-				; 
-		String rmCommand = "" 
-//				+ "rm -rf " + executeDir + "instrumented/\n"
-				;
 		String samplerCommand = "java -ea -cp " + jsampler + " edu.uci.jsampler.client.JSampler" + paras;
 		String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + "instrumented/:" + jsampler + "\n";
 		
-		return compileCommand + counterCommand + rmCommand + samplerCommand + set_classpath;
+		return compileCommand + samplerCommand + set_classpath;
 	}
 
 

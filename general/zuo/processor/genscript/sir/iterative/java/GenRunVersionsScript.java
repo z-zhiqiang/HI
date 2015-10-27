@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Iterator;
 
 import zuo.processor.genscript.client.iterative.java.NanoxmlGenSirScriptClient;
+import zuo.util.file.FileUtility;
 
 
 
@@ -29,10 +30,10 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		}
 		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
 		
-		code.append("rm " + scriptDir + "../outputs/*\n");
+		code.append("rm -f " + scriptDir + "../outputs/*\n");
 		code.append("\n\n");
 		
-		code.append("rm $VERSIONSDIR/" + NanoxmlGenSirScriptClient.outCompFile + "\n");
+		code.append("rm -f $VERSIONSDIR/" + NanoxmlGenSirScriptClient.outCompFile + "\n");
 		code.append("echo script: " + subVersion + "\n");
 		for (Iterator<Integer> it = inputsCompMap.keySet().iterator(); it.hasNext();) {
 			int index = it.next();
@@ -56,10 +57,13 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 	
 	protected void mkOutDir(){
 		File fp = new File(outputDir);
+		FileUtility.removeDirectory(fp);
 		if(!fp.exists()){
 			fp.mkdirs();
 		}
+		
 		File fo = new File(executeDir);
+		FileUtility.removeDirectory(fo);
 		if(!fo.exists()){
 			fo.mkdirs();
 		}

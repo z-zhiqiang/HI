@@ -13,7 +13,7 @@ import zuo.processor.genscript.client.iterative.java.NanoxmlGenSirScriptClient;
 import zuo.util.file.FileUtility;
 
 public abstract class AbstractGenRunScript {
-	public static final int ROUNDS = 0;
+	public static final int ROUNDS = 1;
 	
 	final String subVersion;
 	final String version;

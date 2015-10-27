@@ -35,7 +35,6 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		code.append("tTime=0\n");
 		for(int i = 0; i < num; i++){
 			String method = transform(methods.get(i));
-//			System.out.println(method);
 			
 			String paras = " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
 					+ " -sampler-include-method=" + method
@@ -61,7 +60,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			code.append(endTimeCommand + " > " + outputDir + method + "/time 2>&1\n");
 			
 			code.append("tTime=$((tTime+time))\n");
-			code.append("rm " + scriptDir + "../outputs/*\n");
+			code.append("rm -f " + scriptDir + "../outputs/*\n");
 			code.append("rm -rf $TRACESDIR/\n");
 			
 			code.append("rm -rf " + executeDir + method + "/\n");
@@ -79,7 +78,6 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 				.replaceAll("\\(", Delimiter).replaceAll("\\)", Delimiter)
 				.replaceAll(":", Delimiter)
 				.replaceAll("<", Delimiter).replaceAll(">", Delimiter);
-//		return "\"" + string + "\"";
 	}
 
 	private void stmts(StringBuffer code, String method) {
@@ -130,24 +128,24 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			method = transform(method);
 
 			File fe = new File(executeDir + method);
+			FileUtility.removeDirectory(fe);
 			if(!fe.exists()){
 				fe.mkdirs();
 			}
-//			FileUtility.removeDirectory(fe);
 			
 			//make directory for outputs
 			File fo = new File(outputDir + method);
+			FileUtility.removeDirectory(fo);
 			if(!fo.exists()){
 				fo.mkdirs();
 			}
-//			FileUtility.removeDirectory(fo);
 			
 			//make directory for traces
 			File ft = new File(traceDir + method);
+			FileUtility.removeDirectory(ft);
 			if(!ft.exists()){
 				ft.mkdirs();
 			}
-//			FileUtility.removeDirectory(ft);
 		}
 	}
 

@@ -32,15 +32,15 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		
-		stmts(code);
+//		stmts(code);
 		code.append(startTimeCommand + "\n");
 		for(int j = 0; j < ROUNDS; j++){
 			stmts(code);
 		}
 		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
 		
-		code.append("rm " + scriptDir + "../outputs/*\n");
-		code.append("rm $TRACESDIR/o*profile\n");
+		code.append("rm -f " + scriptDir + "../outputs/*\n");
+		code.append("rm -f $TRACESDIR/o*profile\n");
 		
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_fg_s" + sample + ".sh");
 	}
@@ -70,18 +70,21 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 	@Override
 	protected void mkOutDir() {
 		File fe = new File(executeDir);
+		FileUtility.removeDirectory(fe);
 		if(!fe.exists()){
 			fe.mkdirs();
 		}
 		
 		//make directory for outputs
 		File fo = new File(outputDir);
+		FileUtility.removeDirectory(fo);
 		if(!fo.exists()){
 			fo.mkdirs();
 		}
 		
 		//make directory for traces
 		File ft = new File(traceDir);
+		FileUtility.removeDirectory(ft);
 		if(!ft.exists()){
 			ft.mkdirs();
 		}

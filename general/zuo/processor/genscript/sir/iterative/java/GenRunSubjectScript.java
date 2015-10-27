@@ -3,6 +3,8 @@ package zuo.processor.genscript.sir.iterative.java;
 import java.io.File;
 import java.util.Iterator;
 
+import zuo.util.file.FileUtility;
+
 
 public class GenRunSubjectScript extends AbstractGenRunScript {
 	
@@ -34,10 +36,12 @@ public class GenRunSubjectScript extends AbstractGenRunScript {
 	@Override
 	protected void mkOutDir() {
 		File fd = new File(outputDir);
+		FileUtility.removeDirectory(fd);
 		if(!fd.exists()){
 			fd.mkdirs();
 		}
 		File fdx = new File(executeDir);
+		FileUtility.removeDirectory(fdx);
 		if(!fdx.exists()){
 			fdx.mkdirs();
 		}
