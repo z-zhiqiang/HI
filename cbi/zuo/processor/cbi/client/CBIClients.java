@@ -25,14 +25,14 @@ public class CBIClients {
 	private CBIClient fullInstrumentedCBIClient;
 	private Map<String, CBIClient> clientsMap;
 	
-	public CBIClients(SitesInfo sitesInfo, PredicateProfile[] profiles, final int start){
+	public CBIClients(SitesInfo sitesInfo, PredicateProfile[] profiles, final int start, final int offset){
 		this.zFlag = true;
 		
 		this.profiles = profiles;
 		divideProfiles();
 		this.functions = Collections.unmodifiableSet(sitesInfo.getMap().keySet());
 		
-		run(start);
+		run(start, offset);
 	}
 
 	private void divideProfiles() {
@@ -53,9 +53,9 @@ public class CBIClients {
 	}
 
 
-	private void run(final int start) {
+	private void run(final int start, final int offset) {
 		//full CBIClient
-		fullInstrumentedCBIClient = new CBIClient(profiles, functions, failings, passings, start);
+		fullInstrumentedCBIClient = new CBIClient(profiles, functions, failings, passings, start + offset);
 		
 		//confirm that there exists predictor with non-zero importance value 
 		checkNonZeroPredictor();

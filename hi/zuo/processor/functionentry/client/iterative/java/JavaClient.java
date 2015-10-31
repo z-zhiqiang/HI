@@ -58,12 +58,13 @@ public class JavaClient {
 	
 	final int[] ks;
 	final int start;
+	final int offset;
 	
 	final Map<String, Statistic[][]> statisticsMap;
 	final Map<String, int[]> cResutlsMap;
 	
 	
-	public JavaClient(int[] ks, File rootDir, String subject, File consoleFolder, int round, final int start, int startV, int endV) {
+	public JavaClient(int[] ks, File rootDir, String subject, File consoleFolder, int round, final int start, int offset, int startV, int endV) {
 		this.ks = ks;
 
 		this.rootDir = rootDir;
@@ -72,6 +73,7 @@ public class JavaClient {
 		
 		this.round = round;
 		this.start = start;
+		this.offset = offset;
 
 		this.startVersion = startV;
 		this.endVersion = endV;
@@ -103,7 +105,7 @@ public class JavaClient {
 			File[] subversions = version.listFiles(new FilenameFilter(){
 				@Override
 				public boolean accept(File dir, String name) {
-					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 10);
+					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 9);
 				}});
 			Arrays.sort(subversions, new Comparator<File>(){
 
@@ -213,7 +215,7 @@ public class JavaClient {
 					long time0 = System.currentTimeMillis();
 					int tries = 0;
 					while(true){
-						cs = new CBIClients(sInfo, fProfiles, start);
+						cs = new CBIClients(sInfo, fProfiles, start, offset);
 						if(cs.iszFlag()){
 							break;
 						}
@@ -891,18 +893,18 @@ public class JavaClient {
 				{"567", "siena", "7"},
 		};
 		
-		if(args.length != 8){
+		if(args.length != 9){
 			System.out.println("The characteristics of subjects are as follows:");
 			for(int i = 0; i < argvs.length; i++){
 				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
 			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir round start([1, 10]) startVersion endVersion\n");
+			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir round start([1, 10]) offset([1, 10]) startVersion endVersion\n");
 			return;
 		}
 		int[] ks = {1};
 		long time0 = System.currentTimeMillis();
 
-		JavaClient c = new JavaClient(ks, new File(args[1]), args[2], new File(new File(args[3]), args[2] + "_" + args[4] + "_" + args[5] + "_v" + args[6] + "-v" + args[7]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]), Integer.parseInt(args[7]));
+		JavaClient c = new JavaClient(ks, new File(args[1]), args[2], new File(new File(args[3]), args[2] + "_" + args[4] + "_" + args[5] + "_" + args[6] + "_v" + args[7] + "-v" + args[8]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]), Integer.parseInt(args[7]), Integer.parseInt(args[8]));
 		c.runSir();
 		
 		long time1 = System.currentTimeMillis();

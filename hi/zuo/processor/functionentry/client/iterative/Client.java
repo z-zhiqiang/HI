@@ -188,7 +188,7 @@ public class Client {
 			for(int i = 0; i < round; i++){
 				System.out.println(i);
 				while(true){
-					cs = new CBIClients(sInfo, fProfiles, start);
+					cs = new CBIClients(sInfo, fProfiles, start, 0);
 					if(cs.iszFlag()){
 						break;
 					}
@@ -346,7 +346,7 @@ public class Client {
 					System.out.println(i);
 //					long time0 = System.currentTimeMillis();
 					while(true){
-						cs = new CBIClients(sInfo, fProfiles, start);
+						cs = new CBIClients(sInfo, fProfiles, start, 0);
 						if(cs.iszFlag()){
 							break;
 						}
