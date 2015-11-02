@@ -67,7 +67,7 @@ public abstract class AbstractGenRunScript {
 			String[] lines = input.split("\n");
 			for(String line: lines){
 				if(line.startsWith("sleep")){
-					System.out.println(line);
+//					System.out.println(line);
 					time += Long.parseLong(line.split(" ")[1].trim());
 				}
 			}

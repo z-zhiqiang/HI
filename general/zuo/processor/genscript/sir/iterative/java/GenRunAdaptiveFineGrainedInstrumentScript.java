@@ -1,6 +1,7 @@
 package zuo.processor.genscript.sir.iterative.java;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,6 +25,8 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
 		this.methods = FileCollection.readMethods(new File(NanoxmlGenSirScriptClient.rootDir + subject + "/FunctionList/", methodsF));
+		choseMethods(methods, 4);
+		System.err.println(methods);
 		mkOutDir();
 	}
 
@@ -72,6 +75,29 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_fg_a.sh");
 	}
 
+
+	public static void choseMethods(List<String> methods, int resize) {
+		// TODO Auto-generated method stub
+		assert(methods.size() >= resize);
+		int mod = methods.size() / resize;
+		List<String> tmp = new ArrayList<String>();
+		for(int i = 0; i < methods.size(); i++){
+			if(i % mod == 0){
+				tmp.add(methods.get(i));
+			}
+		}
+		methods.clear();
+		methods.addAll(tmp);
+		
+//		int mod = methods.size() / resize;
+//		Iterator<String> it = methods.iterator();
+//		int i = 0;
+//		while(it.hasNext()){
+//			if(i++ % mod != 0){
+//				it.remove();
+//			}
+//		}
+	}
 
 	private String transform(String string) {
 		return string.replaceAll(" ", Delimiter)

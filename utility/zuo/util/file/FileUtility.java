@@ -74,42 +74,31 @@ public class FileUtility {
 		final String echo = "echo \">>>>>>>>running test ";
 		final String echo_1 = "echo \">>>>>>>>running test 1\"";
 		Map<Integer, String> inputsmap = new LinkedHashMap<Integer, String>();
-		int count = 0;
+		int old = 1;
 		BufferedReader in = null;
 		try{
 			String line;
 			in = new BufferedReader(new FileReader(new File(inputScript)));
 			StringBuilder builder = new StringBuilder();
 			
-			while(!(line = in.readLine()).equals(echo_1)){
-//				System.out.println(line);
-//				Thread.sleep(1000);
-			}
-//			builder.append(line).append("\n");
+			while(!(line = in.readLine()).equals(echo_1));
 			
 			while ((line = in.readLine()) != null) {
 				if(line.startsWith(echo)){
-					inputsmap.put(++count, builder.toString());
+					inputsmap.put(old, builder.toString());
 					builder = new StringBuilder();
+					old = getIndex(line);
 				}
 				else{
+					if(line.endsWith("org.apache.derby.drda.NetworkServerControl start &")){
+						line = line.replaceFirst("org\\.apache\\.derby\\.drda\\.NetworkServerControl start &", "org.apache.derby.drda.NetworkServerControl start -noSecurityManager &");
+					}
 					builder.append(line).append("\n");
 				}
 				
-//				if(line.startsWith(echo)){
-//					builder = new StringBuilder();
-//					while ((line = in.readLine()) != null) {
-//						if(line.equals("")){
-//							break;
-//						}
-//						builder.append(line).append("\n");
-//					}
-////					System.out.println(builder.toString());
-//					inputsmap.put(++count, builder.toString());
-//				}
 			}
 			
-			inputsmap.put(++count, builder.toString());
+			inputsmap.put(old, builder.toString());
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -241,6 +230,19 @@ public class FileUtility {
 //    	
 //		return Collections.unmodifiableMap(inputsmap);
 //	}
+
+	private static int getIndex(String echo) {
+		// TODO Auto-generated method stub
+		echo = echo.replaceAll("\"", "");
+//		System.out.println(echo);
+		String[] tokens = echo.split(" ");
+//		for(String token: tokens){
+//			System.out.println(token);
+//		}
+		String last = tokens[tokens.length - 1];
+//		System.out.println(last);
+		return Integer.parseInt(last.trim());
+	}
 
 	public static Map<Integer, String> constructSiemensInputsMapFile(String inputs, String mapFile){
 		Map<Integer, String> inputsmap = new LinkedHashMap<Integer, String>();

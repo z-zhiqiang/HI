@@ -8,10 +8,10 @@ import zuo.util.file.FileUtility;
 
 
 
-public class GenRunVersionsScript extends AbstractGenRunScript {
+public class GenRunVersionsScriptDerby extends AbstractGenRunScript {
 	public static final String SUBV = "SUBV";
 
-	public GenRunVersionsScript(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD) {
+	public GenRunVersionsScriptDerby(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD) {
 		super(sub, srcN, ver, subV, cc, sD, eD, oD, scD);
 	    this.mkOutDir();
 	}
@@ -26,22 +26,25 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 //		stmts(code);
 		code.append(startTimeCommand + "\n");
 		for (int j = 0; j < ROUNDS; j++) {
-			stmts(code);
+//			stmts(code);
 		}
 		code.append(endTimeCommand + " > " + outputDir + "time 2>&1\n");
 		
 		code.append("rm -f " + scriptDir + "../outputs/*\n");
 		code.append("\n\n");
 		
-//		code.append("rm -f $VERSIONSDIR/" + NanoxmlGenSirScriptClient.outCompFile + "\n");
-//		code.append("echo script: " + subVersion + "\n");
-//		for (Iterator<Integer> it = inputsCompMap.keySet().iterator(); it.hasNext();) {
-//			int index = it.next();
-//			code.append(runinfo + index + "\"\n");// running info
-//			code.append(inputsCompMap.get(index).replace(SUBV, version + "/" + subVersion));//executables
-//			code.append("\n");
-//		}
-//		code.append("mv " + scriptDir + "../outputs/* " + outputDir + "\n");
+		code.append("rm -f $VERSIONSDIR/" + NanoxmlGenSirScriptClient.outCompFile + "\n");
+		code.append("echo script: " + subVersion + "\n");
+		for (Iterator<Integer> it = inputsCompMap.keySet().iterator(); it.hasNext();) {
+			int index = it.next();
+			code.append(runinfo + index + "\"\n");// running info
+			code.append(inputsCompMap.get(index).replace(SUBV, version + "/" + subVersion));//executables
+			code.append("cmp -s " + scriptDir + "../outputs/t" + index
+					+ " " + scriptDir + "../outputs.alt/" + version + "/" + subject + "/t" + index
+					+ " || echo " + index + " >> " + executeDir + NanoxmlGenSirScriptClient.outCompFile + "\n");
+			code.append("\n");
+		}
+		code.append("mv " + scriptDir + "../outputs/* " + outputDir + "\n");
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + ".sh");
 		
 	}
@@ -57,13 +60,13 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 	
 	protected void mkOutDir(){
 		File fp = new File(outputDir);
-//		FileUtility.removeDirectory(fp);
+		FileUtility.removeDirectory(fp);
 		if(!fp.exists()){
 			fp.mkdirs();
 		}
 		
 		File fo = new File(executeDir);
-//		FileUtility.removeDirectory(fo);
+		FileUtility.removeDirectory(fo);
 		if(!fo.exists()){
 			fo.mkdirs();
 		}

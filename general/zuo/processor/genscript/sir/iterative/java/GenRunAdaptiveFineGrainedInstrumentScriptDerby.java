@@ -9,7 +9,7 @@ import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtility;
 
 
-public class GenRunAdaptiveFineGrainedInstrumentScriptAnt extends AbstractGenRunScript implements GenRunInstrumentScript {
+public class GenRunAdaptiveFineGrainedInstrumentScriptDerby extends AbstractGenRunScript implements GenRunInstrumentScript {
 	public final static String Delimiter = "-";
 	
 	final String traceDir;
@@ -17,14 +17,13 @@ public class GenRunAdaptiveFineGrainedInstrumentScriptAnt extends AbstractGenRun
 	private final List<Integer> passingTests;
 	private List<String> methods;
 	
-	public GenRunAdaptiveFineGrainedInstrumentScriptAnt(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, String methodsF) {
+	public GenRunAdaptiveFineGrainedInstrumentScriptDerby(String sub, String srcN, String ver, String subV, String cc, String sD, String eD, String oD, String scD, String tD, String failing, String passing, String methodsF) {
 		super(sub, srcN, ver, subV, cc, sD, eD, oD, scD);
 		this.traceDir = tD;
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
 		this.methods = FileCollection.readMethods(new File(NanoxmlGenSirScriptClient.rootDir + subject + "/FunctionList/", methodsF));
-		GenRunAdaptiveFineGrainedInstrumentScript.choseMethods(methods, 5);
 		mkOutDir();
 	}
 

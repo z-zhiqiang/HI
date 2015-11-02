@@ -898,7 +898,7 @@ public class JavaClient {
 			for(int i = 0; i < argvs.length; i++){
 				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
 			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir round start([1, 10]) offset([1, 10]) startVersion endVersion\n");
+			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir round start([1, 10]) offset([0, 10]) startVersion endVersion\n");
 			return;
 		}
 		int[] ks = {1};
