@@ -37,7 +37,8 @@ public class IterativeTimeReader extends AbstractTimeReader {
 		for(int i = 0; i < Score.values().length; i++){
 			for(int j = 0; j < Order.values().length; j++){
 				String mode = verName + "_" + Score.values()[i] + "_" + Order.values()[j];
-				int time = readModeAverageTime(new File(subVersionFolder, "fine-grained-adaptive"), new File(new File(versionFolder.getParentFile(), "FunctionList"), mode + "_local_average"));
+				int time = 0;
+//				time = readModeAverageTime(new File(subVersionFolder, "fine-grained-adaptive"), new File(new File(versionFolder.getParentFile(), "FunctionList"), mode + "_local_average"));
 				results.add(time);
 				System.out.print(time + "\t");
 			}
@@ -46,7 +47,8 @@ public class IterativeTimeReader extends AbstractTimeReader {
 		for(int i = 0; i < Score.values().length; i++){
 			for(int j = 0; j < Order.values().length; j++){
 				String mode = verName + "_" + Score.values()[i] + "_" + Order.values()[j];
-				int time = readModeAverageTime(new File(subVersionFolder, "fine-grained-adaptive"), new File(new File(versionFolder.getParentFile(), "FunctionList"), mode + "_1_average"));
+				int time = 0;
+//				time = readModeAverageTime(new File(subVersionFolder, "fine-grained-adaptive"), new File(new File(versionFolder.getParentFile(), "FunctionList"), mode + "_1_average"));
 				results.add(time);
 				System.out.print(time + "\t");
 			}
@@ -151,8 +153,8 @@ public class IterativeTimeReader extends AbstractTimeReader {
 	}
 	
 	public static void main(String[] args) {
-		AbstractTimeReader timeReader = new IterativeTimeReader(new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_light/Subjects/Siemens/"), "replace");
-		timeReader.readAndExportTimeResults(new File("/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_light/Console/Siemens/"), "replace_overhead.xlsx");
+		AbstractTimeReader timeReader = new IterativeTimeReader(new File("/home/icuzzq/Research/Automated_Debugging/Subjects/"), "siena");
+		timeReader.readAndExportTimeResults(new File("/home/icuzzq/Research/Automated_Debugging/Console/"), "siena_overhead.xlsx");
 		
 	}
 

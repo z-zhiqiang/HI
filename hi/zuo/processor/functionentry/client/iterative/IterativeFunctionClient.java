@@ -178,8 +178,11 @@ public class IterativeFunctionClient {
 		//print out entry and percentage information
 		for(Score score: Score.values()){
 			for(Order order: Order.values()){
+				if(!(score == Score.C && order == Order.LESS_FIRST)){
+					continue;
+				}
 				List<Entry<FunctionEntrySite, FrequencyValue>> list = sortFunctionEntrySiteMap(processor.getFrequencyMap(), score, order);
-				printEntryAndPercentage(list, score, order, cbiWriter, functionWriter, processor);
+//				printEntryAndPercentage(list, score, order, cbiWriter, functionWriter, processor);
 				for(int k: ks){
 					printPruneCase(list, score, order, cbiWriter, functionWriter, k, processor);
 				}

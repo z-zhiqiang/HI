@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import zuo.processor.genscript.client.iterative.java.NanoxmlGenSirScriptClient;
+import zuo.processor.genscript.client.iterative.java.AbstractGenSirScriptClient;
 import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtility;
 
@@ -23,7 +23,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScriptDerby extends AbstractGenR
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
-		this.methods = FileCollection.readMethods(new File(NanoxmlGenSirScriptClient.rootDir + subject + "/FunctionList/", methodsF));
+		this.methods = FileCollection.readMethods(new File(AbstractGenSirScriptClient.rootDir + subject + "/FunctionList/", methodsF));
 		mkOutDir();
 	}
 
@@ -34,24 +34,27 @@ public class GenRunAdaptiveFineGrainedInstrumentScriptDerby extends AbstractGenR
 		code.append(compileCommand);
 		code.append("tTime=0\n");
 		for(int i = 0; i < num; i++){
-			String method = transform(methods.get(i));
+			String method = GenRunAdaptiveFineGrainedInstrumentScript.transform(methods.get(i));
 			
 			String paras = " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
 					+ " -sampler-include-method=" + method
 					+ " -sampler-out-sites=" + executeDir + method +  "/output.sites"
-					+ " -cp build/classes:src/testcases:src/etc/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar"
-					+ " -process-dir " + "build/classes/ "
+					+ " -cp  classes:tools/java/xml-apis.jar:tools/java/xercesImpl:$JAVA_HOME/lib/tools.jar:$JAVA_HOME/jre/lib/rt.jar:"
+						+ "xalan.jar:serializer.jar:$JAVA_HOME/jre/lib/jce.jar:tools/java/geronimo-spec-servlet-2.4-rc4.jar:" 
+						+ AbstractGenSirScriptClient.rootDir + subject + "/ant/lib/ant.jar:tools/java/junit.jar:tools/java/jakarta-oro-2.0.8.jar"
+					+ " -process-dir " + "classes/ "
 					+ " -d " + executeDir + method + "/instrumented/"
 					+ "\n";
 			
-			String samplerCommand = "java -ea -cp " + NanoxmlGenSirScriptClient.jsampler + " edu.uci.jsampler.client.JSampler" + paras;
+			String samplerCommand = "java -ea -cp " + AbstractGenSirScriptClient.jsampler + " edu.uci.jsampler.client.JSampler" + paras;
 			String cpCommand = "cp -rf " + executeDir + "source/* " + executeDir + method + "/\n"
 					+ "rm -f " + executeDir + method + "/instrumented/*.jimple\n"
-					+ "cp -rf " + executeDir + method + "/instrumented/* " + executeDir + method + "/build/classes/\n"
+					+ "cp -rf " + executeDir + method + "/instrumented/* " + executeDir + method + "/classes/\n"
 					+ "rm -rf " + executeDir + method + "/instrumented/\n";
 			String cdCommand = "cd " + executeDir + method + "/\n";
-			String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + NanoxmlGenSirScriptClient.jsampler + ":" + executeDir + method + "/build/classes:src/testcases:src/etc/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar\n";
-			
+			String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + AbstractGenSirScriptClient.jsampler + ":" + "classes:tools/java/xml-apis.jar:tools/java/xercesImpl:$JAVA_HOME/lib/tools.jar:$JAVA_HOME/jre/lib/rt.jar:"
+					+ "xalan.jar:serializer.jar:$JAVA_HOME/jre/lib/jce.jar:tools/java/geronimo-spec-servlet-2.4-rc4.jar:" 
+					+ AbstractGenSirScriptClient.rootDir + subject + "/ant/lib/ant.jar:tools/java/junit.jar:tools/java/jakarta-oro-2.0.8.jar\n";
 			code.append(samplerCommand + cpCommand + cdCommand + set_classpath + "\n");
 			code.append("echo script: " + subVersion + "\n");
 			code.append("export VERSIONSDIR=" + executeDir + "\n");
@@ -79,19 +82,12 @@ public class GenRunAdaptiveFineGrainedInstrumentScriptDerby extends AbstractGenR
 	}
 
 
-	private String transform(String string) {
-		return string.replaceAll(" ", Delimiter)
-				.replaceAll("\\(", Delimiter).replaceAll("\\)", Delimiter)
-				.replaceAll(":", Delimiter)
-				.replaceAll("<", Delimiter).replaceAll(">", Delimiter);
-	}
-
 	private void stmts(StringBuffer code, String method) {
 		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append(inputsMap.get(index));
+			code.append(GenRunFineGrainedInstrumentScriptDerby.insertSetEnv(inputsMap.get(index)));
 			code.append("\n");
 		}
 		
@@ -99,7 +95,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScriptDerby extends AbstractGenR
 			int index = it.next();
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append(inputsMap.get(index));
+			code.append(GenRunFineGrainedInstrumentScriptDerby.insertSetEnv(inputsMap.get(index)));
 			code.append("\n");
 		}
 	}
@@ -131,7 +127,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScriptDerby extends AbstractGenR
 //		}
 		
 		for(String method: methods){
-			method = transform(method);
+			method = GenRunAdaptiveFineGrainedInstrumentScript.transform(method);
 
 			File fe = new File(executeDir + method);
 			FileUtility.removeDirectory(fe);

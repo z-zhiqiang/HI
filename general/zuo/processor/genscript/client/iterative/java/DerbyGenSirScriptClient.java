@@ -15,6 +15,7 @@ import java.util.Set;
 
 import zuo.processor.genscript.sir.iterative.java.AbstractGenRunAllScript;
 import zuo.processor.genscript.sir.iterative.java.AbstractGenRunScript;
+import zuo.processor.genscript.sir.iterative.java.GenRunAdaptiveFineGrainedInstrumentScriptDerby;
 import zuo.processor.genscript.sir.iterative.java.GenRunAllAdaptiveInstrumentedScript;
 import zuo.processor.genscript.sir.iterative.java.GenRunAllInstrumentedScript;
 import zuo.processor.genscript.sir.iterative.java.GenRunAllSampledInstrumentedScript;
@@ -27,13 +28,7 @@ import zuo.processor.genscript.sir.iterative.java.GenRunVersionsScriptDerby;
 import zuo.processor.splitinputs.SirSplitInputs;
 import zuo.util.file.FileUtility;
 
-public class DerbyGenSirScriptClient {
-	
-	public final static String rootPath = "/home/icuzzq/";
-	public final static String rootDir = rootPath + "Research/Automated_Debugging/Subjects/";
-	
-	public final static String jsampler = rootPath + "bin/JSampler.jar";
-	public final static String seeder = "java -cp " + rootPath + "bin/ EqualizeLineNumbers ";
+public class DerbyGenSirScriptClient extends AbstractGenSirScriptClient{
 	
 	public final String subject;
 	public final String sourceName;
@@ -67,7 +62,6 @@ public class DerbyGenSirScriptClient {
 	String compileFGInstrument;
 	String compileCGInstrument;
 	
-	public final static String outCompFile = "comp.out";
     final static Map<Integer, Fault> faults = new HashMap<Integer, Fault>();
 	
 	public DerbyGenSirScriptClient(String sub, String srcName, String ver, String subVer){
@@ -176,7 +170,8 @@ public class DerbyGenSirScriptClient {
 			
 			System.out.println("generating run script for subVersion" + index);
 			String vexecuteDir_version = gc.vexecuteDir + "version/";
-			new GenRunVersionsScriptDerby(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(sexecuteDir, vexecuteDir_version, index, rootDir + subject + "/derby-bin/seeded_" + version + "_" + index), gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
+			new GenRunVersionsScriptDerby(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(sexecuteDir, vexecuteDir_version, index, 
+					rootDir + subject + "/derby-bin/seeded_" + version + "_" + index), gc.vsourceDir, gc.vexecuteDir, gc.voutputDir, gc.scriptDir).genRunScript();
 		}
 		
 		//generate run all scripts  
@@ -186,71 +181,72 @@ public class DerbyGenSirScriptClient {
 		
 		//=========================================================================================================================================================================//
 		
-//		Set<Integer> subs = new HashSet<Integer>();
-//		//split inputs and generate run instrumented subversion scripts 
-//		for(int index: faults.keySet()){
-//			if(!set.contains(index)){
-//				continue;
-//			}
-//			
-//			DerbyGenSirScriptClient gc = new DerbyGenSirScriptClient(subject, sourceName, version, "subv" + index);
-//			
-//			SirSplitInputs split = new SirSplitInputs(gc.inputsMapFile, gc.vexecuteDir, outCompFile);
-//			split.split();
-//			//collect the triggered faults
-//			if(split.getFailingTests().size() > 1 && split.getPassingTests().size() > 0){
-//				subs.add(index);
-//				
-//				System.out.println("generating run instrument script for subv" + index);
-//				
-//				String vexecuteDir_fg = gc.vexecuteDir + "fine-grained/";
-//				gs = new GenRunFineGrainedInstrumentScriptDerby(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_fg, index, "fg"), gc.vsourceDir, vexecuteDir_fg, 
-//						gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
-//				gs.genRunScript();
-//				
-//				String vexecuteDir_cg = gc.vexecuteDir + "coarse-grained/";
-//				gs = new GenRunCoarseGrainedInstrumentScriptDerby(gc.subject,gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_cg, index, "cg"), gc.vsourceDir, vexecuteDir_cg, 
-//						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
-//				gs.genRunScript();
-//				
-//				
-//				String vexecuteDir_s1 = gc.vexecuteDir + "sample_1/";
-//				gs = new GenRunSampledFineGrainedInstrumentScriptDerby(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s1, index, "sample"), gc.vsourceDir, vexecuteDir_s1, gc.vsfoutputDir, 
-//						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
-//				gs.genRunScript();
-//				String vexecuteDir_s100 = gc.vexecuteDir + "sample_100/";
-//				gs = new GenRunSampledFineGrainedInstrumentScriptDerby(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s100, index, "sample"), gc.vsourceDir, vexecuteDir_s100, gc.vsfoutputDir, 
-//						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
-//				gs.genRunScript();
-//				String vexecuteDir_s10000 = gc.vexecuteDir + "sample_10000/";
-//				gs = new GenRunSampledFineGrainedInstrumentScriptDerby(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s10000, index, "sample"), gc.vsourceDir, vexecuteDir_s10000, gc.vsfoutputDir, 
-//						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
-//				gs.genRunScript();
-////				
-////				
-////				String vexecuteDir_adaptive = gc.vexecuteDir + "adaptive/";
-////				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(vexecuteDir_adaptive, index), gc.vsourceDir, vexecuteDir_adaptive, 
-////						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.version + "_" + gc.subVersion + "_C_LESS_FIRST_1_average");
-////				gs.genRunScript();
-//			}
-//			
-//		}
-//		
-//		//generate run all instrumented triggered subversion scripts
-//		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
-//		ga.genRunAllScript();
-//
-//		//generate run all sampled instrumented triggered subversion scripts
-//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 1);
-//		ga.genRunAllScript();
-//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 100);
-//		ga.genRunAllScript();
-//		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
-//		ga.genRunAllScript();
-//		
-////		//generate run all adaptive instrumented triggered subversion scripts
-////		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
-////		ga.genRunAllScript();
+		Set<Integer> subs = new HashSet<Integer>();
+		//split inputs and generate run instrumented subversion scripts 
+		for(int index: faults.keySet()){
+			if(!set.contains(index)){
+				continue;
+			}
+			
+			DerbyGenSirScriptClient gc = new DerbyGenSirScriptClient(subject, sourceName, version, "subv" + index);
+			
+			SirSplitInputs split = new SirSplitInputs(gc.inputsMapFile, gc.vexecuteDir, outCompFile);
+			split.split();
+			//collect the triggered faults
+			if(split.getFailingTests().size() > 1 && split.getPassingTests().size() > 0){
+				subs.add(index);
+				
+				System.out.println("generating run instrument script for subv" + index);
+				
+				String vexecuteDir_fg = gc.vexecuteDir + "fine-grained/";
+				gs = new GenRunFineGrainedInstrumentScriptDerby(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_fg, index, "fg"), gc.vsourceDir, vexecuteDir_fg, 
+						gc.vfoutputDir, gc.scriptDir, gc.vftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+				gs.genRunScript();
+				
+				String vexecuteDir_cg = gc.vexecuteDir + "coarse-grained/";
+				gs = new GenRunCoarseGrainedInstrumentScriptDerby(gc.subject,gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_cg, index, "cg"), gc.vsourceDir, vexecuteDir_cg, 
+						gc.vcoutputDir, gc.scriptDir, gc.vctraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array");
+				gs.genRunScript();
+				
+				
+				String vexecuteDir_s1 = gc.vexecuteDir + "sample_1/";
+				gs = new GenRunSampledFineGrainedInstrumentScriptDerby(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s1, index, "sample"), gc.vsourceDir, vexecuteDir_s1, gc.vsfoutputDir, 
+						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 1);
+				gs.genRunScript();
+				String vexecuteDir_s100 = gc.vexecuteDir + "sample_100/";
+				gs = new GenRunSampledFineGrainedInstrumentScriptDerby(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s100, index, "sample"), gc.vsourceDir, vexecuteDir_s100, gc.vsfoutputDir, 
+						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 100);
+				gs.genRunScript();
+				String vexecuteDir_s10000 = gc.vexecuteDir + "sample_10000/";
+				gs = new GenRunSampledFineGrainedInstrumentScriptDerby(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genInstrumentCommand(vexecuteDir_s10000, index, "sample"), gc.vsourceDir, vexecuteDir_s10000, gc.vsfoutputDir, 
+						gc.scriptDir, gc.vsftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", 10000);
+				gs.genRunScript();
+				
+				
+				String vexecuteDir_adaptive = gc.vexecuteDir + "adaptive/";
+				gs = new GenRunAdaptiveFineGrainedInstrumentScriptDerby(gc.subject, gc.sourceName, gc.version, gc.subVersion, gc.genCompileCommand(vexecuteDir_adaptive + "source/", vexecuteDir_adaptive + "source/", index, 
+						rootDir + subject + "/derby-bin/seeded_" + version + "_" + index), gc.vsourceDir, vexecuteDir_adaptive, 
+						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.version + "_" + gc.subVersion + "_C_LESS_FIRST_1_average");
+				gs.genRunScript();
+			}
+			
+		}
+		
+		//generate run all instrumented triggered subversion scripts
+		ga = new GenRunAllInstrumentedScript(version, subject, scriptDir, subs);
+		ga.genRunAllScript();
+
+		//generate run all sampled instrumented triggered subversion scripts
+		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 1);
+		ga.genRunAllScript();
+		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 100);
+		ga.genRunAllScript();
+		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
+		ga.genRunAllScript();
+		
+		//generate run all adaptive instrumented triggered subversion scripts
+		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
+		ga.genRunAllScript();
 	}
 	
 	

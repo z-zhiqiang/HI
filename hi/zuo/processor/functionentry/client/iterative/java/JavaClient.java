@@ -105,7 +105,7 @@ public class JavaClient {
 			File[] subversions = version.listFiles(new FilenameFilter(){
 				@Override
 				public boolean accept(File dir, String name) {
-					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 9);
+					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 9 && name.equals("subv33"));
 				}});
 			Arrays.sort(subversions, new Comparator<File>(){
 

@@ -79,7 +79,7 @@ public class PredicateProfileReader {
 	public static void debug(int j, String filename) {
 //		System.out.println(j);
 //		System.out.println(filename);
-		assert(j + 1 == Integer.parseInt(FileUtil.canonicalizeProfileName(filename.substring(1))));
+//		assert(j + 1 == Integer.parseInt(FileUtil.canonicalizeProfileName(filename.substring(1))));
 	}
 	
 

@@ -8,12 +8,11 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Map;
 
-import zuo.processor.genscript.client.iterative.java.AntGenSirScriptClient;
-import zuo.processor.genscript.client.iterative.java.NanoxmlGenSirScriptClient;
+import zuo.processor.genscript.client.iterative.java.AbstractGenSirScriptClient;
 import zuo.util.file.FileUtility;
 
 public abstract class AbstractGenRunScript {
-	public static final int ROUNDS = 1;
+	public static final int ROUNDS = 3;
 	
 	final String subVersion;
 	final String version;
@@ -50,8 +49,8 @@ public abstract class AbstractGenRunScript {
 		this.outputDir = output;
 		this.scriptDir = script;
 		
-		inputsMap = FileUtility.readInputsMap(AntGenSirScriptClient.rootDir + subject + "/testplans.alt/" + "inputs.map");
-		inputsCompMap = FileUtility.readInputsMap(AntGenSirScriptClient.rootDir + subject + "/testplans.alt/" + "inputsComp.map");
+		inputsMap = FileUtility.readInputsMap(AbstractGenSirScriptClient.rootDir + subject + "/testplans.alt/" + "inputs.map");
+		inputsCompMap = FileUtility.readInputsMap(AbstractGenSirScriptClient.rootDir + subject + "/testplans.alt/" + "inputsComp.map");
 		
 		this.sleepTime = sleepTime();
 		

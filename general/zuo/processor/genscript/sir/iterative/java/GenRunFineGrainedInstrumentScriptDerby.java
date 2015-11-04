@@ -61,7 +61,7 @@ public class GenRunFineGrainedInstrumentScriptDerby extends AbstractGenRunScript
 		}
 	}
 
-	private String insertSetEnv(String test){
+	public static String insertSetEnv(String test){
 		String unset = "unset SAMPLER_FILE";
 		StringBuilder builder = new StringBuilder();
 		

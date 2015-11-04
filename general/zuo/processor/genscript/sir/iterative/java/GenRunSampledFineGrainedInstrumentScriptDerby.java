@@ -52,7 +52,7 @@ public class GenRunSampledFineGrainedInstrumentScriptDerby extends AbstractGenRu
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".fprofile\n");
-			code.append(insertSetEnv(inputsMap.get(index)));
+			code.append(GenRunFineGrainedInstrumentScriptDerby.insertSetEnv(inputsMap.get(index)));
 			code.append("\n");
 		}
 		
@@ -61,27 +61,11 @@ public class GenRunSampledFineGrainedInstrumentScriptDerby extends AbstractGenRu
 			code.append(runinfo + index + "\"\n");// running info
 			code.append("export SAMPLER_SPARSITY=" + sample + "\n");
 			code.append("export SAMPLER_FILE=$TRACESDIR/o" + index + ".pprofile\n");
-			code.append(insertSetEnv(inputsMap.get(index)));
+			code.append(GenRunFineGrainedInstrumentScriptDerby.insertSetEnv(inputsMap.get(index)));
 			code.append("\n");
 		}
 	}
 
-	private String insertSetEnv(String test){
-		String unset = "unset SAMPLER_FILE";
-		StringBuilder builder = new StringBuilder();
-		
-		String[] lines = test.split("\n");
-		for(String line: lines){
-			builder.append(line).append("\n");
-			if(line.endsWith("2>&1")){
-				System.out.println(line);
-				builder.append(unset).append("\n");
-			}
-		}
-		
-		return builder.toString();
-	}
-	
 	
 	@Override
 	protected void mkOutDir() {

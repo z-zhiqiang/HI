@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import zuo.processor.genscript.client.iterative.java.NanoxmlGenSirScriptClient;
+import zuo.processor.genscript.client.iterative.java.AbstractGenSirScriptClient;
 import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtility;
 
@@ -24,7 +24,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
-		this.methods = FileCollection.readMethods(new File(NanoxmlGenSirScriptClient.rootDir + subject + "/FunctionList/", methodsF));
+		this.methods = FileCollection.readMethods(new File(AbstractGenSirScriptClient.rootDir + subject + "/FunctionList/", methodsF));
 		choseMethods(methods, 4);
 		System.err.println(methods);
 		mkOutDir();
@@ -47,8 +47,8 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 					+ " -d " + executeDir + method + "/"
 					+ "\n";
 			
-			String samplerCommand = "java -ea -cp " + NanoxmlGenSirScriptClient.jsampler + " edu.uci.jsampler.client.JSampler" + paras;
-			String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + method + "/:" + NanoxmlGenSirScriptClient.jsampler + "\n";
+			String samplerCommand = "java -ea -cp " + AbstractGenSirScriptClient.jsampler + " edu.uci.jsampler.client.JSampler" + paras;
+			String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + executeDir + method + "/:" + AbstractGenSirScriptClient.jsampler + "\n";
 			
 			code.append(samplerCommand + set_classpath + "\n");
 			code.append("echo script: " + subVersion + "\n");
@@ -88,22 +88,14 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		}
 		methods.clear();
 		methods.addAll(tmp);
-		
-//		int mod = methods.size() / resize;
-//		Iterator<String> it = methods.iterator();
-//		int i = 0;
-//		while(it.hasNext()){
-//			if(i++ % mod != 0){
-//				it.remove();
-//			}
-//		}
 	}
 
-	private String transform(String string) {
+	public static String transform(String string) {
 		return string.replaceAll(" ", Delimiter)
 				.replaceAll("\\(", Delimiter).replaceAll("\\)", Delimiter)
 				.replaceAll(":", Delimiter)
-				.replaceAll("<", Delimiter).replaceAll(">", Delimiter);
+				.replaceAll("<", Delimiter).replaceAll(">", Delimiter)
+				.replaceAll("\\$", Delimiter);
 	}
 
 	private void stmts(StringBuffer code, String method) {

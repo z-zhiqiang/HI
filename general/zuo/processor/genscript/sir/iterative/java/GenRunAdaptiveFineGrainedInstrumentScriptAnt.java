@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import zuo.processor.genscript.client.iterative.java.NanoxmlGenSirScriptClient;
+import zuo.processor.genscript.client.iterative.java.AbstractGenSirScriptClient;
 import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtility;
 
@@ -23,7 +23,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScriptAnt extends AbstractGenRun
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
-		this.methods = FileCollection.readMethods(new File(NanoxmlGenSirScriptClient.rootDir + subject + "/FunctionList/", methodsF));
+		this.methods = FileCollection.readMethods(new File(AbstractGenSirScriptClient.rootDir + subject + "/FunctionList/", methodsF));
 		GenRunAdaptiveFineGrainedInstrumentScript.choseMethods(methods, 5);
 		mkOutDir();
 	}
@@ -35,7 +35,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScriptAnt extends AbstractGenRun
 		code.append(compileCommand);
 		code.append("tTime=0\n");
 		for(int i = 0; i < num; i++){
-			String method = transform(methods.get(i));
+			String method = GenRunAdaptiveFineGrainedInstrumentScript.transform(methods.get(i));
 			
 			String paras = " -sampler-scheme=branches -sampler-scheme=returns -sampler-scheme=scalar-pairs"
 					+ " -sampler-include-method=" + method
@@ -45,13 +45,13 @@ public class GenRunAdaptiveFineGrainedInstrumentScriptAnt extends AbstractGenRun
 					+ " -d " + executeDir + method + "/instrumented/"
 					+ "\n";
 			
-			String samplerCommand = "java -ea -cp " + NanoxmlGenSirScriptClient.jsampler + " edu.uci.jsampler.client.JSampler" + paras;
+			String samplerCommand = "java -ea -cp " + AbstractGenSirScriptClient.jsampler + " edu.uci.jsampler.client.JSampler" + paras;
 			String cpCommand = "cp -rf " + executeDir + "source/* " + executeDir + method + "/\n"
 					+ "rm -f " + executeDir + method + "/instrumented/*.jimple\n"
 					+ "cp -rf " + executeDir + method + "/instrumented/* " + executeDir + method + "/build/classes/\n"
 					+ "rm -rf " + executeDir + method + "/instrumented/\n";
 			String cdCommand = "cd " + executeDir + method + "/\n";
-			String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + NanoxmlGenSirScriptClient.jsampler + ":" + executeDir + method + "/build/classes:src/testcases:src/etc/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar\n";
+			String set_classpath = "unset CLASSPATH\nexport CLASSPATH=" + AbstractGenSirScriptClient.jsampler + ":" + executeDir + method + "/build/classes:src/testcases:src/etc/testcases:lib/xercesImpl.jar:lib/xml-apis.jar:lib/junit3.8.1.jar:$JAVA_HOME/lib/tools.jar\n";
 			
 			code.append(samplerCommand + cpCommand + cdCommand + set_classpath + "\n");
 			code.append("echo script: " + subVersion + "\n");
@@ -79,13 +79,6 @@ public class GenRunAdaptiveFineGrainedInstrumentScriptAnt extends AbstractGenRun
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + "_fg_a.sh");
 	}
 
-
-	private String transform(String string) {
-		return string.replaceAll(" ", Delimiter)
-				.replaceAll("\\(", Delimiter).replaceAll("\\)", Delimiter)
-				.replaceAll(":", Delimiter)
-				.replaceAll("<", Delimiter).replaceAll(">", Delimiter);
-	}
 
 	private void stmts(StringBuffer code, String method) {
 		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
@@ -132,7 +125,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScriptAnt extends AbstractGenRun
 //		}
 		
 		for(String method: methods){
-			method = transform(method);
+			method = GenRunAdaptiveFineGrainedInstrumentScript.transform(method);
 
 			File fe = new File(executeDir + method);
 			FileUtility.removeDirectory(fe);
