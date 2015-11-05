@@ -337,6 +337,9 @@ public class Processor {
 //				System.out.println(importance);
 //			}
 			
+			if(importance == 0){
+				continue;
+			}
 			PredicateItemWithImportance pItemWI = new PredicateItemWithImportance(predicate, importance);
 			predictorsList.add(pItemWI);
 			

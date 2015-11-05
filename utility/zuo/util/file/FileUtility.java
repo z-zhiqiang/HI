@@ -314,7 +314,8 @@ public class FileUtility {
 				}
 			}
 		}
-		return Collections.unmodifiableMap(inputsMap);
+//		return Collections.unmodifiableMap(inputsMap);
+		return inputsMap;
 	}
 	
 	public static List<Integer> readInputsArray(String inputsArrayFile){

@@ -64,14 +64,14 @@ public class GenRunCoarseGrainedInstrumentScript extends AbstractGenRunScript im
 	protected void mkOutDir() {
 		//make directory for outputs
 		File fo = new File(outputDir);
-		FileUtility.removeDirectory(fo);
+//		FileUtility.removeDirectory(fo);
 		if(!fo.exists()){
 			fo.mkdirs();
 		}
 		
 		//make directory for traces
 		File ft = new File(traceDir);
-		FileUtility.removeDirectory(ft);
+//		FileUtility.removeDirectory(ft);
 		if(!ft.exists()){
 			ft.mkdirs();
 		}

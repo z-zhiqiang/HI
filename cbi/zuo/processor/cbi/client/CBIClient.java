@@ -146,6 +146,9 @@ public class CBIClient {
 			}
 			return true;
 		}
+		if(currentElement.getSortedPredictors().isEmpty() && previous1stElement.getSortedPredictors().isEmpty() && previous2ndElement.getSortedPredictors().isEmpty()){
+			return true;
+		}
 		if(currentElement.getSortedPredictors().isEmpty() || previous1stElement.getSortedPredictors().isEmpty() || previous2ndElement.getSortedPredictors().isEmpty()){
 			return false;
 		}

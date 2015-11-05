@@ -70,21 +70,21 @@ public class GenRunSampledFineGrainedInstrumentScript extends AbstractGenRunScri
 	@Override
 	protected void mkOutDir() {
 		File fe = new File(executeDir);
-		FileUtility.removeDirectory(fe);
+//		FileUtility.removeDirectory(fe);
 		if(!fe.exists()){
 			fe.mkdirs();
 		}
 		
 		//make directory for outputs
 		File fo = new File(outputDir);
-		FileUtility.removeDirectory(fo);
+//		FileUtility.removeDirectory(fo);
 		if(!fo.exists()){
 			fo.mkdirs();
 		}
 		
 		//make directory for traces
 		File ft = new File(traceDir);
-		FileUtility.removeDirectory(ft);
+//		FileUtility.removeDirectory(ft);
 		if(!ft.exists()){
 			ft.mkdirs();
 		}

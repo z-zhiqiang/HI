@@ -63,13 +63,27 @@ public abstract class AbstractGenRunScript {
 		for (Iterator<Integer> it = inputsMap.keySet().iterator(); it.hasNext();) {
 			int index = it.next();
 			String input = inputsMap.get(index);
+			System.out.println(input);
+			String newInput = input;
 			String[] lines = input.split("\n");
 			for(String line: lines){
 				if(line.startsWith("sleep")){
-//					System.out.println(line);
-					time += Long.parseLong(line.split(" ")[1].trim());
+					String[] tokens = line.split(" ");
+					int t = Integer.parseInt(tokens[1]);
+					int nt = t;
+					if(t > 3){
+						nt = t / 2;
+					}
+					newInput = newInput.replaceAll("sleep " + t, "sleep " + nt);
+					
+					System.out.println(line);
+					time += nt;
+					System.out.println(nt);
 				}
 			}
+			inputsMap.put(index, newInput);
+			System.out.println(newInput);
+			System.out.println();
 		}
 			
 		return time;
