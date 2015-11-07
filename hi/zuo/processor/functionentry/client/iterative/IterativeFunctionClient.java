@@ -162,18 +162,22 @@ public class IterativeFunctionClient {
 	private void run(PrintWriter cbiWriter, PrintWriter functionWriter, int[] ks){
 		SelectingProcessor processor = new SelectingProcessor(selectedFunctionEntryProfiles, this.C_matrix);
 		processor.process();
+		System.out.println("s");
 		
 		//print out the general runs information
 		printSelectedFunctionEntryProfilesInformation(functionWriter);
+		System.out.println("a");
 		
 		//print out the static instrumentation sites information 
 		assert(processor.getFrequencyMap().size() == sites.getNumFunctionEntrySites());
 		printSitesInformation(functionWriter);
+		System.out.println("b");
 		
 		//filter out methods within which no predicates are instrumented
 		filterFrequencyMap(processor.getFrequencyMap());
 //		printout(processor.getFrequencyMap(), this.sInfo.getMap());
 		assert(processor.getFrequencyMap().size() == this.sInfo.getMap().size());
+		System.out.println("c");
 		
 		//print out entry and percentage information
 		for(Score score: Score.values()){
@@ -182,6 +186,7 @@ public class IterativeFunctionClient {
 					continue;
 				}
 				List<Entry<FunctionEntrySite, FrequencyValue>> list = sortFunctionEntrySiteMap(processor.getFrequencyMap(), score, order);
+				System.out.println("d");
 //				printEntryAndPercentage(list, score, order, cbiWriter, functionWriter, processor);
 				for(int k: ks){
 					printPruneCase(list, score, order, cbiWriter, functionWriter, k, processor);
@@ -473,6 +478,7 @@ public class IterativeFunctionClient {
 			if(!skip){
 				pruneResult.getPruneMethods().add(function);
 				FixPointStructure fixElement = clientsMap.get(function).getFixElement(cbiWriter);
+				System.out.println(i);
 				
 				i++;
 				nSites += sInfo.getMap().get(function).getNumSites();
