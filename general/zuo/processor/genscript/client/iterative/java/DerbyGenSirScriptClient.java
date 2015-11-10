@@ -151,7 +151,7 @@ public class DerbyGenSirScriptClient extends AbstractGenSirScriptClient{
 		
 		FileUtility.constructSIRInputsMapFile(inputScript, inputsCompMapFile);//read inputsMap
 		
-		int[] array = {8, 29, 30, 33, 37, 38, 39, 52, 60, 61};
+		int[] array = {8, 30, 61};
 		Set<Integer> set = new HashSet<Integer>();
 		for(int i: array){
 			set.add(i);

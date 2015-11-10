@@ -24,6 +24,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScriptDerby extends AbstractGenR
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
 		this.methods = FileCollection.readMethods(new File(AbstractGenSirScriptClient.rootDir + subject + "/FunctionList/", methodsF));
+		GenRunAdaptiveFineGrainedInstrumentScript.choseMethods(methods, 5);
 		mkOutDir();
 	}
 

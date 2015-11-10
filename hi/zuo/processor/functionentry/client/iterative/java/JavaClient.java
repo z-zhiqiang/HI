@@ -896,19 +896,11 @@ public class JavaClient {
 
 	
 	public static void main(String[] args) {
-		String[][] argvs = {
-				{"567", "siena", "7"},
-		};
-		
 		if(args.length != 11){
-			System.out.println("The characteristics of subjects are as follows:");
-			for(int i = 0; i < argvs.length; i++){
-				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
-			}
 			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir round start([1, 10]) offset([0, 10]) startVersion endVersion startSubVersion endSubVersion\n");
 			return;
 		}
-		int[] ks = {1};
+		int[] ks = {1, 3, 5, 10};
 		long time0 = System.currentTimeMillis();
 
 		JavaClient c = new JavaClient(ks, new File(args[1]), args[2], new File(new File(args[3]), args[2] + "_" + args[4] + "_" + args[5] + "_" + args[6] + "_v" + args[7] + "-v" + args[8] + "_subv" + args[9] + "-subv" + args[10]), 

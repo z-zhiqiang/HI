@@ -69,7 +69,7 @@ public class GenRunFineGrainedInstrumentScriptDerby extends AbstractGenRunScript
 		for(String line: lines){
 			builder.append(line).append("\n");
 			if(line.endsWith("2>&1")){
-				System.out.println(line);
+//				System.out.println(line);
 				builder.append(unset).append("\n");
 			}
 		}
