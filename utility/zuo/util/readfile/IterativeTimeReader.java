@@ -153,8 +153,12 @@ public class IterativeTimeReader extends AbstractTimeReader {
 	}
 	
 	public static void main(String[] args) {
-		AbstractTimeReader timeReader = new IterativeTimeReader(new File("/home/icuzzq/Research/Automated_Debugging/Subjects/"), "siena");
-		timeReader.readAndExportTimeResults(new File("/home/icuzzq/Research/Automated_Debugging/Console/"), "siena_overhead.xlsx");
+		if(args.length != 3){
+			System.err.println("Usage: subjectDir subject consoleDir");
+			return;
+		}
+		AbstractTimeReader timeReader = new IterativeTimeReader(new File(args[0]), args[1]);
+		timeReader.readAndExportTimeResults(new File(args[2]), args[1] + "_overhead.xlsx");
 		
 	}
 
