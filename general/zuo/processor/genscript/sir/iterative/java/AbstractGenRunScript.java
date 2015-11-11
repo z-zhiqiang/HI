@@ -114,7 +114,7 @@ public abstract class AbstractGenRunScript {
 		try{
 			File fd = new File(folder);
 			if(!fd.exists()){
-				fd.mkdir();
+				fd.mkdirs();
 			}
 			pout = new PrintWriter(new BufferedWriter(new FileWriter(folder + "/" + file)));
 			pout.print(scr);
