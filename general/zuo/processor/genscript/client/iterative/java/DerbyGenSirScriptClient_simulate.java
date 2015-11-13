@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,23 +21,14 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 
-import zuo.processor.genscript.sir.iterative.java.AbstractGenRunAllScript;
 import zuo.processor.genscript.sir.iterative.java.AbstractGenRunScript;
 import zuo.processor.genscript.sir.iterative.java.GenRunAdaptiveFineGrainedInstrumentScript;
-import zuo.processor.genscript.sir.iterative.java.GenRunAdaptiveFineGrainedInstrumentScriptDerby;
-import zuo.processor.genscript.sir.iterative.java.GenRunAllAdaptiveInstrumentedScript;
-import zuo.processor.genscript.sir.iterative.java.GenRunAllInstrumentedScript;
-import zuo.processor.genscript.sir.iterative.java.GenRunAllSampledInstrumentedScript;
-import zuo.processor.genscript.sir.iterative.java.GenRunAllScript;
-import zuo.processor.genscript.sir.iterative.java.GenRunCoarseGrainedInstrumentScriptDerby;
 import zuo.processor.genscript.sir.iterative.java.GenRunFineGrainedInstrumentScriptDerby;
-import zuo.processor.genscript.sir.iterative.java.GenRunSampledFineGrainedInstrumentScriptDerby;
-import zuo.processor.genscript.sir.iterative.java.GenRunSubjectScript;
-import zuo.processor.genscript.sir.iterative.java.GenRunVersionsScriptDerby;
-import zuo.processor.splitinputs.SirSplitInputs;
 import zuo.util.file.FileUtility;
 
 public class DerbyGenSirScriptClient_simulate extends AbstractGenSirScriptClient{
+	
+	public final static int Round = 1;
 	
 	public final String subject;
 	public final String version;
@@ -111,7 +103,7 @@ public class DerbyGenSirScriptClient_simulate extends AbstractGenSirScriptClient
 				{"derby", "5"}, // grep v1_subv14
 		};
 		for (int i = 0; i < subjects.length; i++) {
-			for(int j = 5; j <= Integer.parseInt(subjects[i][2]); j++){
+			for(int j = 5; j <= Integer.parseInt(subjects[i][1]); j++){
 				DerbyGenSirScriptClient_simulate gc = new DerbyGenSirScriptClient_simulate(subjects[i][0], "v" + j, null);
 				gc.gen();
 			}
@@ -162,7 +154,7 @@ public class DerbyGenSirScriptClient_simulate extends AbstractGenSirScriptClient
 			}});
 		
 		for(File subversion: subversions){
-			GenSirScriptClient_simulate gc = new GenSirScriptClient_simulate(subject, version, subversion.getName());
+			DerbyGenSirScriptClient_simulate gc = new DerbyGenSirScriptClient_simulate(subject, version, subversion.getName());
 			int index = Integer.parseInt(gc.subVersion.substring(4));
 			if(!set.contains(index)){
 				continue;
@@ -176,9 +168,10 @@ public class DerbyGenSirScriptClient_simulate extends AbstractGenSirScriptClient
 			FileUtils.copyDirectory(new File(vexecuteDir_version), targetDir);
 			
 			
-			String file = rootDir + gc.subject + "/SimuInfo/" + gc.version + "_" + gc.subVersion + "/R0T1";
+			String file = rootDir + gc.subject + "/SimuInfo/" + gc.version + "_" + gc.subVersion + "/R" + Round + "T1";
 			System.out.println(file);
 			
+			String simuScriptsDir = "/SimuScripts" + Round + "/";
 			BufferedReader reader = null;
 			try {
 				reader = new BufferedReader(new FileReader(new File(file)));
@@ -192,20 +185,20 @@ public class DerbyGenSirScriptClient_simulate extends AbstractGenSirScriptClient
 					List<Integer> passingTests = GenSirScriptClient_simulate.readTests(comps[1]);
 					List<Integer> failingTests = GenSirScriptClient_simulate.readTests(comps[2]);
 					
-					String builder = GenSirScriptClient_simulate.generateScripts(list, passingTests, failingTests, gc.subject);
+					String builder = generateScripts(list, passingTests, failingTests, gc.subject);
 					if(fileName.equals("Full")){
-						AbstractGenRunScript.printToFile(builder, rootDir + gc.subject + "/SimuScripts/" + gc.version + "_" + gc.subVersion, gc.version + "_" + gc.subVersion + "_fg.sh");
-						AbstractGenRunScript.printToFile(builder, rootDir + gc.subject + "/SimuScripts/" + gc.version + "_" + gc.subVersion, gc.version + "_" + gc.subVersion + "_cg.sh");
+						AbstractGenRunScript.printToFile(builder, rootDir + gc.subject + simuScriptsDir + gc.version + "_" + gc.subVersion, gc.version + "_" + gc.subVersion + "_fg.sh");
+						AbstractGenRunScript.printToFile(builder, rootDir + gc.subject + simuScriptsDir + gc.version + "_" + gc.subVersion, gc.version + "_" + gc.subVersion + "_cg.sh");
 					}
 					else{
 						String[] sigs = fileName.split("->");
 						assert(sigs.length == 2);
 						String sig = GenRunAdaptiveFineGrainedInstrumentScript.transform(sigs[0]);
 						meta.append(++id + "=" + sig + "=" + sigs[1]).append("\n");
-						AbstractGenRunScript.printToFile(builder, rootDir + gc.subject + "/SimuScripts/" + gc.version + "_" + gc.subVersion, gc.version + "_" + gc.subVersion + "_m" + id + ".sh");
+						AbstractGenRunScript.printToFile(builder, rootDir + gc.subject + simuScriptsDir + gc.version + "_" + gc.subVersion, gc.version + "_" + gc.subVersion + "_m" + id + ".sh");
 					}
 				}
-				AbstractGenRunScript.printToFile(meta.toString(), rootDir + gc.subject + "/SimuScripts/" + gc.version + "_" + gc.subVersion, "map");
+				AbstractGenRunScript.printToFile(meta.toString(), rootDir + gc.subject + simuScriptsDir + gc.version + "_" + gc.subVersion, "map");
 				reader.close();
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -227,4 +220,28 @@ public class DerbyGenSirScriptClient_simulate extends AbstractGenSirScriptClient
 		}
 	}
 	
+	
+	public static String generateScripts(List<Entry<Integer, String>> list, List<Integer> passingTests,
+			List<Integer> failingTests, String subject) {
+		StringBuilder code = new StringBuilder();
+		// TODO Auto-generated method stub
+		for (Iterator<Integer> it = failingTests.iterator(); it.hasNext();) {
+			int index = it.next();
+			int num = list.get(index).getKey();
+			code.append(AbstractGenRunScript.runinfo + num + "\"\n");// running info
+			code.append("export SAMPLER_FILE=$TRACESDIR/o" + num + ".fprofile\n");
+			code.append(GenRunFineGrainedInstrumentScriptDerby.insertSetEnv(list.get(index).getValue()));
+			code.append("\n");
+		}
+		
+		for (Iterator<Integer> it = passingTests.iterator(); it.hasNext();) {
+			int index = it.next();
+			int num = list.get(index).getKey();
+			code.append(AbstractGenRunScript.runinfo + num + "\"\n");// running info
+			code.append("export SAMPLER_FILE=$TRACESDIR/o" + num + ".pprofile\n");
+			code.append(GenRunFineGrainedInstrumentScriptDerby.insertSetEnv(list.get(index).getValue()));
+			code.append("\n");
+		}
+		return code.toString();
+	}
 }

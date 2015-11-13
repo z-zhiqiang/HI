@@ -28,6 +28,9 @@ import zuo.processor.genscript.sir.iterative.java.GenRunAdaptiveFineGrainedInstr
 import zuo.util.file.FileUtility;
 
 public class GenSirScriptClient_simulate extends AbstractGenSirScriptClient{
+	public final static int Round = 0;
+	
+	
 	public final String subject;
 	public final String version;
 	public final String subVersion;
@@ -137,9 +140,10 @@ public class GenSirScriptClient_simulate extends AbstractGenSirScriptClient{
 			
 			
 			
-			String file = rootDir + gc.subject + "/SimuInfo/" + gc.version + "_" + gc.subVersion + "/R0T1";
+			String file = rootDir + gc.subject + "/SimuInfo/" + gc.version + "_" + gc.subVersion + "/R" + Round + "T1";
 			System.out.println(file);
 			
+			String simuScriptsDir = "/SimuScripts" + Round + "/";
 			BufferedReader reader = null;
 			try {
 				reader = new BufferedReader(new FileReader(new File(file)));
@@ -155,18 +159,18 @@ public class GenSirScriptClient_simulate extends AbstractGenSirScriptClient{
 					
 					String builder = generateScripts(list, passingTests, failingTests, gc.subject);
 					if(fileName.equals("Full")){
-						AbstractGenRunScript.printToFile(builder, rootDir + gc.subject + "/SimuScripts/" + gc.version + "_" + gc.subVersion, gc.version + "_" + gc.subVersion + "_fg.sh");
-						AbstractGenRunScript.printToFile(builder, rootDir + gc.subject + "/SimuScripts/" + gc.version + "_" + gc.subVersion, gc.version + "_" + gc.subVersion + "_cg.sh");
+						AbstractGenRunScript.printToFile(builder, rootDir + gc.subject + simuScriptsDir + gc.version + "_" + gc.subVersion, gc.version + "_" + gc.subVersion + "_fg.sh");
+						AbstractGenRunScript.printToFile(builder, rootDir + gc.subject + simuScriptsDir + gc.version + "_" + gc.subVersion, gc.version + "_" + gc.subVersion + "_cg.sh");
 					}
 					else{
 						String[] sigs = fileName.split("->");
 						assert(sigs.length == 2);
 						String sig = GenRunAdaptiveFineGrainedInstrumentScript.transform(sigs[0]);
 						meta.append(++id + "=" + sig + "=" + sigs[1]).append("\n");
-						AbstractGenRunScript.printToFile(builder, rootDir + gc.subject + "/SimuScripts/" + gc.version + "_" + gc.subVersion, gc.version + "_" + gc.subVersion + "_m" + id + ".sh");
+						AbstractGenRunScript.printToFile(builder, rootDir + gc.subject + simuScriptsDir + gc.version + "_" + gc.subVersion, gc.version + "_" + gc.subVersion + "_m" + id + ".sh");
 					}
 				}
-				AbstractGenRunScript.printToFile(meta.toString(), rootDir + gc.subject + "/SimuScripts/" + gc.version + "_" + gc.subVersion, "map");
+				AbstractGenRunScript.printToFile(meta.toString(), rootDir + gc.subject + simuScriptsDir + gc.version + "_" + gc.subVersion, "map");
 				reader.close();
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
