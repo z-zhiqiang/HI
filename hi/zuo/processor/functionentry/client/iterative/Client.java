@@ -945,7 +945,7 @@ public class Client {
 	
 	public static void main(String[] args) {
 		String[][] argvs = {
-				{"150", "bash", "2"},
+				{"300", "bash", "1"},
 				{"363", "sed", "7"},
 				{"213", "gzip", "5"},
 				{"809", "grep", "5"},
@@ -968,7 +968,7 @@ public class Client {
 					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir round start([1, 10])");
 			return;
 		}
-		int[] ks = {1};
+		int[] ks = {1, 3, 5, 10};
 		long time0 = System.currentTimeMillis();
 		if(args.length == 8){
 			Client c = new Client(ks, new File(args[1]), args[2], new File(new File(args[3]), args[2] + "_" + args[4] + "_" + args[5] + "_v" + args[6] + "-v" + args[7]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]), Integer.parseInt(args[7]));
