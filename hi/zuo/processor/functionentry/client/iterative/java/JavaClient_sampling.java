@@ -63,9 +63,6 @@ public class JavaClient_sampling {
 	final int start;
 	final int offset;
 	
-	final Map<String, Statistic[][]> statisticsMap;
-	final Map<String, int[]> cResutlsMap;
-	
 	
 	public JavaClient_sampling(int[] ks, File rootDir, String subject, File consoleFolder, int round, final int start, int offset, int startV, int endV, int startsubV, int endsubV) {
 		this.ks = ks;
@@ -84,8 +81,6 @@ public class JavaClient_sampling {
 		this.startSubversion = startsubV;
 		this.endSubversion = endsubV;
 		
-		this.statisticsMap = new LinkedHashMap<String, Statistic[][]>();
-		this.cResutlsMap = new LinkedHashMap<String, int[]>();
 	}
 
 
@@ -113,6 +108,7 @@ public class JavaClient_sampling {
 				public boolean accept(File dir, String name) {
 					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 9)
 							&& Integer.parseInt(name.substring(4)) >= startSubversion && Integer.parseInt(name.substring(4)) <= endSubversion
+									&& !(subject.equals("siena") && dir.getName().equals("v5") && name.equals("subv2"))
 									&& !(subject.equals("siena") && dir.getName().equals("v5") && name.equals("subv2"));
 				}});
 			Arrays.sort(subversions, new Comparator<File>(){
@@ -127,11 +123,14 @@ public class JavaClient_sampling {
 //				FileUtility.removeDirectory(new File(subversion, "adaptive"));
 				
 				String vi = version.getName() + "_" + subversion.getName();
+				if(subject.equals("derby") && !(subversion.getName().equals("subv8") || subversion.getName().equals("subv30") || subversion.getName().equals("subv61"))){
+					continue;
+				}
 				System.out.println(vi);
 				
 				FunctionEntrySites cSites = new FunctionEntrySites(new File(subversion, "coarse-grained/output.sites"));
 				FunctionEntryProfileReader functionEntryProfileReader = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), cSites);
-				FunctionEntryProfile[] cProfiles = functionEntryProfileReader.readFunctionEntryProfiles();
+//				FunctionEntryProfile[] cProfiles = functionEntryProfileReader.readFunctionEntryProfiles();
 				
 				File fgSitesFile = new File(subversion, "sample_100/output.sites");
 				InstrumentationSites fSites = new InstrumentationSites(fgSitesFile);
@@ -151,25 +150,9 @@ public class JavaClient_sampling {
 					predicateProfileReader = new PredicateProfileReader(fgProfilesFolder, fSites);
 				}
 				PredicateProfile[] fProfiles = predicateProfileReader.readProfiles();
-				System.out.println();
-				SitesInfo sInfo = new SitesInfo(fSites);
 				
 				//write out methods list
 //				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
-				
-				this.cResutlsMap.put(vi, new int[3]);
-				int[] cResult = this.cResutlsMap.get(vi);
-				cResult[0] = cSites.getNumFunctionEntrySites();
-				cResult[1] = sInfo.getNumPredicateSites();
-				cResult[2] = sInfo.getNumPredicateItems();
-				
-				this.statisticsMap.put(vi, new Statistic[Score.values().length][Order.values().length]);
-				Statistic[][] statistics = this.statisticsMap.get(vi);
-				for(int i = 0; i < statistics.length; i++){
-					for(int j = 0; j < statistics[i].length; j++){
-						statistics[i][j] = new Statistic(this.ks);
-					}
-				}
 				
 				//check profiles consistency and compute totalPositive & totalNegative
 				//-------------------------------------------------------------------------------------------------------------
@@ -283,37 +266,37 @@ public class JavaClient_sampling {
 
 	public static boolean needRefine(InstrumentationSites fSites, Set<String> functions) {
 		// TODO Auto-generated method stub
-		for(String unit: fSites.getBranchSites().keySet()){
-			for(BranchSite site: fSites.getBranchSites().get(unit)){
-				if(!functions.contains(site.getFunctionName())){
-					return true;
-				}
-			}
-		}
-		
-		for(String unit: fSites.getReturnSites().keySet()){
-			for(ReturnSite site: fSites.getReturnSites().get(unit)){
-				if(!functions.contains(site.getFunctionName())){
-					return true;
-				}
-			}
-		}
-		
-		for(String unit: fSites.getFloatSites().keySet()){
-			for(FloatKindSite site: fSites.getFloatSites().get(unit)){
-				if(!functions.contains(site.getFunctionName())){
-					return true;
-				}
-			}
-		}
-		
-		for(String unit: fSites.getScalarSites().keySet()){
-			for(ScalarSite site: fSites.getScalarSites().get(unit)){
-				if(!functions.contains(site.getFunctionName())){
-					return true;
-				}
-			}
-		}
+//		for(String unit: fSites.getBranchSites().keySet()){
+//			for(BranchSite site: fSites.getBranchSites().get(unit)){
+//				if(!functions.contains(site.getFunctionName())){
+//					return true;
+//				}
+//			}
+//		}
+//		
+//		for(String unit: fSites.getReturnSites().keySet()){
+//			for(ReturnSite site: fSites.getReturnSites().get(unit)){
+//				if(!functions.contains(site.getFunctionName())){
+//					return true;
+//				}
+//			}
+//		}
+//		
+//		for(String unit: fSites.getFloatSites().keySet()){
+//			for(FloatKindSite site: fSites.getFloatSites().get(unit)){
+//				if(!functions.contains(site.getFunctionName())){
+//					return true;
+//				}
+//			}
+//		}
+//		
+//		for(String unit: fSites.getScalarSites().keySet()){
+//			for(ScalarSite site: fSites.getScalarSites().get(unit)){
+//				if(!functions.contains(site.getFunctionName())){
+//					return true;
+//				}
+//			}
+//		}
 		
 		return false;
 	}
