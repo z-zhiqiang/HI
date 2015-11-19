@@ -11,8 +11,10 @@ public class BranchPredicateSite extends AbstractPredicateSite {
 
 	public BranchPredicateSite(int id, BranchSite site, int trueCount, int falseCount) {
 		super(id, site);
-		this.trueCount = (byte) (trueCount > 0 ? 1 : 0);
-		this.falseCount = (byte) (falseCount > 0 ? 1 : 0);
+//		this.trueCount = (byte) (trueCount > 0 ? 1 : 0);
+		this.trueCount = this.normalize(trueCount);
+//		this.falseCount = (byte) (falseCount > 0 ? 1 : 0);
+		this.falseCount = this.normalize(falseCount);
 	}
 
 	public int getTrueCount() {

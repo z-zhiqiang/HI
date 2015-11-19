@@ -132,9 +132,9 @@ public class JavaClient_sampling {
 				FunctionEntryProfileReader functionEntryProfileReader = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/coarse-grained"), cSites);
 //				FunctionEntryProfile[] cProfiles = functionEntryProfileReader.readFunctionEntryProfiles();
 				
-				File fgSitesFile = new File(subversion, "sample_100/output.sites");
+				File fgSitesFile = new File(subversion, "fine-grained/output.sites");
 				InstrumentationSites fSites = new InstrumentationSites(fgSitesFile);
-				File fgProfilesFolder = new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained-sampled-100");
+				File fgProfilesFolder = new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained");
 				PredicateProfileReader predicateProfileReader = null;
 				
 				if(needRefine(fSites, cSites.getFunctions())){

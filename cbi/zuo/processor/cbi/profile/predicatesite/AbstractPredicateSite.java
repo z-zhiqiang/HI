@@ -23,7 +23,8 @@ public abstract class AbstractPredicateSite {
 	}
 
 	protected byte normalize(int counter) {
-		return (byte) (counter > 0 ? 1 : 0);
+//		return (byte) (counter > 0 ? 1 : 0);
+		return (byte) (counter > Byte.MAX_VALUE ? Byte.MAX_VALUE : counter);
 	}
 
 	protected abstract void toSpecificString(StringBuilder builder);

@@ -23,9 +23,12 @@ import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.predicatesite.BranchPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ReturnPredicateSite;
 import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
+import zuo.processor.cbi.site.InstrumentationSites.BranchSite;
+import zuo.processor.cbi.site.InstrumentationSites.ReturnSite;
+import zuo.processor.cbi.site.InstrumentationSites.ScalarSite;
 
 public class CBIClient_sampling {
-	private static final int FACTOR = 100;
+	private static final int FACTOR = 20;
 	
 	private final PredicateProfile[] profiles;
 	private List<Integer> failings;
@@ -70,11 +73,59 @@ public class CBIClient_sampling {
 		
 		for(int k = 0; k < baseProfiles.length; k++){
 			PredicateProfile fullProfile = profiles[k % profiles.length];
-			baseProfiles[k] = fullProfile;
+			baseProfiles[k] = constructSampledProfile(fullProfile, FACTOR * 5);
 		}
 		return baseProfiles;
 	}
 	
+	private PredicateProfile constructSampledProfile(PredicateProfile fullProfile, int over_sample) {
+		// TODO Auto-generated method stub
+		List<ScalarPairPredicateSite> scalarPairs = new ArrayList<ScalarPairPredicateSite>();
+		List<ReturnPredicateSite> returns = new ArrayList<ReturnPredicateSite>();
+		List<BranchPredicateSite> branches = new ArrayList<BranchPredicateSite>();
+		
+		for(int i = 0; i < fullProfile.getScalarPredicateSites().size(); i++){
+			ScalarPairPredicateSite scalarPairPSite = fullProfile.getScalarPredicateSites().get(i);
+			ScalarPairPredicateSite samplePredicateSite = new ScalarPairPredicateSite(scalarPairPSite.getId(), ((ScalarSite) scalarPairPSite.getSite()), 
+					sampling(scalarPairPSite.getLessCount(), over_sample), sampling(scalarPairPSite.getEqualCount(), over_sample), sampling(scalarPairPSite.getGreaterCount(), over_sample));
+			scalarPairs.add(samplePredicateSite);
+		}
+		for(int i = 0; i < fullProfile.getReturnPredicateSites().size(); i++){
+			ReturnPredicateSite returnPSite = fullProfile.getReturnPredicateSites().get(i);
+			ReturnPredicateSite samplePSite = new ReturnPredicateSite(returnPSite.getId(), (ReturnSite) returnPSite.getSite(), 
+					sampling(returnPSite.getLessCount(), over_sample), sampling(returnPSite.getEqualCount(), over_sample), sampling(returnPSite.getGreaterCount(), over_sample));
+			returns.add(samplePSite);
+		}
+		for(int i = 0; i < fullProfile.getBranchPredicateSites().size(); i++){
+			BranchPredicateSite branchPSite = fullProfile.getBranchPredicateSites().get(i);
+			BranchPredicateSite samplePSite = new BranchPredicateSite(branchPSite.getId(), (BranchSite) branchPSite.getSite(), 
+					sampling(branchPSite.getTrueCount(), over_sample), sampling(branchPSite.getFalseCount(), over_sample));
+			branches.add(samplePSite);
+		}
+		
+		PredicateProfile profile = new PredicateProfile(fullProfile.getPath(), fullProfile.isCorrect(), 
+	    		Collections.unmodifiableList(scalarPairs), 
+	    		Collections.unmodifiableList(returns), 
+	    		Collections.unmodifiableList(branches));
+	    
+		return profile;
+	}
+
+	private int sampling(int count, int over_sample) {
+		if(count == 0){
+			return 0;
+		}
+		if(count >= over_sample){
+			return 1;
+		}
+		Random random = new Random();
+		int s = random.nextInt(over_sample) + 1;
+		if(count >= s){
+			return 1;
+		}
+		return 0;
+	}
+
 	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] baseProfiles, Set<Integer> failingSet, Set<Integer> passingSet) {
 		// TODO Auto-generated method stub
 		PredicateProfile[] pProfiles = new PredicateProfile[failingSet.size() + passingSet.size()];
@@ -98,8 +149,8 @@ public class CBIClient_sampling {
 		Set<Integer> failingSet = new HashSet<Integer>();
 		Set<Integer> passingSet = new HashSet<Integer>();
 		
-		for(int i = start; i <= 200; i++){
-			double per = 0.005 * i;
+		for(int i = start; i <= 10; i++){
+			double per = 0.1 * i;
 			increasePartialSamples(failingSet, passingSet, per);
 			
 			PredicateProfile[] selectedPredicateProfiles = constructSelectedPredicateProfiles(baseProfiles, failingSet, passingSet);

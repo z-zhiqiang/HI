@@ -14,9 +14,12 @@ public class ReturnPredicateSite extends AbstractPredicateSite {
 	public ReturnPredicateSite(int id, ReturnSite site, int negativeCount,
 			int zeroCount, int positveCount) {
 		super(id, site);
-		this.negativeCount = (byte) (negativeCount > 0 ? 1 : 0);
-		this.zeroCount = (byte) (zeroCount > 0 ? 1 : 0);
-		this.positveCount = (byte) (positveCount > 0 ? 1 : 0);
+//		this.negativeCount = (byte) (negativeCount > 0 ? 1 : 0);
+		this.negativeCount = this.normalize(negativeCount);
+//		this.zeroCount = (byte) (zeroCount > 0 ? 1 : 0);
+		this.zeroCount = this.normalize(zeroCount);
+//		this.positveCount = (byte) (positveCount > 0 ? 1 : 0);
+		this.positveCount = this.normalize(positveCount);
 	}
 
 	public int getTotalCount() {
