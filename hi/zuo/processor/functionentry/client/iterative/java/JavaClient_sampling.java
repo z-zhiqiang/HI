@@ -59,14 +59,13 @@ public class JavaClient_sampling {
 	final int startSubversion;
 	final int endSubversion;
 	
-	final int[] ks;
 	final int start;
 	final int offset;
 	
+	final int factor;
 	
-	public JavaClient_sampling(int[] ks, File rootDir, String subject, File consoleFolder, int round, final int start, int offset, int startV, int endV, int startsubV, int endsubV) {
-		this.ks = ks;
-
+	
+	public JavaClient_sampling(File rootDir, String subject, File consoleFolder, int factor, int round, final int start, int offset, int startV, int endV, int startsubV, int endsubV) {
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
@@ -81,6 +80,7 @@ public class JavaClient_sampling {
 		this.startSubversion = startsubV;
 		this.endSubversion = endsubV;
 		
+		this.factor = factor;
 	}
 
 
@@ -208,7 +208,7 @@ public class JavaClient_sampling {
 						}
 						
 						cbiWriter = new PrintWriter(new BufferedWriter(new FileWriter(cbiconsoleFile)));
-						client = new CBIClient_sampling(fProfiles, this.start);
+						client = new CBIClient_sampling(fProfiles, this.start, this.factor);
 						FixPointStructure fixpoint = client.getFixElement(cbiWriter);
 						exportPruneInfoEachRound(fixpoint, vi, i);
 						
@@ -304,14 +304,13 @@ public class JavaClient_sampling {
 	
 	public static void main(String[] args) {
 		if(args.length != 11){
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir round start([1, 10]) offset([0, 10]) startVersion endVersion startSubVersion endSubVersion\n");
+			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir factor round start([1, 10]) offset([0, 10]) startVersion endVersion startSubVersion endSubVersion\n");
 			return;
 		}
-		int[] ks = {1, 3, 5, 10};
 		long time0 = System.currentTimeMillis();
 
-		JavaClient_sampling c = new JavaClient_sampling(ks, new File(args[1]), args[2], new File(new File(args[3]), args[2] + "_" + args[4] + "_" + args[5] + "_" + args[6] + "_v" + args[7] + "-v" + args[8] + "_subv" + args[9] + "-subv" + args[10]), 
-				Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]), Integer.parseInt(args[7]), Integer.parseInt(args[8]), Integer.parseInt(args[9]), Integer.parseInt(args[10]));
+		JavaClient_sampling c = new JavaClient_sampling(new File(args[1]), args[2], new File(new File(args[3]), args[2] + "_" + args[4] + "_" + args[5] + "_" + args[6] + "_v" + args[7] + "-v" + args[8] + "_subv" + args[9] + "-subv" + args[10]), 
+				Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]), Integer.parseInt(args[7]), Integer.parseInt(args[8]), Integer.parseInt(args[9]), Integer.parseInt(args[10]), Integer.parseInt(args[11]));
 		c.runSir();
 		
 		long time1 = System.currentTimeMillis();

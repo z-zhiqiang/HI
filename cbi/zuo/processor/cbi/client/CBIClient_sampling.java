@@ -28,20 +28,22 @@ import zuo.processor.cbi.site.InstrumentationSites.ReturnSite;
 import zuo.processor.cbi.site.InstrumentationSites.ScalarSite;
 
 public class CBIClient_sampling {
-	private static final int FACTOR = 20;
+//	private static final int FACTOR = 100;
 	
 	private final PredicateProfile[] profiles;
 	private List<Integer> failings;
 	private List<Integer> passings;
 	
 	private final int start;
+	private final int factor;
 	private FixPointStructure fixElement = null;
 	
-	public CBIClient_sampling(PredicateProfile[] profiles, final int start) {
+	public CBIClient_sampling(PredicateProfile[] profiles, final int start, final int factor) {
 		this.profiles = profiles;
 		divideProfiles();
 		
 		this.start = start;
+		this.factor = factor;
 	}
 	
 	private void divideProfiles() {
@@ -51,29 +53,29 @@ public class CBIClient_sampling {
 		for(int i = 0; i < profiles.length; i++){
 			if(profiles[i].isCorrect()){
 //				passings.add(i);
-				for(int k = 0; k < FACTOR; k++){
+				for(int k = 0; k < this.factor; k++){
 					passings.add(i + k * profiles.length);
 				}
 			}
 			else{
 //				failings.add(i);
-				for(int k = 0; k < FACTOR; k++){
+				for(int k = 0; k < this.factor; k++){
 					failings.add(i + k * profiles.length);
 				}
 			}
 		}
-		assert(passings.size() + failings.size() == profiles.length * FACTOR);
+		assert(passings.size() + failings.size() == profiles.length * this.factor);
 		this.failings = Collections.unmodifiableList(failings);
 		this.passings = Collections.unmodifiableList(passings);
 	}
 	
 	public PredicateProfile[] constructBasePredicateProfiles() {
 		// TODO Auto-generated method stub
-		PredicateProfile[] baseProfiles = new PredicateProfile[profiles.length * FACTOR];
+		PredicateProfile[] baseProfiles = new PredicateProfile[profiles.length * this.factor];
 		
 		for(int k = 0; k < baseProfiles.length; k++){
 			PredicateProfile fullProfile = profiles[k % profiles.length];
-			baseProfiles[k] = constructSampledProfile(fullProfile, FACTOR * 5);
+			baseProfiles[k] = constructSampledProfile(fullProfile, 100);
 		}
 		return baseProfiles;
 	}
