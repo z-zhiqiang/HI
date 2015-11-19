@@ -26,8 +26,13 @@ import java.util.regex.Pattern;
 import zuo.processor.cbi.client.CBIClient;
 import zuo.processor.cbi.client.CBIClient_sampling;
 import zuo.processor.cbi.datastructure.FixPointStructure;
+import zuo.processor.cbi.processor.PredicateItem;
+import zuo.processor.cbi.processor.Processor;
 import zuo.processor.cbi.profile.PredicateProfile;
 import zuo.processor.cbi.profile.PredicateProfileReader;
+import zuo.processor.cbi.profile.predicatesite.BranchPredicateSite;
+import zuo.processor.cbi.profile.predicatesite.ReturnPredicateSite;
+import zuo.processor.cbi.profile.predicatesite.ScalarPairPredicateSite;
 import zuo.processor.cbi.site.InstrumentationSites;
 import zuo.processor.cbi.site.InstrumentationSites.BranchSite;
 import zuo.processor.cbi.site.InstrumentationSites.FloatKindSite;
@@ -195,34 +200,60 @@ public class JavaClient_sampling {
 				
 				//-------------------------------------------------------------------------------------------------------------
 				
-				//simulate for multiple rounds
-				for(int i = 0; i < round; i++){
+				File cbiconsoleFile = new File(new File(consoleFolder, String.valueOf(0)), subject + "_" + vi + "_cbi.out");
+				PrintWriter cbiWriter = null;
+				CBIClient_sampling client;
+				
+				try {
+					if(!cbiconsoleFile.getParentFile().exists()){
+						cbiconsoleFile.getParentFile().mkdirs();
+					}
 					
-					File cbiconsoleFile = new File(new File(consoleFolder, String.valueOf(i)), subject + "_" + vi + "_cbi.out");
-					PrintWriter cbiWriter = null;
-					CBIClient_sampling client;
+					Processor p = new Processor(normalize(fProfiles));
+					p.process();
+					//sort the list of predictors according to the importance value
+					TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors = new TreeMap<Double, SortedSet<PredicateItem>>();
+					CBIClient_sampling.sortingPreditorsList(sortedPredictors, p.getPredictorsList());
+					System.out.println(sortedPredictors.lastEntry());
 					
-					try {
-						if(!cbiconsoleFile.getParentFile().exists()){
-							cbiconsoleFile.getParentFile().mkdirs();
-						}
+					FixPointStructure fixpoint = null;
+					FixPointStructure maxFixpoint = null;
+					int it = 0;
+					
+					cbiWriter = new PrintWriter(new BufferedWriter(new FileWriter(cbiconsoleFile)));
+					
+					while(true){
+						System.out.println("\n\nIteration " + ++it);
 						
-						cbiWriter = new PrintWriter(new BufferedWriter(new FileWriter(cbiconsoleFile)));
 						client = new CBIClient_sampling(fProfiles, this.start, this.factor);
-						FixPointStructure fixpoint = client.getFixElement(cbiWriter);
-						exportPruneInfoEachRound(fixpoint, vi, i);
+						fixpoint = client.getFixElement(cbiWriter);
+						System.out.println(fixpoint.getSortedPredictors().lastEntry());
 						
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					finally{
-						if(cbiWriter != null){
-							cbiWriter.close();
+						if(isSamePredictor(fixpoint.getSortedPredictors(), sortedPredictors)){
+							maxFixpoint = fixpoint;
+							break;
+						}
+						if(maxFixpoint == null || maxFixpoint.getPercent() < fixpoint.getPercent()){
+							maxFixpoint = fixpoint;
+						}
+						if(it >= this.round){
+							break;
 						}
 					}
+					exportPruneInfoEachRound(maxFixpoint, vi, 0);
+					System.out.println("\n----------------------------------------");
+					System.out.println(maxFixpoint.getPercent());
 					
+					System.out.println("\n\n\n");
 					
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				finally{
+					if(cbiWriter != null){
+						cbiWriter.close();
+					}
 				}
 				
 			}
@@ -230,6 +261,67 @@ public class JavaClient_sampling {
 		
 	}
 	
+
+	private boolean isSamePredictor(TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors,
+			TreeMap<Double, SortedSet<PredicateItem>> sortedPredictors2) {
+		// TODO Auto-generated method stub
+		Set set = sortedPredictors.lastEntry().getValue();
+		set.retainAll(sortedPredictors2.lastEntry().getValue());
+		if(!set.isEmpty() || sortedPredictors.lastEntry().getValue().equals(sortedPredictors2.lastEntry().getValue())){
+			return true;
+		}
+		return false;
+	}
+
+
+
+	private PredicateProfile[] normalize(PredicateProfile[] fProfiles) {
+		PredicateProfile[] baseProfiles = new PredicateProfile[fProfiles.length];
+		
+		for(int k = 0; k < baseProfiles.length; k++){
+			PredicateProfile fullProfile = fProfiles[k];
+			
+			List<ScalarPairPredicateSite> scalarPairs = new ArrayList<ScalarPairPredicateSite>();
+			List<ReturnPredicateSite> returns = new ArrayList<ReturnPredicateSite>();
+			List<BranchPredicateSite> branches = new ArrayList<BranchPredicateSite>();
+					
+			for(int i = 0; i < fullProfile.getScalarPredicateSites().size(); i++){
+				ScalarPairPredicateSite scalarPairPSite = fullProfile.getScalarPredicateSites().get(i);
+				ScalarPairPredicateSite samplePredicateSite = new ScalarPairPredicateSite(scalarPairPSite.getId(), ((ScalarSite) scalarPairPSite.getSite()), 
+						norm(scalarPairPSite.getLessCount()), norm(scalarPairPSite.getEqualCount()), norm(scalarPairPSite.getGreaterCount()));
+				scalarPairs.add(samplePredicateSite);
+			}		
+			for(int i = 0; i < fullProfile.getReturnPredicateSites().size(); i++){
+				ReturnPredicateSite returnPSite = fullProfile.getReturnPredicateSites().get(i);
+				ReturnPredicateSite samplePSite = new ReturnPredicateSite(returnPSite.getId(), (ReturnSite) returnPSite.getSite(), 
+						norm(returnPSite.getLessCount()), norm(returnPSite.getEqualCount()), norm(returnPSite.getGreaterCount()));
+				returns.add(samplePSite);
+			}
+			for(int i = 0; i < fullProfile.getBranchPredicateSites().size(); i++){
+				BranchPredicateSite branchPSite = fullProfile.getBranchPredicateSites().get(i);
+				BranchPredicateSite samplePSite = new BranchPredicateSite(branchPSite.getId(), (BranchSite) branchPSite.getSite(), 
+						norm(branchPSite.getTrueCount()), norm(branchPSite.getFalseCount()));
+				branches.add(samplePSite);
+			}
+			PredicateProfile profile = new PredicateProfile(fullProfile.getPath(), fullProfile.isCorrect(), 
+		    		Collections.unmodifiableList(scalarPairs), 
+		    		Collections.unmodifiableList(returns), 
+		    		Collections.unmodifiableList(branches));
+			
+			baseProfiles[k] = profile;
+		}
+		
+		return baseProfiles;
+	}
+
+
+
+	private int norm(int count) {
+		// TODO Auto-generated method stub
+		return count > 0 ? 1 : 0;
+	}
+
+
 
 	/**
 	 * export the tests and methods for prune case in each round, which will be used to simulate reality in our experiments;
@@ -303,13 +395,13 @@ public class JavaClient_sampling {
 
 	
 	public static void main(String[] args) {
-		if(args.length != 11){
+		if(args.length != 12){
 			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir factor round start([1, 10]) offset([0, 10]) startVersion endVersion startSubVersion endSubVersion\n");
 			return;
 		}
 		long time0 = System.currentTimeMillis();
 
-		JavaClient_sampling c = new JavaClient_sampling(new File(args[1]), args[2], new File(new File(args[3]), args[2] + "_" + args[4] + "_" + args[5] + "_" + args[6] + "_v" + args[7] + "-v" + args[8] + "_subv" + args[9] + "-subv" + args[10]), 
+		JavaClient_sampling c = new JavaClient_sampling(new File(args[1]), args[2], new File(new File(args[3]), args[2] + "_" + args[5] + "_" + args[6] + "_" + args[7] + "_v" + args[8] + "-v" + args[9] + "_subv" + args[10] + "-subv" + args[11]), 
 				Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]), Integer.parseInt(args[7]), Integer.parseInt(args[8]), Integer.parseInt(args[9]), Integer.parseInt(args[10]), Integer.parseInt(args[11]));
 		c.runSir();
 		

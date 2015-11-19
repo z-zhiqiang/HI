@@ -40,13 +40,15 @@ public class CBIClient_sampling {
 	
 	public CBIClient_sampling(PredicateProfile[] profiles, final int start, final int factor) {
 		this.profiles = profiles;
+		this.factor = factor;
+
 		divideProfiles();
 		
 		this.start = start;
-		this.factor = factor;
 	}
 	
 	private void divideProfiles() {
+		System.out.println(this.factor);
 		// TODO Auto-generated method stub
 		List<Integer> passings = new ArrayList<Integer>();
 		List<Integer> failings = new ArrayList<Integer>();
@@ -69,16 +71,16 @@ public class CBIClient_sampling {
 		this.passings = Collections.unmodifiableList(passings);
 	}
 	
-	public PredicateProfile[] constructBasePredicateProfiles() {
-		// TODO Auto-generated method stub
-		PredicateProfile[] baseProfiles = new PredicateProfile[profiles.length * this.factor];
-		
-		for(int k = 0; k < baseProfiles.length; k++){
-			PredicateProfile fullProfile = profiles[k % profiles.length];
-			baseProfiles[k] = constructSampledProfile(fullProfile, 100);
-		}
-		return baseProfiles;
-	}
+//	public PredicateProfile[] constructBasePredicateProfiles() {
+//		// TODO Auto-generated method stub
+//		PredicateProfile[] baseProfiles = new PredicateProfile[profiles.length * this.factor];
+//		
+//		for(int k = 0; k < baseProfiles.length; k++){
+//			PredicateProfile fullProfile = profiles[k % profiles.length];
+//			baseProfiles[k] = constructSampledProfile(fullProfile, 100);
+//		}
+//		return baseProfiles;
+//	}
 	
 	private PredicateProfile constructSampledProfile(PredicateProfile fullProfile, int over_sample) {
 		// TODO Auto-generated method stub
@@ -128,17 +130,32 @@ public class CBIClient_sampling {
 		return 0;
 	}
 
-	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] baseProfiles, Set<Integer> failingSet, Set<Integer> passingSet) {
+	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] previousProfiles, Set<Integer> failingSet, Set<Integer> passingSet, Set<Integer> previousSet) {
 		// TODO Auto-generated method stub
 		PredicateProfile[] pProfiles = new PredicateProfile[failingSet.size() + passingSet.size()];
 		
 		int j = 0;
+		
+		for (int k = 0; k < previousProfiles.length; k++) {
+			pProfiles[j++] = previousProfiles[k];
+
+		}
 		for(int k: failingSet){
-			pProfiles[j++] = baseProfiles[k];
+			if (previousSet.contains(k)) {
+				continue;
+			}
+			PredicateProfile fullProfile = profiles[k % profiles.length];
+			pProfiles[j++] = constructSampledProfile(fullProfile, this.factor);
 		}
 		for(int k: passingSet){
-			pProfiles[j++] = baseProfiles[k];
+			if (previousSet.contains(k)) {
+				continue;
+			}
+			PredicateProfile fullProfile = profiles[k % profiles.length];
+			pProfiles[j++] = constructSampledProfile(fullProfile, this.factor);
 		}
+		
+		assert(pProfiles.length == j);
 		return pProfiles;
 	}
 
@@ -146,16 +163,21 @@ public class CBIClient_sampling {
 	public void runIterative(PrintWriter writer){
 		CircularList cList = new CircularList(3);
 		
-		PredicateProfile[] baseProfiles = constructBasePredicateProfiles();
+//		PredicateProfile[] baseProfiles = constructBasePredicateProfiles();
+		
+		PredicateProfile[] selectedPredicateProfiles = new PredicateProfile[0];
 		
 		Set<Integer> failingSet = new HashSet<Integer>();
 		Set<Integer> passingSet = new HashSet<Integer>();
 		
-		for(int i = start; i <= 10; i++){
-			double per = 0.1 * i;
-			increasePartialSamples(failingSet, passingSet, per);
+		Set<Integer> previousSet = new HashSet<Integer>();
+		
+		for(int i = start; i <= this.factor; i+=2){
+			double per = (((double) 1) / this.factor) * i;
+			System.out.println(per);
+			increasePartialSamples(failingSet, passingSet, per, previousSet);
 			
-			PredicateProfile[] selectedPredicateProfiles = constructSelectedPredicateProfiles(baseProfiles, failingSet, passingSet);
+			selectedPredicateProfiles = constructSelectedPredicateProfiles(selectedPredicateProfiles, failingSet, passingSet, previousSet);
 			
 			Processor p = new Processor(selectedPredicateProfiles);
 			p.process();
@@ -173,6 +195,8 @@ public class CBIClient_sampling {
 			}
 		}
 		this.fixElement = cList.getCurrentElement();
+		System.out.println(this.fixElement.getPercent());
+		System.out.println(this.fixElement.getFailingSet().size() + "\t" + this.fixElement.getPassingSet().size());
 		
 	}
 	
@@ -213,7 +237,10 @@ public class CBIClient_sampling {
 
 
 	
-	private void increasePartialSamples(Set<Integer> failingSet, Set<Integer> passingSet, double percent) {
+	private void increasePartialSamples(Set<Integer> failingSet, Set<Integer> passingSet, double percent, Set<Integer> previousSet) {
+		previousSet.addAll(passingSet);
+		previousSet.addAll(failingSet);
+		
 		Random randomFGenerator = new Random();
 		int fs = (int) (failings.size() * percent);
 		for(; failingSet.size() < (fs > 2 ? fs : 2);){
