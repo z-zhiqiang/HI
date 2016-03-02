@@ -27,6 +27,14 @@ import zuo.processor.genscript.sir.iterative.java.AbstractGenRunScript;
 import zuo.processor.genscript.sir.iterative.java.GenRunAdaptiveFineGrainedInstrumentScript;
 import zuo.util.file.FileUtility;
 
+/**
+ * @author icuzzq
+ *
+ * generate running scripts according to the information produced by "zuo.processor.functionentry.client.iterative.java.JavaClient"
+ * including tests and methods for prune case in each round 
+ * 
+ * 
+ */
 public class GenSirScriptClient_simulate extends AbstractGenSirScriptClient{
 	public final static int Round = 0;
 	

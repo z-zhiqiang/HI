@@ -23,6 +23,12 @@ import sir.mts.MakeTestScript;
 import zuo.processor.genscript.sir.iterative.java.AbstractGenRunScript;
 import zuo.util.file.FileUtility;
 
+/**
+ * @author icuzzq
+ * 
+ * generate running scripts according to the information produced by "zuo.processor.functionentry.client.iterative.java.JavaClient_sampling"
+ *
+ */
 public class GenSirScriptClient_simulate_sampling extends AbstractGenSirScriptClient{
 	public final static int Round = 0;
 	
