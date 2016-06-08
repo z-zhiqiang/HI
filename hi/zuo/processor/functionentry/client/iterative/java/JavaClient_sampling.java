@@ -65,7 +65,7 @@ public class JavaClient_sampling {
 	final int endSubversion;
 	
 	final int start;
-	final int offset;
+//	final int offset;
 	
 	final int factor;
 	
@@ -77,7 +77,7 @@ public class JavaClient_sampling {
 		
 		this.round = round;
 		this.start = start;
-		this.offset = offset;
+//		this.offset = offset;
 
 		this.startVersion = startV;
 		this.endVersion = endV;

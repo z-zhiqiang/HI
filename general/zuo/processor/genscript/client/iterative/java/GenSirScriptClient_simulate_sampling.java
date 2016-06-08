@@ -62,8 +62,8 @@ public class GenSirScriptClient_simulate_sampling extends AbstractGenSirScriptCl
 
 	public static void main(String[] args) throws IOException {
 		String[][] subjects = {
-//				{"apache-ant", "8", "8"},
-				{"nanoxml", "1", "4"},
+				{"apache-ant", "8", "8"},
+//				{"nanoxml", "1", "4"},
 //				{"siena", "1", "5"}
 		};
 		for (int i = 0; i < subjects.length; i++) {

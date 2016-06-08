@@ -129,6 +129,43 @@ public class CBIClient_sampling {
 		}
 		return 0;
 	}
+	
+	/**generate base profiles -- only used when no enough memory
+	 * @return
+	 */
+	public PredicateProfile[] constructBaseSamplePredicateProfiles() {
+		// TODO Auto-generated method stub
+		PredicateProfile[] baseProfiles = new PredicateProfile[profiles.length];
+
+		for (int k = 0; k < baseProfiles.length; k++) {
+			PredicateProfile fullProfile = profiles[k];
+			baseProfiles[k] = constructSampledProfile(fullProfile, this.factor);
+		}
+		return baseProfiles;
+	}
+	
+	/**construct selected profiles -- only used when no enough memory
+	 * @param baseSampleProfiles
+	 * @param failingSet
+	 * @param passingSet
+	 * @return
+	 */
+	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] baseSampleProfiles, Set<Integer> failingSet, Set<Integer> passingSet) {
+		// TODO Auto-generated method stub
+		PredicateProfile[] pProfiles = new PredicateProfile[failingSet.size() + passingSet.size()];
+		
+		int j = 0;
+		
+		for(int k: failingSet){
+			pProfiles[j++] = baseSampleProfiles[k % profiles.length];
+		}
+		for(int k: passingSet){
+			pProfiles[j++] = baseSampleProfiles[k % profiles.length];
+		}
+		
+		assert(pProfiles.length == j);
+		return pProfiles;
+	}
 
 	private PredicateProfile[] constructSelectedPredicateProfiles(PredicateProfile[] previousProfiles, Set<Integer> failingSet, Set<Integer> passingSet, Set<Integer> previousSet) {
 		// TODO Auto-generated method stub
@@ -163,7 +200,8 @@ public class CBIClient_sampling {
 	public void runIterative(PrintWriter writer){
 		CircularList cList = new CircularList(3);
 		
-//		PredicateProfile[] baseProfiles = constructBasePredicateProfiles();
+		//only used when no enough memory
+//		PredicateProfile[] baseProfiles = constructBaseSamplePredicateProfiles();
 		
 		PredicateProfile[] selectedPredicateProfiles = new PredicateProfile[0];
 		
@@ -178,6 +216,9 @@ public class CBIClient_sampling {
 			increasePartialSamples(failingSet, passingSet, per, previousSet);
 			
 			selectedPredicateProfiles = constructSelectedPredicateProfiles(selectedPredicateProfiles, failingSet, passingSet, previousSet);
+			
+			//only used when no enough memory
+//			selectedPredicateProfiles = constructSelectedPredicateProfiles(baseProfiles, failingSet, passingSet);
 			
 			Processor p = new Processor(selectedPredicateProfiles);
 			p.process();
