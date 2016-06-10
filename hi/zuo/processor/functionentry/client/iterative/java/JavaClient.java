@@ -153,8 +153,8 @@ public class JavaClient {
 				System.out.println();
 				SitesInfo sInfo = new SitesInfo(fSites);
 				
-				//write out methods list
-				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
+//				//write out methods list
+//				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
 				this.cResutlsMap.put(vi, new int[3]);
 				int[] cResult = this.cResutlsMap.get(vi);
@@ -250,7 +250,7 @@ public class JavaClient {
 					
 					solveOneRoundResults(statistics, client.getResults(), i);
 					
-					exportPruneInfoEachRound(cs.getFullInstrumentedCBIClient(), cs.getClientsMap(), client.getResults(), this.ks, vi, i);
+//					exportPruneInfoEachRound(cs.getFullInstrumentedCBIClient(), cs.getClientsMap(), client.getResults(), this.ks, vi, i);
 				}
 				
 				System.gc();
@@ -636,6 +636,9 @@ public class JavaClient {
 			Statistic[][] statistics = this.statisticsMap.get(version);
 			for(int i = 0; i < statistics.length; i++){
 				for(int j = 0; j < statistics[i].length; j++){
+					if(!(i == Score.C.ordinal() && j == Order.LESS_FIRST.ordinal())){
+						continue;
+					}
 					statistics[i][j].incertOneStatisticToExcel(row, this.round);
 				}
 			}
@@ -693,6 +696,9 @@ public class JavaClient {
 			Score score = Score.values()[i];
 			for(int j = 0; j < Order.values().length; j++){
 				Order order = Order.values()[j];
+				if(!(score == Score.C && order == Order.LESS_FIRST)){
+					continue;
+				}
 				for(int q = 0; q < 2; q++){
 					String flag = flags.get(q);
 					
