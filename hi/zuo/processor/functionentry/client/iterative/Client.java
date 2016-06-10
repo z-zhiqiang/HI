@@ -684,6 +684,9 @@ public class Client {
 			Statistic[][] statistics = this.statisticsMap.get(version);
 			for(int i = 0; i < statistics.length; i++){
 				for(int j = 0; j < statistics[i].length; j++){
+					if(!(i == Score.C.ordinal() && j == Order.LESS_FIRST.ordinal())){
+						continue;
+					}
 					statistics[i][j].incertOneStatisticToExcel(row, this.round);
 				}
 			}
@@ -741,6 +744,9 @@ public class Client {
 			Score score = Score.values()[i];
 			for(int j = 0; j < Order.values().length; j++){
 				Order order = Order.values()[j];
+				if(!(score == Score.C && order == Order.LESS_FIRST)){
+					continue;
+				}
 				for(int q = 0; q < 2; q++){
 					String flag = flags.get(q);
 					

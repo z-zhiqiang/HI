@@ -41,14 +41,7 @@ public abstract class AbstractGenRunScript {
 		this.outputDir = output;
 		this.scriptDir = script;
 		
-		String rootDir;
-		if(this.subject.equals("space")){
-			rootDir = GenSiemensScriptsClient.spaceRootDir;
-		}
-		else{
-			rootDir = GenSiemensScriptsClient.siemensRootDir;
-		}
-		inputsMap = FileUtility.readInputsMap(rootDir + subject + "/testplans.alt/" + "inputs.map");
+		inputsMap = FileUtility.readInputsMap(GenSiemensScriptsClient.rootDir + subject + "/testplans.alt/" + "inputs.map");
 	}
 	
     public abstract void genRunScript() throws IOException;
@@ -61,7 +54,7 @@ public abstract class AbstractGenRunScript {
 			if(!fd.exists()){
 				fd.mkdir();
 			}
-			pout = new PrintWriter(new BufferedWriter(new FileWriter(folder + "/" + file, true)));
+			pout = new PrintWriter(new BufferedWriter(new FileWriter(folder + "/" + file, false)));
 			pout.print(scr);
 		}
 		catch(IOException e){

@@ -26,8 +26,7 @@ import zuo.processor.genscript.sir.iterative.GenRunVersionsScript;
 import zuo.processor.splitinputs.SirSplitInputs;
 import zuo.util.file.FileUtility;
 
-public class GenSirScriptClient {
-	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_light/Subjects/";
+public class GenSirScriptClient extends AbstractGenSirScriptClient {
 	
 	public final String subject;
 	public final String sourceName;
@@ -154,9 +153,9 @@ public class GenSirScriptClient {
 	
 	public static void main(String[] args) throws IOException {
 		String[][] subjects = {
-				{"grep", "grep", "5"}, // grep v1_subv14
+				{"grep", "grep", "4"}, // grep v1_subv14
 				{"gzip", "allfile", "5"},
-				{"sed", "sed", "7"}, // sed v2_subv5
+				{"sed", "sed", "3"}, // sed v2_subv5
 		};
 		for (int i = 0; i < subjects.length; i++) {
 			for(int j = 1; j <= Integer.parseInt(subjects[i][2]); j++){
@@ -247,9 +246,9 @@ public class GenSirScriptClient {
 				gs.genRunScript();
 				
 				
-				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vaexecuteDir, 
-						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
-				gs.genRunScript();
+//				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vaexecuteDir, 
+//						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
+//				gs.genRunScript();
 			}
 			
 		}
@@ -266,9 +265,9 @@ public class GenSirScriptClient {
 		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
 		ga.genRunAllScript();
 		
-		//generate run all adaptive instrumented triggered subversion scripts
-		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
-		ga.genRunAllScript();
+//		//generate run all adaptive instrumented triggered subversion scripts
+//		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
+//		ga.genRunAllScript();
 	}
 	
 	

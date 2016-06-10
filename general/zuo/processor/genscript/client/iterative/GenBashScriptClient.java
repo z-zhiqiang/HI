@@ -29,8 +29,7 @@ import zuo.processor.genscript.bash.iterative.GenRunSubjectScript;
 import zuo.processor.genscript.bash.iterative.GenRunVersionsScript;
 import zuo.processor.splitinputs.SplitInputs;
 
-public class GenBashScriptClient {
-	public final static String rootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_light/Subjects/";
+public class GenBashScriptClient extends AbstractGenSirScriptClient {
 	
 	public final static String setEnv = "export experiment_root=" + rootDir 
 			+ "\nexport TESTS_SRC=" + rootDir + "/bash/testplans.alt/testplans.fine\n"; 
@@ -179,10 +178,10 @@ public class GenBashScriptClient {
 				gs.genRunScript();
 
 				
-				String adaptiveCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index);
-				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, adaptiveCompile, gc.vaexecuteDir, 
-						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
-				gs.genRunScript();
+//				String adaptiveCompile = setEnv + "./compile " + version.substring(1) + " " + faults.get(index);
+//				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.version, gc.subVersion, adaptiveCompile, gc.vaexecuteDir, 
+//						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
+//				gs.genRunScript();
 			}
 			
 		}
@@ -199,9 +198,9 @@ public class GenBashScriptClient {
 		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
 		ga.genRunAllScript();
 		
-		//generate run all adaptive instrumented triggered subversion scripts
-		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
-		ga.genRunAllScript();
+//		//generate run all adaptive instrumented triggered subversion scripts
+//		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
+//		ga.genRunAllScript();
 	}
 	
 	

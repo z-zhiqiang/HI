@@ -21,11 +21,7 @@ import zuo.processor.splitinputs.SplitInputs;
 import zuo.util.file.FileUtility;
 
 
-public class GenSiemensScriptsClient {
-	public final String rootDir;
-	
-	public final static String spaceRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_light/Subjects/";
-	public final static String siemensRootDir = "/home/sunzzq2/Data/IResearch/Automated_Bug_Isolation/Iterative_light/Subjects/Siemens/";
+public class GenSiemensScriptsClient extends AbstractGenSirScriptClient {
 	
 	public final String subject;
 	public final int vers;
@@ -64,11 +60,9 @@ public class GenSiemensScriptsClient {
 		version = ver;
 		
 		if(subject.equals("space")){
-			rootDir = spaceRootDir;
 			inputs = rootDir + subject + "/testplans.alt/" + "universe_1248";
 		}
 		else{
-			rootDir = siemensRootDir;
 			inputs = rootDir + subject + "/testplans.alt/" + "universe";
 		}
 		
@@ -192,9 +186,9 @@ public class GenSiemensScriptsClient {
 				gs.genRunScript();
 				
 				
-				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.version, gc.vsourceDir, gc.vaexecuteDir, 
-						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
-				gs.genRunScript();
+//				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.version, gc.vsourceDir, gc.vaexecuteDir, 
+//						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
+//				gs.genRunScript();
 			}
 			
 		}
@@ -211,9 +205,9 @@ public class GenSiemensScriptsClient {
 		ga = new GenRunAllSampledInstrumentedScript(subject, scriptDir, subs, 10000);
 		ga.genRunAllScript();
 				
-		//generate run all adaptive instrumented triggered version scripts
-		ga = new GenRunAllAdaptiveInstrumentedScript(subject, scriptDir, subs);
-		ga.genRunAllScript();
+//		//generate run all adaptive instrumented triggered version scripts
+//		ga = new GenRunAllAdaptiveInstrumentedScript(subject, scriptDir, subs);
+//		ga.genRunAllScript();
 	}
 	
 
