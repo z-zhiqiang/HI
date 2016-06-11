@@ -246,9 +246,9 @@ public class GenSirScriptClient extends AbstractGenSirScriptClient {
 				gs.genRunScript();
 				
 				
-//				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vaexecuteDir, 
-//						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
-//				gs.genRunScript();
+				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.sourceName, gc.version, gc.subVersion, setEnv + export, gc.vsourceDir, gc.vaexecuteDir, 
+						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.version + "_" + gc.subVersion + "_C_LESS_FIRST_1_average");
+				gs.genRunScript();
 			}
 			
 		}
@@ -265,9 +265,9 @@ public class GenSirScriptClient extends AbstractGenSirScriptClient {
 		ga = new GenRunAllSampledInstrumentedScript(version, subject, scriptDir, subs, 10000);
 		ga.genRunAllScript();
 		
-//		//generate run all adaptive instrumented triggered subversion scripts
-//		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
-//		ga.genRunAllScript();
+		//generate run all adaptive instrumented triggered subversion scripts
+		ga = new GenRunAllAdaptiveInstrumentedScript(version, subject, scriptDir, subs);
+		ga.genRunAllScript();
 	}
 	
 	

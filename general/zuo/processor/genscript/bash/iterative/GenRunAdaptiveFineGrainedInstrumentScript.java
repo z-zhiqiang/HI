@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
+import zuo.processor.genscript.client.iterative.AbstractGenSirScriptClient;
 import zuo.processor.genscript.client.iterative.GenBashScriptClient;
 import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtility;
@@ -21,7 +22,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
-		this.methods = FileCollection.readMethods(new File(executeDir, methodsF));
+		this.methods = FileCollection.readMethods(new File(AbstractGenSirScriptClient.rootDir + subject + "/FunctionList/", methodsF));
 		mkOutDir();
 	}
 
@@ -53,7 +54,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			code.append("export TRACESDIR=" + traceDir + method + "/\n");
 			code.append("export INPUTSDIR=" + GenBashScriptClient.inputsDir + "\n");
 			
-			stmts(code, method);
+//			stmts(code, method);
 			code.append(startTimeCommand + "\n");
 			for(int j = 0; j < ROUNDS; j++){
 				stmts(code, method);

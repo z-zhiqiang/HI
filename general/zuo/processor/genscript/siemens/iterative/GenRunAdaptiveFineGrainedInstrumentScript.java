@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
+import zuo.processor.genscript.client.iterative.AbstractGenSirScriptClient;
 import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtility;
 
@@ -21,7 +22,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 		this.failingTests = FileUtility.readInputsArray(failing);
 		this.passingTests = FileUtility.readInputsArray(passing);
 		
-		this.methods = FileCollection.readMethods(new File(executeDir, methodsF));
+		this.methods = FileCollection.readMethods(new File(AbstractGenSirScriptClient.rootDir + subject + "/FunctionList/", methodsF));
 		mkOutDir();
 	}
 
@@ -49,7 +50,7 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			code.append("export OUTPUTSDIR=" + outputDir + method + "/\n");
 			code.append("export TRACESDIR=" + traceDir + method + "/\n");
 			
-			stmts(code, method);
+//			stmts(code, method);
 			code.append(startTimeCommand + "\n");
 			for(int j = 0; j < ROUNDS; j++){
 				stmts(code, method);
@@ -61,8 +62,8 @@ public class GenRunAdaptiveFineGrainedInstrumentScript extends AbstractGenRunScr
 			code.append("rm -rf $TRACESDIR/\n");
 			code.append("\n\n");
 			
-			printToFile(code.toString(), scriptDir, version + "_fg_a.sh");
-			code = new StringBuilder();
+//			printToFile(code.toString(), scriptDir, version + "_fg_a.sh");
+//			code = new StringBuilder();
 			
 		}
 		code.append("echo \"Average time in seconds: $((tTime/1000000000/" + num + ")) \nTime in milliseconds: $((tTime/1000000/" + num + "))\"" +

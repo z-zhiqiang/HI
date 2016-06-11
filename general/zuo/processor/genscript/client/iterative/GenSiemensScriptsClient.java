@@ -120,7 +120,7 @@ public class GenSiemensScriptsClient extends AbstractGenSirScriptClient {
 				{"space", "38"},
 //				{"tcas", "41"},
 //				{"totinfo", "23"},
-				{"replace", "32"},
+//				{"replace", "32"},
 //				{"printtokens", "7"},
 //				{"printtokens2", "10"},
 //				{"schedule", "9"},
@@ -186,9 +186,9 @@ public class GenSiemensScriptsClient extends AbstractGenSirScriptClient {
 				gs.genRunScript();
 				
 				
-//				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.version, gc.vsourceDir, gc.vaexecuteDir, 
-//						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", "full");
-//				gs.genRunScript();
+				gs = new GenRunAdaptiveFineGrainedInstrumentScript(gc.subject, gc.version, gc.vsourceDir, gc.vaexecuteDir, 
+						gc.vafoutputDir, gc.scriptDir, gc.vaftraceDir, gc.vexecuteDir + "failingInputs.array", gc.vexecuteDir + "passingInputs.array", gc.version + "_C_LESS_FIRST_1_average");
+				gs.genRunScript();
 			}
 			
 		}
@@ -205,9 +205,9 @@ public class GenSiemensScriptsClient extends AbstractGenSirScriptClient {
 		ga = new GenRunAllSampledInstrumentedScript(subject, scriptDir, subs, 10000);
 		ga.genRunAllScript();
 				
-//		//generate run all adaptive instrumented triggered version scripts
-//		ga = new GenRunAllAdaptiveInstrumentedScript(subject, scriptDir, subs);
-//		ga.genRunAllScript();
+		//generate run all adaptive instrumented triggered version scripts
+		ga = new GenRunAllAdaptiveInstrumentedScript(subject, scriptDir, subs);
+		ga.genRunAllScript();
 	}
 	
 

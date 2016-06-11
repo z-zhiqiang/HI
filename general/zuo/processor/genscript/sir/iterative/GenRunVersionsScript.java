@@ -31,15 +31,15 @@ public class GenRunVersionsScript extends AbstractGenRunScript {
 		code.append("rm ../outputs/*\n");
 		code.append("\n\n");
 		
-		code.append("rm $VERSIONSDIR/" + GenSirScriptClient.outCompFile + "\n");
-		code.append("echo script: " + subVersion + "\n");
-		for (Iterator<Integer> it = inputsCompMap.keySet().iterator(); it.hasNext();) {
-			int index = it.next();
-			code.append(runinfo + index + "\"\n");// running info
-			code.append(inputsCompMap.get(index).replace(EXE, "$VERSIONSDIR/" + version + ".exe ").replace(SUBV, version + "/" + subVersion));//executables
-			code.append("\n");
-		}
-		code.append("mv ../outputs/* " + outputDir + "\n");
+//		code.append("rm $VERSIONSDIR/" + GenSirScriptClient.outCompFile + "\n");
+//		code.append("echo script: " + subVersion + "\n");
+//		for (Iterator<Integer> it = inputsCompMap.keySet().iterator(); it.hasNext();) {
+//			int index = it.next();
+//			code.append(runinfo + index + "\"\n");// running info
+//			code.append(inputsCompMap.get(index).replace(EXE, "$VERSIONSDIR/" + version + ".exe ").replace(SUBV, version + "/" + subVersion));//executables
+//			code.append("\n");
+//		}
+//		code.append("mv ../outputs/* " + outputDir + "\n");
 		printToFile(code.toString(), scriptDir, version + "_" + subVersion + ".sh");
 		
 	}
