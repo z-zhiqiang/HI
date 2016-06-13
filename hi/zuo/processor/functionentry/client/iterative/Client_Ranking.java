@@ -79,11 +79,15 @@ public class Client_Ranking {
 				return new Integer(Integer.parseInt(arg0.getName().substring(1))).compareTo(new Integer(Integer.parseInt(arg1.getName().substring(1))));
 			}});
 		for(File version: versions){
+			if(!version.getName().equals("v31")){
+				continue;
+			}
+			
 //			FileUtility.clearFiles(new File(version, "adaptive"));
 //			FileUtility.removeDirectory(new File(version, "adaptive"));
 			
 			String vi = version.getName();
-			System.out.println(vi);
+//			System.out.println(vi);
 			
 			FunctionEntrySites cSites = new FunctionEntrySites(new File(version, vi + "_c.sites"));
 			FunctionEntryProfile[] cProfiles = new FunctionEntryProfileReader(new File(rootDir, subject + "/traces/" + vi + "/coarse-grained"), cSites).readFunctionEntryProfiles();
@@ -106,7 +110,7 @@ public class Client_Ranking {
 				fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
 			}
 			SitesInfo sInfo = new SitesInfo(fSites);
-			FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
+//			FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(version, "adaptive"), "full"));
 			
 			//-------------------------------------------------------------------------------------------------------------
 			int totalPositive = 0;
@@ -191,7 +195,7 @@ public class Client_Ranking {
 					fProfiles = new PredicateProfileReader(fgProfilesFolder, fSites).readProfiles();
 				}
 				SitesInfo sInfo = new SitesInfo(fSites);
-				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
+//				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
 				//-------------------------------------------------------------------------------------------------------------
 				int totalPositive = 0;
@@ -244,6 +248,8 @@ public class Client_Ranking {
 		List<Object> convergenceResults = new ArrayList<Object>();
 		processImportanceCorrelationConvergence(ImportanceInfo, list, correlationData, correlationResults, convergenceResults, sInfo);
 
+		
+		vi = "space";
 		this.correlationDataMap.put(vi, correlationData);
 		this.correlationResultsMap.put(vi, correlationResults);
 		this.convergenceResultsMap.put(vi, convergenceResults);
@@ -466,10 +472,17 @@ public class Client_Ranking {
 			array.add((double) value.getPositive());
 			
 			assert(ImportanceInfo.containsKey(function));
-			PredicateImportanceInfoWithinFunction importanceInfo = ImportanceInfo.get(function);
-			array.add(importanceInfo.getMax_Importance());
-			array.add(importanceInfo.getMean_Importance());
-			array.add(importanceInfo.getMedian_Importance());
+			if(ImportanceInfo.containsKey(function)){
+				PredicateImportanceInfoWithinFunction importanceInfo = ImportanceInfo.get(function);
+				array.add(importanceInfo.getMax_Importance());
+				array.add(importanceInfo.getMean_Importance());
+				array.add(importanceInfo.getMedian_Importance());
+			}
+			else{
+				array.add(0.0d);
+				array.add(0.0d);
+				array.add(0.0d);
+			}
 			array.add(sInfo.getMap().get(function).getNumSites());
 			array.add(sInfo.getMap().get(function).getNumPredicates());
 			
@@ -735,14 +748,14 @@ public class Client_Ranking {
 
 	public static void main(String[] args) {
 		String[][] argvs = {
-				{"150", "bash", "2"},
-				{"363", "sed", "7"},
-				{"213", "gzip", "5"},
-				{"809", "grep", "5"},
+//				{"150", "bash", "2"},
+//				{"363", "sed", "7"},
+//				{"213", "gzip", "5"},
+//				{"809", "grep", "5"},
 				{"1248", "space", "38"},
 //				{"4130", "printtokens", "7"},
 //				{"4115", "printtokens2", "10"},
-				{"5542", "replace", "32"},
+//				{"5542", "replace", "32"},
 //				{"2650", "schedule", "9"},
 //				{"2710", "schedule2", "10"},
 //				{"1608", "tcas", "41"},

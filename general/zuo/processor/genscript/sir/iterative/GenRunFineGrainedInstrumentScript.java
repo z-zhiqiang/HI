@@ -30,9 +30,9 @@ public class GenRunFineGrainedInstrumentScript extends AbstractGenRunScript impl
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		
-		stmts(code);
+//		stmts(code);
 		code.append(startTimeCommand + "\n");
-		for(int j = 0; j < ROUNDS; j++){
+		for(int j = 0; j < ROUNDS_FG; j++){
 			stmts(code);
 		}
 		code.append(endTimeCommand + " >& " + outputDir + "time\n");

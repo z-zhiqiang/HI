@@ -12,7 +12,8 @@ import zuo.util.file.FileUtility;
 
 public abstract class AbstractGenRunScript {
 	public static final int ROUNDS = 3;
-	
+	public static final int ROUNDS_FG = 1;
+
 	final String version;
 	final String subject;
 	final String compileCommand;

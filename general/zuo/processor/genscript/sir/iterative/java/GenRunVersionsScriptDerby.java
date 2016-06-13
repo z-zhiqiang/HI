@@ -24,7 +24,7 @@ public class GenRunVersionsScriptDerby extends AbstractGenRunScript {
 		code.append("echo script: " + subVersion + "\n");
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		
-//		stmts(code);
+		stmts(code);
 		code.append(startTimeCommand + "\n");
 		for (int j = 0; j < ROUNDS; j++) {
 			stmts(code);

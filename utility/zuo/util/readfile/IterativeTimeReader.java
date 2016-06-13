@@ -16,7 +16,7 @@ import zuo.util.file.FileCollection;
 public class IterativeTimeReader extends AbstractTimeReader {
 	
 	final static String[] timeFolders = {"outputs", "fine-grained-sampled-1", "fine-grained-sampled-100", "fine-grained-sampled-10000", 
-		"coarse-grained", "fine-grained", "fine-grained-adaptive"};
+		"coarse-grained", "fine-grained-adaptive"};
 
 	public IterativeTimeReader(File rootD, String sub) {
 		super(rootD, sub, timeFolders);
@@ -33,26 +33,26 @@ public class IterativeTimeReader extends AbstractTimeReader {
 			results.add(time);
 			System.out.print(time + "\t");
 		}
-		System.out.print("\t");
-		for(int i = 0; i < Score.values().length; i++){
-			for(int j = 0; j < Order.values().length; j++){
-				String mode = verName + "_" + Score.values()[i] + "_" + Order.values()[j];
-				int time = 0;
-//				time = readModeAverageTime(new File(subVersionFolder, "fine-grained-adaptive"), new File(new File(versionFolder.getParentFile(), "FunctionList"), mode + "_local_average"));
-				results.add(time);
-				System.out.print(time + "\t");
-			}
-		}
-		System.out.print("\t");
-		for(int i = 0; i < Score.values().length; i++){
-			for(int j = 0; j < Order.values().length; j++){
-				String mode = verName + "_" + Score.values()[i] + "_" + Order.values()[j];
-				int time = 0;
-//				time = readModeAverageTime(new File(subVersionFolder, "fine-grained-adaptive"), new File(new File(versionFolder.getParentFile(), "FunctionList"), mode + "_1_average"));
-				results.add(time);
-				System.out.print(time + "\t");
-			}
-		}
+//		System.out.print("\t");
+//		for(int i = 0; i < Score.values().length; i++){
+//			for(int j = 0; j < Order.values().length; j++){
+//				String mode = verName + "_" + Score.values()[i] + "_" + Order.values()[j];
+//				int time = 0;
+////				time = readModeAverageTime(new File(subVersionFolder, "fine-grained-adaptive"), new File(new File(versionFolder.getParentFile(), "FunctionList"), mode + "_local_average"));
+//				results.add(time);
+//				System.out.print(time + "\t");
+//			}
+//		}
+//		System.out.print("\t");
+//		for(int i = 0; i < Score.values().length; i++){
+//			for(int j = 0; j < Order.values().length; j++){
+//				String mode = verName + "_" + Score.values()[i] + "_" + Order.values()[j];
+//				int time = 0;
+////				time = readModeAverageTime(new File(subVersionFolder, "fine-grained-adaptive"), new File(new File(versionFolder.getParentFile(), "FunctionList"), mode + "_1_average"));
+//				results.add(time);
+//				System.out.print(time + "\t");
+//			}
+//		}
 		System.out.println();
 		
 		this.timeResultsMap.put(verName, results);
@@ -69,24 +69,24 @@ public class IterativeTimeReader extends AbstractTimeReader {
 			results.add(time);
 			System.out.print(time + "\t");
 		}
-		System.out.print("\t");
-		for(int i = 0; i < Score.values().length; i++){
-			for(int j = 0; j < Order.values().length; j++){
-				String mode = verName + "_" + Score.values()[i] + "_" + Order.values()[j];
-				int time = readModeAverageTime(new File(versionFolder, "fine-grained-adaptive"), new File(new File(versionFolder.getParentFile(), "FunctionList"), mode + "_local_average"));
-				results.add(time);
-				System.out.print(time + "\t");
-			}
-		}
-		System.out.print("\t");
-		for(int i = 0; i < Score.values().length; i++){
-			for(int j = 0; j < Order.values().length; j++){
-				String mode = verName + "_" + Score.values()[i] + "_" + Order.values()[j];
-				int time = readModeAverageTime(new File(versionFolder, "fine-grained-adaptive"), new File(new File(versionFolder.getParentFile(), "FunctionList"), mode + "_1_average"));
-				results.add(time);
-				System.out.print(time + "\t");
-			}
-		}
+//		System.out.print("\t");
+//		for(int i = 0; i < Score.values().length; i++){
+//			for(int j = 0; j < Order.values().length; j++){
+//				String mode = verName + "_" + Score.values()[i] + "_" + Order.values()[j];
+//				int time = readModeAverageTime(new File(versionFolder, "fine-grained-adaptive"), new File(new File(versionFolder.getParentFile(), "FunctionList"), mode + "_local_average"));
+//				results.add(time);
+//				System.out.print(time + "\t");
+//			}
+//		}
+//		System.out.print("\t");
+//		for(int i = 0; i < Score.values().length; i++){
+//			for(int j = 0; j < Order.values().length; j++){
+//				String mode = verName + "_" + Score.values()[i] + "_" + Order.values()[j];
+//				int time = readModeAverageTime(new File(versionFolder, "fine-grained-adaptive"), new File(new File(versionFolder.getParentFile(), "FunctionList"), mode + "_1_average"));
+//				results.add(time);
+//				System.out.print(time + "\t");
+//			}
+//		}
 		System.out.println();
 		
 		this.timeResultsMap.put(verName, results);
@@ -117,7 +117,7 @@ public class IterativeTimeReader extends AbstractTimeReader {
 		Row row2 = sheet.createRow(rownum++);
 		int cellnum2 = 0;
 		
-		String[] titles = {"outputs", "s1", "s100", "s10000", "cg", "fg", "iterative"};
+		String[] titles = {"outputs", "s1", "s100", "s10000", "cg", "iterative"};
 		String[] iterativetitles = {"local", "top_1"};
 		
 		Cell cell0 = row0.createCell(cellnum0++);
@@ -136,18 +136,18 @@ public class IterativeTimeReader extends AbstractTimeReader {
 			cell2.setCellValue(titles[i]);
 		}
 		
-		for(int m = 0; m < iterativetitles.length; m++){
-			for(int i = 0; i < Score.values().length; i++){
-				for(int j = 0; j < Order.values().length; j++){
-					cell0 = row0.createCell(cellnum0++);
-					cell0.setCellValue(iterativetitles[m]);
-					cell1 = row1.createCell(cellnum1++);
-					cell1.setCellValue(Score.values()[i].toString());
-					cell2 = row2.createCell(cellnum2++);
-					cell2.setCellValue(Order.values()[j].toString());
-				}
-			}
-		}
+//		for(int m = 0; m < iterativetitles.length; m++){
+//			for(int i = 0; i < Score.values().length; i++){
+//				for(int j = 0; j < Order.values().length; j++){
+//					cell0 = row0.createCell(cellnum0++);
+//					cell0.setCellValue(iterativetitles[m]);
+//					cell1 = row1.createCell(cellnum1++);
+//					cell1.setCellValue(Score.values()[i].toString());
+//					cell2 = row2.createCell(cellnum2++);
+//					cell2.setCellValue(Order.values()[j].toString());
+//				}
+//			}
+//		}
 		
 		return cellnum0;
 	}

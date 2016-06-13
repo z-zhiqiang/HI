@@ -31,7 +31,7 @@ public class GenRunCoarseGrainedInstrumentScriptDerby extends AbstractGenRunScri
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		code.append("rm -f " + traceDir + "/*\n");
 		
-//		stmts(code);
+		stmts(code);
 		code.append(startTimeCommand + "\n");
 		for(int j = 0; j < ROUNDS; j++){
 			stmts(code);

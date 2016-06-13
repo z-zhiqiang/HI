@@ -122,7 +122,7 @@ public class JavaClient_Ranking {
 				SitesInfo sInfo = new SitesInfo(fSites);
 				
 				//write out methods list
-				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
+//				FileCollection.writeCollection(sInfo.getMap().keySet(), new File(new File(subversion, "adaptive"), "full"));
 				
 				//-------------------------------------------------------------------------------------------------------------
 				int totalPositive = 0;
@@ -397,10 +397,17 @@ public class JavaClient_Ranking {
 			array.add((double) value.getPositive());
 			
 			assert(ImportanceInfo.containsKey(function));
-			PredicateImportanceInfoWithinFunction importanceInfo = ImportanceInfo.get(function);
-			array.add(importanceInfo.getMax_Importance());
-			array.add(importanceInfo.getMean_Importance());
-			array.add(importanceInfo.getMedian_Importance());
+			if(ImportanceInfo.containsKey(function)){
+				PredicateImportanceInfoWithinFunction importanceInfo = ImportanceInfo.get(function);
+				array.add(importanceInfo.getMax_Importance());
+				array.add(importanceInfo.getMean_Importance());
+				array.add(importanceInfo.getMedian_Importance());
+			}
+			else{
+				array.add(0.0d);
+				array.add(0.0d);
+				array.add(0.0d);
+			}
 			array.add(sInfo.getMap().get(function).getNumSites());
 			array.add(sInfo.getMap().get(function).getNumPredicates());
 			

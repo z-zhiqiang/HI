@@ -32,7 +32,7 @@ public class GenRunSampledFineGrainedInstrumentScriptDerby extends AbstractGenRu
 		code.append("export VERSIONSDIR=" + executeDir + "\n");
 		code.append("export TRACESDIR=" + traceDir + "\n");
 		
-//		stmts(code);
+		stmts(code);
 		code.append(startTimeCommand + "\n");
 		for(int j = 0; j < ROUNDS; j++){
 			stmts(code);
