@@ -42,14 +42,12 @@ import zuo.processor.split.PredicateSplittingSiteProfile;
 import zuo.util.file.FileCollection;
 import zuo.util.file.FileUtil;
 
-public class Client {
+public class CClient {
 	final File rootDir;
 	final String subject;
 	final File consoleFolder;
 	
 	final int round;
-	final int startVersion;
-	final int endVersion;
 	
 	final int[] ks;
 	final int start;
@@ -58,18 +56,16 @@ public class Client {
 	final Map<String, int[]> cResutlsMap;
 	
 	
-	public Client(int[] ks, File rootDir, String subject, File consoleFolder, int round, final int start, int startV, int endV) {
+	public CClient(int[] ks, File rootDir, String subject, File consoleFolder) {
 		this.ks = ks;
 
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
 		
-		this.round = round;
-		this.start = start;
+		this.round = 1;
+		this.start = 10;
 
-		this.startVersion = startV;
-		this.endVersion = endV;
 		
 		this.statisticsMap = new LinkedHashMap<String, Statistic[][]>();
 		this.cResutlsMap = new LinkedHashMap<String, int[]>();
@@ -84,7 +80,8 @@ public class Client {
 			@Override
 			public boolean accept(File dir, String name) {
 				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length >= 10) 
-						&& Integer.parseInt(name.substring(1)) >= startVersion && Integer.parseInt(name.substring(1)) <= endVersion;
+//						&& Integer.parseInt(name.substring(1)) >= startVersion && Integer.parseInt(name.substring(1)) <= endVersion
+						;
 			}});
 		Arrays.sort(versions, new Comparator<File>(){
 
@@ -211,11 +208,11 @@ public class Client {
 		}
 		
 		//print out the final results
-		printReadableResultsByMode();
+//		printReadableResultsByMode();
 		printResultsByModeToExcel();
-		printReadableResultsByFlag();
-		printResultsByFlagToExcel();
-		printOutMethodsListByMode();
+//		printReadableResultsByFlag();
+//		printResultsByFlagToExcel();
+//		printOutMethodsListByMode();
 	}
 
 
@@ -227,7 +224,8 @@ public class Client {
 			@Override
 			public boolean accept(File dir, String name) {
 				return Pattern.matches("v[0-9]*", name) 
-						&& Integer.parseInt(name.substring(1)) >= startVersion && Integer.parseInt(name.substring(1)) <= endVersion;
+//						&& Integer.parseInt(name.substring(1)) >= startVersion && Integer.parseInt(name.substring(1)) <= endVersion
+						;
 			}});
 		Arrays.sort(versions, new Comparator<File>(){
 
@@ -373,11 +371,11 @@ public class Client {
 			}
 		}
 		
-		printReadableResultsByMode();
+//		printReadableResultsByMode();
 		printResultsByModeToExcel();
-		printReadableResultsByFlag();
-		printResultsByFlagToExcel();
-		printOutMethodsListByMode();
+//		printReadableResultsByFlag();
+//		printResultsByFlagToExcel();
+//		printOutMethodsListByMode();
 	}
 
 	public static boolean needRefine(InstrumentationSites fSites, Set<String> functions) {
@@ -456,205 +454,7 @@ public class Client {
 		}
 	}
 	
-	private void printResultsByFlagToExcel() {
-		// TODO Auto-generated method stub
-		//Blank workbook
-        XSSFWorkbook workbook = new XSSFWorkbook(); 
-        //Create a blank sheet
-        XSSFSheet sheet = workbook.createSheet("Data By Flag");
-        
-        //add title: the first row
-        addTitleRowByFlag(sheet);
-        
-        //add content
-        int rownum = sheet.getPhysicalNumberOfRows();
-		for(String version: this.cResutlsMap.keySet()){
-			Row row = sheet.createRow(rownum++);
-			int cellnum = 0;
-			
-			Cell cell = row.createCell(cellnum++);
-			cell.setCellValue(version);
-			
-			int[] cResult = this.cResutlsMap.get(version);
-			for(int index = 0; index < cResult.length; index++){
-				cell = row.createCell(cellnum++);
-				cell.setCellValue(cResult[index]);
-			}
-			
-			Statistic[][] statistics = this.statisticsMap.get(version);
-			for(int i = 0; i < statistics.length; i++){
-				for(int j = 0; j < statistics[i].length; j++){
-					statistics[i][j].getlCFlagStatistics().incertOneFlagStatisticToExcel(row, this.round);
-				}
-			}
-			for(int i = 0; i < statistics.length; i++){
-				for(int j = 0; j < statistics[i].length; j++){
-					statistics[i][j].getgCFlagStatistics().incertOneFlagStatisticToExcel(row, this.round);
-				}
-			}
-			for(int k: ks){
-				for(int i = 0; i < statistics.length; i++){
-					for(int j = 0; j < statistics[i].length; j++){
-						statistics[i][j].getpFlagStatisticsMap().get(k).incertOneFlagStatisticToExcel(row, this.round);
-					}
-				}
-			}
-		}
-		
-		try {
-			if(!consoleFolder.exists()){
-				consoleFolder.mkdirs();
-			}
-			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + "_v" + this.startVersion + "-v" + this.endVersion + "_f.xlsx"));
-			workbook.write(out);
-			out.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-
-	private void addTitleRowByFlag(XSSFSheet sheet) {
-		// TODO Auto-generated method stub
-		int rownum = sheet.getPhysicalNumberOfRows();
-		
-		Row row0 = sheet.createRow(rownum++);
-		int cellnum0 = 0;
-		Row row1 = sheet.createRow(rownum++);
-		int cellnum1 = 0;
-		Row row2 = sheet.createRow(rownum++);
-		int cellnum2 = 0;
-		Row row3 = sheet.createRow(rownum++);
-		int cellnum3 = 0;
-		
-		Cell cell3 = row3.createCell(cellnum3++);
-		cell3.setCellValue(" ");
-		cell3 = row3.createCell(cellnum3++);
-		cell3.setCellValue("methods");
-		cell3 = row3.createCell(cellnum3++);
-		cell3.setCellValue("sites");
-		cell3 = row3.createCell(cellnum3++);
-		cell3.setCellValue("predicates");
-		for(int i = 0; i < 4; i++){
-			Cell cell0 = row0.createCell(cellnum0++);
-			cell0.setCellValue(" ");
-			Cell cell1 = row1.createCell(cellnum1++);
-			cell1.setCellValue(" ");
-			Cell cell2 = row2.createCell(cellnum2++);
-			cell2.setCellValue(" ");
-		}
-		
-		
-		List<String> flags = new ArrayList<String>();
-		flags.add("Local");
-		flags.add("Global");
-		
-		for(int q = 0; q < 2; q++){
-			String flag = flags.get(q);
-			for(int i = 0; i < Score.values().length; i++){
-				Score score = Score.values()[i];
-				for(int j = 0; j < Order.values().length; j++){
-					Order order = Order.values()[j];
-					
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("rounds#");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("best");
-					
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bs%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bp%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bi");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bas");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bap");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bafp");
-					
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("as%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("ap%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("ai");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("aas");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("aap");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("aafp");
-					
-					for(int p = 0; p < 14; p++){
-						Cell cell0 = row0.createCell(cellnum0++);
-						cell0.setCellValue(flag);
-						Cell cell1 = row1.createCell(cellnum1++);
-						cell1.setCellValue(String.valueOf(score));
-						Cell cell2 = row2.createCell(cellnum2++);
-						cell2.setCellValue(String.valueOf(order));
-					}
-				}
-			}
-		}
-		//for prune case
-		for(int q = 0; q < ks.length; q++){
-			String flag = "Top " + ks[q];
-			for(int i = 0; i < Score.values().length; i++){
-				Score score = Score.values()[i];
-				for(int j = 0; j < Order.values().length; j++){
-					Order order = Order.values()[j];
-					
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("roundsCI2#");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("roundsCI0#");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("rounds#");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("best");
-					
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bs%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bp%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bi");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bas");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bap");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bafp");
-					
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("as%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("ap%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("ai");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("aas");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("aap");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("aafp");
-					
-					for(int p = 0; p < 16; p++){
-						Cell cell0 = row0.createCell(cellnum0++);
-						cell0.setCellValue(flag);
-						Cell cell1 = row1.createCell(cellnum1++);
-						cell1.setCellValue(String.valueOf(score));
-						Cell cell2 = row2.createCell(cellnum2++);
-						cell2.setCellValue(String.valueOf(order));
-					}
-				}
-			}
-		}
-	}
-
+	
 
 	private void printResultsByModeToExcel() {
 		// TODO Auto-generated method stub
@@ -697,7 +497,7 @@ public class Client {
 				consoleFolder.mkdirs();
 			}
 			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + "_v" + this.startVersion + "-v" + this.endVersion + "_m.xlsx"));
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_m.xlsx"));
 			workbook.write(out);
 			out.close();
 		} catch (Exception e) {
@@ -842,112 +642,6 @@ public class Client {
 		}
 	}
 
-
-	private void printReadableResultsByFlag() {
-		// TODO Auto-generated method stub
-		PrintWriter cWriter = null;
-		try {
-			if(!consoleFolder.exists()){
-				consoleFolder.mkdirs();
-			}
-			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + "_v" + this.startVersion + "-v" + this.endVersion + ".ftxt"))));
-
-			for(String version: this.cResutlsMap.keySet()){
-				int[] cResult = this.cResutlsMap.get(version);
-				cWriter.println(version);
-				cWriter.println("==============================================================");
-				cWriter.println(String.format("%-20s", "methods:" + cResult[0])
-						+ String.format("%-20s", "sites:" + cResult[1])
-						+ String.format("%-20s", "predicates:" + cResult[2]));
-				cWriter.println();
-				cWriter.println("==============================================================");
-				
-				
-				Statistic[][] statistics = this.statisticsMap.get(version);
-				cWriter.println("Local Consistency:");
-				cWriter.println("--------------------------------------------------------------");
-				for(int i = 0; i < statistics.length; i++){
-					for(int j = 0; j < statistics[i].length; j++){
-						String mode = "<" + Score.values()[i] + "," + Order.values()[j] + ">";
-						cWriter.println(String.format("%-25s", mode) + statistics[i][j].getlCFlagStatistics().toString());
-					}
-					cWriter.println();
-				}
-				
-				cWriter.println("Global Consistency:");
-				cWriter.println("--------------------------------------------------------------");
-				for(int i = 0; i < statistics.length; i++){
-					for(int j = 0; j < statistics[i].length; j++){
-						String mode = "<" + Score.values()[i] + "," + Order.values()[j] + ">";
-						cWriter.println(String.format("%-25s", mode) + statistics[i][j].getgCFlagStatistics().toString());
-					}
-					cWriter.println();
-				}
-				
-				for(int k: ks){
-					cWriter.println("Prune " + k + " Consistency:");
-					cWriter.println("--------------------------------------------------------------");
-					for(int i = 0; i < statistics.length; i++){
-						for(int j = 0; j < statistics[i].length; j++){
-							String mode = "<" + Score.values()[i] + "," + Order.values()[j] + ">";
-							cWriter.println(String.format("%-25s", mode) + statistics[i][j].getpFlagStatisticsMap().get(k).toString());
-						}
-						cWriter.println();
-					}
-				}
-			}
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		finally{
-			if(cWriter != null){
-				cWriter.close();
-			}
-		}
-	}
-
-	private void printReadableResultsByMode() {
-		// TODO Auto-generated method stub
-		PrintWriter cWriter = null;
-		try {
-			if(!consoleFolder.exists()){
-				consoleFolder.mkdirs();
-			}
-			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + "_v" + this.startVersion + "-v" + this.endVersion + ".mtxt"))));
-			
-			for(String version: this.cResutlsMap.keySet()){
-				int[] cResult = this.cResutlsMap.get(version);
-				cWriter.println(version);
-				cWriter.println("==============================================================");
-				cWriter.println(String.format("%-20s", "methods:" + cResult[0])
-						+ String.format("%-20s", "sites:" + cResult[1])
-						+ String.format("%-20s", "predicates:" + cResult[2]));
-				cWriter.println();
-				cWriter.println("==============================================================");
-				
-				Statistic[][] statistics = this.statisticsMap.get(version);
-				for(int i = 0; i < statistics.length; i++){
-					for(int j = 0; j < statistics[i].length; j++){
-						String mode = "<" + Score.values()[i] + "," + Order.values()[j] + ">";
-						cWriter.println(mode);
-						cWriter.println("--------------------------------------------------------------");
-						cWriter.println(statistics[i][j].toString());
-						cWriter.println();
-					}
-				}
-			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		finally{
-			if(cWriter != null){
-				cWriter.close();
-			}
-		}
-	}
-
 	
 	public static void main(String[] args) {
 		String[][] argvs = {
@@ -958,38 +652,30 @@ public class Client {
 				{"1248", "space", "38"},
 //				{"4130", "printtokens", "7"},
 //				{"4115", "printtokens2", "10"},
-				{"5542", "replace", "32"},
+//				{"5542", "replace", "32"},
 //				{"2650", "schedule", "9"},
 //				{"2710", "schedule2", "10"},
 //				{"1608", "tcas", "41"},
 //				{"1052", "totinfo", "23"}
 		};
 		
-		if(args.length != 8 && args.length != 5){
+		if(args.length != 3){
 			System.out.println("The characteristics of subjects are as follows:");
 			for(int i = 0; i < argvs.length; i++){
 				System.out.println(String.format("%-20s", argvs[i][1]) + argvs[i][0]);
 			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir round start([1, 10]) startVersion endVersion" +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir round start([1, 10])");
+			System.err.println("\nUsage: rootDir subject consoleDir");
 			return;
 		}
 		int[] ks = {1, 3, 5, 10};
 		long time0 = System.currentTimeMillis();
-		if(args.length == 8){
-			Client c = new Client(ks, new File(args[1]), args[2], new File(new File(args[3]), args[2] + "_" + args[4] + "_" + args[5] + "_v" + args[6] + "-v" + args[7]), Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]), Integer.parseInt(args[7]));
-			if(Integer.parseInt(args[0]) == 0){
+		if(args.length == 3){
+			CClient c = new CClient(ks, new File(args[0]), args[1], new File(new File(args[2]), args[1]));
+			if(args[1].equals("space")){
 				c.runSiemens();
 			}
-			else if(Integer.parseInt(args[0]) == 1){
+			else{
 				c.runSir();
-			}
-		}
-		else if(args.length == 5){
-			assert(Integer.parseInt(args[0]) == 0);
-			for(int i = 5; i < argvs.length; i++){
-				Client c = new Client(ks, new File(args[1]), argvs[i][1], new File(new File(args[2]), argvs[i][1] + "_" + args[3] + "_" + args[4] + "_v1-v" + argvs[i][2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), 1, Integer.parseInt(argvs[i][2]));
-				c.runSiemens();
 			}
 		}
 		

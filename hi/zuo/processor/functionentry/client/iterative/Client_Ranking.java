@@ -40,21 +40,15 @@ public class Client_Ranking {
 	final String subject;
 	final File consoleFolder;
 	
-	final int startVersion;
-	final int endVersion;
-	
 	private final Map<String, Map<String, List<Object>>> correlationDataMap;
 	private final Map<String, List<Object>> correlationResultsMap;
 	private final Map<String, List<Object>> convergenceResultsMap;
 	
 	
-	public Client_Ranking(File rootDir, String subject, File consoleFolder, int startV, int endV) {
+	public Client_Ranking(File rootDir, String subject, File consoleFolder) {
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
-		
-		this.startVersion = startV;
-		this.endVersion = endV;
 		
 		this.correlationDataMap = new LinkedHashMap<String, Map<String, List<Object>>>();
 		this.correlationResultsMap = new LinkedHashMap<String, List<Object>>();
@@ -70,7 +64,8 @@ public class Client_Ranking {
 			@Override
 			public boolean accept(File dir, String name) {
 				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length >= 10) 
-						&& Integer.parseInt(name.substring(1)) >= startVersion && Integer.parseInt(name.substring(1)) <= endVersion;
+//						&& Integer.parseInt(name.substring(1)) >= startVersion && Integer.parseInt(name.substring(1)) <= endVersion
+						;
 			}});
 		Arrays.sort(versions, new Comparator<File>(){
 
@@ -97,7 +92,7 @@ public class Client_Ranking {
 			File fgProfilesFolder = new File(rootDir, subject + "/traces/" + vi + "/fine-grained");
 			PredicateProfile[] fProfiles = null;
 			
-			if(Client.needRefine(fSites, cSites.getFunctions())){
+			if(CClient.needRefine(fSites, cSites.getFunctions())){
 				File refineProfilesFolder = new File(fgProfilesFolder.getParentFile(), "refine");
 				File refineSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'r'));
 				PredicateSplittingSiteProfile refineSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, refineSitesFile, refineProfilesFolder, cSites.getFunctions());
@@ -145,7 +140,8 @@ public class Client_Ranking {
 			@Override
 			public boolean accept(File dir, String name) {
 				return Pattern.matches("v[0-9]*", name) 
-						&& Integer.parseInt(name.substring(1)) >= startVersion && Integer.parseInt(name.substring(1)) <= endVersion;
+//						&& Integer.parseInt(name.substring(1)) >= startVersion && Integer.parseInt(name.substring(1)) <= endVersion
+						;
 			}});
 		Arrays.sort(versions, new Comparator<File>(){
 
@@ -182,7 +178,7 @@ public class Client_Ranking {
 				File fgProfilesFolder = new File(rootDir, subject + "/traces/" + version.getName() + "/" + subversion.getName() + "/fine-grained");
 				PredicateProfile[] fProfiles = null;
 				
-				if(Client.needRefine(fSites, cSites.getFunctions())){
+				if(CClient.needRefine(fSites, cSites.getFunctions())){
 					File refineProfilesFolder = new File(fgProfilesFolder.getParentFile(), "refine");
 					File refineSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'r'));
 					PredicateSplittingSiteProfile refineSplit = new PredicateSplittingSiteProfile(fgSitesFile, fgProfilesFolder, refineSitesFile, refineProfilesFolder, cSites.getFunctions());
@@ -762,30 +758,22 @@ public class Client_Ranking {
 //				{"1052", "totinfo", "23"},
 		};
 		
-		if(args.length != 6 && args.length != 3){
+		if(args.length != 3){
 			System.out.println("The characteristics of subjects are as follows:");
 			for(int i = 0; i < argvs.length; i++){
 				System.out.println(String.format("%-20s", argvs[i][0]) + String.format("%-20s", argvs[i][1]) + argvs[i][2]);
 			}
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir startVersion endVersion" +
-					"\nor Usage: subjectMode(0:Siemens; 1:Sir) rootDir consoleDir");
+			System.err.println("\nUsage: rootDir subject consoleDir");
 			return;
 		}
 		long time0 = System.currentTimeMillis();
-		if(args.length == 6){
-			Client_Ranking c = new Client_Ranking(new File(args[1]), args[2], new File(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
-			if(Integer.parseInt(args[0]) == 0){
+		if(args.length == 3){
+			Client_Ranking c = new Client_Ranking(new File(args[0]), args[1], new File(args[2]));
+			if(args[1].equals("space")){
 				c.runSiemens();
 			}
-			else if(Integer.parseInt(args[0]) == 1){
+			else{
 				c.runSir();
-			}
-		}
-		else if(args.length == 3){
-			assert(Integer.parseInt(args[0]) == 0);
-			for(int i = 5; i < argvs.length; i++){
-				Client_Ranking c = new Client_Ranking(new File(args[1]), argvs[i][1], new File(args[2]), 1, Integer.parseInt(argvs[i][2]));
-				c.runSiemens();
 			}
 		}
 		

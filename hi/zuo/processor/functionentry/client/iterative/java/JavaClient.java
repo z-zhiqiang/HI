@@ -53,11 +53,6 @@ public class JavaClient {
 	final File consoleFolder;
 	
 	final int round;
-	final int startVersion;
-	final int endVersion;
-	
-	final int startSubversion;
-	final int endSubversion;
 	
 	final int[] ks;
 	final int start;
@@ -67,23 +62,17 @@ public class JavaClient {
 	final Map<String, int[]> cResutlsMap;
 	
 	
-	public JavaClient(int[] ks, File rootDir, String subject, File consoleFolder, int round, final int start, int offset, int startV, int endV, int startsubV, int endsubV) {
+	public JavaClient(int[] ks, File rootDir, String subject, File consoleFolder) {
 		this.ks = ks;
 
 		this.rootDir = rootDir;
 		this.subject = subject;
 		this.consoleFolder = consoleFolder;
 		
-		this.round = round;
-		this.start = start;
-		this.offset = offset;
+		this.round = 1;
+		this.start = 10;
+		this.offset = 0;
 
-		this.startVersion = startV;
-		this.endVersion = endV;
-		
-		this.startSubversion = startsubV;
-		this.endSubversion = endsubV;
-		
 		this.statisticsMap = new LinkedHashMap<String, Statistic[][]>();
 		this.cResutlsMap = new LinkedHashMap<String, int[]>();
 	}
@@ -98,7 +87,8 @@ public class JavaClient {
 			@Override
 			public boolean accept(File dir, String name) {
 				return Pattern.matches("v[0-9]*", name) 
-						&& Integer.parseInt(name.substring(1)) >= startVersion && Integer.parseInt(name.substring(1)) <= endVersion;
+//						&& Integer.parseInt(name.substring(1)) >= startVersion && Integer.parseInt(name.substring(1)) <= endVersion
+						;
 			}});
 		Arrays.sort(versions, new Comparator<File>(){
 
@@ -112,7 +102,8 @@ public class JavaClient {
 				@Override
 				public boolean accept(File dir, String name) {
 					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= 9)
-							&& Integer.parseInt(name.substring(4)) >= startSubversion && Integer.parseInt(name.substring(4)) <= endSubversion;
+//							&& Integer.parseInt(name.substring(4)) >= startSubversion && Integer.parseInt(name.substring(4)) <= endSubversion
+							;
 				}});
 			Arrays.sort(subversions, new Comparator<File>(){
 
@@ -258,11 +249,11 @@ public class JavaClient {
 			}
 		}
 		
-		printReadableResultsByMode();
+//		printReadableResultsByMode();
 		printResultsByModeToExcel();
-		printReadableResultsByFlag();
-		printResultsByFlagToExcel();
-		printOutMethodsListByMode();
+//		printReadableResultsByFlag();
+//		printResultsByFlagToExcel();
+//		printOutMethodsListByMode();
 	}
 
 	/**
@@ -408,204 +399,6 @@ public class JavaClient {
 		}
 	}
 	
-	private void printResultsByFlagToExcel() {
-		// TODO Auto-generated method stub
-		//Blank workbook
-        XSSFWorkbook workbook = new XSSFWorkbook(); 
-        //Create a blank sheet
-        XSSFSheet sheet = workbook.createSheet("Data By Flag");
-        
-        //add title: the first row
-        addTitleRowByFlag(sheet);
-        
-        //add content
-        int rownum = sheet.getPhysicalNumberOfRows();
-		for(String version: this.cResutlsMap.keySet()){
-			Row row = sheet.createRow(rownum++);
-			int cellnum = 0;
-			
-			Cell cell = row.createCell(cellnum++);
-			cell.setCellValue(version);
-			
-			int[] cResult = this.cResutlsMap.get(version);
-			for(int index = 0; index < cResult.length; index++){
-				cell = row.createCell(cellnum++);
-				cell.setCellValue(cResult[index]);
-			}
-			
-			Statistic[][] statistics = this.statisticsMap.get(version);
-			for(int i = 0; i < statistics.length; i++){
-				for(int j = 0; j < statistics[i].length; j++){
-					statistics[i][j].getlCFlagStatistics().incertOneFlagStatisticToExcel(row, this.round);
-				}
-			}
-			for(int i = 0; i < statistics.length; i++){
-				for(int j = 0; j < statistics[i].length; j++){
-					statistics[i][j].getgCFlagStatistics().incertOneFlagStatisticToExcel(row, this.round);
-				}
-			}
-			for(int k: ks){
-				for(int i = 0; i < statistics.length; i++){
-					for(int j = 0; j < statistics[i].length; j++){
-						statistics[i][j].getpFlagStatisticsMap().get(k).incertOneFlagStatisticToExcel(row, this.round);
-					}
-				}
-			}
-		}
-		
-		try {
-			if(!consoleFolder.exists()){
-				consoleFolder.mkdirs();
-			}
-			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + "_v" + this.startVersion + "-v" + this.endVersion + "_f.xlsx"));
-			workbook.write(out);
-			out.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-
-	private void addTitleRowByFlag(XSSFSheet sheet) {
-		// TODO Auto-generated method stub
-		int rownum = sheet.getPhysicalNumberOfRows();
-		
-		Row row0 = sheet.createRow(rownum++);
-		int cellnum0 = 0;
-		Row row1 = sheet.createRow(rownum++);
-		int cellnum1 = 0;
-		Row row2 = sheet.createRow(rownum++);
-		int cellnum2 = 0;
-		Row row3 = sheet.createRow(rownum++);
-		int cellnum3 = 0;
-		
-		Cell cell3 = row3.createCell(cellnum3++);
-		cell3.setCellValue(" ");
-		cell3 = row3.createCell(cellnum3++);
-		cell3.setCellValue("methods");
-		cell3 = row3.createCell(cellnum3++);
-		cell3.setCellValue("sites");
-		cell3 = row3.createCell(cellnum3++);
-		cell3.setCellValue("predicates");
-		for(int i = 0; i < 4; i++){
-			Cell cell0 = row0.createCell(cellnum0++);
-			cell0.setCellValue(" ");
-			Cell cell1 = row1.createCell(cellnum1++);
-			cell1.setCellValue(" ");
-			Cell cell2 = row2.createCell(cellnum2++);
-			cell2.setCellValue(" ");
-		}
-		
-		
-		List<String> flags = new ArrayList<String>();
-		flags.add("Local");
-		flags.add("Global");
-		
-		for(int q = 0; q < 2; q++){
-			String flag = flags.get(q);
-			for(int i = 0; i < Score.values().length; i++){
-				Score score = Score.values()[i];
-				for(int j = 0; j < Order.values().length; j++){
-					Order order = Order.values()[j];
-					
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("rounds#");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("best");
-					
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bs%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bp%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bi");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bas");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bap");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bafp");
-					
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("as%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("ap%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("ai");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("aas");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("aap");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("aafp");
-					
-					for(int p = 0; p < 14; p++){
-						Cell cell0 = row0.createCell(cellnum0++);
-						cell0.setCellValue(flag);
-						Cell cell1 = row1.createCell(cellnum1++);
-						cell1.setCellValue(String.valueOf(score));
-						Cell cell2 = row2.createCell(cellnum2++);
-						cell2.setCellValue(String.valueOf(order));
-					}
-				}
-			}
-		}
-		//for prune case
-		for(int q = 0; q < ks.length; q++){
-			String flag = "Top " + ks[q];
-			for(int i = 0; i < Score.values().length; i++){
-				Score score = Score.values()[i];
-				for(int j = 0; j < Order.values().length; j++){
-					Order order = Order.values()[j];
-					
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("roundsCI2#");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("roundsCI0#");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("rounds#");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("best");
-					
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bs%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bp%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bi");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bas");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bap");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("bafp");
-					
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("as%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("ap%");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("ai");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("aas");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("aap");
-					cell3 = row3.createCell(cellnum3++);
-					cell3.setCellValue("aafp");
-					
-					for(int p = 0; p < 16; p++){
-						Cell cell0 = row0.createCell(cellnum0++);
-						cell0.setCellValue(flag);
-						Cell cell1 = row1.createCell(cellnum1++);
-						cell1.setCellValue(String.valueOf(score));
-						Cell cell2 = row2.createCell(cellnum2++);
-						cell2.setCellValue(String.valueOf(order));
-					}
-				}
-			}
-		}
-	}
 
 
 	private void printResultsByModeToExcel() {
@@ -649,7 +442,7 @@ public class JavaClient {
 				consoleFolder.mkdirs();
 			}
 			// Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + "_v" + this.startVersion + "-v" + this.endVersion + "_m.xlsx"));
+			FileOutputStream out = new FileOutputStream(new File(this.consoleFolder, this.subject + "_m.xlsx"));
 			workbook.write(out);
 			out.close();
 		} catch (Exception e) {
@@ -795,122 +588,17 @@ public class JavaClient {
 	}
 
 
-	private void printReadableResultsByFlag() {
-		// TODO Auto-generated method stub
-		PrintWriter cWriter = null;
-		try {
-			if(!consoleFolder.exists()){
-				consoleFolder.mkdirs();
-			}
-			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + "_v" + this.startVersion + "-v" + this.endVersion + ".ftxt"))));
-
-			for(String version: this.cResutlsMap.keySet()){
-				int[] cResult = this.cResutlsMap.get(version);
-				cWriter.println(version);
-				cWriter.println("==============================================================");
-				cWriter.println(String.format("%-20s", "methods:" + cResult[0])
-						+ String.format("%-20s", "sites:" + cResult[1])
-						+ String.format("%-20s", "predicates:" + cResult[2]));
-				cWriter.println();
-				cWriter.println("==============================================================");
-				
-				
-				Statistic[][] statistics = this.statisticsMap.get(version);
-				cWriter.println("Local Consistency:");
-				cWriter.println("--------------------------------------------------------------");
-				for(int i = 0; i < statistics.length; i++){
-					for(int j = 0; j < statistics[i].length; j++){
-						String mode = "<" + Score.values()[i] + "," + Order.values()[j] + ">";
-						cWriter.println(String.format("%-25s", mode) + statistics[i][j].getlCFlagStatistics().toString());
-					}
-					cWriter.println();
-				}
-				
-				cWriter.println("Global Consistency:");
-				cWriter.println("--------------------------------------------------------------");
-				for(int i = 0; i < statistics.length; i++){
-					for(int j = 0; j < statistics[i].length; j++){
-						String mode = "<" + Score.values()[i] + "," + Order.values()[j] + ">";
-						cWriter.println(String.format("%-25s", mode) + statistics[i][j].getgCFlagStatistics().toString());
-					}
-					cWriter.println();
-				}
-				
-				for(int k: ks){
-					cWriter.println("Prune " + k + " Consistency:");
-					cWriter.println("--------------------------------------------------------------");
-					for(int i = 0; i < statistics.length; i++){
-						for(int j = 0; j < statistics[i].length; j++){
-							String mode = "<" + Score.values()[i] + "," + Order.values()[j] + ">";
-							cWriter.println(String.format("%-25s", mode) + statistics[i][j].getpFlagStatisticsMap().get(k).toString());
-						}
-						cWriter.println();
-					}
-				}
-			}
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		finally{
-			if(cWriter != null){
-				cWriter.close();
-			}
-		}
-	}
-
-	private void printReadableResultsByMode() {
-		// TODO Auto-generated method stub
-		PrintWriter cWriter = null;
-		try {
-			if(!consoleFolder.exists()){
-				consoleFolder.mkdirs();
-			}
-			cWriter = new PrintWriter(new BufferedWriter(new FileWriter(new File(this.consoleFolder, this.subject + "_" + this.round + "_" + this.start + "_v" + this.startVersion + "-v" + this.endVersion + ".mtxt"))));
-			
-			for(String version: this.cResutlsMap.keySet()){
-				int[] cResult = this.cResutlsMap.get(version);
-				cWriter.println(version);
-				cWriter.println("==============================================================");
-				cWriter.println(String.format("%-20s", "methods:" + cResult[0])
-						+ String.format("%-20s", "sites:" + cResult[1])
-						+ String.format("%-20s", "predicates:" + cResult[2]));
-				cWriter.println();
-				cWriter.println("==============================================================");
-				
-				Statistic[][] statistics = this.statisticsMap.get(version);
-				for(int i = 0; i < statistics.length; i++){
-					for(int j = 0; j < statistics[i].length; j++){
-						String mode = "<" + Score.values()[i] + "," + Order.values()[j] + ">";
-						cWriter.println(mode);
-						cWriter.println("--------------------------------------------------------------");
-						cWriter.println(statistics[i][j].toString());
-						cWriter.println();
-					}
-				}
-			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		finally{
-			if(cWriter != null){
-				cWriter.close();
-			}
-		}
-	}
 
 	
 	public static void main(String[] args) {
-		if(args.length != 11){
-			System.err.println("\nUsage: subjectMode(0:Siemens; 1:Sir) rootDir subject consoleDir round start([1, 10]) offset([0, 10]) startVersion endVersion startSubVersion endSubVersion\n");
+		if(args.length != 3){
+			System.err.println("\nUsage: rootDir subject consoleDir\n");
 			return;
 		}
 		int[] ks = {1, 3, 5, 10};
 		long time0 = System.currentTimeMillis();
 
-		JavaClient c = new JavaClient(ks, new File(args[1]), args[2], new File(new File(args[3]), args[2] + "_" + args[4] + "_" + args[5] + "_" + args[6] + "_v" + args[7] + "-v" + args[8] + "_subv" + args[9] + "-subv" + args[10]), 
-				Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]), Integer.parseInt(args[7]), Integer.parseInt(args[8]), Integer.parseInt(args[9]), Integer.parseInt(args[10]));
+		JavaClient c = new JavaClient(ks, new File(args[0]), args[1], new File(new File(args[2]), args[1]));
 		c.runSir();
 		
 		long time1 = System.currentTimeMillis();

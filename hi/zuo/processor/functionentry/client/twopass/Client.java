@@ -321,7 +321,7 @@ public class Client {
 		FunctionEntrySites cgSites = new FunctionEntrySites(cgSitesFile);
 		
 		InstrumentationSites fSites = new InstrumentationSites(fgSitesFile);
-		if(zuo.processor.functionentry.client.iterative.Client.needRefine(fSites, cgSites.getFunctions())){
+		if(zuo.processor.functionentry.client.iterative.CClient.needRefine(fSites, cgSites.getFunctions())){
 			File refineProfilesFolder = new File(fgProfilesFolder.getParentFile(), "refine");
 			File refineSitesFile = new File(fgSitesFile.getParentFile(), fgSitesFile.getName().replace('f', 'r'));
 			System.out.println(refineSitesFile.getAbsolutePath());
