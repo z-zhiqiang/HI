@@ -65,7 +65,7 @@ public abstract class AbstractTimeReader {
 				@Override
 				public boolean accept(File dir, String name) {
 					// TODO Auto-generated method stub
-					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length == timeFolders.length);
+					return Pattern.matches("subv[0-9]*", name) && (new File(dir, name).listFiles().length >= timeFolders.length + 1);
 				}});
 			Arrays.sort(subversions, new Comparator<File>(){
 				@Override
@@ -87,7 +87,7 @@ public abstract class AbstractTimeReader {
 			@Override
 			public boolean accept(File dir, String name) {
 				// TODO Auto-generated method stub
-				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length == timeFolders.length);
+				return Pattern.matches("v[0-9]*", name) && (new File(dir, name).listFiles().length >= timeFolders.length);
 			}});
 		Arrays.sort(versions, new Comparator<File>(){
 			@Override
